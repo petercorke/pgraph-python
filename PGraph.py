@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 class PGraph(ABC):
 
     @abstractmethod
-    def add_node(self, coord=None, name=None):
+    def add_vertex(self, coord=None, name=None):
         pass
 
     # @abstractmethod
@@ -14,14 +14,14 @@ class PGraph(ABC):
     #     pass
 
     def __init__(self):
-        self._nodelist = []
-        self._nodedict = {}
+        self._vertexlist = []
+        self._vertexdict = {}
 
-    def new_node(self, node):
+    def new_vertex(self, node):
         if node.name is None:
-            node.name = f"#{len(self._nodelist)}"
-        self._nodelist.append(node)
-        self._nodedict[node.name] = node
+            node.name = f"#{len(self._vertexlist)}"
+        self._vertexlist.append(node)
+        self._vertexdict[node.name] = node
 
     def add_edge(self, v1, v2, **kwargs):
         v1 = self[v1]
@@ -36,7 +36,7 @@ class PGraph(ABC):
         :return: Number of vertices
         :rtype: int
         """
-        return len(self._nodedict)
+        return len(self._vertexdict)
 
     @property
     def nc(self):
@@ -81,9 +81,9 @@ class PGraph(ABC):
                 print(v)
         """
         if isinstance(i, int):
-            return self._nodelist[i]
+            return self._vertexlist[i]
         elif isinstance(i, str):
-            return self._nodedict[i]
+            return self._vertexdict[i]
         elif isinstance(i, Vertex):
             return i
 
@@ -118,7 +118,7 @@ class PGraph(ABC):
             if i < len(path) - 1:
                 e = path[i].edgeto(path[i+1])
                 self.highlight_edge(e, **kwargs)
-            self.highlight_node(path[i], **kwargs)
+            self.highlight_vertex(path[i], **kwargs)
         plt.show(block=block)
 
     def highlight_edge(self, edge, scale=1.5, color='r'):
@@ -126,7 +126,7 @@ class PGraph(ABC):
         p2 = edge.v2
         plt.plot([p1.x, p2.x], [p1.y, p2.y], color=color, linewidth=3 * scale)
 
-    def highlight_node(self, node, scale=1.5, color='r'):
+    def highlight_vertex(self, node, scale=1.5, color='r'):
         plt.plot(node.x, node.y, 'o', color=color, markersize=12 * scale)
 
     def dotfile(self, file=None):
@@ -252,19 +252,21 @@ class PGraph(ABC):
 
     def adjacency(self):
         """
-        %Pgraph.adjacency Adjacency matrix of graph
-        %
-        % A = G.adjacency() is a matrix (NxN) where element A(i,j) is the cost
-        % of moving from vertex i to vertex j.
-        %
-        % Notes::
-        % - Matrix is symmetric.
-        % - Eigenvalues of A are real and are known as the spectrum of the graph.
-        % - The element A(I,J) can be considered the number of walks of one
-        %   edge from vertex I to vertex J (either zero or one).  The element (I,J)
-        %   of A^N are the number of walks of length N from vertex I to vertex J.
-        %
-        % See also PGraph.degree, PGraph.incidence, PGraph.laplacian.
+        Adjacency matrix of graph
+        
+        ``g.adjacency()`` is a matrix (NxN) where N is the number of vertices.
+        Element A[i,j] is 1 if vertex i is connected to vertex j, else 0.
+        
+        :notes:
+        - vertices are numbered in their order of creation. A vertex index
+          can be resolved to a vertex reference by ``graph[i]``.
+        - Matrix is symmetric for an undirected graph
+        - Eigenvalues of A are real and are known as the spectrum of the graph.
+        - The element A[i,j] can be considered the number of walks of one
+          edge from vertex i to vertex j (either zero or one).  The element (i,j)
+          of A^N are the number of walks of length N from vertex i to vertex j.
+
+        :seealso: :func:`Laplacian`, :func:`incidence`, :func:`degree`
         """
         # create a dict mapping node to an id
         vdict = {}
@@ -279,12 +281,18 @@ class PGraph(ABC):
 
     def incidence(self):
         """
-        %Pgraph.degree Incidence matrix of graph
-        %
-        % IN = G.incidence() is a matrix (NxNE) where element IN(i,j) is
-        % non-zero if vertex id i is connected to edge id j.
-        %
-        % See also PGraph.adjacency, PGraph.degree, PGraph.laplacian.
+        Incidence matrix of graph
+        
+        ``g.incidence()`` is a matrix (NxE) where N is the number of vertices
+        and E is the number of edges.  Element (i,j) is 1 if vertex i is 
+        connected to edge  j.
+
+        :notes:
+        - vertices are numbered in their order of creation. A vertex index
+          can be resolved to a vertex reference by ``graph[i]``.
+        - edges are numbered in the order they appear in ``graph.edges()``.
+
+        :seealso: :func:`Laplacian`, :func:`adjacency`, :func:`degree`
         """
         edges = self.edges()
         I = np.zeros((self.n, len(edges)))
@@ -367,10 +375,10 @@ class PGraph(ABC):
             next._connectivitychange = True  
 
         # remove references from the graph
-        self._nodelist.remove(v)
-        for key, value in self._nodedict.items():
+        self._vertexlist.remove(v)
+        for key, value in self._vertexdict.items():
             if value is v:
-                del self._nodedict[key]
+                del self._vertexdict[key]
                 break
 
         v._edges = []  # remove all references to edges
@@ -478,22 +486,52 @@ class PGraph(ABC):
 
 class UGraph(PGraph):
 
-    def add_node(self, coord=None, name=None):
+    def add_vertex(self, coord=None, name=None):
+        """
+        Add vertex to undirected graph
+
+        :param coord: coordinate for an embedded graph, defaults to None
+        :type coord: array-like, optional
+        :param name: node name, defaults to "#i"
+        :type name: str, optional
+        :return: new vertex
+        :rtype: UVertex
+
+        - ``g.add_vertex()`` creates a new vertex with optional ``coord`` and
+          ``name``.
+        - ``g.add_vertex(v)`` takes an instance or subclass of UVertex and adds
+          it to the graph
+        """
         if isinstance(coord, UVertex):
             node = coord
         else:
             node = UVertex(coord, name)
-        super().new_node(node)
+        super().new_vertex(node)
         return node
 
 class DGraph(PGraph):
 
-    def add_node(self, coord=None, name=None):
+    def add_vertex(self, coord=None, name=None):
+        """
+        Add vertex to directed graph
+
+        :param coord: coordinate for an embedded graph, defaults to None
+        :type coord: array-like, optional
+        :param name: node name, defaults to "#i"
+        :type name: str, optional
+        :return: new vertex
+        :rtype: DVertex
+
+        - ``g.add_vertex()`` creates a new vertex with optional ``coord`` and
+          ``name``.
+        - ``g.add_vertex(v)`` takes an instance or subclass of DVertex and adds
+          it to the graph
+        """
         if isinstance(coord, DVertex):
             node = coord
         else:
             node = DVertex(coord, name)
-        super().new_node(node)
+        super().new_vertex(node)
         return node
 
 
@@ -755,10 +793,6 @@ class DVertex(Vertex):
 
 # ========================================================================== #
 
-
-def rand():
-    return np.random.rand(2)
-
 if __name__ == "__main__":
 
 
@@ -770,8 +804,8 @@ if __name__ == "__main__":
 
             g = UGraph()
 
-            v1 = g.add_node()
-            v2 = g.add_node()
+            v1 = g.add_vertex()
+            v2 = g.add_vertex()
             self.assertEqual(g.n, 2)
             self.assertIsInstance(v1, UVertex)
             self.assertIsInstance(v2, UVertex)
@@ -780,7 +814,7 @@ if __name__ == "__main__":
 
             g = UGraph()
 
-            v = g.add_node([1,2,3])
+            v = g.add_vertex([1,2,3])
             self.assertIsInstance(v, UVertex)
             self.assertEqual(v.x, 1)
             self.assertEqual(v.y, 2)
@@ -790,10 +824,10 @@ if __name__ == "__main__":
 
             g = UGraph()
 
-            v1 = g.add_node(name='v1')
+            v1 = g.add_vertex(name='v1')
             self.assertEqual(v1.name, 'v1')
 
-            v1 = g.add_node(coord=[1,2,3])
+            v1 = g.add_vertex(coord=[1,2,3])
             self.assertIsInstance(v1.coord, np.ndarray)
             self.assertEqual(v1.coord.shape, (3,))
             self.assertEqual(list(v1.coord), [1,2,3])
@@ -801,9 +835,9 @@ if __name__ == "__main__":
         def test_constructor3(self):
 
             g = UGraph()
-            v1 = g.add_node()
-            v2 = g.add_node()
-            v3 = g.add_node()
+            v1 = g.add_vertex()
+            v2 = g.add_vertex()
+            v3 = g.add_vertex()
 
             self.assertIs(g[0], v1)
             self.assertIs(g[0], v1)
@@ -814,8 +848,8 @@ if __name__ == "__main__":
                     super().__init__()
                     self.a = a
 
-            v1 = g.add_node(MyNode(1))
-            v2 = g.add_node(MyNode(2))
+            v1 = g.add_vertex(MyNode(1))
+            v2 = g.add_vertex(MyNode(2))
 
             self.assertIsInstance(v1, MyNode)
             v1.connect(v2)
@@ -823,9 +857,9 @@ if __name__ == "__main__":
 
         def test_getitem(self):
             g = UGraph()
-            v1 = g.add_node(name='v1')
-            v2 = g.add_node(name='v2')
-            v3 = g.add_node(name='v3')
+            v1 = g.add_vertex(name='v1')
+            v2 = g.add_vertex(name='v2')
+            v3 = g.add_vertex(name='v3')
 
             self.assertIs(g[0], v1)
             self.assertIs(g[1], v2)
@@ -846,9 +880,9 @@ if __name__ == "__main__":
         def test_connect(self):
 
             g = UGraph()
-            v1 = g.add_node()
-            v2 = g.add_node()
-            v3 = g.add_node()
+            v1 = g.add_vertex()
+            v2 = g.add_vertex()
+            v3 = g.add_vertex()
             e12 = v1.connect(v2)
             e13 = v1.connect(v3)
             
@@ -866,10 +900,10 @@ if __name__ == "__main__":
         def test_edge1(self):
 
             g = UGraph()
-            v1 = g.add_node()
-            v2 = g.add_node()
-            v3 = g.add_node()
-            v4 = g.add_node()
+            v1 = g.add_vertex()
+            v2 = g.add_vertex()
+            v3 = g.add_vertex()
+            v4 = g.add_vertex()
             v1.connect(v2)
             v1.connect(v3)
 
@@ -888,10 +922,10 @@ if __name__ == "__main__":
         def test_edge2(self):
 
             g = UGraph()
-            v1 = g.add_node(name='n1')
-            v2 = g.add_node(name='n2')
-            v3 = g.add_node(name='n3')
-            v4 = g.add_node(name='n4')
+            v1 = g.add_vertex(name='n1')
+            v2 = g.add_vertex(name='n2')
+            v3 = g.add_vertex(name='n3')
+            v4 = g.add_vertex(name='n4')
 
             g.add_edge('n1', 'n2')
             g.add_edge('n1', 'n3')
@@ -911,10 +945,10 @@ if __name__ == "__main__":
         def test_edge3(self):
 
             g = UGraph()
-            v1 = g.add_node(name='n1')
-            v2 = g.add_node(name='n2')
-            v3 = g.add_node(name='n3')
-            v4 = g.add_node(name='n4')
+            v1 = g.add_vertex(name='n1')
+            v2 = g.add_vertex(name='n2')
+            v3 = g.add_vertex(name='n3')
+            v4 = g.add_vertex(name='n4')
 
             g.add_edge(v1, v2)
             g.add_edge(v1, v3)
@@ -935,9 +969,9 @@ if __name__ == "__main__":
         def test_edgeto(self):
 
             g = UGraph()
-            v1 = g.add_node()
-            v2 = g.add_node()
-            v3 = g.add_node()
+            v1 = g.add_vertex()
+            v2 = g.add_vertex()
+            v3 = g.add_vertex()
             e12 = v1.connect(v2)
             e13 = v1.connect(v3)
 
@@ -948,9 +982,9 @@ if __name__ == "__main__":
         def test_remove_edge(self):
 
             g = UGraph()
-            v1 = g.add_node()
-            v2 = g.add_node()
-            v3 = g.add_node()
+            v1 = g.add_vertex()
+            v2 = g.add_vertex()
+            v3 = g.add_vertex()
             e12 = v1.connect(v2)
             e13 = v1.connect(v3)
 
@@ -970,9 +1004,9 @@ if __name__ == "__main__":
         def test_remove_vertex(self):
 
             g = UGraph()
-            v1 = g.add_node()
-            v2 = g.add_node()
-            v3 = g.add_node()
+            v1 = g.add_vertex()
+            v2 = g.add_vertex()
+            v3 = g.add_vertex()
             e12 = v1.connect(v2)
             e13 = v1.connect(v3)
 
@@ -994,9 +1028,9 @@ if __name__ == "__main__":
         def test_components(self):
 
             g = UGraph()
-            v1 = g.add_node()
-            v2 = g.add_node()
-            v3 = g.add_node()
+            v1 = g.add_vertex()
+            v2 = g.add_vertex()
+            v3 = g.add_vertex()
 
             self.assertEqual(g.nc, 3)
             v1.connect(v2)
@@ -1006,12 +1040,12 @@ if __name__ == "__main__":
 
         def test_bfs(self):
             g = UGraph()
-            v1 = g.add_node()
-            v2 = g.add_node()
-            v3 = g.add_node()
-            v4 = g.add_node()
-            v5 = g.add_node()
-            v6 = g.add_node()
+            v1 = g.add_vertex()
+            v2 = g.add_vertex()
+            v3 = g.add_vertex()
+            v4 = g.add_vertex()
+            v5 = g.add_vertex()
+            v6 = g.add_vertex()
 
             v1.connect(v2)
             v2.connect(v3)
@@ -1030,27 +1064,28 @@ if __name__ == "__main__":
 
         def test_Astar(self):
             g = UGraph()
-            v1 = g.add_node()
-            v2 = g.add_node()
-            v3 = g.add_node()
-            v4 = g.add_node()
-            v5 = g.add_node()
-            v6 = g.add_node()
+            v1 = g.add_vertex(coord=[0,0])
+            v2 = g.add_vertex(coord=[1,1])
+            v3 = g.add_vertex(coord=[2,2])
+            v4 = g.add_vertex(coord=[1,3])
+            v5 = g.add_vertex(coord=[0,4])
+            v6 = g.add_vertex(coord=[-5,2])
+            v7 = g.add_vertex(coord=[0,6])
 
-            v1.connect(v2, cost=1)
-            v2.connect(v3, cost=1)
-            v1.connect(v2, cost=1)
-            v1.connect(v4, cost=1)
-            v4.connect(v5, cost=1)
-            v5.connect(v3, cost=1)
+            v1.connect(v2)
+            v2.connect(v3)
+            v3.connect(v4)
+            v4.connect(v5)
+            v1.connect(v6)
+            e = v6.connect(v5)
 
-            p = g.Astar(v1, v6)
+            p = g.Astar(v1, v7)
             self.assertIsNone(p)
 
-            p = g.BFS(v1, v3)
+            p = g.Astar(v1, v5)
             self.assertIsInstance(p, list)
-            self.assertEqual(len(p), 3)
-            self.assertEqual(p, [v1, v2, v3])
+            self.assertEqual(len(p), 5)
+            self.assertEqual(p, [v1, v2, v3, v4, v5])
 
 
     class TestDGraph(unittest.TestCase):
@@ -1059,8 +1094,8 @@ if __name__ == "__main__":
 
             g = DGraph()
 
-            v1 = g.add_node()
-            v2 = g.add_node()
+            v1 = g.add_vertex()
+            v2 = g.add_vertex()
             self.assertEqual(g.n, 2)
             self.assertIsInstance(v1, DVertex)
             self.assertIsInstance(v2, DVertex)
@@ -1074,51 +1109,3 @@ if __name__ == "__main__":
             pass
 
     unittest.main()
-    # v3 = g.add_node(rand())
-    # v4 = g.add_node(rand())
-    # v5 = g.add_node(rand())
-
-    # v6 = g.add_node(rand())
-    # v7 = g.add_node(rand())
-
-    # print(g)
-
-    # v1.connect(v2)
-    # v1.connect(v3)
-    # v1.connect(v4)
-    # v2.connect(v3)
-    # v2.connect(v4)
-    # e = v4.connect(v5)
-    # print(e)
-
-    # v6.connect(v7)
-
-    # print(list(v6.neighbours()))
-
-    # g._graphcolor()
-
-    # # print(g.BFS(v5, v3))
-    # # g.plot()
-
-    # # print(g)
-    # # print('number of components', g.nc)
-    # # print(g.component(0))
-    # # print(g.component(1))
-    # # print(g.samecomponent(v1, v2), g.samecomponent(v1, v7))
-    # # print(g.n)
-
-
-    # # for n in g:
-    # #     print(n)
-
-    # # e = g.edges()
-    # # print(e)
-    # # print(len(e))
-    # print(g.connectivity())
-    # A = g.incidence()
-    # print(A)
-    # # print(np.trace(A))
-    # # print(A  @ A)
-    # # print(np.trace(A @ A))
-    # # print(A @ A @ A)
-    # # print(np.trace(A @ A @ A))
