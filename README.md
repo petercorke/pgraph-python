@@ -13,6 +13,8 @@ This Python package allows the manipulation of directed and non-directed graphs.
 ![road network](https://github.com/petercorke/pgraph-python/raw/master/examples/roads.png)
 
 ```
+from pgraph import *
+
 # load places and routes
 with open('places.json', 'r') as f:
     places = json.loads(f.read())
@@ -23,13 +25,13 @@ with open('routes.json', 'r') as f:
 g = UGraph()
 
 for name, info in places.items():
-    g.add_node(name=name, coord=info["utm"])
+    g.add_vertex(name=name, coord=info["utm"])
 
 for route in routes:
     g.add_edge(route[0], route[1], cost=route[2])
 
 # plan a path from Hughenden to Brisbane
-p = g.Astar('Hughenden', 'Brisbane')
+p = g.path_Astar('Hughenden', 'Brisbane')
 g.plot(block=False) # plot it
 g.highlight_path(p)  # overlay the path
 ```
