@@ -40,7 +40,7 @@ g.highlight_path(p)  # overlay the path
 Graphs belong to the class `UGraph` or `DGraph` for undirected or directed graphs respectively
 
 - `g.add_vertex()` add a vertex
-- `g.add_edge()` connect two nodes
+- `g.add_edge()` connect two vertices
 - `g.n` the number of vertices
 - supports iteration: `for vertex in graph:`
 - `g.edges()` all edges in the graph
@@ -48,8 +48,8 @@ Graphs belong to the class `UGraph` or `DGraph` for undirected or directed graph
 - `g.nc` the number of graph components, 1 if fully connected
 - `g.component(v)` the component that vertex `v` belongs to
 - `g.plot()` plots the vertices and edges
-- `g.BFS()` breadth-first search
-- `g.Astar()` A* search
+- `g.path_BFS()` breadth-first search
+- `g.path_Astar()` A* search
 - `g.adjacency()` adjacency matrix
 - `g.Laplacian()` Laplacian matrix
 - `g.incidence()` incidence matrix
@@ -66,7 +66,7 @@ We can name the vertices and reference them by name
 ### Properties and methods of an edge
 - `e.cost` cost of edge for planning methods
 - `e.next(v)` vertex on edge `e` that is not `v`
-- `e.v1`, `e.v2` the two nodes that define the edge `e`
+- `e.v1`, `e.v2` the two vertices that define the edge `e`
 
 ## Modifying a graph
 
@@ -78,7 +78,7 @@ We can name the vertices and reference them by name
 Consider a user class `Foo` that we would like to represent vertices in a graph.
 
 - Have it subclass either `DVertex` or `UVertex`
-- Then place instances of `Foo` into the graph using `add_node`
+- Then place instances of `Foo` into the graph using `add_vertex`
 
 
 
