@@ -46,9 +46,11 @@ class PGraph(ABC):
         :return: Number of components
         :rtype: int
 
-        :notes:
-        - Components are labeled from 0 to ``g.nc-1``.
-        - A graph coloring algorithm is run if the graph 
+        .. note::
+
+            - Components are labeled from 0 to ``g.nc-1``.
+            - A graph coloring algorithm is run if the graph
+
         """
         self._graphcolor()
         return self._ncomponents
@@ -88,12 +90,31 @@ class PGraph(ABC):
             return i
 
     def edges(self):
+        """
+        Get all edges in graph
+
+        :return: All edges in the graph
+        :rtype: list of Edge
+        """
         e = set()
         for node in self:
             e = e.union(node._edges)
         return e
             
     def plot(self, block=True):
+        """
+        Plot the graph
+
+        :param block: block execution until plot dismissed, defaults to True
+        :type block: bool, optional
+
+        The graph is plotted using matplotlib.
+
+        .. todo::
+
+            - more options
+            - save options for use by highlight
+        """
         nc = self.nc
         print(nc, ' components')
         color = plt.cm.coolwarm(np.linspace(0, 1, nc))
@@ -114,6 +135,19 @@ class PGraph(ABC):
             plt.show()
 
     def highlight_path(self, path, block=True, **kwargs):
+        """
+        Highlight a path through the graph
+
+        :param path: [description]
+        :type path: [type]
+        :param block: [description], defaults to True
+        :type block: bool, optional
+
+        The nodes and edges along the path are overwritten with a different
+        size/width and color.
+
+        :seealso: :func:`highlight_vertex`, :func:`highlight_edge`
+        """
         for i in range(len(path)):
             if i < len(path) - 1:
                 e = path[i].edgeto(path[i+1])
@@ -122,11 +156,33 @@ class PGraph(ABC):
         plt.show(block=block)
 
     def highlight_edge(self, edge, scale=1.5, color='r'):
+        """
+        Highlight an edge in the graph
+
+        :param edge: The edge to highlight
+        :type edge: Edge subclass
+        :param scale: Overwrite with a line this much bigger than the original,
+                      defaults to 1.5
+        :type scale: float, optional
+        :param color: Overwrite with a line in this color, defaults to 'r'
+        :type color: str, optional
+        """
         p1 = edge.v1
         p2 = edge.v2
         plt.plot([p1.x, p2.x], [p1.y, p2.y], color=color, linewidth=3 * scale)
 
     def highlight_vertex(self, node, scale=1.5, color='r'):
+        """
+        Highlight a vertex in the graph
+
+        :param edge: The vertex to highlight
+        :type edge: Vertex subclass
+        :param scale: Overwrite with a line this much bigger than the original,
+                      defaults to 1.5
+        :type scale: float, optional
+        :param color: Overwrite with a line in this color, defaults to 'r'
+        :type color: str, optional
+        """
         plt.plot(node.x, node.y, 'o', color=color, markersize=12 * scale)
 
     def dotfile(self, file=None):
@@ -140,10 +196,11 @@ class PGraph(ABC):
         GraphViz code to represent the embedded graph.  By default output
         is to the console
 
-        :notes:
-        - The graph is undirected if it is a subclass of ``UGraph``
-        - The graph is directed if it is a subclass of ``DGraph``
-        - Use ``neato`` rather than dot to get the embedded layout
+        .. note::
+
+            - The graph is undirected if it is a subclass of ``UGraph``
+            - The graph is directed if it is a subclass of ``DGraph``
+            - Use ``neato`` rather than dot to get the embedded layout
         """
      
         if file is not None:
@@ -206,11 +263,12 @@ class PGraph(ABC):
         ``g.Laplacian()`` is the Laplacian matrix (NxN) of the graph where N
         is the number of vertices.
 
-        :notes:
-        - Laplacian is always positive-semidefinite.
-        - Laplacian has at least one zero eigenvalue.
-        - The number of zero-valued eigenvalues is the number of connected 
-          components in the graph.
+        .. note::
+
+            - Laplacian is always positive-semidefinite.
+            - Laplacian has at least one zero eigenvalue.
+            - The number of zero-valued eigenvalues is the number of connected 
+                components in the graph.
         
         :seealso: :func:`adjacency`, :func:`incidence`, :func:`degree`
         """
@@ -257,14 +315,15 @@ class PGraph(ABC):
         ``g.adjacency()`` is a matrix (NxN) where N is the number of vertices.
         Element A[i,j] is 1 if vertex i is connected to vertex j, else 0.
         
-        :notes:
-        - vertices are numbered in their order of creation. A vertex index
-          can be resolved to a vertex reference by ``graph[i]``.
-        - Matrix is symmetric for an undirected graph
-        - Eigenvalues of A are real and are known as the spectrum of the graph.
-        - The element A[i,j] can be considered the number of walks of one
-          edge from vertex i to vertex j (either zero or one).  The element (i,j)
-          of A^N are the number of walks of length N from vertex i to vertex j.
+        .. note::
+
+            - vertices are numbered in their order of creation. A vertex index
+                can be resolved to a vertex reference by ``graph[i]``.
+            - Matrix is symmetric for an undirected graph
+            - Eigenvalues of A are real and are known as the spectrum of the graph.
+            - The element A[i,j] can be considered the number of walks of one
+                edge from vertex i to vertex j (either zero or one).  The element (i,j)
+                of A^N are the number of walks of length N from vertex i to vertex j.
 
         :seealso: :func:`Laplacian`, :func:`incidence`, :func:`degree`
         """
@@ -287,10 +346,11 @@ class PGraph(ABC):
         and E is the number of edges.  Element (i,j) is 1 if vertex i is 
         connected to edge  j.
 
-        :notes:
-        - vertices are numbered in their order of creation. A vertex index
-          can be resolved to a vertex reference by ``graph[i]``.
-        - edges are numbered in the order they appear in ``graph.edges()``.
+        .. note::
+
+            - vertices are numbered in their order of creation. A vertex index
+                can be resolved to a vertex reference by ``graph[i]``.
+            - edges are numbered in the order they appear in ``graph.edges()``.
 
         :seealso: :func:`Laplacian`, :func:`adjacency`, :func:`degree`
         """
@@ -384,7 +444,7 @@ class PGraph(ABC):
         v._edges = []  # remove all references to edges
 # --------------------------------------------------------------------------- #
 
-    def BFS(self, S, G):
+    def path_BFS(self, S, G):
         """
         Breadth-first search for path
 
@@ -395,8 +455,9 @@ class PGraph(ABC):
         :return: list of vertices from S to G inclusive
         :rtype: list of Vertex subclass
 
-        :notes:
-        - Returns None
+        .. note::
+
+            - Returns None
         """
         S = self[S]
         G = self[G]
@@ -432,7 +493,7 @@ class PGraph(ABC):
         
         return path
 
-    def Astar(self, S, G):
+    def path_Astar(self, S, G):
         S = self[S]
         G = self[G]
         frontier = [S]
@@ -485,6 +546,11 @@ class PGraph(ABC):
 # -------------------------------------------------------------------------- #
 
 class UGraph(PGraph):
+    """
+    Class for undirected graphs
+
+    .. inheritance-diagram:: UGraph
+    """
 
     def add_vertex(self, coord=None, name=None):
         """
@@ -510,6 +576,11 @@ class UGraph(PGraph):
         return node
 
 class DGraph(PGraph):
+    """
+    Class for directed graphs
+
+    .. inheritance-diagram:: DGraph
+    """
 
     def add_vertex(self, coord=None, name=None):
         """
@@ -549,11 +620,12 @@ class Edge:
     - ``v1`` first vertex, start vertex for a directed edge
     - ``v2`` second vertex, end vertex for a directed edge
 
-    :notes:
-    - An undirected graph is created by having a single edge object in the 
-      edgelist of _each_ vertex.
-    - This class can be inherited to provide user objects with graph capability.
-    - Inheritance is an alternative to providing arbitrary user data.
+    .. note::
+
+        - An undirected graph is created by having a single edge object in the 
+            edgelist of _each_ vertex.
+        - This class can be inherited to provide user objects with graph capability.
+        - Inheritance is an alternative to providing arbitrary user data.
     """
 
     def __init__(self, v1, v2, cost=None, data=None):
@@ -668,11 +740,13 @@ class Vertex:
         :param dest: The node to connect to
         :type dest: ``Vertex`` subclass
         :param edge: Use this as the edge object, otherwise a new ``Edge``
-        object is created, defaults to None
+                     object is created, defaults to None
         :type edge: ``Edge`` subclass, optional
-        :param cost: the cost to traverse this edge, required for planning methods, defaults to None
+        :param cost: the cost to traverse this edge, required for planning 
+                     methods, defaults to None
         :type cost: float, optional
-        :param edgedata: reference to arbitrary data associated with the edge, defaults to None
+        :param edgedata: reference to arbitrary data associated with the edge,
+                         defaults to None
         :type edgedata: Any, optional
         :raises TypeError: vertex types are different subclasses
         :return: the edge connecting the nodes
@@ -680,10 +754,11 @@ class Vertex:
 
         ``v1.connect(v2)`` connects vertex ``v1`` to vertex ``v2``.
 
-        :notes:
-        - If the vertices subclass ``UVertex`` the edge is undirected, and if
-          they subclass ``DVertex`` the edge is directed.
-        - Vertices must both be of the same ``Vertex`` subclass
+        .. note::
+
+            - If the vertices subclass ``UVertex`` the edge is undirected, and if
+              they subclass ``DVertex`` the edge is directed.
+            - Vertices must both be of the same ``Vertex`` subclass
         """
 
         if not type(dest) is type(self):
@@ -706,8 +781,9 @@ class Vertex:
         :return: the edge from this node to ``dest``
         :rtype: Edge
 
-        :notes:
-        - For a directed graph ``dest`` must be at the arrow end of the edge
+        .. note::
+
+            - For a directed graph ``dest`` must be at the arrow end of the edge
         """
         for (n, e) in self.incidences():
             if n is dest:
@@ -721,10 +797,11 @@ class Vertex:
         :return: List of all edges leaving this node
         :rtype: list of Edge
 
-        :notes:
-        - For a directed graph the edges are those leaving this vertex
-        - For a non-directed graph the edges are those leaving or entering
-          this vertex
+        .. note::
+
+            - For a directed graph the edges are those leaving this vertex
+            - For a non-directed graph the edges are those leaving or entering
+                this vertex
         """
         return self._edges
 
@@ -763,6 +840,10 @@ class UVertex(Vertex):
     Vertex subclass for undirected graphs
 
     This class can be inherited to provide user objects with graph capability.
+
+
+    .. inheritance-diagram:: UVertex
+
     """
 
 
@@ -780,6 +861,9 @@ class DVertex(Vertex):
     Vertex subclass for directed graphs
 
     This class can be inherited to provide user objects with graph capability.
+
+    .. inheritance-diagram:: DVertex
+
     """
 
     def connect(self, other, **kwargs):
