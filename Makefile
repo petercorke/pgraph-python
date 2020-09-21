@@ -21,8 +21,8 @@ coverage:
 	coverage report
 
 docs: .FORCE
-	(cd docsrc; make html)
-	open docsrc/build/html/index.html
+	(cd docs; make html)
+	open docs/build/html/index.html
 
 docupdate: docs
 	cp -r docsrc/build/html/. docs
@@ -38,6 +38,6 @@ upload: .FORCE
 	twine upload dist/*
 
 clean: .FORCE
-	(cd docsrc; make clean)
+	(cd docs; make clean)
 	-rm -r *.egg-info
 	-rm -r dist
