@@ -10,7 +10,7 @@
 
 This Python package allows the manipulation of directed and non-directed graphs.  Also supports embedded graphs.
 
-![road network](roads.png)
+![road network](https://github.com/petercorke/pgraph-python/raw/master/examples/roads.png)
 
 ```
 # load places and routes
