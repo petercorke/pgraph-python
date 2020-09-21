@@ -1,0 +1,1392 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>PGraph &mdash; Simple graph functionality for Python  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> Simple graph functionality for Python
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Simple graph functionality for Python</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="index.html">Module code</a> &raquo;</li>
+        
+      <li>PGraph</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for PGraph</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<div class="viewcode-block" id="PGraph"><a class="viewcode-back" href="../PGraph.html#PGraph.PGraph">[docs]</a><span class="k">class</span> <span class="nc">PGraph</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+
+<div class="viewcode-block" id="PGraph.add_vertex"><a class="viewcode-back" href="../PGraph.html#PGraph.PGraph.add_vertex">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">add_vertex</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coord</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+    <span class="c1"># @abstractmethod</span>
+    <span class="c1"># def add_edge(self, v1, v2, cost=None):</span>
+    <span class="c1">#     pass</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_vertexlist</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_vertexdict</span> <span class="o">=</span> <span class="p">{}</span>
+
+<div class="viewcode-block" id="PGraph.new_vertex"><a class="viewcode-back" href="../PGraph.html#PGraph.PGraph.new_vertex">[docs]</a>    <span class="k">def</span> <span class="nf">new_vertex</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">node</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;#</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_vertexlist</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_vertexlist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_vertexdict</span><span class="p">[</span><span class="n">node</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">node</span></div>
+
+<div class="viewcode-block" id="PGraph.add_edge"><a class="viewcode-back" href="../PGraph.html#PGraph.PGraph.add_edge">[docs]</a>    <span class="k">def</span> <span class="nf">add_edge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">v1</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">v1</span><span class="p">]</span>
+        <span class="n">v2</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">v2</span><span class="p">]</span>
+        <span class="n">v1</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">v2</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">n</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Number of vertices</span>
+
+<span class="sd">        :return: Number of vertices</span>
+<span class="sd">        :rtype: int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_vertexdict</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">nc</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Number of components</span>
+
+<span class="sd">        :return: Number of components</span>
+<span class="sd">        :rtype: int</span>
+
+<span class="sd">        .. note::</span>
+
+<span class="sd">            - Components are labeled from 0 to ``g.nc-1``.</span>
+<span class="sd">            - A graph coloring algorithm is run if the graph</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_graphcolor</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ncomponents</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">node</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> at </span><span class="si">{</span><span class="n">node</span><span class="o">.</span><span class="n">coord</span><span class="si">}</span><span class="s2">, label=</span><span class="si">{</span><span class="n">node</span><span class="o">.</span><span class="n">label</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        [summary]</span>
+
+<span class="sd">        :param i: vertex description, index or string</span>
+<span class="sd">        :type i: int or str</span>
+<span class="sd">        :return: the referenced vertex</span>
+<span class="sd">        :rtype: Vertex subclass</span>
+
+<span class="sd">        Th</span>
+<span class="sd">        -``g[i]`` is the i&#39;th node in the graph.  This reflects the order of </span>
+<span class="sd">         addition to the graph.</span>
+<span class="sd">        -``g[s]`` is node named ``s``</span>
+<span class="sd">        -``g[v]`` is ``v`` where ``v`` is a ``Vertex`` subclass</span>
+
+<span class="sd">        This method also supports iteration over the vertices in a graph::</span>
+
+<span class="sd">            for v in g:</span>
+<span class="sd">                print(v)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vertexlist</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vertexdict</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">Vertex</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">i</span>
+
+<div class="viewcode-block" id="PGraph.edges"><a class="viewcode-back" href="../PGraph.html#PGraph.PGraph.edges">[docs]</a>    <span class="k">def</span> <span class="nf">edges</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get all edges in graph</span>
+
+<span class="sd">        :return: All edges in the graph</span>
+<span class="sd">        :rtype: list of Edge</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">e</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="n">e</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">_edges</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">e</span></div>
+            
+<div class="viewcode-block" id="PGraph.plot"><a class="viewcode-back" href="../PGraph.html#PGraph.PGraph.plot">[docs]</a>    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plot the graph</span>
+
+<span class="sd">        :param block: block execution until plot dismissed, defaults to True</span>
+<span class="sd">        :type block: bool, optional</span>
+
+<span class="sd">        The graph is plotted using matplotlib.</span>
+
+<span class="sd">        .. todo::</span>
+
+<span class="sd">            - more options</span>
+<span class="sd">            - save options for use by highlight</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">nc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nc</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">nc</span><span class="p">,</span> <span class="s1">&#39; components&#39;</span><span class="p">)</span>
+        <span class="n">color</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">coolwarm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">nc</span><span class="p">))</span>
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nc</span><span class="p">):</span>
+            <span class="c1"># for each component</span>
+            <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="p">(</span><span class="n">c</span><span class="p">):</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="s2">&quot;  &quot;</span> <span class="o">+</span> <span class="n">node</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">[</span><span class="n">c</span><span class="p">,:],</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">neighbours</span><span class="p">():</span>
+                    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">node</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">v</span><span class="o">.</span><span class="n">x</span><span class="p">],</span> <span class="p">[</span><span class="n">node</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">v</span><span class="o">.</span><span class="n">y</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">[</span><span class="n">c</span><span class="p">,:],</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+        <span class="c1"># if nc &gt; 1:</span>
+        <span class="c1">#     # add a colorbar</span>
+        <span class="c1">#     plt.colorbar()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">block</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="PGraph.highlight_path"><a class="viewcode-back" href="../PGraph.html#PGraph.PGraph.highlight_path">[docs]</a>    <span class="k">def</span> <span class="nf">highlight_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Highlight a path through the graph</span>
+
+<span class="sd">        :param path: [description]</span>
+<span class="sd">        :type path: [type]</span>
+<span class="sd">        :param block: [description], defaults to True</span>
+<span class="sd">        :type block: bool, optional</span>
+
+<span class="sd">        The nodes and edges along the path are overwritten with a different</span>
+<span class="sd">        size/width and color.</span>
+
+<span class="sd">        :seealso: :func:`highlight_vertex`, :func:`highlight_edge`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">path</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">e</span> <span class="o">=</span> <span class="n">path</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">edgeto</span><span class="p">(</span><span class="n">path</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">highlight_edge</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">highlight_vertex</span><span class="p">(</span><span class="n">path</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="n">block</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PGraph.highlight_edge"><a class="viewcode-back" href="../PGraph.html#PGraph.PGraph.highlight_edge">[docs]</a>    <span class="k">def</span> <span class="nf">highlight_edge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">edge</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Highlight an edge in the graph</span>
+
+<span class="sd">        :param edge: The edge to highlight</span>
+<span class="sd">        :type edge: Edge subclass</span>
+<span class="sd">        :param scale: Overwrite with a line this much bigger than the original,</span>
+<span class="sd">                      defaults to 1.5</span>
+<span class="sd">        :type scale: float, optional</span>
+<span class="sd">        :param color: Overwrite with a line in this color, defaults to &#39;r&#39;</span>
+<span class="sd">        :type color: str, optional</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">p1</span> <span class="o">=</span> <span class="n">edge</span><span class="o">.</span><span class="n">v1</span>
+        <span class="n">p2</span> <span class="o">=</span> <span class="n">edge</span><span class="o">.</span><span class="n">v2</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">p1</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">p2</span><span class="o">.</span><span class="n">x</span><span class="p">],</span> <span class="p">[</span><span class="n">p1</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">p2</span><span class="o">.</span><span class="n">y</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">3</span> <span class="o">*</span> <span class="n">scale</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PGraph.highlight_vertex"><a class="viewcode-back" href="../PGraph.html#PGraph.PGraph.highlight_vertex">[docs]</a>    <span class="k">def</span> <span class="nf">highlight_vertex</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Highlight a vertex in the graph</span>
+
+<span class="sd">        :param edge: The vertex to highlight</span>
+<span class="sd">        :type edge: Vertex subclass</span>
+<span class="sd">        :param scale: Overwrite with a line this much bigger than the original,</span>
+<span class="sd">                      defaults to 1.5</span>
+<span class="sd">        :type scale: float, optional</span>
+<span class="sd">        :param color: Overwrite with a line in this color, defaults to &#39;r&#39;</span>
+<span class="sd">        :type color: str, optional</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">12</span> <span class="o">*</span> <span class="n">scale</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PGraph.dotfile"><a class="viewcode-back" href="../PGraph.html#PGraph.PGraph.dotfile">[docs]</a>    <span class="k">def</span> <span class="nf">dotfile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a GraphViz dot file</span>
+
+<span class="sd">        :param file: filename to save graph to, defaults to None</span>
+<span class="sd">        :type file: str, optional</span>
+
+<span class="sd">        ``g.dotfile()`` creates the specified file which contains the</span>
+<span class="sd">        GraphViz code to represent the embedded graph.  By default output</span>
+<span class="sd">        is to the console</span>
+
+<span class="sd">        .. note::</span>
+
+<span class="sd">            - The graph is undirected if it is a subclass of ``UGraph``</span>
+<span class="sd">            - The graph is directed if it is a subclass of ``DGraph``</span>
+<span class="sd">            - Use ``neato`` rather than dot to get the embedded layout</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+     
+        <span class="k">if</span> <span class="n">file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;file&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">f</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">DGraph</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;digraph {&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;graph {&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">f</span><span class="p">)</span>
+
+        <span class="c1"># add the nodes including name and position</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;  &quot;</span><span class="si">{:s}</span><span class="s1">&quot; [pos=&quot;</span><span class="si">{:.5g}</span><span class="s1">,</span><span class="si">{:.5g}</span><span class="s1">&quot;]&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">coord</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">node</span><span class="o">.</span><span class="n">coord</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">file</span><span class="o">=</span><span class="n">f</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">file</span><span class="o">=</span><span class="n">f</span><span class="p">)</span>
+        <span class="c1"># add the edges</span>
+        <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">edges</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">DGraph</span><span class="p">):</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;  &quot;</span><span class="si">{:s}</span><span class="s1">&quot; -&gt; &quot;</span><span class="si">{:s}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">v1</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">v2</span><span class="o">.</span><span class="n">name</span><span class="p">),</span> <span class="n">file</span><span class="o">=</span><span class="n">f</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;  &quot;</span><span class="si">{:s}</span><span class="s1">&quot; -- &quot;</span><span class="si">{:s}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">v1</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">v2</span><span class="o">.</span><span class="n">name</span><span class="p">),</span> <span class="n">file</span><span class="o">=</span><span class="n">f</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;}&#39;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">f</span><span class="p">);</span>
+
+        <span class="k">if</span> <span class="n">file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="PGraph.iscyclic"><a class="viewcode-back" href="../PGraph.html#PGraph.PGraph.iscyclic">[docs]</a>    <span class="k">def</span> <span class="nf">iscyclic</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="PGraph.average_degree"><a class="viewcode-back" href="../PGraph.html#PGraph.PGraph.average_degree">[docs]</a>    <span class="k">def</span> <span class="nf">average_degree</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Average degree of the graph</span>
+
+<span class="sd">        :return: average degree</span>
+<span class="sd">        :rtype: float</span>
+
+<span class="sd">        Average degree is :math:`2 E / N` for an undirected graph and </span>
+<span class="sd">        :math:`E / N` for a directed graph where :math:`E` is the total number of</span>
+<span class="sd">        edges and :math:`N` is the number of vertices.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">DGraph</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">edges</span><span class="p">()</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">UGraph</span><span class="p">):</span>
+            <span class="k">return</span> <span class="mi">2</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">edges</span><span class="p">()</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">)</span></div>
+
+<span class="c1"># --------------------------------------------------------------------------- #</span>
+
+    <span class="c1">## MATRIX REPRESENTATIONS</span>
+    
+<div class="viewcode-block" id="PGraph.Laplacian"><a class="viewcode-back" href="../PGraph.html#PGraph.PGraph.Laplacian">[docs]</a>    <span class="k">def</span> <span class="nf">Laplacian</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Laplacian matrix for the graph</span>
+
+<span class="sd">        :return: Laplacian matrix</span>
+<span class="sd">        :rtype: NumPy ndarray</span>
+
+<span class="sd">        ``g.Laplacian()`` is the Laplacian matrix (NxN) of the graph where N</span>
+<span class="sd">        is the number of vertices.</span>
+
+<span class="sd">        .. note::</span>
+
+<span class="sd">            - Laplacian is always positive-semidefinite.</span>
+<span class="sd">            - Laplacian has at least one zero eigenvalue.</span>
+<span class="sd">            - The number of zero-valued eigenvalues is the number of connected </span>
+<span class="sd">                components in the graph.</span>
+<span class="sd">        </span>
+<span class="sd">        :seealso: :func:`adjacency`, :func:`incidence`, :func:`degree`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">degree</span><span class="p">()</span> <span class="o">-</span> <span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">adjacency</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PGraph.connectivity"><a class="viewcode-back" href="../PGraph.html#PGraph.PGraph.connectivity">[docs]</a>    <span class="k">def</span> <span class="nf">connectivity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Graph connectivity</span>
+
+<span class="sd">        :return: [description]</span>
+<span class="sd">        :rtype: [type]</span>
+
+<span class="sd">        % C = G.connectivity() is a vector (Nx1) with the number of edges per</span>
+<span class="sd">        % vertex.</span>
+<span class="sd">        %</span>
+<span class="sd">        % The average vertex connectivity is</span>
+<span class="sd">        %         mean(g.connectivity())</span>
+<span class="sd">        %</span>
+<span class="sd">        % and the minimum vertex connectivity is</span>
+<span class="sd">        %         min(g.connectivity())</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">c</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="n">c</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">_edges</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">c</span></div>
+
+<div class="viewcode-block" id="PGraph.degree"><a class="viewcode-back" href="../PGraph.html#PGraph.PGraph.degree">[docs]</a>    <span class="k">def</span> <span class="nf">degree</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        %Pgraph.degree Degree matrix of graph</span>
+<span class="sd">        %</span>
+<span class="sd">        % D = G.degree() is a diagonal matrix (NxN) where element D(i,i) is the number</span>
+<span class="sd">        % of edges connected to vertex id i.</span>
+<span class="sd">        %</span>
+<span class="sd">        % See also PGraph.adjacency, PGraph.incidence, PGraph.laplacian.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">connectivity</span><span class="p">()</span> <span class="p">);</span></div>
+
+<div class="viewcode-block" id="PGraph.adjacency"><a class="viewcode-back" href="../PGraph.html#PGraph.PGraph.adjacency">[docs]</a>    <span class="k">def</span> <span class="nf">adjacency</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adjacency matrix of graph</span>
+<span class="sd">        </span>
+<span class="sd">        ``g.adjacency()`` is a matrix (NxN) where N is the number of vertices.</span>
+<span class="sd">        Element A[i,j] is 1 if vertex i is connected to vertex j, else 0.</span>
+<span class="sd">        </span>
+<span class="sd">        .. note::</span>
+
+<span class="sd">            - vertices are numbered in their order of creation. A vertex index</span>
+<span class="sd">                can be resolved to a vertex reference by ``graph[i]``.</span>
+<span class="sd">            - Matrix is symmetric for an undirected graph</span>
+<span class="sd">            - Eigenvalues of A are real and are known as the spectrum of the graph.</span>
+<span class="sd">            - The element A[i,j] can be considered the number of walks of one</span>
+<span class="sd">                edge from vertex i to vertex j (either zero or one).  The element (i,j)</span>
+<span class="sd">                of A^N are the number of walks of length N from vertex i to vertex j.</span>
+
+<span class="sd">        :seealso: :func:`Laplacian`, :func:`incidence`, :func:`degree`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># create a dict mapping node to an id</span>
+        <span class="n">vdict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">vert</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="n">vdict</span><span class="p">[</span><span class="n">vert</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span>
+
+        <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">neighbours</span><span class="p">():</span>
+                <span class="n">A</span><span class="p">[</span><span class="n">vdict</span><span class="p">[</span><span class="n">node</span><span class="p">],</span> <span class="n">vdict</span><span class="p">[</span><span class="n">n</span><span class="p">]]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">A</span></div>
+
+<div class="viewcode-block" id="PGraph.incidence"><a class="viewcode-back" href="../PGraph.html#PGraph.PGraph.incidence">[docs]</a>    <span class="k">def</span> <span class="nf">incidence</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Incidence matrix of graph</span>
+<span class="sd">        </span>
+<span class="sd">        ``g.incidence()`` is a matrix (NxE) where N is the number of vertices</span>
+<span class="sd">        and E is the number of edges.  Element (i,j) is 1 if vertex i is </span>
+<span class="sd">        connected to edge  j.</span>
+
+<span class="sd">        .. note::</span>
+
+<span class="sd">            - vertices are numbered in their order of creation. A vertex index</span>
+<span class="sd">                can be resolved to a vertex reference by ``graph[i]``.</span>
+<span class="sd">            - edges are numbered in the order they appear in ``graph.edges()``.</span>
+
+<span class="sd">        :seealso: :func:`Laplacian`, :func:`adjacency`, :func:`degree`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">edges</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">edges</span><span class="p">()</span>
+        <span class="n">I</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">edges</span><span class="p">)))</span>
+
+        <span class="c1"># create a dict mapping edge to an id</span>
+        <span class="n">edict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">edge</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">edges</span><span class="p">):</span>
+            <span class="n">edict</span><span class="p">[</span><span class="n">edge</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">node</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">edges</span><span class="p">()):</span>
+                <span class="n">I</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">edict</span><span class="p">[</span><span class="n">e</span><span class="p">]]</span> <span class="o">=</span> <span class="mi">1</span></div>
+
+    <span class="c1">## GRAPH COMPONENTS</span>
+        
+    <span class="k">def</span> <span class="nf">_graphcolor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Color the graph</span>
+
+<span class="sd">        Performs a depth-first labeling operation, assigning the ``label`` </span>
+<span class="sd">        attribute of every vertex with a sequential integer starting from 0.</span>
+
+<span class="sd">        This method checks the ``_connectivitychange`` attribute of all nodes</span>
+<span class="sd">        and if any are True it will perform the coloring operation. This flag</span>
+<span class="sd">        is set True by any operation that adds or removes a node or edge.</span>
+
+<span class="sd">        :seealso: :func:`nc`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">([</span><span class="n">n</span><span class="o">.</span><span class="n">_connectivitychange</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">]):</span>
+
+            <span class="c1"># color the graph</span>
+            
+            <span class="c1"># clear all the labels</span>
+            <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+                <span class="n">node</span><span class="o">.</span><span class="n">label</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="n">node</span><span class="o">.</span><span class="n">_connectivitychange</span> <span class="o">=</span> <span class="kc">False</span>
+            
+            <span class="k">def</span> <span class="nf">color_component</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">l</span><span class="p">):</span>
+                <span class="n">v</span><span class="o">.</span><span class="n">label</span> <span class="o">=</span> <span class="n">l</span>
+                <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">v</span><span class="o">.</span><span class="n">neighbours</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="n">n</span><span class="o">.</span><span class="n">label</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">color_component</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">l</span><span class="p">)</span>
+            
+            <span class="n">lastlabel</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+                    <span class="c1"># find first vertex with no label</span>
+                    <span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">label</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">color_component</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">label</span><span class="p">)</span>
+                        <span class="n">lastlabel</span> <span class="o">=</span> <span class="n">label</span>
+                        <span class="k">break</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_ncomponents</span> <span class="o">=</span> <span class="n">lastlabel</span> <span class="o">+</span> <span class="mi">1</span>
+    
+<div class="viewcode-block" id="PGraph.component"><a class="viewcode-back" href="../PGraph.html#PGraph.PGraph.component">[docs]</a>    <span class="k">def</span> <span class="nf">component</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        All nodes in specified graph component</span>
+<span class="sd">        </span>
+<span class="sd">        ``graph.component(c)`` is a list of all vertices in graph component ``c``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_graphcolor</span><span class="p">()</span>  <span class="c1"># ensure labels are uptodate</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span> <span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">label</span> <span class="o">==</span> <span class="n">c</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="PGraph.samecomponent"><a class="viewcode-back" href="../PGraph.html#PGraph.PGraph.samecomponent">[docs]</a>    <span class="k">def</span> <span class="nf">samecomponent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        %PGraph.component Graph component</span>
+<span class="sd">        %</span>
+<span class="sd">        % C = G.component(V) is the id of the graph component that contains vertex</span>
+<span class="sd">        % V.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_graphcolor</span><span class="p">()</span>  <span class="c1"># ensure labels are uptodate</span>
+
+        <span class="k">return</span> <span class="n">v1</span><span class="o">.</span><span class="n">label</span> <span class="o">==</span> <span class="n">v2</span><span class="o">.</span><span class="n">label</span></div>
+
+<div class="viewcode-block" id="PGraph.remove"><a class="viewcode-back" href="../PGraph.html#PGraph.PGraph.remove">[docs]</a>    <span class="k">def</span> <span class="nf">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+        <span class="c1"># remove edges from neighbour&#39;s edge list</span>
+        <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">v</span><span class="o">.</span><span class="n">edges</span><span class="p">():</span>
+            <span class="nb">next</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">next</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+            <span class="nb">next</span><span class="o">.</span><span class="n">_edges</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+            <span class="nb">next</span><span class="o">.</span><span class="n">_connectivitychange</span> <span class="o">=</span> <span class="kc">True</span>  
+
+        <span class="c1"># remove references from the graph</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_vertexlist</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vertexdict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="n">v</span><span class="p">:</span>
+                <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vertexdict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+                <span class="k">break</span>
+
+        <span class="n">v</span><span class="o">.</span><span class="n">_edges</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># remove all references to edges</span></div>
+<span class="c1"># --------------------------------------------------------------------------- #</span>
+
+<div class="viewcode-block" id="PGraph.path_BFS"><a class="viewcode-back" href="../PGraph.html#PGraph.PGraph.path_BFS">[docs]</a>    <span class="k">def</span> <span class="nf">path_BFS</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">G</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Breadth-first search for path</span>
+
+<span class="sd">        :param S: start vertex</span>
+<span class="sd">        :type S: Vertex subclass</span>
+<span class="sd">        :param G: goal vertex</span>
+<span class="sd">        :type G: Vertex subclass</span>
+<span class="sd">        :return: list of vertices from S to G inclusive</span>
+<span class="sd">        :rtype: list of Vertex subclass</span>
+
+<span class="sd">        .. note::</span>
+
+<span class="sd">            - Returns None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">S</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">S</span><span class="p">]</span>
+        <span class="n">G</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">G</span><span class="p">]</span>
+        <span class="n">frontier</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">S</span><span class="p">])</span>
+        <span class="n">explored</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="n">evaluation</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">)]</span>
+        <span class="n">parent</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">while</span> <span class="n">frontier</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">frontier</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="n">G</span><span class="p">:</span>
+                <span class="k">break</span>
+            <span class="c1"># expand the node</span>
+            <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">x</span><span class="o">.</span><span class="n">neighbours</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">n</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">frontier</span> <span class="ow">and</span> <span class="n">n</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">explored</span><span class="p">:</span>
+                    <span class="c1"># add it to the frontier</span>
+                    <span class="n">frontier</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+                    <span class="n">parent</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span>
+            <span class="n">explored</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># no path</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="c1"># reconstruct the path from start to goal</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">G</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">parent</span><span class="p">[</span><span class="n">x</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">x</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">parent</span><span class="p">:</span>
+                <span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+                <span class="k">break</span>
+        
+        <span class="k">return</span> <span class="n">path</span></div>
+
+<div class="viewcode-block" id="PGraph.path_Astar"><a class="viewcode-back" href="../PGraph.html#PGraph.PGraph.path_Astar">[docs]</a>    <span class="k">def</span> <span class="nf">path_Astar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">G</span><span class="p">):</span>
+        <span class="n">S</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">S</span><span class="p">]</span>
+        <span class="n">G</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">G</span><span class="p">]</span>
+        <span class="n">frontier</span> <span class="o">=</span> <span class="p">[</span><span class="n">S</span><span class="p">]</span>
+        <span class="n">explored</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="n">parent</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">g</span> <span class="o">=</span> <span class="p">{</span><span class="n">S</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span> <span class="c1"># cost to come</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="p">{</span><span class="n">S</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span> <span class="c1"># evaluation function</span>
+
+        <span class="k">def</span> <span class="nf">h</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">):</span>  <span class="c1"># heuristic</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">v1</span><span class="o">.</span><span class="n">coord</span> <span class="o">-</span> <span class="n">v2</span><span class="o">.</span><span class="n">coord</span><span class="p">)</span>
+
+        <span class="k">while</span> <span class="n">frontier</span><span class="p">:</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">([</span><span class="n">f</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">frontier</span><span class="p">])</span>  <span class="c1"># minimum f in frontier</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">frontier</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="n">G</span><span class="p">:</span>
+                <span class="k">break</span>
+            <span class="c1"># expand the node</span>
+            <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">x</span><span class="o">.</span><span class="n">incidences</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">n</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">frontier</span> <span class="ow">and</span> <span class="n">n</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">explored</span><span class="p">:</span>
+                    <span class="c1"># add it to the frontier</span>
+                    <span class="n">frontier</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+                    <span class="n">parent</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span>
+                    <span class="n">g</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="n">g</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">+</span> <span class="n">e</span><span class="o">.</span><span class="n">cost</span>
+                    <span class="n">f</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="n">g</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">+</span> <span class="n">h</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">G</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">frontier</span><span class="p">:</span>
+                    <span class="c1"># neighbour is already in the frontier</span>
+                    <span class="n">gnew</span> <span class="o">=</span> <span class="n">g</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">+</span> <span class="n">e</span><span class="o">.</span><span class="n">cost</span>
+                    <span class="k">if</span> <span class="n">gnew</span> <span class="o">&lt;</span> <span class="n">g</span><span class="p">[</span><span class="n">n</span><span class="p">]:</span>
+                        <span class="c1"># cost of path via x is lower that previous, reparent it</span>
+                        <span class="n">g</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="n">gnew</span>
+                        <span class="n">f</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="n">g</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">+</span> <span class="n">h</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">G</span><span class="p">)</span>
+                        <span class="n">parent</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span>
+
+            <span class="n">explored</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># no path</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="c1"># reconstruct the path from start to goal</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">G</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">]</span>
+
+        <span class="k">while</span> <span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">S</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">parent</span><span class="p">[</span><span class="n">x</span><span class="p">]</span>
+            <span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+
+        
+        <span class="k">return</span> <span class="n">path</span></div></div>
+
+<span class="c1"># -------------------------------------------------------------------------- #</span>
+
+<div class="viewcode-block" id="UGraph"><a class="viewcode-back" href="../index.html#PGraph.UGraph">[docs]</a><span class="k">class</span> <span class="nc">UGraph</span><span class="p">(</span><span class="n">PGraph</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class for undirected graphs</span>
+
+<span class="sd">    .. inheritance-diagram:: UGraph</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="UGraph.add_vertex"><a class="viewcode-back" href="../index.html#PGraph.UGraph.add_vertex">[docs]</a>    <span class="k">def</span> <span class="nf">add_vertex</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coord</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add vertex to undirected graph</span>
+
+<span class="sd">        :param coord: coordinate for an embedded graph, defaults to None</span>
+<span class="sd">        :type coord: array-like, optional</span>
+<span class="sd">        :param name: node name, defaults to &quot;#i&quot;</span>
+<span class="sd">        :type name: str, optional</span>
+<span class="sd">        :return: new vertex</span>
+<span class="sd">        :rtype: UVertex</span>
+
+<span class="sd">        - ``g.add_vertex()`` creates a new vertex with optional ``coord`` and</span>
+<span class="sd">          ``name``.</span>
+<span class="sd">        - ``g.add_vertex(v)`` takes an instance or subclass of UVertex and adds</span>
+<span class="sd">          it to the graph</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">coord</span><span class="p">,</span> <span class="n">UVertex</span><span class="p">):</span>
+            <span class="n">node</span> <span class="o">=</span> <span class="n">coord</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">node</span> <span class="o">=</span> <span class="n">UVertex</span><span class="p">(</span><span class="n">coord</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">new_vertex</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">node</span></div></div>
+
+<div class="viewcode-block" id="DGraph"><a class="viewcode-back" href="../index.html#PGraph.DGraph">[docs]</a><span class="k">class</span> <span class="nc">DGraph</span><span class="p">(</span><span class="n">PGraph</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class for directed graphs</span>
+
+<span class="sd">    .. inheritance-diagram:: DGraph</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="DGraph.add_vertex"><a class="viewcode-back" href="../index.html#PGraph.DGraph.add_vertex">[docs]</a>    <span class="k">def</span> <span class="nf">add_vertex</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coord</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add vertex to directed graph</span>
+
+<span class="sd">        :param coord: coordinate for an embedded graph, defaults to None</span>
+<span class="sd">        :type coord: array-like, optional</span>
+<span class="sd">        :param name: node name, defaults to &quot;#i&quot;</span>
+<span class="sd">        :type name: str, optional</span>
+<span class="sd">        :return: new vertex</span>
+<span class="sd">        :rtype: DVertex</span>
+
+<span class="sd">        - ``g.add_vertex()`` creates a new vertex with optional ``coord`` and</span>
+<span class="sd">          ``name``.</span>
+<span class="sd">        - ``g.add_vertex(v)`` takes an instance or subclass of DVertex and adds</span>
+<span class="sd">          it to the graph</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">coord</span><span class="p">,</span> <span class="n">DVertex</span><span class="p">):</span>
+            <span class="n">node</span> <span class="o">=</span> <span class="n">coord</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">node</span> <span class="o">=</span> <span class="n">DVertex</span><span class="p">(</span><span class="n">coord</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">new_vertex</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">node</span></div></div>
+
+
+<span class="c1"># ========================================================================== #</span>
+
+<div class="viewcode-block" id="Edge"><a class="viewcode-back" href="../index.html#PGraph.Edge">[docs]</a><span class="k">class</span> <span class="nc">Edge</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Edge class</span>
+
+<span class="sd">    Is used to represent directed directed and undirected edges.</span>
+
+<span class="sd">    Each edge has:</span>
+<span class="sd">    - ``cost`` cost of traversing this edge, required for planning methods</span>
+<span class="sd">    - ``data`` reference to arbitrary data associated with the edge</span>
+<span class="sd">    - ``v1`` first vertex, start vertex for a directed edge</span>
+<span class="sd">    - ``v2`` second vertex, end vertex for a directed edge</span>
+
+<span class="sd">    .. note::</span>
+
+<span class="sd">        - An undirected graph is created by having a single edge object in the </span>
+<span class="sd">            edgelist of _each_ vertex.</span>
+<span class="sd">        - This class can be inherited to provide user objects with graph capability.</span>
+<span class="sd">        - Inheritance is an alternative to providing arbitrary user data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">,</span> <span class="n">cost</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">cost</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">cost</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">v1</span><span class="o">.</span><span class="n">coord</span> <span class="o">-</span> <span class="n">v2</span><span class="o">.</span><span class="n">coord</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">cost</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cost</span> <span class="o">=</span> <span class="n">cost</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">v1</span> <span class="o">=</span> <span class="n">v1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">v2</span> <span class="o">=</span> <span class="n">v2</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;edge </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">v1</span><span class="si">}</span><span class="s2"> -- </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">v2</span><span class="si">}</span><span class="s2">, cost=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">cost</span><span class="si">}</span><span class="s2">, data=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="si">}</span><span class="s2">&quot;</span>
+
+<div class="viewcode-block" id="Edge.next"><a class="viewcode-back" href="../index.html#PGraph.Edge.next">[docs]</a>    <span class="k">def</span> <span class="nf">next</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vertex</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return other end of an edge</span>
+
+<span class="sd">        :param vertex: one vertex on the edge</span>
+<span class="sd">        :type vertex: Vertex subclass</span>
+<span class="sd">        :raises ValueError: ``vertex`` is not on the edge</span>
+<span class="sd">        :return: the other vertex on the edge</span>
+<span class="sd">        :rtype: Vertex subclass</span>
+
+<span class="sd">        ``e.next(v1)`` is the vertex at the other end of edge ``e``, ie. the </span>
+<span class="sd">        vertex that is not ``v1``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">v1</span> <span class="ow">is</span> <span class="n">vertex</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">v2</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">v2</span> <span class="ow">is</span> <span class="n">vertex</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">v1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;shouldnt happen&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Edge.remove"><a class="viewcode-back" href="../index.html#PGraph.Edge.remove">[docs]</a>    <span class="k">def</span> <span class="nf">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Remove edge from graph</span>
+
+<span class="sd">        ``e.remove()`` removes ``e`` from the graph, but does not delete the</span>
+<span class="sd">        edge object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># remove this edge from the edge list of both end nodes</span>
+        <span class="k">if</span> <span class="bp">self</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">v1</span><span class="o">.</span><span class="n">_edges</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">v1</span><span class="o">.</span><span class="n">_edges</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">v2</span><span class="o">.</span><span class="n">_edges</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">v2</span><span class="o">.</span><span class="n">_edges</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="c1"># indicate that connectivity has changed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">v1</span><span class="o">.</span><span class="n">_connectivitychange</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">v2</span><span class="o">.</span><span class="n">_connectivitychange</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="c1"># remove references to the nodes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">v1</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">v2</span> <span class="o">=</span> <span class="kc">None</span></div></div>
+
+<span class="c1"># ========================================================================== #</span>
+
+<div class="viewcode-block" id="Vertex"><a class="viewcode-back" href="../PGraph.html#PGraph.Vertex">[docs]</a><span class="k">class</span> <span class="nc">Vertex</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Superclass for vertices of directed and non-directed graphs.</span>
+
+<span class="sd">    Each vertex has:</span>
+<span class="sd">        - ``name``</span>
+<span class="sd">        - ``label`` an int indicating which graph component contains it</span>
+<span class="sd">        - ``_edges`` a list of edge objects that connect this vertex to others</span>
+<span class="sd">        - ``coord`` the coordinate in an embedded graph (optional)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coord</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_edges</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">coord</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="n">coord</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_connectivitychange</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_edges</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Vertex init&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">:</span><span class="s2">s</span><span class="si">}</span><span class="s2">]&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Vertex(name=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">:</span><span class="s2">s</span><span class="si">}</span><span class="s2">, coord=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">coord</span><span class="si">}</span><span class="s2">)&quot;</span>
+
+<div class="viewcode-block" id="Vertex.neighbours"><a class="viewcode-back" href="../PGraph.html#PGraph.Vertex.neighbours">[docs]</a>    <span class="k">def</span> <span class="nf">neighbours</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Neighbours of a vertex</span>
+
+<span class="sd">        ``v.neighbours()`` is a list of neighbour of the vertex object ``v``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">next</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edges</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Vertex.incidences"><a class="viewcode-back" href="../PGraph.html#PGraph.Vertex.incidences">[docs]</a>    <span class="k">def</span> <span class="nf">incidences</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Neighbours and edges of a vertex</span>
+
+<span class="sd">        ``v.incidences()`` is a generator that returns a list of incidences, </span>
+<span class="sd">        tuples of (vertex, edge) for all neighbours of the vertex ``v``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[(</span><span class="n">e</span><span class="o">.</span><span class="n">next</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="n">e</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edges</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Vertex.connect"><a class="viewcode-back" href="../PGraph.html#PGraph.Vertex.connect">[docs]</a>    <span class="k">def</span> <span class="nf">connect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dest</span><span class="p">,</span> <span class="n">edge</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cost</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">edgedata</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Connect two vertices with an edge</span>
+
+<span class="sd">        :param dest: The node to connect to</span>
+<span class="sd">        :type dest: ``Vertex`` subclass</span>
+<span class="sd">        :param edge: Use this as the edge object, otherwise a new ``Edge``</span>
+<span class="sd">                     object is created, defaults to None</span>
+<span class="sd">        :type edge: ``Edge`` subclass, optional</span>
+<span class="sd">        :param cost: the cost to traverse this edge, required for planning </span>
+<span class="sd">                     methods, defaults to None</span>
+<span class="sd">        :type cost: float, optional</span>
+<span class="sd">        :param edgedata: reference to arbitrary data associated with the edge,</span>
+<span class="sd">                         defaults to None</span>
+<span class="sd">        :type edgedata: Any, optional</span>
+<span class="sd">        :raises TypeError: vertex types are different subclasses</span>
+<span class="sd">        :return: the edge connecting the nodes</span>
+<span class="sd">        :rtype: Edge</span>
+
+<span class="sd">        ``v1.connect(v2)`` connects vertex ``v1`` to vertex ``v2``.</span>
+
+<span class="sd">        .. note::</span>
+
+<span class="sd">            - If the vertices subclass ``UVertex`` the edge is undirected, and if</span>
+<span class="sd">              they subclass ``DVertex`` the edge is directed.</span>
+<span class="sd">            - Vertices must both be of the same ``Vertex`` subclass</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">type</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;must connect vertices of same type&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">edge</span><span class="p">,</span> <span class="n">Edge</span><span class="p">):</span>
+            <span class="n">e</span> <span class="o">=</span> <span class="n">edge</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">e</span> <span class="o">=</span> <span class="n">Edge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dest</span><span class="p">,</span> <span class="n">cost</span><span class="o">=</span><span class="n">cost</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">edgedata</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_connectivitychange</span> <span class="o">=</span> <span class="kc">True</span>
+        
+        <span class="k">return</span> <span class="n">e</span></div>
+
+<div class="viewcode-block" id="Vertex.edgeto"><a class="viewcode-back" href="../PGraph.html#PGraph.Vertex.edgeto">[docs]</a>    <span class="k">def</span> <span class="nf">edgeto</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dest</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Edge connecting vertex to specific neighbour</span>
+
+<span class="sd">        :param dest: a neigbouring node</span>
+<span class="sd">        :type dest: ``Vertex`` subclass</span>
+<span class="sd">        :raises ValueError: ``dest`` is not a neighbour</span>
+<span class="sd">        :return: the edge from this node to ``dest``</span>
+<span class="sd">        :rtype: Edge</span>
+
+<span class="sd">        .. note::</span>
+
+<span class="sd">            - For a directed graph ``dest`` must be at the arrow end of the edge</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">incidences</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">n</span> <span class="ow">is</span> <span class="n">dest</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">e</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;dest is not a neighbour&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Vertex.edges"><a class="viewcode-back" href="../PGraph.html#PGraph.Vertex.edges">[docs]</a>    <span class="k">def</span> <span class="nf">edges</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        All outgoing edges of vertex</span>
+
+<span class="sd">        :return: List of all edges leaving this node</span>
+<span class="sd">        :rtype: list of Edge</span>
+
+<span class="sd">        .. note::</span>
+
+<span class="sd">            - For a directed graph the edges are those leaving this vertex</span>
+<span class="sd">            - For a non-directed graph the edges are those leaving or entering</span>
+<span class="sd">                this vertex</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edges</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">x</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The x-coordinate of an embedded vertex</span>
+
+<span class="sd">        :return: The x-coordinate</span>
+<span class="sd">        :rtype: float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">coord</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">y</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The y-coordinate of an embedded vertex</span>
+
+<span class="sd">        :return: The y-coordinate</span>
+<span class="sd">        :rtype: float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">coord</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">z</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The z-coordinate of an embedded vertex</span>
+
+<span class="sd">        :return: The z-coordinate</span>
+<span class="sd">        :rtype: float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">coord</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="UVertex"><a class="viewcode-back" href="../index.html#PGraph.UVertex">[docs]</a><span class="k">class</span> <span class="nc">UVertex</span><span class="p">(</span><span class="n">Vertex</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Vertex subclass for undirected graphs</span>
+
+<span class="sd">    This class can be inherited to provide user objects with graph capability.</span>
+
+
+<span class="sd">    .. inheritance-diagram:: UVertex</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+
+<div class="viewcode-block" id="UVertex.connect"><a class="viewcode-back" href="../index.html#PGraph.UVertex.connect">[docs]</a>    <span class="k">def</span> <span class="nf">connect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">e</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">_edges</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="n">other</span><span class="o">.</span><span class="n">_edges</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">e</span></div></div>
+
+
+
+<div class="viewcode-block" id="DVertex"><a class="viewcode-back" href="../index.html#PGraph.DVertex">[docs]</a><span class="k">class</span> <span class="nc">DVertex</span><span class="p">(</span><span class="n">Vertex</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Vertex subclass for directed graphs</span>
+
+<span class="sd">    This class can be inherited to provide user objects with graph capability.</span>
+
+<span class="sd">    .. inheritance-diagram:: DVertex</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="DVertex.connect"><a class="viewcode-back" href="../index.html#PGraph.DVertex.connect">[docs]</a>    <span class="k">def</span> <span class="nf">connect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">e</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">_edges</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">e</span></div>
+
+<div class="viewcode-block" id="DVertex.remove"><a class="viewcode-back" href="../index.html#PGraph.DVertex.remove">[docs]</a>    <span class="k">def</span> <span class="nf">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_edges</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># remove all references to edges</span></div></div>
+
+<span class="c1"># ========================================================================== #</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+
+
+    <span class="kn">import</span> <span class="nn">unittest</span>
+
+    <span class="k">class</span> <span class="nc">TestUGraph</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+
+        <span class="k">def</span> <span class="nf">test_constructor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+            <span class="n">g</span> <span class="o">=</span> <span class="n">UGraph</span><span class="p">()</span>
+
+            <span class="n">v1</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">()</span>
+            <span class="n">v2</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">UVertex</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">v2</span><span class="p">,</span> <span class="n">UVertex</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">test_constructor2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+            <span class="n">g</span> <span class="o">=</span> <span class="n">UGraph</span><span class="p">()</span>
+
+            <span class="n">v</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">UVertex</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">z</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">test_attr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+            <span class="n">g</span> <span class="o">=</span> <span class="n">UGraph</span><span class="p">()</span>
+
+            <span class="n">v1</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;v1&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">v1</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s1">&#39;v1&#39;</span><span class="p">)</span>
+
+            <span class="n">v1</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">(</span><span class="n">coord</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">v1</span><span class="o">.</span><span class="n">coord</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">v1</span><span class="o">.</span><span class="n">coord</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="p">(</span><span class="mi">3</span><span class="p">,))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">v1</span><span class="o">.</span><span class="n">coord</span><span class="p">),</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span>
+
+        <span class="k">def</span> <span class="nf">test_constructor3</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+            <span class="n">g</span> <span class="o">=</span> <span class="n">UGraph</span><span class="p">()</span>
+            <span class="n">v1</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">()</span>
+            <span class="n">v2</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">()</span>
+            <span class="n">v3</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">()</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">g</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">v1</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">g</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">v1</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">g</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">v1</span><span class="p">)</span>
+
+            <span class="k">class</span> <span class="nc">MyNode</span><span class="p">(</span><span class="n">UVertex</span><span class="p">):</span>
+                <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">):</span>
+                    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">a</span> <span class="o">=</span> <span class="n">a</span>
+
+            <span class="n">v1</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">(</span><span class="n">MyNode</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+            <span class="n">v2</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">(</span><span class="n">MyNode</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">MyNode</span><span class="p">)</span>
+            <span class="n">v1</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">v2</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">v1</span><span class="o">.</span><span class="n">neighbours</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">a</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">test_getitem</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="n">g</span> <span class="o">=</span> <span class="n">UGraph</span><span class="p">()</span>
+            <span class="n">v1</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;v1&#39;</span><span class="p">)</span>
+            <span class="n">v2</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;v2&#39;</span><span class="p">)</span>
+            <span class="n">v3</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;v3&#39;</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">g</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">v1</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">g</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">v2</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">g</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">v3</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">g</span><span class="p">[</span><span class="s1">&#39;v1&#39;</span><span class="p">],</span> <span class="n">v1</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">g</span><span class="p">[</span><span class="s1">&#39;v2&#39;</span><span class="p">],</span> <span class="n">v2</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">g</span><span class="p">[</span><span class="s1">&#39;v3&#39;</span><span class="p">],</span> <span class="n">v3</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">g</span><span class="p">[</span><span class="n">v1</span><span class="p">],</span> <span class="n">v1</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">g</span><span class="p">[</span><span class="n">v2</span><span class="p">],</span> <span class="n">v2</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">g</span><span class="p">[</span><span class="n">v3</span><span class="p">],</span> <span class="n">v3</span><span class="p">)</span>
+
+            <span class="n">v</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">g</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">),</span> <span class="mi">3</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="p">[</span><span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">,</span> <span class="n">v3</span><span class="p">])</span>
+
+        <span class="k">def</span> <span class="nf">test_connect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+            <span class="n">g</span> <span class="o">=</span> <span class="n">UGraph</span><span class="p">()</span>
+            <span class="n">v1</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">()</span>
+            <span class="n">v2</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">()</span>
+            <span class="n">v3</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">()</span>
+            <span class="n">e12</span> <span class="o">=</span> <span class="n">v1</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">v2</span><span class="p">)</span>
+            <span class="n">e13</span> <span class="o">=</span> <span class="n">v1</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">v3</span><span class="p">)</span>
+            
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">e12</span><span class="p">,</span> <span class="n">Edge</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">e12</span><span class="p">,</span> <span class="n">Edge</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">e12</span> <span class="ow">in</span> <span class="n">v1</span><span class="o">.</span><span class="n">edges</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">e12</span> <span class="ow">in</span> <span class="n">v2</span><span class="o">.</span><span class="n">edges</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">e12</span> <span class="ow">in</span> <span class="n">v3</span><span class="o">.</span><span class="n">edges</span><span class="p">())</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">e13</span> <span class="ow">in</span> <span class="n">v1</span><span class="o">.</span><span class="n">edges</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">e13</span> <span class="ow">in</span> <span class="n">v3</span><span class="o">.</span><span class="n">edges</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">e13</span> <span class="ow">in</span> <span class="n">v2</span><span class="o">.</span><span class="n">edges</span><span class="p">())</span>
+
+        <span class="k">def</span> <span class="nf">test_edge1</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+            <span class="n">g</span> <span class="o">=</span> <span class="n">UGraph</span><span class="p">()</span>
+            <span class="n">v1</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">()</span>
+            <span class="n">v2</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">()</span>
+            <span class="n">v3</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">()</span>
+            <span class="n">v4</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">()</span>
+            <span class="n">v1</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">v2</span><span class="p">)</span>
+            <span class="n">v1</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">v3</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">v1</span><span class="o">.</span><span class="n">edges</span><span class="p">()),</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">v2</span><span class="o">.</span><span class="n">edges</span><span class="p">()),</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">v3</span><span class="o">.</span><span class="n">edges</span><span class="p">()),</span> <span class="mi">1</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">v1</span><span class="o">.</span><span class="n">neighbours</span><span class="p">()),</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">v2</span><span class="o">.</span><span class="n">neighbours</span><span class="p">()),</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">v3</span><span class="o">.</span><span class="n">neighbours</span><span class="p">()),</span> <span class="mi">1</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">v2</span> <span class="ow">in</span> <span class="n">v1</span><span class="o">.</span><span class="n">neighbours</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">v3</span> <span class="ow">in</span> <span class="n">v1</span><span class="o">.</span><span class="n">neighbours</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">v4</span> <span class="ow">in</span> <span class="n">v1</span><span class="o">.</span><span class="n">neighbours</span><span class="p">())</span>
+
+        <span class="k">def</span> <span class="nf">test_edge2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+            <span class="n">g</span> <span class="o">=</span> <span class="n">UGraph</span><span class="p">()</span>
+            <span class="n">v1</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;n1&#39;</span><span class="p">)</span>
+            <span class="n">v2</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;n2&#39;</span><span class="p">)</span>
+            <span class="n">v3</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;n3&#39;</span><span class="p">)</span>
+            <span class="n">v4</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;n4&#39;</span><span class="p">)</span>
+
+            <span class="n">g</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s1">&#39;n1&#39;</span><span class="p">,</span> <span class="s1">&#39;n2&#39;</span><span class="p">)</span>
+            <span class="n">g</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s1">&#39;n1&#39;</span><span class="p">,</span> <span class="s1">&#39;n3&#39;</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">v1</span><span class="o">.</span><span class="n">edges</span><span class="p">()),</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">v2</span><span class="o">.</span><span class="n">edges</span><span class="p">()),</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">v3</span><span class="o">.</span><span class="n">edges</span><span class="p">()),</span> <span class="mi">1</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">v1</span><span class="o">.</span><span class="n">neighbours</span><span class="p">()),</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">v2</span><span class="o">.</span><span class="n">neighbours</span><span class="p">()),</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">v3</span><span class="o">.</span><span class="n">neighbours</span><span class="p">()),</span> <span class="mi">1</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">v2</span> <span class="ow">in</span> <span class="n">v1</span><span class="o">.</span><span class="n">neighbours</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">v3</span> <span class="ow">in</span> <span class="n">v1</span><span class="o">.</span><span class="n">neighbours</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">v4</span> <span class="ow">in</span> <span class="n">v1</span><span class="o">.</span><span class="n">neighbours</span><span class="p">())</span>
+
+        <span class="k">def</span> <span class="nf">test_edge3</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+            <span class="n">g</span> <span class="o">=</span> <span class="n">UGraph</span><span class="p">()</span>
+            <span class="n">v1</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;n1&#39;</span><span class="p">)</span>
+            <span class="n">v2</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;n2&#39;</span><span class="p">)</span>
+            <span class="n">v3</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;n3&#39;</span><span class="p">)</span>
+            <span class="n">v4</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;n4&#39;</span><span class="p">)</span>
+
+            <span class="n">g</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">)</span>
+            <span class="n">g</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">v3</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">v1</span><span class="o">.</span><span class="n">edges</span><span class="p">()),</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">v2</span><span class="o">.</span><span class="n">edges</span><span class="p">()),</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">v3</span><span class="o">.</span><span class="n">edges</span><span class="p">()),</span> <span class="mi">1</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">v1</span><span class="o">.</span><span class="n">neighbours</span><span class="p">()),</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">v2</span><span class="o">.</span><span class="n">neighbours</span><span class="p">()),</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">v3</span><span class="o">.</span><span class="n">neighbours</span><span class="p">()),</span> <span class="mi">1</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">v2</span> <span class="ow">in</span> <span class="n">v1</span><span class="o">.</span><span class="n">neighbours</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">v3</span> <span class="ow">in</span> <span class="n">v1</span><span class="o">.</span><span class="n">neighbours</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertFalse</span><span class="p">(</span><span class="n">v4</span> <span class="ow">in</span> <span class="n">v1</span><span class="o">.</span><span class="n">neighbours</span><span class="p">())</span>
+
+
+        <span class="k">def</span> <span class="nf">test_edgeto</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+            <span class="n">g</span> <span class="o">=</span> <span class="n">UGraph</span><span class="p">()</span>
+            <span class="n">v1</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">()</span>
+            <span class="n">v2</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">()</span>
+            <span class="n">v3</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">()</span>
+            <span class="n">e12</span> <span class="o">=</span> <span class="n">v1</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">v2</span><span class="p">)</span>
+            <span class="n">e13</span> <span class="o">=</span> <span class="n">v1</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">v3</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">v1</span><span class="o">.</span><span class="n">edgeto</span><span class="p">(</span><span class="n">v2</span><span class="p">),</span> <span class="n">Edge</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">v1</span><span class="o">.</span><span class="n">edgeto</span><span class="p">(</span><span class="n">v2</span><span class="p">),</span> <span class="n">e12</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIs</span><span class="p">(</span><span class="n">v1</span><span class="o">.</span><span class="n">edgeto</span><span class="p">(</span><span class="n">v2</span><span class="p">),</span> <span class="n">e12</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">test_remove_edge</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+            <span class="n">g</span> <span class="o">=</span> <span class="n">UGraph</span><span class="p">()</span>
+            <span class="n">v1</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">()</span>
+            <span class="n">v2</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">()</span>
+            <span class="n">v3</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">()</span>
+            <span class="n">e12</span> <span class="o">=</span> <span class="n">v1</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">v2</span><span class="p">)</span>
+            <span class="n">e13</span> <span class="o">=</span> <span class="n">v1</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">v3</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">nc</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">e12</span><span class="o">.</span><span class="n">remove</span><span class="p">()</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">nc</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">v1</span><span class="o">.</span><span class="n">edges</span><span class="p">()),</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">v2</span><span class="o">.</span><span class="n">edges</span><span class="p">()),</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">v3</span><span class="o">.</span><span class="n">edges</span><span class="p">()),</span> <span class="mi">1</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">v1</span><span class="o">.</span><span class="n">neighbours</span><span class="p">()),</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">v2</span><span class="o">.</span><span class="n">neighbours</span><span class="p">()),</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">v3</span><span class="o">.</span><span class="n">neighbours</span><span class="p">()),</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">test_remove_vertex</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+            <span class="n">g</span> <span class="o">=</span> <span class="n">UGraph</span><span class="p">()</span>
+            <span class="n">v1</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">()</span>
+            <span class="n">v2</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">()</span>
+            <span class="n">v3</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">()</span>
+            <span class="n">e12</span> <span class="o">=</span> <span class="n">v1</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">v2</span><span class="p">)</span>
+            <span class="n">e13</span> <span class="o">=</span> <span class="n">v1</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">v3</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">nc</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">g</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">v1</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">nc</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">v1</span><span class="o">.</span><span class="n">edges</span><span class="p">()),</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">v2</span><span class="o">.</span><span class="n">edges</span><span class="p">()),</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">v3</span><span class="o">.</span><span class="n">edges</span><span class="p">()),</span> <span class="mi">0</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">v1</span><span class="o">.</span><span class="n">neighbours</span><span class="p">()),</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">v2</span><span class="o">.</span><span class="n">neighbours</span><span class="p">()),</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">v3</span><span class="o">.</span><span class="n">neighbours</span><span class="p">()),</span> <span class="mi">0</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">test_components</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+            <span class="n">g</span> <span class="o">=</span> <span class="n">UGraph</span><span class="p">()</span>
+            <span class="n">v1</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">()</span>
+            <span class="n">v2</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">()</span>
+            <span class="n">v3</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">()</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">nc</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+            <span class="n">v1</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">v2</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">nc</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="n">v1</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">v3</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">nc</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">test_bfs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="n">g</span> <span class="o">=</span> <span class="n">UGraph</span><span class="p">()</span>
+            <span class="n">v1</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">()</span>
+            <span class="n">v2</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">()</span>
+            <span class="n">v3</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">()</span>
+            <span class="n">v4</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">()</span>
+            <span class="n">v5</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">()</span>
+            <span class="n">v6</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">()</span>
+
+            <span class="n">v1</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">v2</span><span class="p">)</span>
+            <span class="n">v2</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">v3</span><span class="p">)</span>
+            <span class="n">v1</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">v2</span><span class="p">)</span>
+            <span class="n">v1</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">v4</span><span class="p">)</span>
+            <span class="n">v4</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">v5</span><span class="p">)</span>
+            <span class="n">v5</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">v3</span><span class="p">)</span>
+
+            <span class="n">p</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">BFS</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">v6</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+
+            <span class="n">p</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">BFS</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">v3</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="p">),</span> <span class="mi">3</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="p">[</span><span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">,</span> <span class="n">v3</span><span class="p">])</span>
+
+        <span class="k">def</span> <span class="nf">test_Astar</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="n">g</span> <span class="o">=</span> <span class="n">UGraph</span><span class="p">()</span>
+            <span class="n">v1</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">(</span><span class="n">coord</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">v2</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">(</span><span class="n">coord</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">v3</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">(</span><span class="n">coord</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">])</span>
+            <span class="n">v4</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">(</span><span class="n">coord</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span>
+            <span class="n">v5</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">(</span><span class="n">coord</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">4</span><span class="p">])</span>
+            <span class="n">v6</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">(</span><span class="n">coord</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span><span class="mi">2</span><span class="p">])</span>
+            <span class="n">v7</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">(</span><span class="n">coord</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">6</span><span class="p">])</span>
+
+            <span class="n">v1</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">v2</span><span class="p">)</span>
+            <span class="n">v2</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">v3</span><span class="p">)</span>
+            <span class="n">v3</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">v4</span><span class="p">)</span>
+            <span class="n">v4</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">v5</span><span class="p">)</span>
+            <span class="n">v1</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">v6</span><span class="p">)</span>
+            <span class="n">e</span> <span class="o">=</span> <span class="n">v6</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">v5</span><span class="p">)</span>
+
+            <span class="n">p</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">Astar</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">v7</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIsNone</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+
+            <span class="n">p</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">Astar</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">v5</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="p">),</span> <span class="mi">5</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="p">[</span><span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">,</span> <span class="n">v3</span><span class="p">,</span> <span class="n">v4</span><span class="p">,</span> <span class="n">v5</span><span class="p">])</span>
+
+
+    <span class="k">class</span> <span class="nc">TestDGraph</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+
+        <span class="k">def</span> <span class="nf">test_constructor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+            <span class="n">g</span> <span class="o">=</span> <span class="n">DGraph</span><span class="p">()</span>
+
+            <span class="n">v1</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">()</span>
+            <span class="n">v2</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">DVertex</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertIsInstance</span><span class="p">(</span><span class="n">v2</span><span class="p">,</span> <span class="n">DVertex</span><span class="p">)</span>
+
+    <span class="k">class</span> <span class="nc">TestGraph</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+
+        <span class="k">def</span> <span class="nf">test_print</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">pass</span>
+    
+        <span class="k">def</span> <span class="nf">test_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">pass</span>
+
+    <span class="n">unittest</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Peter Corke
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

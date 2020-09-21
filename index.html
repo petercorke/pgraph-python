@@ -1,0 +1,1412 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Graphs for Python &mdash; Simple graph functionality for Python  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="#" class="icon icon-home" alt="Documentation Home"> Simple graph functionality for Python
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">Graphs for Python</a><ul>
+<li><a class="reference internal" href="#module-PGraph">Undirected graphs</a></li>
+<li><a class="reference internal" href="#module-2">Directed graphs</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+</div>
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">Simple graph functionality for Python</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="#" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Graphs for Python</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="graphs-for-python">
+<h1>Graphs for Python<a class="headerlink" href="#graphs-for-python" title="Permalink to this headline">¶</a></h1>
+<p>This package provides a set of classes for manipulating simple directed and undirected graphs in Python.</p>
+<div class="section" id="module-PGraph">
+<span id="undirected-graphs"></span><h2>Undirected graphs<a class="headerlink" href="#module-PGraph" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="PGraph.UGraph">
+<em class="property">class </em><code class="sig-prename descclassname">PGraph.</code><code class="sig-name descname">UGraph</code><a class="reference internal" href="_modules/PGraph.html#UGraph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#PGraph.UGraph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="PGraph.html#PGraph.PGraph" title="PGraph.PGraph"><code class="xref py py-class docutils literal notranslate"><span class="pre">PGraph.PGraph</span></code></a></p>
+<p>Class for undirected graphs</p>
+<div class="graphviz"><img src="_images/inheritance-f00361b5434de417cfc29d61fced3aac2edee3a3.png" alt="Inheritance diagram of UGraph" usemap="#inheritance633a8a5863" class="inheritance graphviz" /></div>
+<map id="inheritance633a8a5863" name="inheritance633a8a5863">
+<area shape="rect" id="node1" href="PGraph.html#PGraph.PGraph" target="_top" title="PGraph.PGraph" alt="" coords="128,5,243,31"/>
+<area shape="rect" id="node3" href="#PGraph.UGraph" target="_top" title="Class for undirected graphs" alt="" coords="291,5,405,31"/>
+</map><dl class="py method">
+<dt id="PGraph.UGraph.Laplacian">
+<code class="sig-name descname">Laplacian</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PGraph.UGraph.Laplacian" title="Permalink to this definition">¶</a></dt>
+<dd><p>Laplacian matrix for the graph</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Laplacian matrix</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>NumPy ndarray</p>
+</dd>
+</dl>
+<p><code class="docutils literal notranslate"><span class="pre">g.Laplacian()</span></code> is the Laplacian matrix (NxN) of the graph where N
+is the number of vertices.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>Laplacian is always positive-semidefinite.</p></li>
+<li><p>Laplacian has at least one zero eigenvalue.</p></li>
+<li><dl class="simple">
+<dt>The number of zero-valued eigenvalues is the number of connected </dt><dd><p>components in the graph.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#PGraph.UGraph.adjacency" title="PGraph.UGraph.adjacency"><code class="xref py py-func docutils literal notranslate"><span class="pre">adjacency()</span></code></a>, <a class="reference internal" href="#PGraph.UGraph.incidence" title="PGraph.UGraph.incidence"><code class="xref py py-func docutils literal notranslate"><span class="pre">incidence()</span></code></a>, <a class="reference internal" href="#PGraph.UGraph.degree" title="PGraph.UGraph.degree"><code class="xref py py-func docutils literal notranslate"><span class="pre">degree()</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="PGraph.UGraph.add_edge">
+<code class="sig-name descname">add_edge</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">v1</span></em>, <em class="sig-param"><span class="n">v2</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#PGraph.UGraph.add_edge" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="PGraph.UGraph.add_vertex">
+<code class="sig-name descname">add_vertex</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">coord</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PGraph.html#UGraph.add_vertex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#PGraph.UGraph.add_vertex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add vertex to undirected graph</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>coord</strong> (<em>array-like</em><em>, </em><em>optional</em>) – coordinate for an embedded graph, defaults to None</p></li>
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – node name, defaults to “#i”</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>new vertex</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#PGraph.UVertex" title="PGraph.UVertex">UVertex</a></p>
+</dd>
+</dl>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">g.add_vertex()</span></code> creates a new vertex with optional <code class="docutils literal notranslate"><span class="pre">coord</span></code> and
+<code class="docutils literal notranslate"><span class="pre">name</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">g.add_vertex(v)</span></code> takes an instance or subclass of UVertex and adds
+it to the graph</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py method">
+<dt id="PGraph.UGraph.adjacency">
+<code class="sig-name descname">adjacency</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PGraph.UGraph.adjacency" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adjacency matrix of graph</p>
+<p><code class="docutils literal notranslate"><span class="pre">g.adjacency()</span></code> is a matrix (NxN) where N is the number of vertices.
+Element A[i,j] is 1 if vertex i is connected to vertex j, else 0.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>vertices are numbered in their order of creation. A vertex index</dt><dd><p>can be resolved to a vertex reference by <code class="docutils literal notranslate"><span class="pre">graph[i]</span></code>.</p>
+</dd>
+</dl>
+</li>
+<li><p>Matrix is symmetric for an undirected graph</p></li>
+<li><p>Eigenvalues of A are real and are known as the spectrum of the graph.</p></li>
+<li><dl class="simple">
+<dt>The element A[i,j] can be considered the number of walks of one</dt><dd><p>edge from vertex i to vertex j (either zero or one).  The element (i,j)
+of A^N are the number of walks of length N from vertex i to vertex j.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#PGraph.UGraph.Laplacian" title="PGraph.UGraph.Laplacian"><code class="xref py py-func docutils literal notranslate"><span class="pre">Laplacian()</span></code></a>, <a class="reference internal" href="#PGraph.UGraph.incidence" title="PGraph.UGraph.incidence"><code class="xref py py-func docutils literal notranslate"><span class="pre">incidence()</span></code></a>, <a class="reference internal" href="#PGraph.UGraph.degree" title="PGraph.UGraph.degree"><code class="xref py py-func docutils literal notranslate"><span class="pre">degree()</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="PGraph.UGraph.average_degree">
+<code class="sig-name descname">average_degree</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PGraph.UGraph.average_degree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Average degree of the graph</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>average degree</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>float</p>
+</dd>
+</dl>
+<p>Average degree is <span class="math notranslate nohighlight">\(2 E / N\)</span> for an undirected graph and 
+<span class="math notranslate nohighlight">\(E / N\)</span> for a directed graph where <span class="math notranslate nohighlight">\(E\)</span> is the total number of
+edges and <span class="math notranslate nohighlight">\(N\)</span> is the number of vertices.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="PGraph.UGraph.component">
+<code class="sig-name descname">component</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">c</span></em><span class="sig-paren">)</span><a class="headerlink" href="#PGraph.UGraph.component" title="Permalink to this definition">¶</a></dt>
+<dd><p>All nodes in specified graph component</p>
+<p><code class="docutils literal notranslate"><span class="pre">graph.component(c)</span></code> is a list of all vertices in graph component <code class="docutils literal notranslate"><span class="pre">c</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="PGraph.UGraph.connectivity">
+<code class="sig-name descname">connectivity</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PGraph.UGraph.connectivity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Graph connectivity</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>[description]</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>[type]</p>
+</dd>
+</dl>
+<p>% C = G.connectivity() is a vector (Nx1) with the number of edges per
+% vertex.
+%
+% The average vertex connectivity is
+%         mean(g.connectivity())
+%
+% and the minimum vertex connectivity is
+%         min(g.connectivity())</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="PGraph.UGraph.degree">
+<code class="sig-name descname">degree</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PGraph.UGraph.degree" title="Permalink to this definition">¶</a></dt>
+<dd><p>%Pgraph.degree Degree matrix of graph
+%
+% D = G.degree() is a diagonal matrix (NxN) where element D(i,i) is the number
+% of edges connected to vertex id i.
+%
+% See also PGraph.adjacency, PGraph.incidence, PGraph.laplacian.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="PGraph.UGraph.dotfile">
+<code class="sig-name descname">dotfile</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">file</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#PGraph.UGraph.dotfile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a GraphViz dot file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>file</strong> (<em>str</em><em>, </em><em>optional</em>) – filename to save graph to, defaults to None</p>
+</dd>
+</dl>
+<p><code class="docutils literal notranslate"><span class="pre">g.dotfile()</span></code> creates the specified file which contains the
+GraphViz code to represent the embedded graph.  By default output
+is to the console</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>The graph is undirected if it is a subclass of <code class="docutils literal notranslate"><span class="pre">UGraph</span></code></p></li>
+<li><p>The graph is directed if it is a subclass of <code class="docutils literal notranslate"><span class="pre">DGraph</span></code></p></li>
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">neato</span></code> rather than dot to get the embedded layout</p></li>
+</ul>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="PGraph.UGraph.edges">
+<code class="sig-name descname">edges</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PGraph.UGraph.edges" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all edges in graph</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>All edges in the graph</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list of Edge</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="PGraph.UGraph.highlight_edge">
+<code class="sig-name descname">highlight_edge</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">edge</span></em>, <em class="sig-param"><span class="n">scale</span><span class="o">=</span><span class="default_value">1.5</span></em>, <em class="sig-param"><span class="n">color</span><span class="o">=</span><span class="default_value">'r'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#PGraph.UGraph.highlight_edge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Highlight an edge in the graph</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>edge</strong> (<em>Edge subclass</em>) – The edge to highlight</p></li>
+<li><p><strong>scale</strong> (<em>float</em><em>, </em><em>optional</em>) – Overwrite with a line this much bigger than the original,
+defaults to 1.5</p></li>
+<li><p><strong>color</strong> (<em>str</em><em>, </em><em>optional</em>) – Overwrite with a line in this color, defaults to ‘r’</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="PGraph.UGraph.highlight_path">
+<code class="sig-name descname">highlight_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span></em>, <em class="sig-param"><span class="n">block</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#PGraph.UGraph.highlight_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Highlight a path through the graph</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> (<em>[</em><em>type</em><em>]</em>) – [description]</p></li>
+<li><p><strong>block</strong> (<em>bool</em><em>, </em><em>optional</em>) – [description], defaults to True</p></li>
+</ul>
+</dd>
+</dl>
+<p>The nodes and edges along the path are overwritten with a different
+size/width and color.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#PGraph.UGraph.highlight_vertex" title="PGraph.UGraph.highlight_vertex"><code class="xref py py-func docutils literal notranslate"><span class="pre">highlight_vertex()</span></code></a>, <a class="reference internal" href="#PGraph.UGraph.highlight_edge" title="PGraph.UGraph.highlight_edge"><code class="xref py py-func docutils literal notranslate"><span class="pre">highlight_edge()</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="PGraph.UGraph.highlight_vertex">
+<code class="sig-name descname">highlight_vertex</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">node</span></em>, <em class="sig-param"><span class="n">scale</span><span class="o">=</span><span class="default_value">1.5</span></em>, <em class="sig-param"><span class="n">color</span><span class="o">=</span><span class="default_value">'r'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#PGraph.UGraph.highlight_vertex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Highlight a vertex in the graph</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>edge</strong> (<em>Vertex subclass</em>) – The vertex to highlight</p></li>
+<li><p><strong>scale</strong> (<em>float</em><em>, </em><em>optional</em>) – Overwrite with a line this much bigger than the original,
+defaults to 1.5</p></li>
+<li><p><strong>color</strong> (<em>str</em><em>, </em><em>optional</em>) – Overwrite with a line in this color, defaults to ‘r’</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="PGraph.UGraph.incidence">
+<code class="sig-name descname">incidence</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PGraph.UGraph.incidence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Incidence matrix of graph</p>
+<p><code class="docutils literal notranslate"><span class="pre">g.incidence()</span></code> is a matrix (NxE) where N is the number of vertices
+and E is the number of edges.  Element (i,j) is 1 if vertex i is 
+connected to edge  j.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>vertices are numbered in their order of creation. A vertex index</dt><dd><p>can be resolved to a vertex reference by <code class="docutils literal notranslate"><span class="pre">graph[i]</span></code>.</p>
+</dd>
+</dl>
+</li>
+<li><p>edges are numbered in the order they appear in <code class="docutils literal notranslate"><span class="pre">graph.edges()</span></code>.</p></li>
+</ul>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#PGraph.UGraph.Laplacian" title="PGraph.UGraph.Laplacian"><code class="xref py py-func docutils literal notranslate"><span class="pre">Laplacian()</span></code></a>, <a class="reference internal" href="#PGraph.UGraph.adjacency" title="PGraph.UGraph.adjacency"><code class="xref py py-func docutils literal notranslate"><span class="pre">adjacency()</span></code></a>, <a class="reference internal" href="#PGraph.UGraph.degree" title="PGraph.UGraph.degree"><code class="xref py py-func docutils literal notranslate"><span class="pre">degree()</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="PGraph.UGraph.iscyclic">
+<code class="sig-name descname">iscyclic</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PGraph.UGraph.iscyclic" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="PGraph.UGraph.n">
+<em class="property">property </em><code class="sig-name descname">n</code><a class="headerlink" href="#PGraph.UGraph.n" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of vertices</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Number of vertices</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="PGraph.UGraph.nc">
+<em class="property">property </em><code class="sig-name descname">nc</code><a class="headerlink" href="#PGraph.UGraph.nc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of components</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Number of components</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>Components are labeled from 0 to <code class="docutils literal notranslate"><span class="pre">g.nc-1</span></code>.</p></li>
+<li><p>A graph coloring algorithm is run if the graph</p></li>
+</ul>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="PGraph.UGraph.new_vertex">
+<code class="sig-name descname">new_vertex</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">node</span></em><span class="sig-paren">)</span><a class="headerlink" href="#PGraph.UGraph.new_vertex" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="PGraph.UGraph.path_Astar">
+<code class="sig-name descname">path_Astar</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">S</span></em>, <em class="sig-param"><span class="n">G</span></em><span class="sig-paren">)</span><a class="headerlink" href="#PGraph.UGraph.path_Astar" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="PGraph.UGraph.path_BFS">
+<code class="sig-name descname">path_BFS</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">S</span></em>, <em class="sig-param"><span class="n">G</span></em><span class="sig-paren">)</span><a class="headerlink" href="#PGraph.UGraph.path_BFS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Breadth-first search for path</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>S</strong> (<em>Vertex subclass</em>) – start vertex</p></li>
+<li><p><strong>G</strong> (<em>Vertex subclass</em>) – goal vertex</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of vertices from S to G inclusive</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of Vertex subclass</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>Returns None</p></li>
+</ul>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="PGraph.UGraph.plot">
+<code class="sig-name descname">plot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">block</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#PGraph.UGraph.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the graph</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>block</strong> (<em>bool</em><em>, </em><em>optional</em>) – block execution until plot dismissed, defaults to True</p>
+</dd>
+</dl>
+<p>The graph is plotted using matplotlib.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="PGraph.UGraph.remove">
+<code class="sig-name descname">remove</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">v</span></em><span class="sig-paren">)</span><a class="headerlink" href="#PGraph.UGraph.remove" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="PGraph.UGraph.samecomponent">
+<code class="sig-name descname">samecomponent</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">v1</span></em>, <em class="sig-param"><span class="n">v2</span></em><span class="sig-paren">)</span><a class="headerlink" href="#PGraph.UGraph.samecomponent" title="Permalink to this definition">¶</a></dt>
+<dd><p>%PGraph.component Graph component
+%
+% C = G.component(V) is the id of the graph component that contains vertex
+% V.</p>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="module-0"></span><dl class="py class">
+<dt id="PGraph.UVertex">
+<em class="property">class </em><code class="sig-prename descclassname">PGraph.</code><code class="sig-name descname">UVertex</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">coord</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PGraph.html#UVertex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#PGraph.UVertex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="PGraph.html#PGraph.Vertex" title="PGraph.Vertex"><code class="xref py py-class docutils literal notranslate"><span class="pre">PGraph.Vertex</span></code></a></p>
+<p>Vertex subclass for undirected graphs</p>
+<p>This class can be inherited to provide user objects with graph capability.</p>
+<div class="graphviz"><img src="_images/inheritance-6d88951f464efca56a792df620a4cde1bc22c2d8.png" alt="Inheritance diagram of UVertex" usemap="#inheritanceb6dbe7050d" class="inheritance graphviz" /></div>
+<map id="inheritanceb6dbe7050d" name="inheritanceb6dbe7050d">
+<area shape="rect" id="node1" href="#PGraph.UVertex" target="_top" title="Vertex subclass for undirected graphs" alt="" coords="160,5,277,31"/>
+<area shape="rect" id="node2" href="PGraph.html#PGraph.Vertex" target="_top" title="Superclass for vertices of directed and non&#45;directed graphs." alt="" coords="5,5,112,31"/>
+</map><dl class="py method">
+<dt id="PGraph.UVertex.connect">
+<code class="sig-name descname">connect</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PGraph.html#UVertex.connect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#PGraph.UVertex.connect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Connect two vertices with an edge</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dest</strong> (<code class="docutils literal notranslate"><span class="pre">Vertex</span></code> subclass) – The node to connect to</p></li>
+<li><p><strong>edge</strong> (<code class="docutils literal notranslate"><span class="pre">Edge</span></code> subclass, optional) – Use this as the edge object, otherwise a new <code class="docutils literal notranslate"><span class="pre">Edge</span></code>
+object is created, defaults to None</p></li>
+<li><p><strong>cost</strong> (<em>float</em><em>, </em><em>optional</em>) – the cost to traverse this edge, required for planning 
+methods, defaults to None</p></li>
+<li><p><strong>edgedata</strong> (<em>Any</em><em>, </em><em>optional</em>) – reference to arbitrary data associated with the edge,
+defaults to None</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>TypeError</strong> – vertex types are different subclasses</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the edge connecting the nodes</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#id0" title="PGraph.Edge">Edge</a></p>
+</dd>
+</dl>
+<p><code class="docutils literal notranslate"><span class="pre">v1.connect(v2)</span></code> connects vertex <code class="docutils literal notranslate"><span class="pre">v1</span></code> to vertex <code class="docutils literal notranslate"><span class="pre">v2</span></code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>If the vertices subclass <code class="docutils literal notranslate"><span class="pre">UVertex</span></code> the edge is undirected, and if
+they subclass <code class="docutils literal notranslate"><span class="pre">DVertex</span></code> the edge is directed.</p></li>
+<li><p>Vertices must both be of the same <code class="docutils literal notranslate"><span class="pre">Vertex</span></code> subclass</p></li>
+</ul>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="PGraph.UVertex.edges">
+<code class="sig-name descname">edges</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PGraph.UVertex.edges" title="Permalink to this definition">¶</a></dt>
+<dd><p>All outgoing edges of vertex</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>List of all edges leaving this node</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list of Edge</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>For a directed graph the edges are those leaving this vertex</p></li>
+<li><dl class="simple">
+<dt>For a non-directed graph the edges are those leaving or entering</dt><dd><p>this vertex</p>
+</dd>
+</dl>
+</li>
+</ul>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="PGraph.UVertex.edgeto">
+<code class="sig-name descname">edgeto</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dest</span></em><span class="sig-paren">)</span><a class="headerlink" href="#PGraph.UVertex.edgeto" title="Permalink to this definition">¶</a></dt>
+<dd><p>Edge connecting vertex to specific neighbour</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dest</strong> (<code class="docutils literal notranslate"><span class="pre">Vertex</span></code> subclass) – a neigbouring node</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – <code class="docutils literal notranslate"><span class="pre">dest</span></code> is not a neighbour</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the edge from this node to <code class="docutils literal notranslate"><span class="pre">dest</span></code></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#id0" title="PGraph.Edge">Edge</a></p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>For a directed graph <code class="docutils literal notranslate"><span class="pre">dest</span></code> must be at the arrow end of the edge</p></li>
+</ul>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="PGraph.UVertex.incidences">
+<code class="sig-name descname">incidences</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PGraph.UVertex.incidences" title="Permalink to this definition">¶</a></dt>
+<dd><p>Neighbours and edges of a vertex</p>
+<p><code class="docutils literal notranslate"><span class="pre">v.incidences()</span></code> is a generator that returns a list of incidences, 
+tuples of (vertex, edge) for all neighbours of the vertex <code class="docutils literal notranslate"><span class="pre">v</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="PGraph.UVertex.neighbours">
+<code class="sig-name descname">neighbours</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PGraph.UVertex.neighbours" title="Permalink to this definition">¶</a></dt>
+<dd><p>Neighbours of a vertex</p>
+<p><code class="docutils literal notranslate"><span class="pre">v.neighbours()</span></code> is a list of neighbour of the vertex object <code class="docutils literal notranslate"><span class="pre">v</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="PGraph.UVertex.x">
+<em class="property">property </em><code class="sig-name descname">x</code><a class="headerlink" href="#PGraph.UVertex.x" title="Permalink to this definition">¶</a></dt>
+<dd><p>The x-coordinate of an embedded vertex</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The x-coordinate</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="PGraph.UVertex.y">
+<em class="property">property </em><code class="sig-name descname">y</code><a class="headerlink" href="#PGraph.UVertex.y" title="Permalink to this definition">¶</a></dt>
+<dd><p>The y-coordinate of an embedded vertex</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The y-coordinate</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="PGraph.UVertex.z">
+<em class="property">property </em><code class="sig-name descname">z</code><a class="headerlink" href="#PGraph.UVertex.z" title="Permalink to this definition">¶</a></dt>
+<dd><p>The z-coordinate of an embedded vertex</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The z-coordinate</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="module-1"></span><dl class="py class">
+<dt id="PGraph.Edge">
+<em class="property">class </em><code class="sig-prename descclassname">PGraph.</code><code class="sig-name descname">Edge</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">v1</span></em>, <em class="sig-param"><span class="n">v2</span></em>, <em class="sig-param"><span class="n">cost</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">data</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PGraph.html#Edge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#PGraph.Edge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Edge class</p>
+<p>Is used to represent directed directed and undirected edges.</p>
+<p>Each edge has:
+- <code class="docutils literal notranslate"><span class="pre">cost</span></code> cost of traversing this edge, required for planning methods
+- <code class="docutils literal notranslate"><span class="pre">data</span></code> reference to arbitrary data associated with the edge
+- <code class="docutils literal notranslate"><span class="pre">v1</span></code> first vertex, start vertex for a directed edge
+- <code class="docutils literal notranslate"><span class="pre">v2</span></code> second vertex, end vertex for a directed edge</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>An undirected graph is created by having a single edge object in the </dt><dd><p>edgelist of _each_ vertex.</p>
+</dd>
+</dl>
+</li>
+<li><p>This class can be inherited to provide user objects with graph capability.</p></li>
+<li><p>Inheritance is an alternative to providing arbitrary user data.</p></li>
+</ul>
+</div>
+<dl class="py method">
+<dt id="PGraph.Edge.next">
+<code class="sig-name descname">next</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">vertex</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PGraph.html#Edge.next"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#PGraph.Edge.next" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return other end of an edge</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>vertex</strong> (<em>Vertex subclass</em>) – one vertex on the edge</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – <code class="docutils literal notranslate"><span class="pre">vertex</span></code> is not on the edge</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the other vertex on the edge</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Vertex subclass</p>
+</dd>
+</dl>
+<p><code class="docutils literal notranslate"><span class="pre">e.next(v1)</span></code> is the vertex at the other end of edge <code class="docutils literal notranslate"><span class="pre">e</span></code>, ie. the 
+vertex that is not <code class="docutils literal notranslate"><span class="pre">v1</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="PGraph.Edge.remove">
+<code class="sig-name descname">remove</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/PGraph.html#Edge.remove"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#PGraph.Edge.remove" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove edge from graph</p>
+<p><code class="docutils literal notranslate"><span class="pre">e.remove()</span></code> removes <code class="docutils literal notranslate"><span class="pre">e</span></code> from the graph, but does not delete the
+edge object.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-2">
+<span id="directed-graphs"></span><h2>Directed graphs<a class="headerlink" href="#module-2" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="PGraph.DGraph">
+<em class="property">class </em><code class="sig-prename descclassname">PGraph.</code><code class="sig-name descname">DGraph</code><a class="reference internal" href="_modules/PGraph.html#DGraph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#PGraph.DGraph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="PGraph.html#PGraph.PGraph" title="PGraph.PGraph"><code class="xref py py-class docutils literal notranslate"><span class="pre">PGraph.PGraph</span></code></a></p>
+<p>Class for directed graphs</p>
+<div class="graphviz"><img src="_images/inheritance-e566f33c2f740fcfc6d8d2a943c7122e804d4710.png" alt="Inheritance diagram of DGraph" usemap="#inheritance55b8aa88e1" class="inheritance graphviz" /></div>
+<map id="inheritance55b8aa88e1" name="inheritance55b8aa88e1">
+<area shape="rect" id="node1" href="#PGraph.DGraph" target="_top" title="Class for directed graphs" alt="" coords="291,5,405,31"/>
+<area shape="rect" id="node2" href="PGraph.html#PGraph.PGraph" target="_top" title="PGraph.PGraph" alt="" coords="128,5,243,31"/>
+</map><dl class="py method">
+<dt id="PGraph.DGraph.Laplacian">
+<code class="sig-name descname">Laplacian</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PGraph.DGraph.Laplacian" title="Permalink to this definition">¶</a></dt>
+<dd><p>Laplacian matrix for the graph</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Laplacian matrix</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>NumPy ndarray</p>
+</dd>
+</dl>
+<p><code class="docutils literal notranslate"><span class="pre">g.Laplacian()</span></code> is the Laplacian matrix (NxN) of the graph where N
+is the number of vertices.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>Laplacian is always positive-semidefinite.</p></li>
+<li><p>Laplacian has at least one zero eigenvalue.</p></li>
+<li><dl class="simple">
+<dt>The number of zero-valued eigenvalues is the number of connected </dt><dd><p>components in the graph.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#PGraph.DGraph.adjacency" title="PGraph.DGraph.adjacency"><code class="xref py py-func docutils literal notranslate"><span class="pre">adjacency()</span></code></a>, <a class="reference internal" href="#PGraph.DGraph.incidence" title="PGraph.DGraph.incidence"><code class="xref py py-func docutils literal notranslate"><span class="pre">incidence()</span></code></a>, <a class="reference internal" href="#PGraph.DGraph.degree" title="PGraph.DGraph.degree"><code class="xref py py-func docutils literal notranslate"><span class="pre">degree()</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="PGraph.DGraph.add_edge">
+<code class="sig-name descname">add_edge</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">v1</span></em>, <em class="sig-param"><span class="n">v2</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#PGraph.DGraph.add_edge" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="PGraph.DGraph.add_vertex">
+<code class="sig-name descname">add_vertex</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">coord</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PGraph.html#DGraph.add_vertex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#PGraph.DGraph.add_vertex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add vertex to directed graph</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>coord</strong> (<em>array-like</em><em>, </em><em>optional</em>) – coordinate for an embedded graph, defaults to None</p></li>
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – node name, defaults to “#i”</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>new vertex</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#PGraph.DVertex" title="PGraph.DVertex">DVertex</a></p>
+</dd>
+</dl>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">g.add_vertex()</span></code> creates a new vertex with optional <code class="docutils literal notranslate"><span class="pre">coord</span></code> and
+<code class="docutils literal notranslate"><span class="pre">name</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">g.add_vertex(v)</span></code> takes an instance or subclass of DVertex and adds
+it to the graph</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py method">
+<dt id="PGraph.DGraph.adjacency">
+<code class="sig-name descname">adjacency</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PGraph.DGraph.adjacency" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adjacency matrix of graph</p>
+<p><code class="docutils literal notranslate"><span class="pre">g.adjacency()</span></code> is a matrix (NxN) where N is the number of vertices.
+Element A[i,j] is 1 if vertex i is connected to vertex j, else 0.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>vertices are numbered in their order of creation. A vertex index</dt><dd><p>can be resolved to a vertex reference by <code class="docutils literal notranslate"><span class="pre">graph[i]</span></code>.</p>
+</dd>
+</dl>
+</li>
+<li><p>Matrix is symmetric for an undirected graph</p></li>
+<li><p>Eigenvalues of A are real and are known as the spectrum of the graph.</p></li>
+<li><dl class="simple">
+<dt>The element A[i,j] can be considered the number of walks of one</dt><dd><p>edge from vertex i to vertex j (either zero or one).  The element (i,j)
+of A^N are the number of walks of length N from vertex i to vertex j.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#PGraph.DGraph.Laplacian" title="PGraph.DGraph.Laplacian"><code class="xref py py-func docutils literal notranslate"><span class="pre">Laplacian()</span></code></a>, <a class="reference internal" href="#PGraph.DGraph.incidence" title="PGraph.DGraph.incidence"><code class="xref py py-func docutils literal notranslate"><span class="pre">incidence()</span></code></a>, <a class="reference internal" href="#PGraph.DGraph.degree" title="PGraph.DGraph.degree"><code class="xref py py-func docutils literal notranslate"><span class="pre">degree()</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="PGraph.DGraph.average_degree">
+<code class="sig-name descname">average_degree</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PGraph.DGraph.average_degree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Average degree of the graph</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>average degree</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>float</p>
+</dd>
+</dl>
+<p>Average degree is <span class="math notranslate nohighlight">\(2 E / N\)</span> for an undirected graph and 
+<span class="math notranslate nohighlight">\(E / N\)</span> for a directed graph where <span class="math notranslate nohighlight">\(E\)</span> is the total number of
+edges and <span class="math notranslate nohighlight">\(N\)</span> is the number of vertices.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="PGraph.DGraph.component">
+<code class="sig-name descname">component</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">c</span></em><span class="sig-paren">)</span><a class="headerlink" href="#PGraph.DGraph.component" title="Permalink to this definition">¶</a></dt>
+<dd><p>All nodes in specified graph component</p>
+<p><code class="docutils literal notranslate"><span class="pre">graph.component(c)</span></code> is a list of all vertices in graph component <code class="docutils literal notranslate"><span class="pre">c</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="PGraph.DGraph.connectivity">
+<code class="sig-name descname">connectivity</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PGraph.DGraph.connectivity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Graph connectivity</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>[description]</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>[type]</p>
+</dd>
+</dl>
+<p>% C = G.connectivity() is a vector (Nx1) with the number of edges per
+% vertex.
+%
+% The average vertex connectivity is
+%         mean(g.connectivity())
+%
+% and the minimum vertex connectivity is
+%         min(g.connectivity())</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="PGraph.DGraph.degree">
+<code class="sig-name descname">degree</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PGraph.DGraph.degree" title="Permalink to this definition">¶</a></dt>
+<dd><p>%Pgraph.degree Degree matrix of graph
+%
+% D = G.degree() is a diagonal matrix (NxN) where element D(i,i) is the number
+% of edges connected to vertex id i.
+%
+% See also PGraph.adjacency, PGraph.incidence, PGraph.laplacian.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="PGraph.DGraph.dotfile">
+<code class="sig-name descname">dotfile</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">file</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#PGraph.DGraph.dotfile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a GraphViz dot file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>file</strong> (<em>str</em><em>, </em><em>optional</em>) – filename to save graph to, defaults to None</p>
+</dd>
+</dl>
+<p><code class="docutils literal notranslate"><span class="pre">g.dotfile()</span></code> creates the specified file which contains the
+GraphViz code to represent the embedded graph.  By default output
+is to the console</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>The graph is undirected if it is a subclass of <code class="docutils literal notranslate"><span class="pre">UGraph</span></code></p></li>
+<li><p>The graph is directed if it is a subclass of <code class="docutils literal notranslate"><span class="pre">DGraph</span></code></p></li>
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">neato</span></code> rather than dot to get the embedded layout</p></li>
+</ul>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="PGraph.DGraph.edges">
+<code class="sig-name descname">edges</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PGraph.DGraph.edges" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all edges in graph</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>All edges in the graph</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list of Edge</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="PGraph.DGraph.highlight_edge">
+<code class="sig-name descname">highlight_edge</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">edge</span></em>, <em class="sig-param"><span class="n">scale</span><span class="o">=</span><span class="default_value">1.5</span></em>, <em class="sig-param"><span class="n">color</span><span class="o">=</span><span class="default_value">'r'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#PGraph.DGraph.highlight_edge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Highlight an edge in the graph</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>edge</strong> (<em>Edge subclass</em>) – The edge to highlight</p></li>
+<li><p><strong>scale</strong> (<em>float</em><em>, </em><em>optional</em>) – Overwrite with a line this much bigger than the original,
+defaults to 1.5</p></li>
+<li><p><strong>color</strong> (<em>str</em><em>, </em><em>optional</em>) – Overwrite with a line in this color, defaults to ‘r’</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="PGraph.DGraph.highlight_path">
+<code class="sig-name descname">highlight_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span></em>, <em class="sig-param"><span class="n">block</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#PGraph.DGraph.highlight_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Highlight a path through the graph</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> (<em>[</em><em>type</em><em>]</em>) – [description]</p></li>
+<li><p><strong>block</strong> (<em>bool</em><em>, </em><em>optional</em>) – [description], defaults to True</p></li>
+</ul>
+</dd>
+</dl>
+<p>The nodes and edges along the path are overwritten with a different
+size/width and color.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#PGraph.DGraph.highlight_vertex" title="PGraph.DGraph.highlight_vertex"><code class="xref py py-func docutils literal notranslate"><span class="pre">highlight_vertex()</span></code></a>, <a class="reference internal" href="#PGraph.DGraph.highlight_edge" title="PGraph.DGraph.highlight_edge"><code class="xref py py-func docutils literal notranslate"><span class="pre">highlight_edge()</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="PGraph.DGraph.highlight_vertex">
+<code class="sig-name descname">highlight_vertex</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">node</span></em>, <em class="sig-param"><span class="n">scale</span><span class="o">=</span><span class="default_value">1.5</span></em>, <em class="sig-param"><span class="n">color</span><span class="o">=</span><span class="default_value">'r'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#PGraph.DGraph.highlight_vertex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Highlight a vertex in the graph</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>edge</strong> (<em>Vertex subclass</em>) – The vertex to highlight</p></li>
+<li><p><strong>scale</strong> (<em>float</em><em>, </em><em>optional</em>) – Overwrite with a line this much bigger than the original,
+defaults to 1.5</p></li>
+<li><p><strong>color</strong> (<em>str</em><em>, </em><em>optional</em>) – Overwrite with a line in this color, defaults to ‘r’</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="PGraph.DGraph.incidence">
+<code class="sig-name descname">incidence</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PGraph.DGraph.incidence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Incidence matrix of graph</p>
+<p><code class="docutils literal notranslate"><span class="pre">g.incidence()</span></code> is a matrix (NxE) where N is the number of vertices
+and E is the number of edges.  Element (i,j) is 1 if vertex i is 
+connected to edge  j.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>vertices are numbered in their order of creation. A vertex index</dt><dd><p>can be resolved to a vertex reference by <code class="docutils literal notranslate"><span class="pre">graph[i]</span></code>.</p>
+</dd>
+</dl>
+</li>
+<li><p>edges are numbered in the order they appear in <code class="docutils literal notranslate"><span class="pre">graph.edges()</span></code>.</p></li>
+</ul>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#PGraph.DGraph.Laplacian" title="PGraph.DGraph.Laplacian"><code class="xref py py-func docutils literal notranslate"><span class="pre">Laplacian()</span></code></a>, <a class="reference internal" href="#PGraph.DGraph.adjacency" title="PGraph.DGraph.adjacency"><code class="xref py py-func docutils literal notranslate"><span class="pre">adjacency()</span></code></a>, <a class="reference internal" href="#PGraph.DGraph.degree" title="PGraph.DGraph.degree"><code class="xref py py-func docutils literal notranslate"><span class="pre">degree()</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="PGraph.DGraph.iscyclic">
+<code class="sig-name descname">iscyclic</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PGraph.DGraph.iscyclic" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="PGraph.DGraph.n">
+<em class="property">property </em><code class="sig-name descname">n</code><a class="headerlink" href="#PGraph.DGraph.n" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of vertices</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Number of vertices</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="PGraph.DGraph.nc">
+<em class="property">property </em><code class="sig-name descname">nc</code><a class="headerlink" href="#PGraph.DGraph.nc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of components</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Number of components</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>Components are labeled from 0 to <code class="docutils literal notranslate"><span class="pre">g.nc-1</span></code>.</p></li>
+<li><p>A graph coloring algorithm is run if the graph</p></li>
+</ul>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="PGraph.DGraph.new_vertex">
+<code class="sig-name descname">new_vertex</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">node</span></em><span class="sig-paren">)</span><a class="headerlink" href="#PGraph.DGraph.new_vertex" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="PGraph.DGraph.path_Astar">
+<code class="sig-name descname">path_Astar</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">S</span></em>, <em class="sig-param"><span class="n">G</span></em><span class="sig-paren">)</span><a class="headerlink" href="#PGraph.DGraph.path_Astar" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="PGraph.DGraph.path_BFS">
+<code class="sig-name descname">path_BFS</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">S</span></em>, <em class="sig-param"><span class="n">G</span></em><span class="sig-paren">)</span><a class="headerlink" href="#PGraph.DGraph.path_BFS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Breadth-first search for path</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>S</strong> (<em>Vertex subclass</em>) – start vertex</p></li>
+<li><p><strong>G</strong> (<em>Vertex subclass</em>) – goal vertex</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of vertices from S to G inclusive</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of Vertex subclass</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>Returns None</p></li>
+</ul>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="PGraph.DGraph.plot">
+<code class="sig-name descname">plot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">block</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="headerlink" href="#PGraph.DGraph.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the graph</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>block</strong> (<em>bool</em><em>, </em><em>optional</em>) – block execution until plot dismissed, defaults to True</p>
+</dd>
+</dl>
+<p>The graph is plotted using matplotlib.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="PGraph.DGraph.remove">
+<code class="sig-name descname">remove</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">v</span></em><span class="sig-paren">)</span><a class="headerlink" href="#PGraph.DGraph.remove" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="PGraph.DGraph.samecomponent">
+<code class="sig-name descname">samecomponent</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">v1</span></em>, <em class="sig-param"><span class="n">v2</span></em><span class="sig-paren">)</span><a class="headerlink" href="#PGraph.DGraph.samecomponent" title="Permalink to this definition">¶</a></dt>
+<dd><p>%PGraph.component Graph component
+%
+% C = G.component(V) is the id of the graph component that contains vertex
+% V.</p>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="module-3"></span><dl class="py class">
+<dt id="PGraph.DVertex">
+<em class="property">class </em><code class="sig-prename descclassname">PGraph.</code><code class="sig-name descname">DVertex</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">coord</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PGraph.html#DVertex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#PGraph.DVertex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="PGraph.html#PGraph.Vertex" title="PGraph.Vertex"><code class="xref py py-class docutils literal notranslate"><span class="pre">PGraph.Vertex</span></code></a></p>
+<p>Vertex subclass for directed graphs</p>
+<p>This class can be inherited to provide user objects with graph capability.</p>
+<div class="graphviz"><img src="_images/inheritance-00f7a49d8faeb882df5aa261050326fd9f947899.png" alt="Inheritance diagram of DVertex" usemap="#inheritance0685ae92f7" class="inheritance graphviz" /></div>
+<map id="inheritance0685ae92f7" name="inheritance0685ae92f7">
+<area shape="rect" id="node1" href="#PGraph.DVertex" target="_top" title="Vertex subclass for directed graphs" alt="" coords="160,5,277,31"/>
+<area shape="rect" id="node2" href="PGraph.html#PGraph.Vertex" target="_top" title="Superclass for vertices of directed and non&#45;directed graphs." alt="" coords="5,5,112,31"/>
+</map><dl class="py method">
+<dt id="PGraph.DVertex.connect">
+<code class="sig-name descname">connect</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PGraph.html#DVertex.connect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#PGraph.DVertex.connect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Connect two vertices with an edge</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dest</strong> (<code class="docutils literal notranslate"><span class="pre">Vertex</span></code> subclass) – The node to connect to</p></li>
+<li><p><strong>edge</strong> (<code class="docutils literal notranslate"><span class="pre">Edge</span></code> subclass, optional) – Use this as the edge object, otherwise a new <code class="docutils literal notranslate"><span class="pre">Edge</span></code>
+object is created, defaults to None</p></li>
+<li><p><strong>cost</strong> (<em>float</em><em>, </em><em>optional</em>) – the cost to traverse this edge, required for planning 
+methods, defaults to None</p></li>
+<li><p><strong>edgedata</strong> (<em>Any</em><em>, </em><em>optional</em>) – reference to arbitrary data associated with the edge,
+defaults to None</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>TypeError</strong> – vertex types are different subclasses</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the edge connecting the nodes</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#id0" title="PGraph.Edge">Edge</a></p>
+</dd>
+</dl>
+<p><code class="docutils literal notranslate"><span class="pre">v1.connect(v2)</span></code> connects vertex <code class="docutils literal notranslate"><span class="pre">v1</span></code> to vertex <code class="docutils literal notranslate"><span class="pre">v2</span></code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>If the vertices subclass <code class="docutils literal notranslate"><span class="pre">UVertex</span></code> the edge is undirected, and if
+they subclass <code class="docutils literal notranslate"><span class="pre">DVertex</span></code> the edge is directed.</p></li>
+<li><p>Vertices must both be of the same <code class="docutils literal notranslate"><span class="pre">Vertex</span></code> subclass</p></li>
+</ul>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="PGraph.DVertex.edges">
+<code class="sig-name descname">edges</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PGraph.DVertex.edges" title="Permalink to this definition">¶</a></dt>
+<dd><p>All outgoing edges of vertex</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>List of all edges leaving this node</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>list of Edge</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>For a directed graph the edges are those leaving this vertex</p></li>
+<li><dl class="simple">
+<dt>For a non-directed graph the edges are those leaving or entering</dt><dd><p>this vertex</p>
+</dd>
+</dl>
+</li>
+</ul>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="PGraph.DVertex.edgeto">
+<code class="sig-name descname">edgeto</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dest</span></em><span class="sig-paren">)</span><a class="headerlink" href="#PGraph.DVertex.edgeto" title="Permalink to this definition">¶</a></dt>
+<dd><p>Edge connecting vertex to specific neighbour</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dest</strong> (<code class="docutils literal notranslate"><span class="pre">Vertex</span></code> subclass) – a neigbouring node</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – <code class="docutils literal notranslate"><span class="pre">dest</span></code> is not a neighbour</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the edge from this node to <code class="docutils literal notranslate"><span class="pre">dest</span></code></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#id0" title="PGraph.Edge">Edge</a></p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>For a directed graph <code class="docutils literal notranslate"><span class="pre">dest</span></code> must be at the arrow end of the edge</p></li>
+</ul>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="PGraph.DVertex.incidences">
+<code class="sig-name descname">incidences</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PGraph.DVertex.incidences" title="Permalink to this definition">¶</a></dt>
+<dd><p>Neighbours and edges of a vertex</p>
+<p><code class="docutils literal notranslate"><span class="pre">v.incidences()</span></code> is a generator that returns a list of incidences, 
+tuples of (vertex, edge) for all neighbours of the vertex <code class="docutils literal notranslate"><span class="pre">v</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="PGraph.DVertex.neighbours">
+<code class="sig-name descname">neighbours</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#PGraph.DVertex.neighbours" title="Permalink to this definition">¶</a></dt>
+<dd><p>Neighbours of a vertex</p>
+<p><code class="docutils literal notranslate"><span class="pre">v.neighbours()</span></code> is a list of neighbour of the vertex object <code class="docutils literal notranslate"><span class="pre">v</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="PGraph.DVertex.remove">
+<code class="sig-name descname">remove</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/PGraph.html#DVertex.remove"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#PGraph.DVertex.remove" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="PGraph.DVertex.x">
+<em class="property">property </em><code class="sig-name descname">x</code><a class="headerlink" href="#PGraph.DVertex.x" title="Permalink to this definition">¶</a></dt>
+<dd><p>The x-coordinate of an embedded vertex</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The x-coordinate</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="PGraph.DVertex.y">
+<em class="property">property </em><code class="sig-name descname">y</code><a class="headerlink" href="#PGraph.DVertex.y" title="Permalink to this definition">¶</a></dt>
+<dd><p>The y-coordinate of an embedded vertex</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The y-coordinate</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="PGraph.DVertex.z">
+<em class="property">property </em><code class="sig-name descname">z</code><a class="headerlink" href="#PGraph.DVertex.z" title="Permalink to this definition">¶</a></dt>
+<dd><p>The z-coordinate of an embedded vertex</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The z-coordinate</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="module-4"></span><dl class="py class">
+<dt id="id0">
+<em class="property">class </em><code class="sig-prename descclassname">PGraph.</code><code class="sig-name descname">Edge</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">v1</span></em>, <em class="sig-param"><span class="n">v2</span></em>, <em class="sig-param"><span class="n">cost</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">data</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PGraph.html#Edge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#id0" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Edge class</p>
+<p>Is used to represent directed directed and undirected edges.</p>
+<p>Each edge has:
+- <code class="docutils literal notranslate"><span class="pre">cost</span></code> cost of traversing this edge, required for planning methods
+- <code class="docutils literal notranslate"><span class="pre">data</span></code> reference to arbitrary data associated with the edge
+- <code class="docutils literal notranslate"><span class="pre">v1</span></code> first vertex, start vertex for a directed edge
+- <code class="docutils literal notranslate"><span class="pre">v2</span></code> second vertex, end vertex for a directed edge</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>An undirected graph is created by having a single edge object in the </dt><dd><p>edgelist of _each_ vertex.</p>
+</dd>
+</dl>
+</li>
+<li><p>This class can be inherited to provide user objects with graph capability.</p></li>
+<li><p>Inheritance is an alternative to providing arbitrary user data.</p></li>
+</ul>
+</div>
+<dl class="py method">
+<dt id="id3">
+<code class="sig-name descname">next</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">vertex</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/PGraph.html#Edge.next"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#id3" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return other end of an edge</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>vertex</strong> (<em>Vertex subclass</em>) – one vertex on the edge</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – <code class="docutils literal notranslate"><span class="pre">vertex</span></code> is not on the edge</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the other vertex on the edge</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Vertex subclass</p>
+</dd>
+</dl>
+<p><code class="docutils literal notranslate"><span class="pre">e.next(v1)</span></code> is the vertex at the other end of edge <code class="docutils literal notranslate"><span class="pre">e</span></code>, ie. the 
+vertex that is not <code class="docutils literal notranslate"><span class="pre">v1</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="id4">
+<code class="sig-name descname">remove</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/PGraph.html#Edge.remove"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#id4" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove edge from graph</p>
+<p><code class="docutils literal notranslate"><span class="pre">e.remove()</span></code> removes <code class="docutils literal notranslate"><span class="pre">e</span></code> from the graph, but does not delete the
+edge object.</p>
+</dd></dl>
+
+</dd></dl>
+
+<div class="toctree-wrapper compound">
+</div>
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Peter Corke
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
