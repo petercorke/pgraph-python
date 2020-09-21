@@ -48,16 +48,18 @@ Graphs belong to the class `UGraph` or `DGraph` for undirected or directed graph
 - `g` is an iterator over vertices, can be used as `for vertex in g:`
 - `g[i]` reference a vertex by its index or name
 
+    ***
 - `g.add_edge()` connect two vertices
 - `g.edges()` all edges in the graph
-
 - `g.plot()` plots the vertices and edges
 - `g.nc` the number of graph components, 1 if fully connected
 - `g.component(v)` the component that vertex `v` belongs to
 
+    ***
 - `g.path_BFS()` breadth-first search
 - `g.path_Astar()` A* search
 
+    ***
 - `g.adjacency()` adjacency matrix
 - `g.Laplacian()` Laplacian matrix
 - `g.incidence()` incidence matrix
@@ -108,6 +110,10 @@ f1.connect(f2, cost=3)
 for f in f1.neighbours():
     # say hi to the neighbours
 ```
+
+## Data structures
+
+![data structures](https://github.com/petercorke/pgraph-python/raw/master/docs/source/datastructures.png)
 
 ## MATLAB version
 
