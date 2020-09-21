@@ -25,11 +25,10 @@ docs: .FORCE
 	open docs/build/html/index.html
 
 docupdate: docs
-	git clone https://github.com/petercorke/pgraph-python.git --branch gh-pages --single-branch gh-pages
-	cp -r docs/build/html/. gh-pages
-	git add gh-pages
-	git commit -m "rebuilt docs"
-	git push origin gh-pages
+	git clone https://github.com/petercorke/pgraph-python.git --branch gh-pages --single-branch /tmp/gh-pages
+	cp -r docs/build/html/. /tmp/gh-pages
+	(cd /tmp/gh-pages; git add .; git commit -m "rebuilt docs"; git push origin gh-pages)
+	rm -rf /tmp/gh-pages
 
 dist: .FORCE
 	#$(MAKE) test
