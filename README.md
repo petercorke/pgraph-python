@@ -5,6 +5,7 @@
 [![PyPI version](https://badge.fury.io/py/pgraph-python.svg)](https://badge.fury.io/py/spatialmath-python)
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/petercorke/pgraph-python/graphs/commit-activity)
 [![GitHub license](https://img.shields.io/github/license/Naereen/StrapDown.js.svg)](https://github.com/petercorke/pgraph-python/blob/master/LICENSE)
+[![QUT Centre for Robotics Open Source](https://github.com/qcr/qcr.github.io/raw/master/misc/badge.svg)](https://qcr.github.io)
 
 - GitHub repository: [https://github.com/petercorke/pgraph-python](https://github.com/petercorke/pgraph-python)
 - Documentation: [https://petercorke.github.io/pgraph-python](https://petercorke.github.io/pgraph-python)
@@ -65,7 +66,7 @@ Graphs belong to the class `UGraph` or `DGraph` for undirected or directed graph
 - `g.incidence()` incidence matrix
 
 ### Properties and methods of a vertex
-Vertices belong to the class `UVertex` (for undirected graphs) or `DVertex` (for directed graphs).
+Vertices belong to the class `UVertex` (for undirected graphs) or `DVertex` (for directed graphs), which are each subclasses of `Vertex`.
 
 - `v.coord` the coordinate vector for embedded graph (optional)
 - `v.name` the name of the vertex (optional)
@@ -111,7 +112,9 @@ for f in f1.neighbours():
     # say hi to the neighbours
 ```
 
-## Data structures
+## Under the hood
+
+The key objects and their interactions are shown below.
 
 ![data structures](https://github.com/petercorke/pgraph-python/raw/master/docs/source/datastructures.png)
 
