@@ -95,13 +95,18 @@ class PGraph(ABC):
 
         :return: All edges in the graph
         :rtype: list of Edge
+
+        Edges are not referenced by the graph object, but they are referenced
+        by the vertices which are held in an internal list of the graph. Edges
+        are found by visiting each vertex and collecting the unique edge objects
+        they reference.
         """
         e = set()
         for node in self:
             e = e.union(node._edges)
         return e
             
-    def plot(self, block=True):
+    def plot(self, vertex=None, edge=None, text=None, color=None, block=True):
         """
         Plot the graph
 
@@ -115,17 +120,27 @@ class PGraph(ABC):
             - more options
             - save options for use by highlight
         """
-        nc = self.nc
-        print(nc, ' components')
-        color = plt.cm.coolwarm(np.linspace(0, 1, nc))
+        if vertex is None:
+            vertex = {"marker": 'o', "markersize": 12}
+        else:
+            if "marker" not in vertex:
+                vertex["marker"] = 'o'  # default circular marker
+        if edge is None:
+            edge = {"linewidth": 3}
+        if text is None:
+            text = {}
+
+        if color is None:
+            color = plt.cm.coolwarm(np.linspace(0, 1, nc))
+
         fig = plt.figure()
         for c in range(self.nc):
             # for each component
             for node in self.component(c):
-                plt.text(node.x, node.y, "  " + node.name)
-                plt.plot(node.x, node.y, 'o', color=color[c,:], markersize=12)
+                plt.text(node.x, node.y, "  " + node.name, **text)
+                plt.plot(node.x, node.y, color=color[c,:], **vertex)
                 for v in node.neighbours():
-                    plt.plot([node.x, v.x], [node.y, v.y], color=color[c,:], linewidth=3)
+                    plt.plot([node.x, v.x], [node.y, v.y], color=color[c,:], **edge)
 
         # if nc > 1:
         #     # add a colorbar
@@ -619,6 +634,8 @@ class Edge:
     - ``data`` reference to arbitrary data associated with the edge
     - ``v1`` first vertex, start vertex for a directed edge
     - ``v2`` second vertex, end vertex for a directed edge
+
+    Edges are not referenced by the graph object, each edge references a pair of vertices, and the vertices reference the edges.  For a directed graph only the start vertex of an edge references the edge object, whereas for an undirected graph both vertices reference the edge object.
 
     .. note::
 
