@@ -1,8 +1,8 @@
 # PGraph: simple graphs for Python
 
-[![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)
-[![pypi downloads](https://img.shields.io/pypi/dw/pgraph-python)
-[![PyPI version](https://badge.fury.io/py/pgraph-python.svg)](https://badge.fury.io/py/spatialmath-python)
+![pypi downloads](https://img.shields.io/pypi/dw/pgraph-python)
+[![PyPI version fury.io](https://badge.fury.io/py/pgraph-python.svg)](https://pypi.python.org/pypi/pgraph-python/)
+[![PyPI pyversions](https://img.shields.io/pypi/pyversions/pgraph-python)](https://pypi.python.org/pypi/pgraph-python/)
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/petercorke/pgraph-python/graphs/commit-activity)
 [![GitHub license](https://img.shields.io/github/license/Naereen/StrapDown.js.svg)](https://github.com/petercorke/pgraph-python/blob/master/LICENSE)
 [![QUT Centre for Robotics Open Source](https://github.com/qcr/qcr.github.io/raw/master/misc/badge.svg)](https://qcr.github.io)
