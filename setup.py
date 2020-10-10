@@ -52,7 +52,7 @@ setup(
 
     author_email='rvc@petercorke.com', #TODO
 
-    keywords='python graph directed-graph undirected-graph',
+    keywords='python graph directed-graph undirected-graph a*-search adjacency-matrix Laplacian-matrix plotting optimal-path',
 
     license='MIT', #TODO
 
