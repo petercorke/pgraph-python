@@ -1155,10 +1155,10 @@ if __name__ == "__main__":
             v4.connect(v5)
             v5.connect(v3)
 
-            p = g.BFS(v1, v6)
+            p = g.path_BFS(v1, v6)
             self.assertIsNone(p)
 
-            p = g.BFS(v1, v3)
+            p = g.path_BFS(v1, v3)
             self.assertIsInstance(p, list)
             self.assertEqual(len(p), 3)
             self.assertEqual(p, [v1, v2, v3])
@@ -1180,10 +1180,10 @@ if __name__ == "__main__":
             v1.connect(v6)
             e = v6.connect(v5)
 
-            p = g.Astar(v1, v7)
+            p = g.path_Astar(v1, v7)
             self.assertIsNone(p)
 
-            p = g.Astar(v1, v5)
+            p = g.path_Astar(v1, v5)
             self.assertIsInstance(p, list)
             self.assertEqual(len(p), 5)
             self.assertEqual(p, [v1, v2, v3, v4, v5])
