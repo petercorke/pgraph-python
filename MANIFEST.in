@@ -1,0 +1,4 @@
+include RELEASE
+include examples/*
+exclude examples/*.png
+recursive-exclude test_* _test_* untitled*
