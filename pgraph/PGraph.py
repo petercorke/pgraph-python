@@ -13,20 +13,27 @@ class PGraph(ABC):
     # def add_edge(self, v1, v2, cost=None):
     #     pass
 
-    def __init__(self):
+    def __init__(self, verbose=False):
         self._vertexlist = []
         self._vertexdict = {}
+        self._verbose = verbose
 
     def new_vertex(self, node):
         if node.name is None:
             node.name = f"#{len(self._vertexlist)}"
         self._vertexlist.append(node)
         self._vertexdict[node.name] = node
+        if self._verbose:
+            print(f"New vertex {node.name}: {node.coord}")
+        
 
     def add_edge(self, v1, v2, **kwargs):
         v1 = self[v1]
         v2 = self[v2]
-        v1.connect(v2, **kwargs)
+        if self._verbose:
+            print(f"New edge from {v1.name} to {v2.name}")
+        return v1.connect(v2, **kwargs)
+
 
     @property
     def n(self):
@@ -37,6 +44,16 @@ class PGraph(ABC):
         :rtype: int
         """
         return len(self._vertexdict)
+
+    @property
+    def ne(self):
+        """
+        Number of edges
+
+        :return: Number of vertices
+        :rtype: int
+        """
+        return len(self.edges())
 
     @property
     def nc(self):
@@ -131,7 +148,7 @@ class PGraph(ABC):
             text = {}
 
         if color is None:
-            color = plt.cm.coolwarm(np.linspace(0, 1, nc))
+            color = plt.cm.coolwarm(np.linspace(0, 1, self.nc))
 
         fig = plt.figure()
         for c in range(self.nc):
@@ -405,22 +422,28 @@ class PGraph(ABC):
                 node.label = None
                 node._connectivitychange = False
             
-            def color_component(v, l):
-                v.label = l
-                for n in v.neighbours():
-                    if n.label is None:
-                        color_component(n, l)
-            
             lastlabel = None
             for label in range(self.n):
+                assignment = False
                 for v in self:
                     # find first vertex with no label
                     if v.label is None:
-                        color_component(v, label)
+                        # do BFS
+                        q = [v]
+                        while len(q) > 0:
+                            v = q.pop()
+                            v.label = label
+                            for n in v.neighbours():
+                                if n.label is None:
+                                    q.append(n)
                         lastlabel = label
+                        assignment = True
                         break
+                if not assignment:
+                    break
 
             self._ncomponents = lastlabel + 1
+            print('coloring done')
     
     def component(self, c):
         """
@@ -725,7 +748,7 @@ class Vertex:
         self.label = None
         self._connectivitychange = True
         self._edges = []
-        print('Vertex init', type(self))
+        # print('Vertex init', type(self))
 
     def __str__(self):
         return f"[{self.name:s}]"
@@ -785,7 +808,7 @@ class Vertex:
         else:
             e = Edge(self, dest, cost=cost, data=edgedata)
         self._connectivitychange = True
-        
+
         return e
 
     def edgeto(self, dest):
