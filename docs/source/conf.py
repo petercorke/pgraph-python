@@ -36,6 +36,14 @@ extensions = [
  'sphinx.ext.inheritance_diagram',
 ]
 
+html_theme_options = {
+    'logo_only': False,
+    'display_version': True,
+    'prev_next_buttons_location': 'both',
+    'analytics_id': 'G-11Q6WJM565',
+
+    }
+
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
