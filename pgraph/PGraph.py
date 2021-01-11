@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 import sys
 import numpy as np
 import matplotlib.pyplot as plt
-
+import copy
 class PGraph(ABC):
 
     @abstractmethod
@@ -13,20 +13,24 @@ class PGraph(ABC):
     # def add_edge(self, v1, v2, cost=None):
     #     pass
 
-    def __init__(self, verbose=False):
+    def __init__(self, arg=None, verbose=False):
         self._vertexlist = []
         self._vertexdict = {}
+        self._edges = set()
         self._verbose = verbose
 
-    def new_vertex(self, node):
+    def copy(self, g):
+        return copy.deepcopy(g)
+            
+    def add_vertex(self, node):
         if node.name is None:
             node.name = f"#{len(self._vertexlist)}"
         self._vertexlist.append(node)
         self._vertexdict[node.name] = node
         if self._verbose:
             print(f"New vertex {node.name}: {node.coord}")
+        node._graph = self
         
-
     def add_edge(self, v1, v2, **kwargs):
         v1 = self[v1]
         v2 = self[v2]
@@ -34,6 +38,45 @@ class PGraph(ABC):
             print(f"New edge from {v1.name} to {v2.name}")
         return v1.connect(v2, **kwargs)
 
+    def remove(self, x):
+        if isinstance(x, Edge):
+            # remove an edge
+
+            # remove edge from the edgelist of connected vertices
+            x.v1._edges.remove(x)
+            x.v2._edges.remove(x)
+
+            # indicate that connectivity has changed
+            x.v1._connectivitychange = True
+            x.v2._connectivitychange = True
+
+            # remove references to the nodes
+            x.v1 = None
+            x.v2 = None
+
+            # remove from list of all edges
+            self._edges.remove(x)
+
+        elif isinstance(x, Vertex):
+            # remove a vertex
+
+            # remove all edges of this vertex
+            for edge in copy.copy(x._edges):
+                self.remove(edge)
+            
+            # remove from list and dict of all edges
+            self._vertexlist.remove(x)
+            del self._vertexdict[x.name]
+        else:
+            raise TypeError('expecting Edge or Vertex')
+
+    def show(self):
+        print('vertices:')
+        for v in self._vertexlist:
+            print('  ' + str(v))
+        print('edges:')
+        for e in self._edges:
+            print('  ' + str(e))
 
     @property
     def n(self):
@@ -53,7 +96,7 @@ class PGraph(ABC):
         :return: Number of vertices
         :rtype: int
         """
-        return len(self.edges())
+        return len(self._edges)
 
     @property
     def nc(self):
@@ -118,10 +161,7 @@ class PGraph(ABC):
         are found by visiting each vertex and collecting the unique edge objects
         they reference.
         """
-        e = set()
-        for node in self:
-            e = e.union(node._edges)
-        return e
+        return self._edgelist
             
     def plot(self, vertex=None, edge=None, text=None, color=None, block=True):
         """
@@ -443,7 +483,6 @@ class PGraph(ABC):
                     break
 
             self._ncomponents = lastlabel + 1
-            print('coloring done')
     
     def component(self, c):
         """
@@ -465,21 +504,21 @@ class PGraph(ABC):
 
         return v1.label == v2.label
 
-    def remove(self, v):
-        # remove edges from neighbour's edge list
-        for e in v.edges():
-            next = e.next(v)
-            next._edges.remove(e)
-            next._connectivitychange = True  
+    # def remove(self, v):
+    #     # remove edges from neighbour's edge list
+    #     for e in v.edges():
+    #         next = e.next(v)
+    #         next._edges.remove(e)
+    #         next._connectivitychange = True  
 
-        # remove references from the graph
-        self._vertexlist.remove(v)
-        for key, value in self._vertexdict.items():
-            if value is v:
-                del self._vertexdict[key]
-                break
+    #     # remove references from the graph
+    #     self._vertexlist.remove(v)
+    #     for key, value in self._vertexdict.items():
+    #         if value is v:
+    #             del self._vertexdict[key]
+    #             break
 
-        v._edges = []  # remove all references to edges
+    #     v._edges = []  # remove all references to edges
 # --------------------------------------------------------------------------- #
 
     def path_BFS(self, S, G):
@@ -610,7 +649,7 @@ class UGraph(PGraph):
             node = coord
         else:
             node = UVertex(coord, name)
-        super().new_vertex(node)
+        super().add_vertex(node)
         return node
 
 class DGraph(PGraph):
@@ -640,7 +679,7 @@ class DGraph(PGraph):
             node = coord
         else:
             node = DVertex(coord, name)
-        super().new_vertex(node)
+        super().add_vertex(node)
         return node
 
 
@@ -708,26 +747,26 @@ class Edge:
         else:
             raise ValueError('shouldnt happen')
 
-    def remove(self):
-        """
-        Remove edge from graph
+    # def remove(self):
+    #     """
+    #     Remove edge from graph
 
-        ``e.remove()`` removes ``e`` from the graph, but does not delete the
-        edge object.
-        """
-        # remove this edge from the edge list of both end nodes
-        if self in self.v1._edges:
-            self.v1._edges.remove(self)
-        if self in self.v2._edges:
-            self.v2._edges.remove(self)
+    #     ``e.remove()`` removes ``e`` from the graph, but does not delete the
+    #     edge object.
+    #     """
+    #     # remove this edge from the edge list of both end nodes
+    #     if self in self.v1._edges:
+    #         self.v1._edges.remove(self)
+    #     if self in self.v2._edges:
+    #         self.v2._edges.remove(self)
 
-        # indicate that connectivity has changed
-        self.v1._connectivitychange = True
-        self.v2._connectivitychange = True
+    #     # indicate that connectivity has changed
+    #     self.v1._connectivitychange = True
+    #     self.v2._connectivitychange = True
 
-        # remove references to the nodes
-        self.v1 = None
-        self.v2 = None
+    #     # remove references to the nodes
+    #     self.v1 = None
+    #     self.v2 = None
 
 # ========================================================================== #
 
@@ -748,6 +787,7 @@ class Vertex:
         self.label = None
         self._connectivitychange = True
         self._edges = []
+        self._graph = None  # reference to owning graph
         # print('Vertex init', type(self))
 
     def __str__(self):
@@ -809,6 +849,7 @@ class Vertex:
             e = Edge(self, dest, cost=cost, data=edgedata)
         self._connectivitychange = True
 
+        self._graph._edges.add(e)
         return e
 
     def edgeto(self, dest):
@@ -892,6 +933,8 @@ class UVertex(Vertex):
         
         self._edges.append(e)
         other._edges.append(e)
+        self._graph._edges.add(e)
+
         return e
 
 
@@ -909,7 +952,7 @@ class DVertex(Vertex):
     def connect(self, other, **kwargs):
         e = super().connect(other, **kwargs)
         
-        self._edges.append(e)
+        self._edges.add(e)
         return e
 
     def remove(self):
@@ -1010,6 +1053,9 @@ if __name__ == "__main__":
             e12 = v1.connect(v2)
             e13 = v1.connect(v3)
             
+            self.assertEqual(g.n, 3)
+            self.assertEqual(g.ne, 2)
+
             self.assertIsInstance(e12, Edge)
             self.assertIsInstance(e12, Edge)
 
@@ -1020,6 +1066,47 @@ if __name__ == "__main__":
             self.assertTrue(e13 in v1.edges())
             self.assertTrue(e13 in v3.edges())
             self.assertFalse(e13 in v2.edges())
+
+
+        def test_remove_node(self):
+
+            g = UGraph()
+            v1 = g.add_vertex()
+            v2 = g.add_vertex()
+            v3 = g.add_vertex()
+            e12 = v1.connect(v2)
+            e13 = v1.connect(v3)
+
+            g.remove(v1)
+            self.assertEqual(g.n, 2)
+            self.assertEqual(g.ne, 0)
+            self.assertEqual(g.nc, 2)
+
+            self.assertFalse(e12 in v2.edges())
+            self.assertFalse(e12 in v3.edges())
+
+            self.assertFalse(e13 in v3.edges())
+            self.assertFalse(e13 in v2.edges())
+
+        def test_remove_edge(self):
+
+            g = UGraph()
+            v1 = g.add_vertex()
+            v2 = g.add_vertex()
+            v3 = g.add_vertex()
+            e12 = v1.connect(v2)
+            e13 = v1.connect(v3)
+
+            g.remove(e12)
+            self.assertEqual(g.n, 3)
+            self.assertEqual(g.ne, 1)
+            self.assertEqual(g.nc, 2)
+
+            self.assertFalse(e12 in v1.edges())
+            self.assertFalse(e12 in v2.edges())
+
+            self.assertTrue(e13 in v1.edges())
+            self.assertTrue(e13 in v3.edges())
 
         def test_edge1(self):
 
@@ -1103,51 +1190,51 @@ if __name__ == "__main__":
             self.assertIs(v1.edgeto(v2), e12)
             self.assertIs(v1.edgeto(v2), e12)
 
-        def test_remove_edge(self):
+        # def test_remove_edge(self):
 
-            g = UGraph()
-            v1 = g.add_vertex()
-            v2 = g.add_vertex()
-            v3 = g.add_vertex()
-            e12 = v1.connect(v2)
-            e13 = v1.connect(v3)
+        #     g = UGraph()
+        #     v1 = g.add_vertex()
+        #     v2 = g.add_vertex()
+        #     v3 = g.add_vertex()
+        #     e12 = v1.connect(v2)
+        #     e13 = v1.connect(v3)
 
-            self.assertEqual(g.nc, 1)
-            e12.remove()
+        #     self.assertEqual(g.nc, 1)
+        #     e12.remove()
 
-            self.assertEqual(g.nc, 2)
+        #     self.assertEqual(g.nc, 2)
 
-            self.assertEqual(len(v1.edges()), 1)
-            self.assertEqual(len(v2.edges()), 0)
-            self.assertEqual(len(v3.edges()), 1)
+        #     self.assertEqual(len(v1.edges()), 1)
+        #     self.assertEqual(len(v2.edges()), 0)
+        #     self.assertEqual(len(v3.edges()), 1)
 
-            self.assertEqual(len(v1.neighbours()), 1)
-            self.assertEqual(len(v2.neighbours()), 0)
-            self.assertEqual(len(v3.neighbours()), 1)
+        #     self.assertEqual(len(v1.neighbours()), 1)
+        #     self.assertEqual(len(v2.neighbours()), 0)
+        #     self.assertEqual(len(v3.neighbours()), 1)
 
-        def test_remove_vertex(self):
+        # def test_remove_vertex(self):
 
-            g = UGraph()
-            v1 = g.add_vertex()
-            v2 = g.add_vertex()
-            v3 = g.add_vertex()
-            e12 = v1.connect(v2)
-            e13 = v1.connect(v3)
+        #     g = UGraph()
+        #     v1 = g.add_vertex()
+        #     v2 = g.add_vertex()
+        #     v3 = g.add_vertex()
+        #     e12 = v1.connect(v2)
+        #     e13 = v1.connect(v3)
 
-            self.assertEqual(g.n, 3)
-            self.assertEqual(g.nc, 1)
-            g.remove(v1)
+        #     self.assertEqual(g.n, 3)
+        #     self.assertEqual(g.nc, 1)
+        #     g.remove(v1)
 
-            self.assertEqual(g.n, 2)
-            self.assertEqual(g.nc, 2)
+        #     self.assertEqual(g.n, 2)
+        #     self.assertEqual(g.nc, 2)
 
-            self.assertEqual(len(v1.edges()), 0)
-            self.assertEqual(len(v2.edges()), 0)
-            self.assertEqual(len(v3.edges()), 0)
+        #     self.assertEqual(len(v1.edges()), 0)
+        #     self.assertEqual(len(v2.edges()), 0)
+        #     self.assertEqual(len(v3.edges()), 0)
 
-            self.assertEqual(len(v1.neighbours()), 0)
-            self.assertEqual(len(v2.neighbours()), 0)
-            self.assertEqual(len(v3.neighbours()), 0)
+        #     self.assertEqual(len(v1.neighbours()), 0)
+        #     self.assertEqual(len(v2.neighbours()), 0)
+        #     self.assertEqual(len(v3.neighbours()), 0)
 
         def test_components(self):
 
