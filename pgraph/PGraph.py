@@ -13,25 +13,66 @@ class PGraph(ABC):
     # def add_edge(self, v1, v2, cost=None):
     #     pass
 
-    def __init__(self, arg=None, verbose=False):
+    def __init__(self, arg=None, metric=None, verbose=False):
         self._vertexlist = []
         self._vertexdict = {}
         self._edges = set()
         self._verbose = verbose
+        if metric is not None and callable(metric):
+            self._metric = metric
+        else:
+            self._metric = np.linalg.norm
 
     def copy(self, g):
+        """
+        Deepcopy of graph
+
+        :param g: A graph
+        :type g: PGraph
+        :return: deep copy
+        :rtype: PGraph
+        """
         return copy.deepcopy(g)
             
-    def add_vertex(self, node):
-        if node.name is None:
-            node.name = f"#{len(self._vertexlist)}"
-        self._vertexlist.append(node)
-        self._vertexdict[node.name] = node
+    def add_vertex(self, vertex):
+        """
+        Add a vertex to the graph (superclass method)
+
+        :param vertex: vertex to add
+        :type vertex: Vertex subclass
+
+        ``G.add_vertex(v)`` add vertex ``v`` to the graph ``G``.
+
+        If the vertex has no name give it a default name ``#N`` where ``N``
+        is a consecutive integer.
+
+        The vertex is placed into a dictionary with a key equal to its name.
+        """
+        if vertex.name is None:
+            vertex.name = f"#{len(self._vertexlist)}"
+        self._vertexlist.append(vertex)
+        self._vertexdict[vertex.name] = vertex
         if self._verbose:
-            print(f"New vertex {node.name}: {node.coord}")
-        node._graph = self
+            print(f"New vertex {vertex.name}: {vertex.coord}")
+        vertex._graph = self
         
     def add_edge(self, v1, v2, **kwargs):
+        """
+        Add an edge to the graph (superclass method)
+
+        :param v1: first vertex (start if a directed graph)
+        :type v1: Vertex subclass
+        :param v2: second vertex (end if a directed graph)
+        :type v2: Vertex subclass
+        :param kwargs: optional arguments to pass to ``connect``
+        :return: edge
+        :rtype: Edge
+
+        .. note:: This is a graph centric way of creating an edge.  The 
+            alternative is the ``connect`` method of a vertex.
+    
+        :seealso: :func:`Edge.connect`
+        """
         v1 = self[v1]
         v2 = self[v2]
         if self._verbose:
@@ -39,6 +80,18 @@ class PGraph(ABC):
         return v1.connect(v2, **kwargs)
 
     def remove(self, x):
+        """
+        Remove element from graph (superclass method)
+
+        :param x: element to remove from graph
+        :type x: Edge or Vertex subclass
+        :raises TypeError: unknown type
+
+        The edge or vertex is removed, and all references and lists are
+        updated.
+
+        .. warning:: The connectivity of the network may be changed.
+        """
         if isinstance(x, Edge):
             # remove an edge
 
@@ -109,8 +162,13 @@ class PGraph(ABC):
         .. note::
 
             - Components are labeled from 0 to ``g.nc-1``.
-            - A graph coloring algorithm is run if the graph
+            - A graph coloring algorithm is run if the graph connectivity
+              has changed.
 
+        .. note:: A lazy approach is used, and if a connectivity changing 
+            operation has been performed since the last call, the graph
+            coloring algorithm is run which is potentially expensive for 
+            a large graph.
         """
         self._graphcolor()
         return self._ncomponents
@@ -124,14 +182,15 @@ class PGraph(ABC):
 
     def __getitem__(self, i):
         """
-        [summary]
+        Get vertex (superclass method)
 
-        :param i: vertex description, index or string
+        :param i: vertex description
         :type i: int or str
         :return: the referenced vertex
         :rtype: Vertex subclass
 
-        Th
+        Retrieve a vertex by index or name:
+
         -``g[i]`` is the i'th node in the graph.  This reflects the order of 
          addition to the graph.
         -``g[s]`` is node named ``s``
@@ -141,6 +200,8 @@ class PGraph(ABC):
 
             for v in g:
                 print(v)
+
+        will iterate over all the vertices.
         """
         if isinstance(i, int):
             return self._vertexlist[i]
@@ -151,15 +212,20 @@ class PGraph(ABC):
 
     def edges(self):
         """
-        Get all edges in graph
+        Get all edges in graph (superclass method)
 
         :return: All edges in the graph
-        :rtype: list of Edge
+        :rtype: list of Edge references
 
-        Edges are not referenced by the graph object, but they are referenced
-        by the vertices which are held in an internal list of the graph. Edges
-        are found by visiting each vertex and collecting the unique edge objects
-        they reference.
+        We can iterate over all edges in the graph by::
+
+            for e in g.edges():
+                print(e)
+
+        .. note:: The ``edges()`` of a Vertex is a list of all edges connected
+            to that vertex.
+
+        :seealso: :func:`Vertex.edges`
         """
         return self._edgelist
             
@@ -167,7 +233,15 @@ class PGraph(ABC):
         """
         Plot the graph
 
-        :param block: block execution until plot dismissed, defaults to True
+        :param vertex: vertex format, defaults to 12pt o-marker
+        :type vertex: dict, optional
+        :param edge: edge format, defaults to None
+        :type edge: dict, optional
+        :param text: [description], defaults to None
+        :type text: [type], optional
+        :param color: [description], defaults to None
+        :type color: [type], optional
+        :param block: block until figure is dismissed, defaults to True
         :type block: bool, optional
 
         The graph is plotted using matplotlib.
@@ -177,6 +251,7 @@ class PGraph(ABC):
             - more options
             - save options for use by highlight
         """
+
         if vertex is None:
             vertex = {"marker": 'o', "markersize": 12}
         else:
@@ -390,12 +465,12 @@ class PGraph(ABC):
         .. note::
 
             - vertices are numbered in their order of creation. A vertex index
-                can be resolved to a vertex reference by ``graph[i]``.
+              can be resolved to a vertex reference by ``graph[i]``.
             - Matrix is symmetric for an undirected graph
             - Eigenvalues of A are real and are known as the spectrum of the graph.
             - The element A[i,j] can be considered the number of walks of one
-                edge from vertex i to vertex j (either zero or one).  The element (i,j)
-                of A^N are the number of walks of length N from vertex i to vertex j.
+              edge from vertex i to vertex j (either zero or one).  The element (i,j)
+              of A^N are the number of walks of length N from vertex i to vertex j.
 
         :seealso: :func:`Laplacian`, :func:`incidence`, :func:`degree`
         """
@@ -421,7 +496,7 @@ class PGraph(ABC):
         .. note::
 
             - vertices are numbered in their order of creation. A vertex index
-                can be resolved to a vertex reference by ``graph[i]``.
+              can be resolved to a vertex reference by ``graph[i]``.
             - edges are numbered in the order they appear in ``graph.edges()``.
 
         :seealso: :func:`Laplacian`, :func:`adjacency`, :func:`degree`
@@ -532,9 +607,8 @@ class PGraph(ABC):
         :return: list of vertices from S to G inclusive
         :rtype: list of Vertex subclass
 
-        .. note::
-
-            - Returns None
+        Returns a list of vertices that form a path from vertex ``S`` to
+        vertex ``G`` if possible, otherwise return None.
         """
         S = self[S]
         G = self[G]
@@ -571,6 +645,22 @@ class PGraph(ABC):
         return path
 
     def path_Astar(self, S, G):
+        """
+        A* search for path
+
+        :param S: start vertex
+        :type S: Vertex subclass
+        :param G: goal vertex
+        :type G: Vertex subclass
+        :return: list of vertices from S to G inclusive
+        :rtype: list of Vertex subclass
+
+        Returns a list of vertices that form a path from vertex ``S`` to
+        vertex ``G`` if possible, otherwise return None.
+
+        The heuristic is the distance metric of the graph, which defaults to
+        Euclidean distance.
+        """
         S = self[S]
         G = self[G]
         frontier = [S]
@@ -578,9 +668,6 @@ class PGraph(ABC):
         parent = {}
         g = {S: 0} # cost to come
         f = {S: 0} # evaluation function
-
-        def h(v1, v2):  # heuristic
-            return np.linalg.norm(v1.coord - v2.coord)
 
         while frontier:
             i = np.argmin([f[n] for n in frontier])  # minimum f in frontier
@@ -594,7 +681,7 @@ class PGraph(ABC):
                     frontier.append(n)
                     parent[n] = x
                     g[n] = g[x] + e.cost
-                    f[n] = g[n] + h(n, G)
+                    f[n] = g[n] + n.distance(G)  # heuristic
                 elif n in frontier:
                     # neighbour is already in the frontier
                     gnew = g[x] + e.cost
@@ -697,12 +784,10 @@ class Edge:
     - ``v1`` first vertex, start vertex for a directed edge
     - ``v2`` second vertex, end vertex for a directed edge
 
-    Edges are not referenced by the graph object, each edge references a pair of vertices, and the vertices reference the edges.  For a directed graph only the start vertex of an edge references the edge object, whereas for an undirected graph both vertices reference the edge object.
-
     .. note::
 
         - An undirected graph is created by having a single edge object in the 
-            edgelist of _each_ vertex.
+          edgelist of _each_ vertex.
         - This class can be inherited to provide user objects with graph capability.
         - Inheritance is an alternative to providing arbitrary user data.
     """
@@ -854,7 +939,7 @@ class Vertex:
 
     def edgeto(self, dest):
         """
-        Edge connecting vertex to specific neighbour
+        Get edge connecting vertex to specific neighbour
 
         :param dest: a neigbouring node
         :type dest: ``Vertex`` subclass
@@ -885,6 +970,9 @@ class Vertex:
                 this vertex
         """
         return self._edges
+
+    def distance(self, v2):
+        return self._graph._metric(v1.coord, v2.coord)
 
     @property
     def x(self):
