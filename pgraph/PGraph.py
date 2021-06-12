@@ -3,6 +3,10 @@ import sys
 import numpy as np
 import matplotlib.pyplot as plt
 import copy
+from collections.abc import Iterable
+import tempfile
+import subprocess
+import webbrowser
 class PGraph(ABC):
 
     @abstractmethod
@@ -332,12 +336,12 @@ class PGraph(ABC):
         """
         plt.plot(node.x, node.y, 'o', color=color, markersize=12 * scale)
 
-    def dotfile(self, file=None):
+    def dotfile(self, filename=None, direction=None):
         """
         Create a GraphViz dot file
 
-        :param file: filename to save graph to, defaults to None
-        :type file: str, optional
+        :param filename: filename to save graph to, defaults to None
+        :type filename: str, optional
 
         ``g.dotfile()`` creates the specified file which contains the
         GraphViz code to represent the embedded graph.  By default output
@@ -348,21 +352,32 @@ class PGraph(ABC):
             - The graph is undirected if it is a subclass of ``UGraph``
             - The graph is directed if it is a subclass of ``DGraph``
             - Use ``neato`` rather than dot to get the embedded layout
+
+        .. note:: If ``filename`` is a file object then the file will *not*
+            be closed after the GraphViz model is written.
         """
-     
-        if file is not None:
-            f = open('file', 'w')
-        else:
+        
+        if filename is None:
             f = sys.stdout
+        elif isinstance(filename, str):
+            f = open(filename, "w")
+        else:
+            f = filename
 
         if isinstance(self, DGraph):
             print("digraph {", file=f)
         else:
             print("graph {", file=f)
 
+        if direction is not None:
+            print(f"rankdir = {direction}", file=f)
+
         # add the nodes including name and position
         for node in self:
-            print('  "{:s}" [pos="{:.5g},{:.5g}"]'.format(node.name, node.coord[0], node.coord[1]), file=f)
+            if node.coord is None:
+                print('  "{:s}"'.format(node.name), file=f)
+            else:
+                print('  "{:s}" [pos="{:.5g},{:.5g}"]'.format(node.name, node.coord[0], node.coord[1]), file=f)
         print(file=f)
         # add the edges
         for e in self.edges():
@@ -373,8 +388,55 @@ class PGraph(ABC):
 
         print('}', file=f);
 
-        if file is not None:
-            f.close()
+        if filename is None or isinstance(filename, str):
+            f.close()  # noqa
+
+    def showgraph(self, **kwargs):
+        """
+        Display a link transform graph in browser
+        :param etsbox: Put the link ETS in a box, otherwise an edge label
+        :type etsbox: bool
+        :param jtype: Arrowhead to node indicates revolute or prismatic type
+        :type jtype: bool
+        :param static: Show static joints in blue and bold
+        :type static: bool
+        ``robot.showgraph()`` displays a graph of the robot's link frames
+        and the ETS between them.  It uses GraphViz dot.
+        The nodes are:
+            - Base is shown as a grey square.  This is the world frame origin,
+              but can be changed using the ``base`` attribute of the robot.
+            - Link frames are indicated by circles
+            - ETS transforms are indicated by rounded boxes
+        The edges are:
+            - an arrow if `jtype` is False or the joint is fixed
+            - an arrow with a round head if `jtype` is True and the joint is
+              revolute
+            - an arrow with a box head if `jtype` is True and the joint is
+              prismatic
+        Edge labels or nodes in blue have a fixed transformation to the
+        preceding link.
+        Example::
+            >>> import roboticstoolbox as rtb
+            >>> panda = rtb.models.URDF.Panda()
+            >>> panda.showgraph()
+        .. image:: ../figs/panda-graph.svg
+            :width: 600
+        :seealso: :func:`dotfile`
+        """
+
+        # create the temporary dotfile
+        dotfile = tempfile.TemporaryFile(mode="w")
+        self.dotfile(dotfile, **kwargs)
+
+        # rewind the dot file, create PDF file in the filesystem, run dot
+        dotfile.seek(0)
+        pdffile = tempfile.NamedTemporaryFile(suffix=".pdf", delete=False)
+        subprocess.run("dot -Tpdf", shell=True, stdin=dotfile, stdout=pdffile)
+
+        # open the PDF file in browser (hopefully portable), then cleanup
+        webbrowser.open(f"file://{pdffile.name}")
+        # time.sleep(1)
+        # os.remove(pdffile.name)
 
     def iscyclic(self):
         pass
