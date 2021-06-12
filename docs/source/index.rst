@@ -15,6 +15,8 @@ This package provides a set of classes for manipulating simple directed and undi
    directed
    undirected
    edge
+   planning
+   matrices
 
 
 Indices and tables
