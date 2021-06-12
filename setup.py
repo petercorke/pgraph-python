@@ -11,6 +11,17 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 with open(path.join(here, 'RELEASE'), encoding='utf-8') as f:
     release = f.read()
 
+req = [
+    'numpy>=1.18.0',
+    'matplotlib',
+    'ansitable',
+]
+
+docs_req = [
+    'sphinx',
+    'sphinx_rtd_theme',
+    'sphinx-autorun',
+]
 
 setup(
     name='pgraph-python', 
@@ -19,7 +30,7 @@ setup(
 
     # This is a one-line description or tagline of what your project does. This
     # corresponds to the "Summary" metadata field:
-    description='Simple graph functionality for Python.', #TODO
+    description='Mathematical graphs for Python.', #TODO
     
     long_description=long_description,
     long_description_content_type='text/markdown',
@@ -60,6 +71,10 @@ setup(
 
     packages=find_packages(exclude=["test_*", "TODO*"]),
 
-    install_requires=['numpy', 'matplotlib']
+    install_requires=req,
+
+    extras_require={
+        'docs': docs_req,
+    }
     
 )
