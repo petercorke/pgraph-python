@@ -23,6 +23,11 @@ docs_req = [
     'sphinx-autorun',
 ]
 
+dev_req = [
+    'pytest',
+    'pytest-cov',
+]
+
 setup(
     name='pgraph-python', 
 
@@ -75,6 +80,7 @@ setup(
 
     extras_require={
         'docs': docs_req,
+        'dev': dev_req,
     }
     
 )
