@@ -1205,7 +1205,7 @@ class Vertex:
             - Vertices must both be of the same ``Vertex`` subclass
         """
 
-        if not type(dest) is type(self):
+        if not dest.__class__.__bases__[0] is self.__class__.__bases__[0]:
             raise TypeError('must connect vertices of same type')
         elif isinstance(edge, Edge):
             e = edge
