@@ -1075,7 +1075,10 @@ class Edge:
 
     def __str__(self):
 
-        return f"edge {self.v1} -- {self.v2}, cost={self.cost}, data={self.data}"
+        s = f"Edge {self.v1} -- {self.v2}, cost={self.cost}"
+        if self.data is not None:
+            s += f" data={self.data}"
+        return s
 
     def next(self, vertex):
         """
@@ -1151,7 +1154,7 @@ class Vertex:
         return f"[{self.name:s}]"
 
     def __repr__(self):
-        return f"Vertex(name={self.name:s}, coord={self.coord})"
+        return f"{self.__class__.__name__}(name={self.name:s}, coord={self.coord})"
 
     def neighbours(self):
         """
