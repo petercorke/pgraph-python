@@ -269,7 +269,7 @@ class PGraph(ABC):
 
         :seealso: :func:`Vertex.edges`
         """
-        return self._edgelist
+        return self._edges
             
     def plot(self, vertex=None, edge=None, text=None, color=None, block=True):
         """
