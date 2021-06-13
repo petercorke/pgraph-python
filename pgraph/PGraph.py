@@ -344,7 +344,7 @@ class PGraph(ABC):
             self.highlight_vertex(path[i], **kwargs)
         plt.show(block=block)
 
-    def highlight_edge(self, edge, scale=1.5, color='r'):
+    def highlight_edge(self, edge, scale=2, color='r', alpha=0.5):
         """
         Highlight an edge in the graph
 
@@ -358,9 +358,9 @@ class PGraph(ABC):
         """
         p1 = edge.v1
         p2 = edge.v2
-        plt.plot([p1.x, p2.x], [p1.y, p2.y], color=color, linewidth=3 * scale)
+        plt.plot([p1.x, p2.x], [p1.y, p2.y], color=color, linewidth=3 * scale, alpha=alpha)
 
-    def highlight_vertex(self, node, scale=1.5, color='r'):
+    def highlight_vertex(self, node, scale=2, color='r', alpha=0.5):
         """
         Highlight a vertex in the graph
 
