@@ -241,6 +241,17 @@ class PGraph(ABC):
         elif isinstance(i, Vertex):
             return i
 
+    def __contains__(self, item):
+        """
+        Test if vertex name in graph
+
+        :param item: name of vertex
+        :type item: str
+        :return: true if vertex of this name exists in the graph
+        :rtype: bool
+        """
+        return item in self._vertexdict
+
     def edges(self):
         """
         Get all edges in graph (superclass method)
