@@ -92,7 +92,7 @@ class PGraph(ABC):
         .. note:: This is a graph centric way of creating an edge.  The 
             alternative is the ``connect`` method of a vertex.
     
-        :seealso: :func:`Edge.connect`
+        :seealso: :meth:`Edge.connect`
         """
         v1 = self[v1]
         v2 = self[v2]
@@ -267,7 +267,7 @@ class PGraph(ABC):
         .. note:: The ``edges()`` of a Vertex is a list of all edges connected
             to that vertex.
 
-        :seealso: :func:`Vertex.edges`
+        :seealso: :meth:`Vertex.edges`
         """
         return self._edges
             
@@ -335,7 +335,7 @@ class PGraph(ABC):
         The nodes and edges along the path are overwritten with a different
         size/width and color.
 
-        :seealso: :func:`highlight_vertex`, :func:`highlight_edge`
+        :seealso: :meth:`highlight_vertex` :meth:`highlight_edge`
         """
         for i in range(len(path)):
             if i < len(path) - 1:
@@ -658,7 +658,7 @@ class PGraph(ABC):
         and if any are True it will perform the coloring operation. This flag
         is set True by any operation that adds or removes a node or edge.
 
-        :seealso: :func:`nc`
+        :seealso: :meth:`nc`
         """
         if any([n._connectivitychange for n in self]):
 
@@ -1148,6 +1148,8 @@ class Vertex:
         Neighbours of a vertex
 
         ``v.neighbours()`` is a list of neighbour of the vertex object ``v``.
+
+        .. note:: For a directed graph the neighbours are those on edges leaving this vertex
         """
         return [e.next(self) for e in self._edges]
 
@@ -1157,6 +1159,8 @@ class Vertex:
 
         ``v.incidences()`` is a generator that returns a list of incidences, 
         tuples of (vertex, edge) for all neighbours of the vertex ``v``.
+
+        .. note:: For a directed graph the edges are those leaving this vertex
         """
         return [(e.next(self), e) for e in self._edges]
 
