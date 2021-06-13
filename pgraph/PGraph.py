@@ -17,15 +17,16 @@ class PGraph(ABC):
     # def add_edge(self, v1, v2, cost=None):
     #     pass
 
-    def __init__(self, arg=None, metric=None, verbose=False):
+    def __init__(self, arg=None, heuristic=None, verbose=False):
         self._vertexlist = []
         self._vertexdict = {}
         self._edges = set()
         self._verbose = verbose
-        if metric is not None and callable(metric):
-            self._metric = metric
+        if heuristic is None:
+            self.heuristic = np.linalg.norm
         else:
-            self._metric = np.linalg.norm
+            self.heuristic = heuristic
+
 
     def copy(self, g):
         """
@@ -176,6 +177,16 @@ class PGraph(ABC):
         """
         self._graphcolor()
         return self._ncomponents
+
+    @property
+    def heuristic(self):
+        return self._heuristic
+
+    @heuristic.setter
+    def heuristic(self, heuristic):
+        if not callable(heuristic):
+            return TypeError('metric must be callable')
+        self._heuristic = heuristic
 
     def __repr__(self):
         s = []
@@ -742,16 +753,15 @@ class PGraph(ABC):
                     # add it to the frontier
                     frontier.append(n)
                     parent[n] = x
-                    g[n] = g[x] + e.cost
-                    f[n] = g[n] + n.distance(G)  # heuristic
+                    g[n] = g[x] + e.cost # update cost to come
+                    f[n] = g[n] + n.heuristic_distance(G)  # heuristic
                 elif n in frontier:
                     # neighbour is already in the frontier
                     gnew = g[x] + e.cost
                     if gnew < g[n]:
                         # cost of path via x is lower that previous, reparent it
                         g[n] = gnew
-                        f[n] = g[n] + h(n, G)
-                        parent[n] = x
+                        f[n] = g[n] + n.heuristic_distance(G)  # heuristic
 
             explored.add(x)
         else:
