@@ -27,6 +27,22 @@ class PGraph(ABC):
         else:
             self.heuristic = heuristic
 
+    @classmethod
+    def Dict(cls, d, direction='BT', reverse=False):
+
+        g = cls()
+
+        for node, parent in d.items():
+            if node.name not in g:
+                g.add_vertex(name=node.name)
+            if parent.name not in g:
+                g.add_vertex(name=parent.name)
+            if reverse:
+                g.add_edge(g[parent.name], g[node.name])
+            else:
+                g.add_edge(g[node.name], g[parent.name])
+
+        return g
 
     def copy(self, g):
         """
