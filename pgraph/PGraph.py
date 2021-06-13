@@ -1136,7 +1136,10 @@ class Vertex:
     """
     def __init__(self, coord=None, name=None):
         self._edges = []
-        self.coord = np.r_[coord]
+        if coord is None:
+            self.coord = None
+        else:
+            self.coord = np.r_[coord]
         self.name = name
         self.label = None
         self._connectivitychange = True
