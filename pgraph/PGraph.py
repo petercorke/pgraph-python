@@ -372,7 +372,11 @@ class PGraph(ABC):
         :param color: Overwrite with a line in this color, defaults to 'r'
         :type color: str, optional
         """
-        plt.plot(node.x, node.y, 'o', color=color, markersize=12 * scale)
+        if isinstance(node, Iterable):
+            for n in node:
+                plt.plot(n.x, n.y, 'o', color=color, markersize=12 * scale, alpha=alpha)
+        else:
+            plt.plot(node.x, node.y, 'o', color=color, markersize=12 * scale, alpha=alpha)
 
     def dotfile(self, filename=None, direction=None):
         """
