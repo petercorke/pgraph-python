@@ -48,9 +48,10 @@ jobs:
         pytest --cov=pgraph --cov-report xml:coverage.xml
         coverage report
     - name: upload coverage to Codecov
-      uses: codecov/codecov-action@master
+      uses: codecov/codecov-action@v1
       with:
         file: ./coverage.xml
+        verbose: true
   sphinx:
     # If the above worked:
     # Build docs and upload to GH Pages
@@ -92,3 +93,4 @@ jobs:
         branch: gh-pages
         directory: gh-pages
         github_token: ${{ secrets.GITHUB_TOKEN }}
+        force: true
