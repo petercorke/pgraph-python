@@ -1250,8 +1250,24 @@ class Vertex:
         """
         return self._edges
 
-    def distance(self, v2):
-        return self._graph._metric(v1.coord, v2.coord)
+    def heuristic_distance(self, v2):
+        return self._graph.heuristic(self.coord - v2.coord)
+
+    @property
+    def degree(self):
+        """
+        Degree of vertex
+
+        :return: degree of the vertex
+        :rtype: int
+
+        Returns the number of edges connected to the vertex.
+
+        .. note:: For a ``DGraph`` only outgoing edges are considered.
+
+        :seealso: :meth:`edges`
+        """
+        return len(self.edges())
 
     @property
     def x(self):
