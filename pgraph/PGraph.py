@@ -496,9 +496,9 @@ class PGraph(ABC):
 
         """
         if isinstance(self, DGraph):
-            return len(self.edges() / self.n)
+            return len(self.edges()) / self.n
         elif isinstance(self, UGraph):
-            return 2 * len(self.edges() / self.n)
+            return 2 * len(self.edges()) / self.n
 
 # --------------------------------------------------------------------------- #
 
