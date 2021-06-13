@@ -7,6 +7,8 @@ from collections.abc import Iterable
 import tempfile
 import subprocess
 import webbrowser
+
+
 class PGraph(ABC):
 
     @abstractmethod
@@ -54,7 +56,7 @@ class PGraph(ABC):
         :rtype: PGraph
         """
         return copy.deepcopy(g)
-            
+
     def add_vertex(self, vertex):
         """
         Add a vertex to the graph (superclass method)
@@ -76,7 +78,7 @@ class PGraph(ABC):
         if self._verbose:
             print(f"New vertex {vertex.name}: {vertex.coord}")
         vertex._graph = self
-        
+
     def add_edge(self, v1, v2, **kwargs):
         """
         Add an edge to the graph (superclass method)
@@ -91,7 +93,7 @@ class PGraph(ABC):
 
         .. note:: This is a graph centric way of creating an edge.  The 
             alternative is the ``connect`` method of a vertex.
-    
+
         :seealso: :meth:`Edge.connect`
         """
         v1 = self[v1]
@@ -137,7 +139,7 @@ class PGraph(ABC):
             # remove all edges of this vertex
             for edge in copy.copy(x._edges):
                 self.remove(edge)
-            
+
             # remove from list and dict of all edges
             self._vertexlist.remove(x)
             del self._vertexdict[x.name]
@@ -210,7 +212,6 @@ class PGraph(ABC):
             s.append(f"{node.name} at {node.coord}, label={node.label}")
         return '\n'.join(s)
 
-
     def __getitem__(self, i):
         """
         Get vertex (superclass method)
@@ -270,7 +271,7 @@ class PGraph(ABC):
         :seealso: :meth:`Vertex.edges`
         """
         return self._edges
-            
+
     def plot(self, vertex=None, edge=None, text=None, color=None, block=True):
         """
         Plot the graph
@@ -312,9 +313,10 @@ class PGraph(ABC):
             # for each component
             for node in self.component(c):
                 plt.text(node.x, node.y, "  " + node.name, **text)
-                plt.plot(node.x, node.y, color=color[c,:], **vertex)
+                plt.plot(node.x, node.y, color=color[c, :], **vertex)
                 for v in node.neighbours():
-                    plt.plot([node.x, v.x], [node.y, v.y], color=color[c,:], **edge)
+                    plt.plot([node.x, v.x], [node.y, v.y],
+                             color=color[c, :], **edge)
 
         # if nc > 1:
         #     # add a colorbar
@@ -358,7 +360,8 @@ class PGraph(ABC):
         """
         p1 = edge.v1
         p2 = edge.v2
-        plt.plot([p1.x, p2.x], [p1.y, p2.y], color=color, linewidth=3 * scale, alpha=alpha)
+        plt.plot([p1.x, p2.x], [p1.y, p2.y], color=color,
+                 linewidth=3 * scale, alpha=alpha)
 
     def highlight_vertex(self, node, scale=2, color='r', alpha=0.5):
         """
@@ -374,9 +377,11 @@ class PGraph(ABC):
         """
         if isinstance(node, Iterable):
             for n in node:
-                plt.plot(n.x, n.y, 'o', color=color, markersize=12 * scale, alpha=alpha)
+                plt.plot(n.x, n.y, 'o', color=color,
+                         markersize=12 * scale, alpha=alpha)
         else:
-            plt.plot(node.x, node.y, 'o', color=color, markersize=12 * scale, alpha=alpha)
+            plt.plot(node.x, node.y, 'o', color=color,
+                     markersize=12 * scale, alpha=alpha)
 
     def dotfile(self, filename=None, direction=None):
         """
@@ -398,7 +403,7 @@ class PGraph(ABC):
         .. note:: If ``filename`` is a file object then the file will *not*
             be closed after the GraphViz model is written.
         """
-        
+
         if filename is None:
             f = sys.stdout
         elif isinstance(filename, str):
@@ -419,7 +424,8 @@ class PGraph(ABC):
             if node.coord is None:
                 print('  "{:s}"'.format(node.name), file=f)
             else:
-                print('  "{:s}" [pos="{:.5g},{:.5g}"]'.format(node.name, node.coord[0], node.coord[1]), file=f)
+                print('  "{:s}" [pos="{:.5g},{:.5g}"]'.format(
+                    node.name, node.coord[0], node.coord[1]), file=f)
         print(file=f)
         # add the edges
         for e in self.edges():
@@ -428,7 +434,7 @@ class PGraph(ABC):
             else:
                 print('  "{:s}" -- "{:s}"'.format(e.v1.name, e.v2.name), file=f)
 
-        print('}', file=f);
+        print('}', file=f)
 
         if filename is None or isinstance(filename, str):
             f.close()  # noqa
@@ -502,8 +508,8 @@ class PGraph(ABC):
 
 # --------------------------------------------------------------------------- #
 
-    ## MATRIX REPRESENTATIONS
-    
+    # MATRIX REPRESENTATIONS
+
     def Laplacian(self):
         """
         Laplacian matrix for the graph
@@ -520,7 +526,7 @@ class PGraph(ABC):
             - Laplacian has at least one zero eigenvalue.
             - The number of zero-valued eigenvalues is the number of connected 
                 components in the graph.
-        
+
         :seealso: :meth:`adjacency` :meth:`incidence` :meth:`degree`
         """
         return self.degree() - (self.adjacency() > 0)
@@ -558,8 +564,8 @@ class PGraph(ABC):
         %
         % See also PGraph.adjacency, PGraph.incidence, PGraph.laplacian.
         """
-        
-        return np.diag( self.connectivity() );
+
+        return np.diag(self.connectivity())
 
     def adjacency(self):
         """
@@ -567,10 +573,10 @@ class PGraph(ABC):
 
         :returns: adjacency matrix
         :rtype: ndarray(n,n)
-        
+
         The elements of the adjacency matrix ``A[i,j]`` are 1 if vertex ``i`` is
         connected to vertex ``j``, else 0.
-        
+
         .. note::
 
             - vertices are numbered in their order of creation. A vertex index
@@ -578,8 +584,8 @@ class PGraph(ABC):
             - for an undirected graph the matrix is symmetric
             - Eigenvalues of ``A`` are real and are known as the spectrum of the graph.
             - The element ``A[i,j]`` can be considered the number of walks of length one
-              edge from vertex ``i`` to vertex ``j`` (either zero or one).  
-            - If ``Ak = A ** k`` the element ``Ak[i,j]`` is the number of 
+              edge from vertex ``i`` to vertex ``j`` (either zero or one).
+            - If ``Ak = A ** k`` the element ``Ak[i,j]`` is the number of
               walks of length ``k`` from vertex ``i`` to vertex ``j``.
 
         :seealso: :meth:`Laplacian` :meth:`incidence` :meth:`degree`
@@ -601,7 +607,7 @@ class PGraph(ABC):
 
         :returns: incidence matrix
         :rtype: ndarray(n,ne)
-        
+
         The elements of the incidence matrix ``I[i,j]`` are 1 if vertex ``i`` is
         connected to edge ``j``, else 0.
 
@@ -624,7 +630,7 @@ class PGraph(ABC):
         for i, node in enumerate(self):
             for i, e in enumerate(node.edges()):
                 I[i, edict[e]] = 1
-        
+
         return I
 
     def distance(self):
@@ -649,8 +655,8 @@ class PGraph(ABC):
                 A[vdict[v1], vdict[v2]] = edge.cost
         return A
 
-    ## GRAPH COMPONENTS
-        
+    # GRAPH COMPONENTS
+
     def _graphcolor(self):
         """
         Color the graph
@@ -667,12 +673,12 @@ class PGraph(ABC):
         if any([n._connectivitychange for n in self]):
 
             # color the graph
-            
+
             # clear all the labels
             for node in self:
                 node.label = None
                 node._connectivitychange = False
-            
+
             lastlabel = None
             for label in range(self.n):
                 assignment = False
@@ -694,11 +700,11 @@ class PGraph(ABC):
                     break
 
             self._ncomponents = lastlabel + 1
-    
+
     def component(self, c):
         """
         All nodes in specified graph component
-        
+
         ``graph.component(c)`` is a list of all vertices in graph component ``c``.
         """
         self._graphcolor()  # ensure labels are uptodate
@@ -720,7 +726,7 @@ class PGraph(ABC):
     #     for e in v.edges():
     #         next = e.next(v)
     #         next._edges.remove(e)
-    #         next._connectivitychange = True  
+    #         next._connectivitychange = True
 
     #     # remove references from the graph
     #     self._vertexlist.remove(v)
@@ -800,7 +806,8 @@ class PGraph(ABC):
             x = p
 
         if summary:
-            print(f"{len(explored)} vertices explored, {len(frontier)} remaining on the frontier")
+            print(
+                f"{len(explored)} vertices explored, {len(frontier)} remaining on the frontier")
 
         return path, length
 
@@ -828,12 +835,13 @@ class PGraph(ABC):
         frontier = [S]
         explored = []
         parent = {}
-        f = {S: 0} # evaluation function
+        f = {S: 0}  # evaluation function
 
         while frontier:
             if verbose:
                 print()
-                print('FRONTIER:', ", ".join([f"{v.name}({f[v]:.0f})" for v in frontier]))
+                print('FRONTIER:', ", ".join(
+                    [f"{v.name}({f[v]:.0f})" for v in frontier]))
                 print('EXPLORED:', ", ".join([v.name for v in explored]))
 
             i = np.argmin([f[n] for n in frontier])  # minimum f in frontier
@@ -858,7 +866,8 @@ class PGraph(ABC):
                     # cost of path via x is lower that previous, reparent it
                     if fnew < f[n]:
                         if verbose:
-                            print(f" reparent {n.name}: cost {fnew} via {x.name} is less than cost {f[n]} via {parent[n].name}, change parent from {parent[n].name} to {x.name} ")
+                            print(
+                                f" reparent {n.name}: cost {fnew} via {x.name} is less than cost {f[n]} via {parent[n].name}, change parent from {parent[n].name} to {x.name} ")
                         f[n] = fnew
                         parent[n] = x
 
@@ -881,7 +890,8 @@ class PGraph(ABC):
             x = p
 
         if summary:
-            print(f"{len(explored)} vertices explored, {len(frontier)} remaining on the frontier")
+            print(
+                f"{len(explored)} vertices explored, {len(frontier)} remaining on the frontier")
 
         return path, length, parent
 
@@ -911,13 +921,14 @@ class PGraph(ABC):
         frontier = [S]
         explored = []
         parent = {}
-        g = {S: 0} # cost to come
-        f = {S: 0} # evaluation function
+        g = {S: 0}  # cost to come
+        f = {S: 0}  # evaluation function
 
         while frontier:
             if verbose:
                 print()
-                print('FRONTIER:', ", ".join([f"{v.name}({f[v]:.0f})" for v in frontier]))
+                print('FRONTIER:', ", ".join(
+                    [f"{v.name}({f[v]:.0f})" for v in frontier]))
                 print('EXPLORED:', ", ".join([v.name for v in explored]))
 
             i = np.argmin([f[n] for n in frontier])  # minimum f in frontier
@@ -932,7 +943,7 @@ class PGraph(ABC):
                     # add it to the frontier
                     frontier.append(n)
                     parent[n] = x
-                    g[n] = g[x] + e.cost # update cost to come
+                    g[n] = g[x] + e.cost  # update cost to come
                     f[n] = g[n] + n.heuristic_distance(G)  # heuristic
                     if verbose:
                         print('      add', n.name, 'to the frontier')
@@ -942,10 +953,11 @@ class PGraph(ABC):
                     if gnew < g[n]:
                         # cost of path via x is lower that previous, reparent it
                         if verbose:
-                            print(f" reparent {n.name}: cost {gnew} via {x.name} is less than cost {g[n]} via {parent[n].name}, change parent from {parent[n].name} to {x.name} ")
+                            print(
+                                f" reparent {n.name}: cost {gnew} via {x.name} is less than cost {g[n]} via {parent[n].name}, change parent from {parent[n].name} to {x.name} ")
                         g[n] = gnew
                         f[n] = g[n] + n.heuristic_distance(G)  # heuristic
-                    
+
                         parent[n] = x  # reparent
 
             explored.append(x)
@@ -968,7 +980,8 @@ class PGraph(ABC):
             x = p
 
         if summary:
-            print(f"{len(explored)} vertices explored, {len(frontier)} remaining on the frontier")
+            print(
+                f"{len(explored)} vertices explored, {len(frontier)} remaining on the frontier")
 
         return path, length, parent
 
@@ -1004,6 +1017,7 @@ class UGraph(PGraph):
             node = UVertex(coord, name)
         super().add_vertex(node)
         return node
+
 
 class DGraph(PGraph):
     """
@@ -1093,7 +1107,7 @@ class Edge:
         ``e.next(v1)`` is the vertex at the other end of edge ``e``, ie. the 
         vertex that is not ``v1``.
         """
-        
+
         if self.v1 is vertex:
             return self.v2
         elif self.v2 is vertex:
@@ -1127,6 +1141,7 @@ class Edge:
 
 # ========================================================================== #
 
+
 class Vertex:
     """
     Superclass for vertices of directed and non-directed graphs.
@@ -1137,6 +1152,7 @@ class Vertex:
         - ``_edges`` a list of edge objects that connect this vertex to others
         - ``coord`` the coordinate in an embedded graph (optional)
     """
+
     def __init__(self, coord=None, name=None):
         self._edges = []
         if coord is None:
@@ -1299,6 +1315,7 @@ class Vertex:
         """
         return self.coord[2]
 
+
 class UVertex(Vertex):
     """
     Vertex subclass for undirected graphs
@@ -1309,6 +1326,7 @@ class UVertex(Vertex):
     .. inheritance-diagram:: UVertex
 
     """
+
     def connect(self, other, **kwargs):
 
         if isinstance(other, Vertex):
@@ -1319,13 +1337,12 @@ class UVertex(Vertex):
             raise TypeError('bad argument')
 
         # e = super().connect(other, **kwargs)
-        
+
         self._edges.append(e)
         other._edges.append(e)
         self._graph._edges.add(e)
 
         return e
-
 
 
 class DVertex(Vertex):
@@ -1345,12 +1362,9 @@ class DVertex(Vertex):
             e = super().connect(edge=other)
         else:
             raise TypeError('bad argument')
-        
+
         self._edges.append(e)
         return e
 
     def remove(self):
         self._edges = None  # remove all references to edges
-
-
-
