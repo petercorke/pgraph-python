@@ -717,7 +717,7 @@ class PGraph(ABC):
     #     v._edges = []  # remove all references to edges
 # --------------------------------------------------------------------------- #
 
-    def path_BFS(self, S, G):
+    def path_BFS(self, S, G, verbose=False, summary=False):
         """
         Breadth-first search for path
 
@@ -725,59 +725,85 @@ class PGraph(ABC):
         :type S: Vertex subclass
         :param G: goal vertex
         :type G: Vertex subclass
-        :return: list of vertices from S to G inclusive
-        :rtype: list of Vertex subclass
+        :return: list of vertices from S to G inclusive, path length
+        :rtype: list of Vertex subclass, float
 
         Returns a list of vertices that form a path from vertex ``S`` to
         vertex ``G`` if possible, otherwise return None.
+
         """
         S = self[S]
         G = self[G]
-        frontier = set([S])
-        explored = set()
+        frontier = [S]
+        explored = []
         evaluation = [None for i in range(self.n)]
         parent = {}
+        done = False
 
         while frontier:
-            x = frontier.pop()
-            if x is G:
-                break
+            if verbose:
+                print()
+                print('FRONTIER:', ", ".join([v.name for v in frontier]))
+                print('EXPLORED:', ", ".join([v.name for v in explored]))
+
+            x = frontier.pop(0)
+            if verbose:
+                print('   expand', x.name)
+
             # expand the node
             for n in x.neighbours():
+                if n is G:
+                    if verbose:
+                        print('     goal', n.name, 'reached')
+                    parent[n] = x
+                    done = True
+                    break
                 if n not in frontier and n not in explored:
                     # add it to the frontier
-                    frontier.add(n)
+                    frontier.append(n)
+                    if verbose:
+                        print('      add', n.name, 'to the frontier')
                     parent[n] = x
-            explored.add(x)
+            if done:
+                break
+            explored.append(x)
+            if verbose:
+                print('     move', x.name, ' to the explored list')
         else:
             # no path
             return None
 
         # reconstruct the path from start to goal
-        path = []
         x = G
-        while True:
-            path.insert(0, x)
-            x = parent[x]
-            if x not in parent:
-                path.insert(0, x)
-                break
-        
-        return path
+        path = [x]
+        length = 0
 
-    def path_Astar(self, S, G):
+        while x is not S:
+            p = parent[x]
+            length += x.edgeto(p).cost
+            path.insert(0, p)
+            x = p
+
+        if summary:
+            print(f"{len(explored)} vertices explored, {len(frontier)} remaining on the frontier")
+
+        return path, length
+
+    def path_UCS(self, S, G, verbose=False, summary=False):
         """
-        A* search for path
+        Uniform cost search for path
 
         :param S: start vertex
         :type S: Vertex subclass
         :param G: goal vertex
         :type G: Vertex subclass
-        :return: list of vertices from S to G inclusive
-        :rtype: list of Vertex subclass
+        :return: list of vertices from S to G inclusive, path length, tree
+        :rtype: list of Vertex subclass, float, dict
 
         Returns a list of vertices that form a path from vertex ``S`` to
         vertex ``G`` if possible, otherwise return None.
+
+        The search tree is returned as dict that maps a vertex to its parent.
 
         The heuristic is the distance metric of the graph, which defaults to
         Euclidean distance.
@@ -785,14 +811,104 @@ class PGraph(ABC):
         S = self[S]
         G = self[G]
         frontier = [S]
-        explored = set()
+        explored = []
+        parent = {}
+        f = {S: 0} # evaluation function
+
+        while frontier:
+            if verbose:
+                print()
+                print('FRONTIER:', ", ".join([f"{v.name}({f[v]:.0f})" for v in frontier]))
+                print('EXPLORED:', ", ".join([v.name for v in explored]))
+
+            i = np.argmin([f[n] for n in frontier])  # minimum f in frontier
+            x = frontier.pop(i)
+            if verbose:
+                print('   expand', x.name)
+            if x is G:
+                break
+            # expand the node
+            for n, e in x.incidences():
+                fnew = f[x] + e.cost
+                if n not in frontier and n not in explored:
+                    # add it to the frontier
+                    parent[n] = x
+                    f[n] = fnew
+                    frontier.append(n)
+                    if verbose:
+                        print('      add', n.name, 'to the frontier')
+
+                elif n in frontier:
+                    # neighbour is already in the frontier
+                    # cost of path via x is lower that previous, reparent it
+                    if fnew < f[n]:
+                        if verbose:
+                            print(f" reparent {n.name}: cost {fnew} via {x.name} is less than cost {f[n]} via {parent[n].name}, change parent from {parent[n].name} to {x.name} ")
+                        f[n] = fnew
+                        parent[n] = x
+
+            explored.append(x)
+            if verbose:
+                print('     move', x.name, ' to the explored list')
+        else:
+            # no path
+            return None
+
+        # reconstruct the path from start to goal
+        x = G
+        path = [x]
+        length = 0
+
+        while x is not S:
+            p = parent[x]
+            length += x.edgeto(p).cost
+            path.insert(0, p)
+            x = p
+
+        if summary:
+            print(f"{len(explored)} vertices explored, {len(frontier)} remaining on the frontier")
+
+        return path, length, parent
+
+    def path_Astar(self, S, G, verbose=False, summary=False):
+        """
+        A* search for path
+
+        :param S: start vertex
+        :type S: Vertex subclass
+        :param G: goal vertex
+        :type G: Vertex subclass
+        :return: list of vertices from S to G inclusive, path length, tree
+        :rtype: list of Vertex subclass, float, dict
+
+        Returns a list of vertices that form a path from vertex ``S`` to
+        vertex ``G`` if possible, otherwise return None.
+
+        The search tree is returned as dict that maps a vertex to its parent.
+
+        The heuristic is the distance metric of the graph, which defaults to
+        Euclidean distance.
+
+        :seealso: :meth:`heuristic`
+        """
+        S = self[S]
+        G = self[G]
+        frontier = [S]
+        explored = []
         parent = {}
         g = {S: 0} # cost to come
         f = {S: 0} # evaluation function
 
         while frontier:
+            if verbose:
+                print()
+                print('FRONTIER:', ", ".join([f"{v.name}({f[v]:.0f})" for v in frontier]))
+                print('EXPLORED:', ", ".join([v.name for v in explored]))
+
             i = np.argmin([f[n] for n in frontier])  # minimum f in frontier
             x = frontier.pop(i)
+            if verbose:
+                print('   expand', x.name)
             if x is G:
                 break
             # expand the node
@@ -803,15 +919,24 @@ class PGraph(ABC):
                     parent[n] = x
                     g[n] = g[x] + e.cost # update cost to come
                     f[n] = g[n] + n.heuristic_distance(G)  # heuristic
+                    if verbose:
+                        print('      add', n.name, 'to the frontier')
                 elif n in frontier:
                     # neighbour is already in the frontier
                     gnew = g[x] + e.cost
                     if gnew < g[n]:
                         # cost of path via x is lower that previous, reparent it
+                        if verbose:
+                            print(f" reparent {n.name}: cost {gnew} via {x.name} is less than cost {g[n]} via {parent[n].name}, change parent from {parent[n].name} to {x.name} ")
                         g[n] = gnew
                         f[n] = g[n] + n.heuristic_distance(G)  # heuristic
+                    
+                        parent[n] = x  # reparent
 
-            explored.add(x)
+            explored.append(x)
+            if verbose:
+                print('     move', x.name, ' to the explored list')
+
         else:
             # no path
             return None
@@ -819,13 +944,19 @@ class PGraph(ABC):
         # reconstruct the path from start to goal
         x = G
         path = [x]
+        length = 0
 
         while x is not S:
-            x = parent[x]
-            path.insert(0, x)
+            p = parent[x]
+            length += x.edgeto(p).cost
+            path.insert(0, p)
+            x = p
 
-        
-        return path
+        if summary:
+            print(f"{len(explored)} vertices explored, {len(frontier)} remaining on the frontier")
+
+        return path, length, parent
+
 
 # -------------------------------------------------------------------------- #
 
