@@ -1098,6 +1098,9 @@ class Edge:
         else:
             raise ValueError('shouldnt happen')
 
+    def vertices(self):
+        return [self.v1, self.v2]
+
     # def remove(self):
     #     """
     #     Remove edge from graph
