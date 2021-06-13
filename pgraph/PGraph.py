@@ -612,6 +612,27 @@ class PGraph(ABC):
         for i, node in enumerate(self):
             for e in enumerate(node.edges()):
                 I[i, edict[e]] = 1
+    def distance(self):
+        """
+        Distance matrix of graph
+
+        :return: distance matrix
+        :rtype: ndarray(n,n)
+
+        The elements of the distance matrix ``D[i,j]`` is the edge cost of moving
+        from vertex ``i`` to vertex ``j``. It is zero if the vertices are not
+        connected.
+        """
+        # create a dict mapping node to an id
+        vdict = {}
+        for i, vert in enumerate(self):
+            vdict[vert] = i
+
+        A = np.zeros((self.n, self.n))
+        for v1 in self:
+            for v2, edge in v1.incidences():
+                A[vdict[v1], vdict[v2]] = edge.cost
+        return A
 
     ## GRAPH COMPONENTS
         
