@@ -1309,10 +1309,16 @@ class UVertex(Vertex):
     .. inheritance-diagram:: UVertex
 
     """
-
-
     def connect(self, other, **kwargs):
-        e = super().connect(other, **kwargs)
+
+        if isinstance(other, Vertex):
+            e = super().connect(other, **kwargs)
+        elif isinstance(other, Edge):
+            e = super().connect(edge=other)
+        else:
+            raise TypeError('bad argument')
+
+        # e = super().connect(other, **kwargs)
         
         self._edges.append(e)
         other._edges.append(e)
@@ -1333,9 +1339,14 @@ class DVertex(Vertex):
     """
 
     def connect(self, other, **kwargs):
-        e = super().connect(other, **kwargs)
+        if isinstance(other, Vertex):
+            e = super().connect(other, **kwargs)
+        elif isinstance(other, Edge):
+            e = super().connect(edge=other)
+        else:
+            raise TypeError('bad argument')
         
-        self._edges.add(e)
+        self._edges.append(e)
         return e
 
     def remove(self):
