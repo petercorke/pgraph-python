@@ -517,11 +517,11 @@ class PGraph(ABC):
             - The number of zero-valued eigenvalues is the number of connected 
                 components in the graph.
         
-        :seealso: :func:`adjacency`, :func:`incidence`, :func:`degree`
+        :seealso: :meth:`adjacency` :meth:`incidence` :meth:`degree`
         """
-        return self.degree() - (g.adjacency() > 0)
+        return self.degree() - (self.adjacency() > 0)
 
-    def connectivity(self):
+    def connectivity(self, vertices=None):
         """
         Graph connectivity
 
@@ -539,7 +539,9 @@ class PGraph(ABC):
         """
 
         c = []
-        for n in self:
+        if vertices is None:
+            vertices = self
+        for n in vertices:
             c.append(len(n._edges))
         return c
 
@@ -558,21 +560,25 @@ class PGraph(ABC):
     def adjacency(self):
         """
         Adjacency matrix of graph
+
+        :returns: adjacency matrix
+        :rtype: ndarray(n,n)
         
-        ``g.adjacency()`` is a matrix (NxN) where N is the number of vertices.
-        Element A[i,j] is 1 if vertex i is connected to vertex j, else 0.
+        The elements of the adjacency matrix ``A[i,j]`` are 1 if vertex ``i`` is
+        connected to vertex ``j``, else 0.
         
         .. note::
 
             - vertices are numbered in their order of creation. A vertex index
               can be resolved to a vertex reference by ``graph[i]``.
-            - Matrix is symmetric for an undirected graph
-            - Eigenvalues of A are real and are known as the spectrum of the graph.
-            - The element A[i,j] can be considered the number of walks of one
-              edge from vertex i to vertex j (either zero or one).  The element (i,j)
-              of A^N are the number of walks of length N from vertex i to vertex j.
+            - for an undirected graph the matrix is symmetric
+            - Eigenvalues of ``A`` are real and are known as the spectrum of the graph.
+            - The element ``A[i,j]`` can be considered the number of walks of length one
+              edge from vertex ``i`` to vertex ``j`` (either zero or one).  
+            - If ``Ak = A ** k`` the element ``Ak[i,j]`` is the number of 
+              walks of length ``k`` from vertex ``i`` to vertex ``j``.
 
-        :seealso: :func:`Laplacian`, :func:`incidence`, :func:`degree`
+        :seealso: :meth:`Laplacian` :meth:`incidence` :meth:`degree`
         """
         # create a dict mapping node to an id
         vdict = {}
@@ -588,10 +594,12 @@ class PGraph(ABC):
     def incidence(self):
         """
         Incidence matrix of graph
+
+        :returns: incidence matrix
+        :rtype: ndarray(n,ne)
         
-        ``g.incidence()`` is a matrix (NxE) where N is the number of vertices
-        and E is the number of edges.  Element (i,j) is 1 if vertex i is 
-        connected to edge  j.
+        The elements of the incidence matrix ``I[i,j]`` are 1 if vertex ``i`` is
+        connected to edge ``j``, else 0.
 
         .. note::
 
@@ -599,7 +607,7 @@ class PGraph(ABC):
               can be resolved to a vertex reference by ``graph[i]``.
             - edges are numbered in the order they appear in ``graph.edges()``.
 
-        :seealso: :func:`Laplacian`, :func:`adjacency`, :func:`degree`
+        :seealso: :meth:`Laplacian` :meth:`adjacency` :meth:`degree`
         """
         edges = self.edges()
         I = np.zeros((self.n, len(edges)))
@@ -610,8 +618,11 @@ class PGraph(ABC):
             edict[edge] = i
 
         for i, node in enumerate(self):
-            for e in enumerate(node.edges()):
+            for i, e in enumerate(node.edges()):
                 I[i, edict[e]] = 1
+        
+        return I
+
     def distance(self):
         """
         Distance matrix of graph
