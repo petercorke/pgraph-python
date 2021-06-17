@@ -932,7 +932,7 @@ class PGraph(ABC):
             path.insert(0, p)
             x = p
 
-        if summary:
+        if summary or verbose:
             print(
                 f"{len(explored)} vertices explored, {len(frontier)} remaining on the frontier")
 
@@ -1023,7 +1023,7 @@ class PGraph(ABC):
             path.insert(0, p)
             x = p
 
-        if summary:
+        if summary or verbose:
             print(
                 f"{len(explored)} vertices explored, {len(frontier)} remaining on the frontier")
 
@@ -1120,7 +1120,7 @@ class PGraph(ABC):
             path.insert(0, p)
             x = p
 
-        if summary:
+        if summary or verbose:
             print(
                 f"{len(explored)} vertices explored, {len(frontier)} remaining on the frontier")
 
