@@ -8,7 +8,6 @@ import tempfile
 import subprocess
 import webbrowser
 
-
 class PGraph(ABC):
 
     @abstractmethod
@@ -262,7 +261,7 @@ class PGraph(ABC):
 
     @metric.setter
     def metric(self, metric):
-        """
+        r"""
         Set the distance metric for graph
 
         :param metric: distance metric
@@ -295,7 +294,7 @@ class PGraph(ABC):
 
     @heuristic.setter
     def heuristic(self, heuristic):
-        """
+        r"""
         Set the heuristic distance metric for graph
 
         :param metric: heuristic distance metric
@@ -903,6 +902,9 @@ class PGraph(ABC):
             G = self[G]
         elif not isinstance(S, Vertex):
             raise TypeError('goal must be Vertex subclass or string name')
+
+        # we use lists not sets since the order is instructive in verbose
+        # mode, really need ordered sets...
         frontier = [S]
         explored = []
         evaluation = [None for i in range(self.n)]
@@ -1491,6 +1493,7 @@ class Vertex:
         :rtype: float
         """
         return self.coord[2]
+
 
 
 class UVertex(Vertex):
