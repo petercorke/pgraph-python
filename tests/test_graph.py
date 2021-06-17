@@ -331,12 +331,12 @@ class TestUGraph(unittest.TestCase):
         g = UGraph()
         v1 = g.add_vertex([1,2,3])
         p = [7,6,6]
-        self.assertEqual(v1.distance(p), np.sqrt(61))
+        self.assertAlmostEqual(v1.distance(p), np.sqrt(61))
 
         g = UGraph(metric='L2')
         v1 = g.add_vertex([1,2,3])
         p = [7,6,6]
-        self.assertEqual(v1.distance(p), np.sqrt(61))
+        self.assertAlmostEqual(v1.distance(p), np.sqrt(61))
 
         g = UGraph(metric='L1')
         v1 = g.add_vertex([1,2,3])
@@ -346,24 +346,24 @@ class TestUGraph(unittest.TestCase):
         g = UGraph(metric='SE2')
         v1 = g.add_vertex([1,2,0])
         p = [7,6,0]
-        self.assertEqual(v1.distance(p), np.sqrt(52))
+        self.assertAlmostEqual(v1.distance(p), np.sqrt(52))
         p = [7,6,2*np.pi]
-        self.assertEqual(v1.distance(p), np.sqrt(52))
+        self.assertAlmostEqual(v1.distance(p), np.sqrt(52))
         p = [7,6,-2*np.pi]
-        self.assertEqual(v1.distance(p), np.sqrt(52))
+        self.assertAlmostEqual(v1.distance(p), np.sqrt(52))
         p = [7,6,4*np.pi]
-        self.assertEqual(v1.distance(p), np.sqrt(52))
+        self.assertAlmostEqual(v1.distance(p), np.sqrt(52))
         p = [7,6,-4*np.pi]
-        self.assertEqual(v1.distance(p), np.sqrt(52))
+        self.assertAlmostEqual(v1.distance(p), np.sqrt(52))
 
         p = [7,6,np.pi]
-        self.assertEqual(v1.distance(p), np.sqrt(52+np.pi**2))
+        self.assertAlmostEqual(v1.distance(p), np.sqrt(52+np.pi**2))
 
         v2 = g.add_vertex([1,2,np.pi/2])
         p = [7,6,np.pi/2]
-        self.assertEqual(v2.distance(p), np.sqrt(52))
+        self.assertAlmostEqual(v2.distance(p), np.sqrt(52))
         p = [7,6,-np.pi/2]
-        self.assertEqual(v2.distance(p), np.sqrt(52+np.pi**2))
+        self.assertAlmostEqual(v2.distance(p), np.sqrt(52+np.pi**2))
 
     def test_closest(self):
         g = UGraph()
