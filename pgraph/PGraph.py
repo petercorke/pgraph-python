@@ -38,19 +38,36 @@ class PGraph(ABC):
         return s
 
     @classmethod
-    def Dict(cls, d, direction='BT', reverse=False):
+    def Dict(cls, d, reverse=False):
+        """
+        Create graph from parent/child dictionary
+
+        :param d: dictionary that maps from ``Vertex`` subclass to ``Vertex`` subclass
+        :type d: dict
+        :param reverse: reverse link direction, defaults to False
+        :type reverse: bool, optional
+        :return: graph
+        :rtype: UGraph or DGraph
+
+        Behaves like a constructor for a ``DGraph`` or ``UGraph`` from a
+        dictionary that maps vertices to parents.  From this information it
+        can create a tree graph.
+
+        By default parent nodes are linked their children. If ``reverse`` is
+        True then children are linked to their parents.
+        """
 
         g = cls()
 
-        for node, parent in d.items():
-            if node.name not in g:
-                g.add_vertex(name=node.name)
+        for vertex, parent in d.items():
+            if vertex.name not in g:
+                g.add_vertex(name=vertex.name)
             if parent.name not in g:
                 g.add_vertex(name=parent.name)
             if reverse:
-                g.add_edge(g[parent.name], g[node.name])
+                g.add_edge(g[vertex.name], g[parent.name])
             else:
-                g.add_edge(g[node.name], g[parent.name])
+                g.add_edge(g[parent.name], g[vertex.name])
 
         return g
 
