@@ -841,8 +841,14 @@ class PGraph(ABC):
         vertex ``G`` if possible, otherwise return None.
 
         """
-        S = self[S]
-        G = self[G]
+        if isinstance(S, str):
+            S = self[S]
+        elif not isinstance(S, Vertex):
+            raise TypeError('start must be Vertex subclass or string name')
+        if isinstance(G, str):
+            G = self[G]
+        elif not isinstance(S, Vertex):
+            raise TypeError('goal must be Vertex subclass or string name')
         frontier = [S]
         explored = []
         evaluation = [None for i in range(self.n)]
@@ -918,8 +924,15 @@ class PGraph(ABC):
         The heuristic is the distance metric of the graph, which defaults to
         Euclidean distance.
         """
-        S = self[S]
-        G = self[G]
+        if isinstance(S, str):
+            S = self[S]
+        elif not isinstance(S, Vertex):
+            raise TypeError('start must be Vertex subclass or string name')
+        if isinstance(G, str):
+            G = self[G]
+        elif not isinstance(S, Vertex):
+            raise TypeError('goal must be Vertex subclass or string name')
+
         frontier = [S]
         explored = []
         parent = {}
@@ -1004,8 +1017,15 @@ class PGraph(ABC):
 
         :seealso: :meth:`heuristic`
         """
-        S = self[S]
-        G = self[G]
+        if isinstance(S, str):
+            S = self[S]
+        elif not isinstance(S, Vertex):
+            raise TypeError('start must be Vertex subclass or string name')
+        if isinstance(G, str):
+            G = self[G]
+        elif not isinstance(S, Vertex):
+            raise TypeError('goal must be Vertex subclass or string name')
+
         frontier = [S]
         explored = []
         parent = {}
