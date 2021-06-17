@@ -343,6 +343,30 @@ class PGraph(ABC):
         """
         return item in self._vertexdict
 
+    def closest(self, coord):
+        """
+        Vertex closest to point
+
+        :param coord: coordinates of a point
+        :type coord: ndarray(n)
+        :return: closest vertex
+        :rtype: Vertex subclass
+
+        Returns the vertex closest to the given point. Distance is computed
+        according to the graph's metric.
+
+        :seealso: :meth:`metric`
+        """
+        min_dist = np.Inf
+
+        for vertex in self:
+            d = self.metric(vertex.coord - coord)
+            if d < min_dist:
+                min_dist = d
+                min_which = vertex
+        
+        return min_which, min_dist
+
     def edges(self):
         """
         Get all edges in graph (superclass method)
