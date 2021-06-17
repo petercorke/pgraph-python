@@ -386,7 +386,7 @@ class PGraph(ABC):
         """
         return self._edges
 
-    def plot(self, vertex=None, edge=None, text=None, color=None, block=True):
+    def plot(self, colorcomponents=True, vertex=None, edge=None, text={}, block=True, ax=None):
         """
         Plot the graph
 
