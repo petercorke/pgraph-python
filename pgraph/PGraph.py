@@ -394,21 +394,22 @@ class PGraph(ABC):
         :type vertex: dict, optional
         :param edge: edge format, defaults to None
         :type edge: dict, optional
-        :param text: [description], defaults to None
-        :type text: [type], optional
-        :param color: [description], defaults to None
-        :type color: [type], optional
+        :param text: text label format, defaults to None
+        :type text: False or dict, optional
+        :param colorcomponents: color nodes and edges by component, defaults to None
+        :type color: bool, optional
         :param block: block until figure is dismissed, defaults to True
         :type block: bool, optional
 
         The graph is plotted using matplotlib.
 
-        .. todo::
+        If ``colorcomponents`` is True then each component is assigned a unique
+        color.  ``vertex`` and ``edge`` cannot include a color keyword.
 
-            - more options
-            - save options for use by highlight
+        If ``text`` is a dict it is used to format text labels for the vertices
+        which are the vertex names.  If ``text`` is None default formatting is
+        used.  If ``text`` is False no labels are added.
         """
-
         if vertex is None:
             vertex = {"marker": 'o', "markersize": 12}
         else:
@@ -419,23 +420,29 @@ class PGraph(ABC):
         if text is None:
             text = {}
 
-        if color is None:
+        if colorcomponents:
             color = plt.cm.coolwarm(np.linspace(0, 1, self.nc))
 
-        fig = plt.figure()
+        if ax is None:
+            ax = plt.axes()
         for c in range(self.nc):
             # for each component
             for node in self.component(c):
-                plt.text(node.x, node.y, "  " + node.name, **text)
-                plt.plot(node.x, node.y, color=color[c, :], **vertex)
-                for v in node.neighbours():
-                    plt.plot([node.x, v.x], [node.y, v.y],
-                             color=color[c, :], **edge)
-
+                if text is not False:
+                    ax.text(node.x, node.y, "  " + node.name, **text)
+                if colorcomponents:
+                    ax.plot(node.x, node.y, color=color[c, :], **vertex)
+                    for v in node.neighbours():
+                        ax.plot([node.x, v.x], [node.y, v.y],
+                                color=color[c, :], **edge)
+                else:
+                    x.plot(node.x, node.y, **vertex)
+                    for v in node.neighbours():
+                        ax.plot([node.x, v.x], [node.y, v.y], **edge)
         # if nc > 1:
         #     # add a colorbar
         #     plt.colorbar()
-        plt.grid(True)
+        ax.grid(True)
         if block:
             plt.show()
 
