@@ -1116,7 +1116,7 @@ class PGraph(ABC):
 
         while x is not S:
             p = parent[x]
-            length += x.edgeto(p).cost
+            length += p.edgeto(x).cost
             path.insert(0, p)
             x = p
 
