@@ -446,7 +446,7 @@ class PGraph(ABC):
         if block:
             plt.show()
 
-    def highlight_path(self, path, block=True, **kwargs):
+    def highlight_path(self, path, block=False, **kwargs):
         """
         Highlight a path through the graph
 
