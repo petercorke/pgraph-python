@@ -61,7 +61,7 @@ class PGraph(ABC):
         """
         return copy.deepcopy(g)
 
-    def add_vertex(self, vertex):
+    def add_vertex(self, vertex, name=None):
         """
         Add a vertex to the graph (superclass method)
 
@@ -75,8 +75,10 @@ class PGraph(ABC):
 
         The vertex is placed into a dictionary with a key equal to its name.
         """
-        if vertex.name is None:
+        if name is None:
             vertex.name = f"#{len(self._vertexlist)}"
+        else:
+            vertex.name = name
         self._vertexlist.append(vertex)
         self._vertexdict[vertex.name] = vertex
         if self._verbose:
@@ -1123,7 +1125,7 @@ class UGraph(PGraph):
             node = coord
         else:
             node = UVertex(coord, name)
-        super().add_vertex(node)
+        super().add_vertex(node, name=name)
         return node
 
 
