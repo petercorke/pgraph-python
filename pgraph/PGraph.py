@@ -19,13 +19,17 @@ class PGraph(ABC):
     # def add_edge(self, v1, v2, cost=None):
     #     pass
 
-    def __init__(self, arg=None, heuristic=None, verbose=False):
+    def __init__(self, arg=None, metric=None, heuristic=None, verbose=False):
         self._vertexlist = []
         self._vertexdict = {}
         self._edges = set()
         self._verbose = verbose
+        if metric is None:
+            self.metric = 'L2'
+        else:
+            self.metric = metric
         if heuristic is None:
-            self.heuristic = np.linalg.norm
+            self.heuristic = self.metric
         else:
             self.heuristic = heuristic
 
@@ -196,20 +200,104 @@ class PGraph(ABC):
         self._graphcolor()
         return self._ncomponents
 
+    def _metricfunc(self, metric):
+
+        def L1(v):
+            return np.linalg.norm(v, 1)
+
+        def L2(v):
+            return np.linalg.norm(v)
+        
+        def SE2(v):
+            # wrap angle to range [-pi, pi)
+            v[2] = (v[2] + np.pi) % (2 * np.pi) - np.pi
+            return np.linalg.norm(v)
+
+        if callable(metric):
+            return metric
+        elif isinstance(metric, str):
+            if metric == 'L1':
+                return L1
+            elif metric == 'L2':
+                return L2
+            elif metric == 'SE2':
+                return SE2
+        else:
+            raise ValueError('unknown metric')
+
+    @property
+    def metric(self):
+        """
+        Get the distance metric for graph
+
+        :return: distance metric
+        :rtype: callable
+
+        This is a function of a vector and returns a scalar.
+        """
+        return self._metric
+
+    @metric.setter
+    def metric(self, metric):
+        """
+        Set the distance metric for graph
+
+        :param metric: distance metric
+        :type metric: callable or str
+
+        This is a function of a vector and returns a scalar.  It can be 
+        user defined function or a string:
+
+        - 'L1' is the norm :math:`L_1 = \Sigma_i | v_i |`
+        - 'L2' is the norm :math:`L_2 = \sqrt{ \Sigma_i v_i^2}`
+        - 'SE2' is a mixed norm for vectors :math:`(x, y, \theta)` and
+            is :math:`\sqrt{x^2 + y^2 + \bar{\theta}^2}` where :math:`\bar{\theta}`
+            is :math:`\theta` wrapped to the interval :math:`[-\pi, \pi)`
+        
+        The metric is used by :meth:`closest` and :meth:`distance`
+        """
+        self._metric = self._metricfunc(metric)
+
     @property
     def heuristic(self):
+        """
+        Get the heuristic distance metric for graph
+
+        :return: heuristic distance metric
+        :rtype: callable
+
+        This is a function of a vector and returns a scalar.
+        """
         return self._heuristic
 
     @heuristic.setter
     def heuristic(self, heuristic):
-        if not callable(heuristic):
-            return TypeError('metric must be callable')
-        self._heuristic = heuristic
+        """
+        Set the heuristic distance metric for graph
+
+        :param metric: heuristic distance metric
+        :type metric: callable or str
+
+        This is a function of a vector and returns a scalar.  It can be 
+        user defined function or a string:
+
+        - 'L1' is the norm :math:`L_1 = \Sigma_i | v_i |`
+        - 'L2' is the norm :math:`L_2 = \sqrt{ \Sigma_i v_i^2}`
+        - 'SE2' is a mixed norm for vectors :math:`(x, y, \theta)` and
+            is :math:`\sqrt{x^2 + y^2 + \bar{\theta}^2}` where :math:`\bar{\theta}`
+            is :math:`\theta` wrapped to the interval :math:`[-\pi, \pi)`
+
+        The heuristic distance is only used by the A* planner :meth:`path_Astar`.
+        """
+        self._heuristic = self._metricfunc(heuristic)
 
     def __repr__(self):
         s = []
         for node in self:
-            s.append(f"{node.name} at {node.coord}, label={node.label}")
+            ss = f"{node.name} at {node.coord}"
+            if node.label is not None:
+                ss += " component={node.label}"
+            s.append(ss)
         return '\n'.join(s)
 
     def __getitem__(self, i):

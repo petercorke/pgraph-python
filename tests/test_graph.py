@@ -327,6 +327,51 @@ class TestUGraph(unittest.TestCase):
         self.assertIsInstance(A, np.ndarray)
         self.assertEqual(A.shape, (g.n, g.n))
 
+    def test_metric(self):
+        g = UGraph()
+        v1 = g.add_vertex([1,2,3])
+        p = [7,6,6]
+        self.assertEqual(v1.distance(p), np.sqrt(61))
+
+        g = UGraph(metric='L2')
+        v1 = g.add_vertex([1,2,3])
+        p = [7,6,6]
+        self.assertEqual(v1.distance(p), np.sqrt(61))
+
+        g = UGraph(metric='L1')
+        v1 = g.add_vertex([1,2,3])
+        p = [7,6,6]
+        self.assertEqual(v1.distance(p), 13)
+
+        g = UGraph(metric='SE2')
+        v1 = g.add_vertex([1,2,0])
+        p = [7,6,0]
+        self.assertEqual(v1.distance(p), np.sqrt(52))
+        p = [7,6,2*np.pi]
+        self.assertEqual(v1.distance(p), np.sqrt(52))
+        p = [7,6,-2*np.pi]
+        self.assertEqual(v1.distance(p), np.sqrt(52))
+        p = [7,6,4*np.pi]
+        self.assertEqual(v1.distance(p), np.sqrt(52))
+        p = [7,6,-4*np.pi]
+        self.assertEqual(v1.distance(p), np.sqrt(52))
+
+        p = [7,6,np.pi]
+        self.assertEqual(v1.distance(p), np.sqrt(52+np.pi**2))
+
+        v2 = g.add_vertex([1,2,np.pi/2])
+        p = [7,6,np.pi/2]
+        self.assertEqual(v2.distance(p), np.sqrt(52))
+        p = [7,6,-np.pi/2]
+        self.assertEqual(v2.distance(p), np.sqrt(52+np.pi**2))
+
+    def test_closest(self):
+        g = UGraph()
+        v1 = g.add_vertex([1,2,3])
+        v2 = g.add_vertex([4,5,6])
+        v, d = g.closest([4, 5, 7])
+        self.assertIs(v, v2)
+        self.assertEqual(d, 1)
 
     def test_bfs(self):
         g = UGraph()
