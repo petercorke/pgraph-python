@@ -1410,6 +1410,21 @@ class Vertex:
     def heuristic_distance(self, v2):
         return self._graph.heuristic(self.coord - v2.coord)
 
+    def distance(self, coord):
+        """
+        Distance from vertex to point
+
+        :param coord: coordinates of the point
+        :type coord: ndarray(n)
+        :return: distance
+        :rtype: float
+
+        Distance is computed according to the graph's metric.
+
+        :seealso: :meth:`metric`
+        """
+        return self._graph.metric(self.coord - coord)
+
     @property
     def degree(self):
         """
