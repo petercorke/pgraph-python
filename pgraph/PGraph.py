@@ -33,6 +33,10 @@ class PGraph(ABC):
         else:
             self.heuristic = heuristic
 
+    def __str__(self):
+        s = f"{self.__class__.__name__}: {self.n} vertices, {self.ne} edges, {self.nc} components"
+        return s
+
     @classmethod
     def Dict(cls, d, direction='BT', reverse=False):
 
