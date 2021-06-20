@@ -60,13 +60,16 @@ class PGraph(ABC):
 
         for vertex, parent in d.items():
             if vertex.name not in g:
-                g.add_vertex(name=vertex.name)
+                g.add_vertex(vertex, name=vertex.name)
             if parent.name not in g:
-                g.add_vertex(name=parent.name)
+                g.add_vertex(parent, name=parent.name)
             if reverse:
-                g.add_edge(g[vertex.name], g[parent.name])
+                vertex.connect(parent)
             else:
-                g.add_edge(g[parent.name], g[vertex.name])
+                parent.connect(vertex)
+
+        return g
+
     @classmethod
     def Adjacency(cls, A, coords=None, names=None):
         """
