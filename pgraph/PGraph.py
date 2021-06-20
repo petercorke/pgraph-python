@@ -418,14 +418,23 @@ class PGraph(ABC):
 
     def __contains__(self, item):
         """
-        Test if vertex name in graph
+        Test if vertex in graph
 
-        :param item: name of vertex
-        :type item: str
-        :return: true if vertex of this name exists in the graph
+        :param item: vertex or name of vertex
+        :type item: Vertex subclass or str
+        :return: true if vertex exists in the graph
         :rtype: bool
+
+        - ``'name' in graph`` is true if a node named ``'name'`` exists in the
+          graph.
+        - ``v in graph`` is true if the vertex reference ``v`` exists in the
+          graph.
+
         """
-        return item in self._vertexdict
+        if isinstance(item, str):
+            return item in self._vertexdict
+        elif isinstance(item, Vertex):
+            return item in self._vertexdict.values()
 
     def closest(self, coord):
         """
