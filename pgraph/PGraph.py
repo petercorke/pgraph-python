@@ -67,6 +67,60 @@ class PGraph(ABC):
                 g.add_edge(g[vertex.name], g[parent.name])
             else:
                 g.add_edge(g[parent.name], g[vertex.name])
+    @classmethod
+    def Adjacency(cls, A, coords=None, names=None):
+        """
+        Create graph from adjacency matrix
+
+        :param A: adjacency matrix
+        :type A: ndarray(N,N)
+        :param coords: coordinates of vertices, defaults to None
+        :type coords: ndarray(N,M), optional
+        :param names: names of vertices, defaults to None
+        :type names: list(N) of str, optional
+
+        :return: [description]
+        :rtype: [type]
+
+        Create a directed or undirected graph where non-zero elements ``A[i,j]``
+        correspond to edges from vertex ``i`` to vertex ``j``.
+
+        .. warning:: For undirected graph ``A`` should be symmetric but this
+            is not checked.  Only the upper triangular part is used.
+        """
+
+        if A.shape[0] != A.shape[1]:
+            raise ValueError('Adjacency matrix must be square')
+        if names is not None and len(names) != A.shape[0]:
+            raise ValueError('length of names must match dimension of adjacency matrix')
+        if coords is not None and coords.shape[0] != A.shape[0]:
+                raise ValueError('coords must have same number of rows as adjacency matrix')
+
+        g = cls()
+
+        name = None
+        coord = None
+        for i in range(A.shape[0]):
+            if names is not None:
+                name = names[i]
+            if coords is not None:
+                coord = coords[i, :]
+            g.add_vertex(name=name, coord=coord)
+
+        if isinstance(g, UGraph):
+            # undirected graph
+            for i in range(A.shape[0]):
+                for j in range(i+1, A.shape[1]):
+                    if A[i, j] > 0:
+                        g[i].connect(g[j], cost=A[i,j])
+        else:
+            # directed graph
+            for i in range(A.shape[0]):
+                for j in range(A.shape[1]):
+                    if A[i, j] > 0:
+                        if i == j:
+                            raise ValueError('loops in graph not supported')
+                        g[i].connect(g[j], cost=A[i,j])
 
         return g
 
