@@ -1353,6 +1353,9 @@ class Edge:
             raise ValueError('shouldnt happen')
 
     def vertices(self):
+        raise DeprecationWarning('use endpoints instead')
+
+    def endpoints(self):
         return [self.v1, self.v2]
 
     # def remove(self):
@@ -1418,6 +1421,20 @@ class Vertex:
         .. note:: For a directed graph the neighbours are those on edges leaving this vertex
         """
         return [e.next(self) for e in self._edges]
+
+    def isneighbour(self, vertex):
+        """
+        Test if vertex is a neigbour
+
+        :param vertex: vertex reference
+        :type vertex: Vertex subclass
+        :return: true if a neighbour
+        :rtype: bool
+
+        For a directed graph this is true only if the edge is from ``self`` to
+        ``vertex``.
+        """
+        return vertex in [e.next(self) for e in self._edges]
 
     def incidences(self):
         """
