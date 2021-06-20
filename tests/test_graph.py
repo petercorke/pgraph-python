@@ -1,6 +1,7 @@
 
 import unittest
 import numpy as np
+import numpy.testing as nt
 
 from pgraph import *
 
@@ -25,6 +26,28 @@ class TestUGraph(unittest.TestCase):
         self.assertEqual(v.x, 1)
         self.assertEqual(v.y, 2)
         self.assertEqual(v.z, 3)
+
+    def test_str(self):
+        g = UGraph()
+
+        v0 = g.add_vertex([1,2,3])
+        v1 = g.add_vertex([1,2,3])
+        v0.connect(v1)
+
+        self.assertEqual(str(g), "UGraph: 2 vertices, 1 edges, 1 components")
+
+        g = DGraph()
+
+        v0 = g.add_vertex([1,2,3])
+        v1 = g.add_vertex([1,2,3])
+        v0.connect(v1)
+
+        self.assertEqual(str(g), "DGraph: 2 vertices, 1 edges, 1 components")
+
+
+        s = repr(g)
+        self.assertIsInstance(s, str)
+        self.assertEqual(len(s.split('\n')), 2)
 
     def test_attr(self):
 
@@ -60,6 +83,73 @@ class TestUGraph(unittest.TestCase):
         self.assertIsInstance(v1, MyNode)
         v1.connect(v2)
         self.assertEqual(v1.neighbours()[0].a, 2)
+
+    def test_neighbours(self):
+        g = UGraph()
+        v1 = g.add_vertex(name='v1')
+        v2 = g.add_vertex(name='v2')
+        v3 = g.add_vertex(name='v3')
+        v4 = g.add_vertex(name='v4')
+        v1.connect(v2)
+        v1.connect(v3)
+
+        n = v1.neighbours()
+        self.assertTrue(len(n) == 2)
+        self.assertTrue(v2 in n)
+        self.assertTrue(v3 in n)
+        self.assertFalse(v1 in n)
+        self.assertFalse(v4 in n)
+
+        n = v2.neighbours()
+        self.assertTrue(len(n) == 1)
+        self.assertTrue(v1 in n)
+        self.assertFalse(v2 in n)
+        self.assertFalse(v3 in n)
+        self.assertFalse(v4 in n)
+
+
+        g = UGraph()
+        v1 = g.add_vertex(name='v1')
+        v2 = g.add_vertex(name='v2')
+        v3 = g.add_vertex(name='v3')
+        v1.connect(v2)
+
+        self.assertTrue(v1.isneighbour(v2))
+        self.assertTrue(v2.isneighbour(v1))
+        self.assertFalse(v1.isneighbour(v3))
+        self.assertFalse(v3.isneighbour(v1))
+
+        g = DGraph()
+        v1 = g.add_vertex(name='v1')
+        v2 = g.add_vertex(name='v2')
+        v3 = g.add_vertex(name='v3')
+        v4 = g.add_vertex(name='v4')
+        v1.connect(v2)
+        v1.connect(v3)
+
+        n = v1.neighbours()
+        self.assertTrue(len(n) == 2)
+        self.assertTrue(v2 in n)
+        self.assertTrue(v3 in n)
+        self.assertFalse(v1 in n)
+        self.assertFalse(v4 in n)
+
+        n = v2.neighbours()
+        self.assertTrue(len(n) == 0)
+        self.assertFalse(v1 in n)
+        self.assertFalse(v2 in n)
+        self.assertFalse(v3 in n)
+        self.assertFalse(v4 in n)
+
+        g = DGraph()
+        v1 = g.add_vertex(name='v1')
+        v2 = g.add_vertex(name='v2')
+        v3 = g.add_vertex(name='v3')
+        v1.connect(v2)
+        self.assertTrue(v1.isneighbour(v2))
+        self.assertFalse(v2.isneighbour(v1))
+        self.assertFalse(v1.isneighbour(v3))
+        self.assertFalse(v3.isneighbour(v1))
 
     def test_getitem(self):
         g = UGraph()
@@ -229,6 +319,17 @@ class TestUGraph(unittest.TestCase):
         self.assertIs(v1.edgeto(v2), e12)
         self.assertIs(v1.edgeto(v2), e12)
 
+    def test_add_vertex(self):
+
+        g = UGraph()
+
+        v = UVertex()
+
+        g.add_vertex(v)
+        self.assertEqual(v.name, '#0')
+        self.assertTrue(v in g)
+        self.assertTrue(v._graph, g)
+
     def test_properties(self):
 
         g = UGraph()
@@ -242,6 +343,97 @@ class TestUGraph(unittest.TestCase):
         self.assertEqual(g.n, 4)
         self.assertEqual(g.ne, 2)
         self.assertEqual(g.average_degree(), 1.0)
+
+        g = DGraph()
+        v1 = g.add_vertex()
+        v2 = g.add_vertex()
+        v3 = g.add_vertex()
+        v4 = g.add_vertex()
+        e12 = v1.connect(v2)
+        e13 = v1.connect(v3)
+
+        self.assertEqual(g.n, 4)
+        self.assertEqual(g.ne, 2)
+        self.assertEqual(g.average_degree(), 0.5)
+
+    def test_contains(self):
+
+        g = UGraph()
+        v1 = g.add_vertex()
+        v2 = g.add_vertex()
+
+        self.assertTrue('#0' in g)
+        self.assertFalse('#2' in g)
+
+        self.assertTrue(v1 in g)
+        g2 = UGraph()
+        self.assertFalse(v1 in g2)
+
+    def test_Dict(self):
+
+        v1 = UVertex()
+        v2 = UVertex()
+        v3 = UVertex()
+        v4 = UVertex()
+
+        parent = {}
+        parent[v2] = v1
+        parent[v3] = v1
+        parent[v4] = v3
+
+        g = UGraph.Dict(parent)
+
+        self.assertIsInstance(g, UGraph)
+        self.assertEqual(g.n, 4)
+        self.assertEqual(g.ne, 3)
+        self.assertTrue(v1 in g)
+        self.assertTrue(v2 in g)
+        self.assertTrue(v3 in g)
+        self.assertTrue(v4 in g)
+
+        self.assertTrue(v2 in v1.neighbours())
+        self.assertTrue(v3 in v1.neighbours())
+        self.assertTrue(v4 in v3.neighbours())
+
+    def test_Adjacency(self):
+        A = np.zeros((5, 5))
+        A[1,2] = 5  # 1 <--> 2
+        A[3,4] = 2  # 3 <--> 4
+        
+        coords = np.random.rand(5, 3)
+        names = "zero one two three four".split(" ")
+
+        g = UGraph.Adjacency(A, coords, names)
+        self.assertIsInstance(g, UGraph)
+        self.assertEqual(g.n, 5)
+        self.assertEqual(g.ne, 2)
+        self.assertTrue(g['two'] in g['one'].neighbours())
+        self.assertTrue(g['three'] in g['four'].neighbours())
+        e = g['two'].edgeto(g['one'])
+        self.assertEqual(e.cost, 5)
+        e = g['three'].edgeto(g['four'])
+        self.assertEqual(e.cost, 2)
+        nt.assert_almost_equal(g['two'].coord, coords[2,:])
+
+        A = np.zeros((5, 5))
+        A[1,2] = 5  # 1 --> 2
+        A[3,4] = 2  # 3 --> 4
+        
+        coords = np.random.rand(5, 3)
+        names = "zero one two three four".split(" ")
+
+        g = DGraph.Adjacency(A, coords, names)
+        self.assertIsInstance(g, DGraph)
+        self.assertEqual(g.n, 5)
+        self.assertEqual(g.ne, 2)
+        self.assertTrue(g['two'] in g['one'].neighbours())
+        self.assertTrue(g['four'] in g['three'].neighbours())
+        e = g['one'].edgeto(g['two'])
+        self.assertEqual(e.cost, 5)
+        e = g['three'].edgeto(g['four'])
+        self.assertEqual(e.cost, 2)
+        nt.assert_almost_equal(g['two'].coord, coords[2,:])
+
 
     # def test_remove_edge(self):
 
@@ -365,6 +557,20 @@ class TestUGraph(unittest.TestCase):
         p = [7,6,-np.pi/2]
         self.assertAlmostEqual(v2.distance(p), np.sqrt(52+np.pi**2))
 
+    def test_heuristic(self):
+        g = UGraph()
+        p = [2, 3, 4]
+        self.assertAlmostEqual(g.heuristic(p), np.sqrt(29))
+
+        g = UGraph(heuristic='L2')
+        p = [2, 3, 4]
+        self.assertAlmostEqual(g.heuristic(p), np.sqrt(29))
+
+        g = UGraph(heuristic='L1')
+        p = [2, 3, 4]
+        self.assertAlmostEqual(g.heuristic(p), 9)
+
+
     def test_closest(self):
         g = UGraph()
         v1 = g.add_vertex([1,2,3])
@@ -373,7 +579,7 @@ class TestUGraph(unittest.TestCase):
         self.assertIs(v, v2)
         self.assertEqual(d, 1)
 
-    def test_bfs(self):
+    def test_BFS(self):
         g = UGraph()
         v1 = g.add_vertex(coord=[0,0], name='v1')
         v2 = g.add_vertex(coord=[1,1], name='v2')
@@ -393,7 +599,7 @@ class TestUGraph(unittest.TestCase):
         p = g.path_UCS(v1, v7)
         self.assertIsNone(p)
 
-        p, length = g.path_BFS(v1, v5)
+        p, length = g.path_BFS(v1, v5, verbose=True, summary=True)
         self.assertIsInstance(p, list)
         self.assertEqual(len(p), 3)
         self.assertEqual(p, [v1, v6, v5])
@@ -418,7 +624,7 @@ class TestUGraph(unittest.TestCase):
         p = g.path_UCS(v1, v7)
         self.assertIsNone(p)
 
-        p, length, parent = g.path_Astar(v1, v5)
+        p, length, parent = g.path_UCS(v1, v5, verbose=True, summary=True)
         self.assertIsInstance(p, list)
         self.assertEqual(len(p), 5)
         self.assertEqual(p, [v1, v2, v3, v4, v5])
@@ -450,7 +656,7 @@ class TestUGraph(unittest.TestCase):
         p = g.path_Astar(v1, v7)
         self.assertIsNone(p)
 
-        p, length, parent = g.path_Astar(v1, v5)
+        p, length, parent = g.path_Astar(v1, v5, verbose=True, summary=True)
         self.assertIsInstance(p, list)
         self.assertEqual(len(p), 5)
         self.assertEqual(p, [v1, v2, v3, v4, v5])
@@ -462,6 +668,46 @@ class TestUGraph(unittest.TestCase):
         self.assertEqual(parent[v4], v3)
         self.assertEqual(parent[v5], v4)
 
+    def test_plot(self):
+
+        g = UGraph()
+        v1 = g.add_vertex(coord=[0,0], name='v1')
+        v2 = g.add_vertex(coord=[1,1], name='v2')
+        v3 = g.add_vertex(coord=[2,2], name='v3')
+        v4 = g.add_vertex(coord=[1,3], name='v4')
+        v5 = g.add_vertex(coord=[0,4], name='v5')
+        v6 = g.add_vertex(coord=[-5,2], name='v6')
+        v7 = g.add_vertex(coord=[0,6], name='v7')
+
+        v1.connect(v2)
+        v2.connect(v3)
+        v3.connect(v4)
+        v4.connect(v5)
+        v1.connect(v6)
+        e = v6.connect(v5)
+
+        g.plot()
+
+        p, length, parent = g.path_Astar(v1, v5, verbose=True, summary=True)
+        g.highlight_path(p)
+
+    def test_dotfile(self):
+        import pathlib
+
+        g = UGraph()
+        v1 = g.add_vertex(coord=[0,0], name='v1')
+        v2 = g.add_vertex(coord=[1,1], name='v2')
+        v3 = g.add_vertex(coord=[2,2], name='v3')
+        v4 = g.add_vertex(coord=[1,3], name='v4')
+        v5 = g.add_vertex(coord=[0,4], name='v5')
+        v6 = g.add_vertex(coord=[-5,2], name='v6')
+        v7 = g.add_vertex(coord=[0,6], name='v7')
+
+        path = pathlib.Path('./dotfile.dot')
+        g.dotfile(str(path))
+        self.assertTrue(path.is_file())
+
+        g.showgraph()
 
 class TestDGraph(unittest.TestCase):
 
