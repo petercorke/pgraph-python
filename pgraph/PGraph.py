@@ -7,18 +7,18 @@ from collections.abc import Iterable
 import tempfile
 import subprocess
 import webbrowser
-
 class PGraph(ABC):
 
     @abstractmethod
     def add_vertex(self, coord=None, name=None):
-        pass
+        pass  # pragma: no cover
 
     # @abstractmethod
     # def add_edge(self, v1, v2, cost=None):
     #     pass
 
     def __init__(self, arg=None, metric=None, heuristic=None, verbose=False):
+        # we use a list and a dict, the list respects the order of adding
         self._vertexlist = []
         self._vertexdict = {}
         self._edges = set()
@@ -126,6 +126,7 @@ class PGraph(ABC):
                         g[i].connect(g[j], cost=A[i,j])
 
         return g
+
 
     def copy(self, g):
         """
