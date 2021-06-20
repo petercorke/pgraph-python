@@ -144,18 +144,21 @@ class PGraph(ABC):
 
         :param vertex: vertex to add
         :type vertex: Vertex subclass
+        :param name: name of node
+        :type name: str
 
         ``G.add_vertex(v)`` add vertex ``v`` to the graph ``G``.
 
-        If the vertex has no name give it a default name ``#N`` where ``N``
-        is a consecutive integer.
+        If the vertex has no name and ``name`` is None give it a default name
+        ``#N`` where ``N`` is a consecutive integer.
 
         The vertex is placed into a dictionary with a key equal to its name.
         """
         if name is None:
-            vertex.name = f"#{len(self._vertexlist)}"
-        else:
-            vertex.name = name
+            name = vertex.name
+        if name is None:
+            name = f"#{len(self._vertexlist)}"
+        vertex.name = name
         self._vertexlist.append(vertex)
         self._vertexdict[vertex.name] = vertex
         if self._verbose:
@@ -1251,7 +1254,7 @@ class UGraph(PGraph):
         if isinstance(coord, UVertex):
             node = coord
         else:
-            node = UVertex(coord, name)
+            node = UVertex(coord)
         super().add_vertex(node, name=name)
         return node
 
@@ -1282,8 +1285,8 @@ class DGraph(PGraph):
         if isinstance(coord, DVertex):
             node = coord
         else:
-            node = DVertex(coord, name)
-        super().add_vertex(node)
+            node = DVertex(coord)
+        super().add_vertex(node, name=name)
         return node
 
 
