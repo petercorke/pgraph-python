@@ -179,8 +179,15 @@ class PGraph(ABC):
 
         :seealso: :meth:`Edge.connect`
         """
-        v1 = self[v1]
-        v2 = self[v2]
+        if isinstance(v1, str):
+            v1 = self[v1]
+        elif not isinstance(v1, Vertex):
+            raise TypeError('v1 must be Vertex subclass or string name')
+        if isinstance(v2, str):
+            v2 = self[v2]
+        elif not isinstance(v2, Vertex):
+            raise TypeError('v2 must be Vertex subclass or string name')
+
         if self._verbose:
             print(f"New edge from {v1.name} to {v2.name}")
         return v1.connect(v2, **kwargs)
