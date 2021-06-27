@@ -37,7 +37,7 @@ class PGraph(ABC):
         return s
 
     @classmethod
-    def Dict(cls, d, reverse=False):
+    def Dict(cls, d, reverse=False, copy=False):
         """
         Create graph from parent/child dictionary
 
@@ -60,13 +60,18 @@ class PGraph(ABC):
 
         for vertex, parent in d.items():
             if vertex.name not in g:
+                if copy:
+                    vertex = vertex.copy(cls)
                 g.add_vertex(vertex, name=vertex.name)
             if parent.name not in g:
+                if copy:
+                    parent = parent.copy(cls)
                 g.add_vertex(parent, name=parent.name)
+
             if reverse:
-                vertex.connect(parent)
+                g.add_edge(vertex.name, parent.name)
             else:
-                parent.connect(vertex)
+                g.add_edge(parent.name, vertex.name)
 
         return g
 
@@ -1262,7 +1267,9 @@ class UGraph(PGraph):
         super().add_vertex(node, name=name)
         return node
 
-
+    @classmethod
+    def vertex_copy(self, vertex):
+        return DVertex(coord=vertex.coord, name=vertex.name)
 class DGraph(PGraph):
     """
     Class for directed graphs
@@ -1293,6 +1300,9 @@ class DGraph(PGraph):
         super().add_vertex(node, name=name)
         return node
 
+    @classmethod
+    def vertex_copy(self, vertex):
+        return DVertex(coord=vertex.coord, name=vertex.name)
 
 # ========================================================================== #
 
@@ -1484,6 +1494,12 @@ class Vertex:
 
     def __repr__(self):
         return f"{self.__class__.__name__}(name={self.name:s}, coord={self.coord})"
+
+    def copy(self, cls=None):
+        if cls is not None:
+            return cls.vertex_copy(self)
+        else:
+            return self.__class__(coord=self.coord, name=self.name)
 
     def neighbours(self):
         """
