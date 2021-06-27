@@ -11,6 +11,7 @@
 ![pypi downloads](https://img.shields.io/pypi/dw/pgraph-python)
 
 - GitHub repository: [https://github.com/petercorke/pgraph-python](https://github.com/petercorke/pgraph-python)
+- Wiki (examples and details) [https://github.com/petercorke/pgraph-python/wiki](https://github.com/petercorke/pgraph-python/wiki)
 - Documentation: [https://petercorke.github.io/pgraph-python](https://petercorke.github.io/pgraph-python)
 - Dependencies: `numpy`
 
