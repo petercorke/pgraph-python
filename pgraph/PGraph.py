@@ -542,8 +542,7 @@ class PGraph(ABC):
         #     # add a colorbar
         #     plt.colorbar()
         ax.grid(True)
-        if block:
-            plt.show()
+        plt.show(block=block)
 
     def highlight_path(self, path, block=False, **kwargs):
         """
