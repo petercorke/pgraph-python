@@ -7,6 +7,7 @@ from collections.abc import Iterable
 import tempfile
 import subprocess
 import webbrowser
+
 class PGraph(ABC):
 
     @abstractmethod
@@ -1438,6 +1439,7 @@ class Edge:
     def vertices(self):
         raise DeprecationWarning('use endpoints instead')
 
+    @property
     def endpoints(self):
         return [self.v1, self.v2]
 
