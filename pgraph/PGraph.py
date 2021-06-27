@@ -21,7 +21,7 @@ class PGraph(ABC):
         # we use a list and a dict, the list respects the order of adding
         self._vertexlist = []
         self._vertexdict = {}
-        self._edges = set()
+        self._edgelist = set()
         self._verbose = verbose
         if metric is None:
             self.metric = 'L2'
@@ -213,8 +213,8 @@ class PGraph(ABC):
             # remove an edge
 
             # remove edge from the edgelist of connected vertices
-            x.v1._edges.remove(x)
-            x.v2._edges.remove(x)
+            x.v1._edgelist.remove(x)
+            x.v2._edgelist.remove(x)
 
             # indicate that connectivity has changed
             x.v1._connectivitychange = True
@@ -225,13 +225,13 @@ class PGraph(ABC):
             x.v2 = None
 
             # remove from list of all edges
-            self._edges.remove(x)
+            self._edgelist.remove(x)
 
         elif isinstance(x, Vertex):
             # remove a vertex
 
             # remove all edges of this vertex
-            for edge in copy.copy(x._edges):
+            for edge in copy.copy(x._edgelist):
                 self.remove(edge)
 
             # remove from list and dict of all edges
@@ -245,7 +245,7 @@ class PGraph(ABC):
         for v in self._vertexlist:
             print('  ' + str(v))
         print('edges:')
-        for e in self._edges:
+        for e in self._edgelist:
             print('  ' + str(e))
 
     @property
@@ -266,7 +266,7 @@ class PGraph(ABC):
         :return: Number of vertices
         :rtype: int
         """
-        return len(self._edges)
+        return len(self._edgelist)
 
     @property
     def nc(self):
@@ -481,9 +481,9 @@ class PGraph(ABC):
 
         :seealso: :meth:`Vertex.edges`
         """
-        return self._edges
+        return self._edgelist
 
-    def plot(self, colorcomponents=True, vertex=None, edge=None, text={}, block=True, ax=None):
+    def plot(self, colorcomponents=True, vertex=None, edge=None, text={}, block=False, ax=None):
         """
         Plot the graph
 
@@ -770,7 +770,7 @@ class PGraph(ABC):
         if vertices is None:
             vertices = self
         for n in vertices:
-            c.append(len(n._edges))
+            c.append(len(n._edgelist))
         return c
 
     def degree(self):
@@ -943,7 +943,7 @@ class PGraph(ABC):
     #     # remove edges from neighbour's edge list
     #     for e in v.edges():
     #         next = e.next(v)
-    #         next._edges.remove(e)
+    #         next._edgelist.remove(e)
     #         next._connectivitychange = True
 
     #     # remove references from the graph
@@ -953,7 +953,7 @@ class PGraph(ABC):
     #             del self._vertexdict[key]
     #             break
 
-    #     v._edges = []  # remove all references to edges
+    #     v._edgelist = []  # remove all references to edges
 # --------------------------------------------------------------------------- #
 
     def path_BFS(self, S, G, verbose=False, summary=False):
@@ -1370,10 +1370,10 @@ class Edge:
     #     edge object.
     #     """
     #     # remove this edge from the edge list of both end nodes
-    #     if self in self.v1._edges:
-    #         self.v1._edges.remove(self)
-    #     if self in self.v2._edges:
-    #         self.v2._edges.remove(self)
+    #     if self in self.v1._edgelist:
+    #         self.v1._edgelist.remove(self)
+    #     if self in self.v2._edgelist:
+    #         self.v2._edgelist.remove(self)
 
     #     # indicate that connectivity has changed
     #     self.v1._connectivitychange = True
@@ -1393,12 +1393,12 @@ class Vertex:
     Each vertex has:
         - ``name``
         - ``label`` an int indicating which graph component contains it
-        - ``_edges`` a list of edge objects that connect this vertex to others
+        - ``_edgelist`` a list of edge objects that connect this vertex to others
         - ``coord`` the coordinate in an embedded graph (optional)
     """
 
     def __init__(self, coord=None, name=None):
-        self._edges = []
+        self._edgelist = []
         if coord is None:
             self.coord = None
         else:
@@ -1406,7 +1406,7 @@ class Vertex:
         self.name = name
         self.label = None
         self._connectivitychange = True
-        self._edges = []
+        self._edgelist = []
         self._graph = None  # reference to owning graph
         # print('Vertex init', type(self))
 
@@ -1424,7 +1424,7 @@ class Vertex:
 
         .. note:: For a directed graph the neighbours are those on edges leaving this vertex
         """
-        return [e.next(self) for e in self._edges]
+        return [e.next(self) for e in self._edgelist]
 
     def isneighbour(self, vertex):
         """
@@ -1438,7 +1438,7 @@ class Vertex:
         For a directed graph this is true only if the edge is from ``self`` to
         ``vertex``.
         """
-        return vertex in [e.next(self) for e in self._edges]
+        return vertex in [e.next(self) for e in self._edgelist]
 
     def incidences(self):
         """
@@ -1449,7 +1449,7 @@ class Vertex:
 
         .. note:: For a directed graph the edges are those leaving this vertex
         """
-        return [(e.next(self), e) for e in self._edges]
+        return [(e.next(self), e) for e in self._edgelist]
 
     def connect(self, dest, edge=None, cost=None, edgedata=None):
         """
@@ -1485,9 +1485,9 @@ class Vertex:
             e = edge
         else:
             e = Edge(self, dest, cost=cost, data=edgedata)
+        self._graph._edgelist.add(e)
         self._connectivitychange = True
 
-        self._graph._edges.add(e)
         return e
 
     def edgeto(self, dest):
@@ -1522,7 +1522,7 @@ class Vertex:
             - For a non-directed graph the edges are those leaving or entering
                 this vertex
         """
-        return self._edges
+        return self._edgelist
 
     def heuristic_distance(self, v2):
         return self._graph.heuristic(self.coord - v2.coord)
@@ -1612,9 +1612,9 @@ class UVertex(Vertex):
 
         # e = super().connect(other, **kwargs)
 
-        self._edges.append(e)
-        other._edges.append(e)
-        self._graph._edges.add(e)
+        self._edgelist.append(e)
+        other._edgelist.append(e)
+        self._graph._edgelist.add(e)
 
         return e
 
@@ -1637,8 +1637,8 @@ class DVertex(Vertex):
         else:
             raise TypeError('bad argument')
 
-        self._edges.append(e)
+        self._edgelist.append(e)
         return e
 
     def remove(self):
-        self._edges = None  # remove all references to edges
+        self._edgelist = None  # remove all references to edges
