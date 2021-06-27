@@ -128,7 +128,7 @@ class PGraph(ABC):
         return g
 
 
-    def copy(self, g):
+    def copy(self):
         """
         Deepcopy of graph
 
@@ -137,7 +137,7 @@ class PGraph(ABC):
         :return: deep copy
         :rtype: PGraph
         """
-        return copy.deepcopy(g)
+        return copy.deepcopy(self)
 
     def add_vertex(self, vertex, name=None):
         """
