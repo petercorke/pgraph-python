@@ -17,21 +17,15 @@ for name, info in data['places'].items():
 for route in data['routes']:
     g.add_edge(route['start'], route['end'], cost=route['distance'])
 
-for route in data['routes']:
-    g.add_edge(route['start'], route['end'], 
-               cost=route['distance'] / route['speed'])
-
 # print the graph in tabular form
 print(g)
 print(g.edges())
 
-# Heuristic for minimum time problem
-# g.heuristic = lambda x: np.linalg.norm(x) / 100
-
+# solve for minimum distance path
 p, length, parents = g.path_Astar('Hughenden', 'Brisbane', 
                                   verbose=True, summary=True)
-# compute the path using A*, the result is a list of UVertex objects
 
+# compute the path using A*, the result is a list of UVertex objects
 print(f"shortest path has length {length:.1f}:", 
       '->'.join([str(x.name) for x in p]))
 
