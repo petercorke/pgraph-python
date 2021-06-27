@@ -1452,7 +1452,7 @@ class Vertex:
         """
         return [(e.next(self), e) for e in self._edgelist]
 
-    def connect(self, dest, edge=None, cost=None, edgedata=None):
+    def connect(self, dest, edge=None, cost=None, data=None):
         """
         Connect two vertices with an edge
 
@@ -1464,9 +1464,9 @@ class Vertex:
         :param cost: the cost to traverse this edge, required for planning 
                      methods, defaults to None
         :type cost: float, optional
-        :param edgedata: reference to arbitrary data associated with the edge,
-                         defaults to None
-        :type edgedata: Any, optional
+        :param data: reference to arbitrary data associated with the edge,
+                     defaults to None
+        :type data: Any, optional
         :raises TypeError: vertex types are different subclasses
         :return: the edge connecting the nodes
         :rtype: Edge
@@ -1485,7 +1485,7 @@ class Vertex:
         elif isinstance(edge, Edge):
             e = edge
         else:
-            e = Edge(self, dest, cost=cost, data=edgedata)
+            e = Edge(self, dest, cost=cost, data=data)
         self._graph._edgelist.add(e)
         self._connectivitychange = True
 
