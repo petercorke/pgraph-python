@@ -175,14 +175,16 @@ class PGraph(ABC):
         :type v1: Vertex subclass
         :param v2: second vertex (end if a directed graph)
         :type v2: Vertex subclass
-        :param kwargs: optional arguments to pass to ``connect``
+        :param kwargs: optional arguments to pass to ``Vertex.connect``
         :return: edge
         :rtype: Edge
 
-        .. note:: This is a graph centric way of creating an edge.  The 
-            alternative is the ``connect`` method of a vertex.
+        Create an edge between a vertex pair and adds it to the graph.
 
-        :seealso: :meth:`Edge.connect`
+        This is a graph centric way of creating an edge.  The 
+        alternative is the ``connect`` method of a vertex.
+
+        :seealso: :meth:`Edge.connect` :meth:`Vertex.connect`
         """
         if isinstance(v1, str):
             v1 = self[v1]
@@ -1312,19 +1314,55 @@ class Edge:
           edgelist of _each_ vertex.
         - This class can be inherited to provide user objects with graph capability.
         - Inheritance is an alternative to providing arbitrary user data.
+
+    An Edge points to a pair of vertices.  At ``connect`` time the vertices
+    get references back to the Edge object.
+
+    ``graph.add_edge(v1, v2)`` calls ``v1.connect(v2)``
     """
 
-    def __init__(self, v1, v2, cost=None, data=None):
-        if cost is None:
-            try:
-                self.cost = np.linalg.norm(v1.coord - v2.coord)
-            except TypeError:
-                self.cost = None
-        else:
-            self.cost = cost
-        self.data = data
+    def __init__(self, v1=None, v2=None, cost=None, data=None):
+        """
+        Create an edge object
+
+        :param v1: start of the edge, defaults to None
+        :type v1: Vertex subclass, optional
+        :param v2: end of the edge, defaults to None
+        :type v2: Vertex subclass, optional
+        :param cost: edge cost, defaults to None
+        :type cost: any, optional
+        :param data: edge data, defaults to None
+        :type data: any, optional
+
+        Creates an edge but does not connect it to the vertices or add it to the
+        graph.
+
+        If vertices are given, and have associated coordinates, the edge cost
+        will be computed according to the distance measure associated with the
+        graph.
+
+        ``data`` is a way of associating any object with the edge, its value
+        can be found as the ``.data`` attribute of the edge.  An alternative
+        approach is to subclass the ``Edge`` class.
+
+        .. note:: To compute edge cost from the vertices, the vertices must have
+            been added to the graph.
+
+        :seealso: :meth:`Edge.connect` :meth:`Vertex.connect`
+        """
         self.v1 = v1
         self.v2 = v2
+
+        self.data = data
+
+        # try to compute edge cost as metric distance if not given
+        if cost is not None:
+            self.cost = cost
+        elif not (v1 is None or v1.coord is None or v2 is None or v2.coord is None):
+            self.cost = v1._graph.metric(v1.coord - v2.coord)
+        else:
+            self.cost = None
+
 
     def __repr__(self):
         return str(self)
@@ -1335,6 +1373,36 @@ class Edge:
         if self.data is not None:
             s += f" data={self.data}"
         return s
+
+    def connect(self, v1, v2):
+        """
+        Add edge to the graph
+
+        :param v1: start of the edge
+        :type v1: Vertex subclass
+        :param v2: end of the edge
+        :type v2: Vertex subclass
+
+        The edge is added to the graph and connects vertices ``v1`` and ``v2``.
+        
+        .. note:: The vertices must already be added to the graph.
+        """
+
+        if v1._graph is None:
+            raise ValueError('vertex v1 does not belong to a graph')
+        if v2._graph is None:
+            raise ValueError('vertex v2 does not belong to a graph')
+        if not v1._graph is v2._graph:
+            raise ValueError('vertices must belong to the same graph')
+
+        # connect edge to its vertices
+        self.v1 = v1
+        self.v2 = v2
+
+        # tell the vertices to add edge to their edgelists as appropriate for
+        # DGraph or UGraph
+        v1.connect(v2, edge=self)
+
 
     def next(self, vertex):
         """
@@ -1459,10 +1527,10 @@ class Vertex:
         :param dest: The node to connect to
         :type dest: ``Vertex`` subclass
         :param edge: Use this as the edge object, otherwise a new ``Edge``
-                     object is created, defaults to None
+                     object is created from the vertices being connected,
+                     and the ``cost`` and ``edge`` parameters, defaults to None
         :type edge: ``Edge`` subclass, optional
-        :param cost: the cost to traverse this edge, required for planning 
-                     methods, defaults to None
+        :param cost: the cost to traverse this edge, defaults to None
         :type cost: float, optional
         :param data: reference to arbitrary data associated with the edge,
                      defaults to None
@@ -1478,6 +1546,8 @@ class Vertex:
             - If the vertices subclass ``UVertex`` the edge is undirected, and if
               they subclass ``DVertex`` the edge is directed.
             - Vertices must both be of the same ``Vertex`` subclass
+
+        :seealso: :meth:`Edge`
         """
 
         if not dest.__class__.__bases__[0] is self.__class__.__bases__[0]:
@@ -1486,7 +1556,9 @@ class Vertex:
             e = edge
         else:
             e = Edge(self, dest, cost=cost, data=data)
+
         self._graph._edgelist.add(e)
+        self._graph._connectivitychange = True
         self._connectivitychange = True
 
         return e
