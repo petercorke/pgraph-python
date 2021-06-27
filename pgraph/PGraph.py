@@ -165,6 +165,7 @@ class PGraph(ABC):
         if self._verbose:
             print(f"New vertex {vertex.name}: {vertex.coord}")
         vertex._graph = self
+        self._connectivitychange = True
 
     def add_edge(self, v1, v2, **kwargs):
         """
@@ -191,7 +192,7 @@ class PGraph(ABC):
             v2 = self[v2]
         elif not isinstance(v2, Vertex):
             raise TypeError('v2 must be Vertex subclass or string name')
-
+        
         if self._verbose:
             print(f"New edge from {v1.name} to {v2.name}")
         return v1.connect(v2, **kwargs)
@@ -219,6 +220,7 @@ class PGraph(ABC):
             # indicate that connectivity has changed
             x.v1._connectivitychange = True
             x.v2._connectivitychange = True
+            self._connectivitychange = True
 
             # remove references to the nodes
             x.v1 = None
@@ -888,7 +890,7 @@ class PGraph(ABC):
 
         :seealso: :meth:`nc`
         """
-        if any([n._connectivitychange for n in self]):
+        if self._connectivitychange or any([n._connectivitychange for n in self]):
 
             # color the graph
 
