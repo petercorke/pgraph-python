@@ -371,10 +371,10 @@ class TestUGraph(unittest.TestCase):
 
     def test_Dict(self):
 
-        v1 = UVertex()
-        v2 = UVertex()
-        v3 = UVertex()
-        v4 = UVertex()
+        v1 = UVertex(name='v1')
+        v2 = UVertex(name='v2')
+        v3 = UVertex(name='v3')
+        v4 = UVertex(name='v4')
 
         parent = {}
         parent[v2] = v1
