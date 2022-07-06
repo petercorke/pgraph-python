@@ -1006,7 +1006,7 @@ class PGraph(ABC):
                 break
             explored.append(x)
             if verbose:
-                print('     move', x.name, ' to the explored list')
+                print('     move', x.name, 'to the explored list')
         else:
             # no path
             return None
@@ -1097,7 +1097,7 @@ class PGraph(ABC):
 
             explored.append(x)
             if verbose:
-                print('     move', x.name, ' to the explored list')
+                print('     move', x.name, 'to the explored list')
         else:
             # no path
             return None
@@ -1193,7 +1193,7 @@ class PGraph(ABC):
 
             explored.append(x)
             if verbose:
-                print('     move', x.name, ' to the explored list')
+                print('     move', x.name, 'to the explored list')
 
         else:
             # no path
