@@ -1113,11 +1113,15 @@ class PGraph(ABC):
             path.insert(0, p)
             x = p
 
+        parent_names = {}
+        for v, p in parent.items():
+            parent_names[v.name] = p.name
+
         if summary or verbose:
             print(
                 f"{len(explored)} vertices explored, {len(frontier)} remaining on the frontier")
 
-        return path, length, parent
+        return path, length, parent_names
 
     def path_Astar(self, S, G, verbose=False, summary=False):
         """
@@ -1210,11 +1214,15 @@ class PGraph(ABC):
             path.insert(0, p)
             x = p
 
+        parent_names = {}
+        for v, p in parent.items():
+            parent_names[v.name] = p.name
+
         if summary or verbose:
             print(
                 f"{len(explored)} vertices explored, {len(frontier)} remaining on the frontier")
 
-        return path, length, parent
+        return path, length, parent_names
 
 
 # -------------------------------------------------------------------------- #
