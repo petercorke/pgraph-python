@@ -34,8 +34,11 @@ class PGraph(ABC):
             self.heuristic = heuristic
 
     def __str__(self):
-        s = f"{self.__class__.__name__}: {self.n} vertices, {self.ne} edges, {self.nc} components"
+        s = f"{self.__class__.__name__}: {self.n} {'vertex' if self.n==1 else 'vertices'}, {self.ne} edge{'s'[:self.ne^1]}, {self.nc} component{'s'[:self.nc^1]}"
         return s
+
+    def __repr__(self):
+        return __str__(self)
 
     @classmethod
     def Dict(cls, d, reverse=False, copy=False):
@@ -1447,7 +1450,7 @@ class Edge:
 
     def __str__(self):
 
-        s = f"Edge {self.v1} -- {self.v2}, cost={self.cost}"
+        s = f"Edge{{{self.v1} -- {self.v2}, cost={self.cost:.4g}}}"
         if self.data is not None:
             s += f" data={self.data}"
         return s
