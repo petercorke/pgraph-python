@@ -8,6 +8,10 @@ import tempfile
 import subprocess
 import webbrowser
 
+from spatialmath.base.graphics import axes_logic
+
+
+
 class PGraph(ABC):
 
     @abstractmethod
@@ -496,17 +500,17 @@ class PGraph(ABC):
         """
         return self._edgelist
 
-    def plot(self, colorcomponents=True, vertex=None, edge=None, text={}, block=False, ax=None):
+    def plot(self, colorcomponents=True, force2d=False, vopt={}, eopt={}, text={}, block=False, grid=True, ax=None):
         """
         Plot the graph
 
-        :param vertex: vertex format, defaults to 12pt o-marker
-        :type vertex: dict, optional
-        :param edge: edge format, defaults to None
-        :type edge: dict, optional
+        :param vopt: vertex format, defaults to 12pt o-marker
+        :type vopt: dict, optional
+        :param eopt: edge format, defaults to None
+        :type eopt: dict, optional
         :param text: text label format, defaults to None
         :type text: False or dict, optional
-        :param colorcomponents: color nodes and edges by component, defaults to None
+        :param colorcomponents: color vertices and edges by component, defaults to None
         :type color: bool, optional
         :param block: block until figure is dismissed, defaults to True
         :type block: bool, optional
@@ -520,39 +524,53 @@ class PGraph(ABC):
         which are the vertex names.  If ``text`` is None default formatting is
         used.  If ``text`` is False no labels are added.
         """
-        if vertex is None:
-            vertex = {"marker": 'o', "markersize": 12}
-        else:
-            if "marker" not in vertex:
-                vertex["marker"] = 'o'  # default circular marker
-        if edge is None:
-            edge = {"linewidth": 3}
-        if text is None:
-            text = {}
+        vopt = {**dict(marker='o', markersize=12), **vopt}
+        eopt = {**dict(linewidth=3), **eopt}
+
 
         if colorcomponents:
             color = plt.cm.coolwarm(np.linspace(0, 1, self.nc))
 
-        if ax is None:
-            ax = plt.axes()
-        for c in range(self.nc):
-            # for each component
-            for node in self.component(c):
-                if text is not False:
-                    ax.text(node.x, node.y, "  " + node.name, **text)
-                if colorcomponents:
-                    ax.plot(node.x, node.y, color=color[c, :], **vertex)
-                    for v in node.neighbours():
-                        ax.plot([node.x, v.x], [node.y, v.y],
-                                color=color[c, :], **edge)
-                else:
-                    x.plot(node.x, node.y, **vertex)
-                    for v in node.neighbours():
-                        ax.plot([node.x, v.x], [node.y, v.y], **edge)
+        if len(self[0].coord) == 2 or force2d:
+            # 2D plotting
+            if ax is None:
+                ax = axes_logic(ax, 2)
+            for c in range(self.nc):
+                # for each component
+                for vertex in self.component(c):
+                    if text is not False:
+                        ax.text(vertex.x, vertex.y, "  " + vertex.name, **text)
+                    if colorcomponents:
+                        ax.plot(vertex.x, vertex.y, color=color[c, :], **vopt)
+                        for v in vertex.neighbours():
+                            ax.plot([vertex.x, v.x], [vertex.y, v.y],
+                                    color=color[c, :], **eopt)
+                    else:
+                        ax.plot(vertex.x, vertex.y, **vopt)
+                        for v in vertex.neighbours():
+                            ax.plot([vertex.x, v.x], [vertex.y, v.y], **eopt)
+        else:
+            # 3D or higher plotting, just do (x, y, z)
+            if ax is None:
+                ax = axes_logic(ax, 3)
+            for c in range(self.nc):
+                # for each component
+                for vertex in self.component(c):
+                    if text is not False:
+                        ax.text(vertex.x, vertex.y, vertex.z, "  " + vertex.name, **text)
+                    if colorcomponents:
+                        ax.plot(vertex.x, vertex.y, vertex.z, **{**dict(color=color[c, :]), **vopt})
+                        for v in vertex.neighbours():
+                            ax.plot([vertex.x, v.x], [vertex.y, v.y], [vertex.z, v.z],
+                                    **{**dict(color=color[c, :]), **eopt})
+                    else:
+                        ax.plot(vertex.x, vertex.y, **vopt)
+                        for v in vertex.neighbours():
+                            ax.plot([vertex.x, v.x], [vertex.y, v.y], [vertex.z, v.z], **eopt)
         # if nc > 1:
         #     # add a colorbar
         #     plt.colorbar()
-        ax.grid(True)
+        ax.grid(grid)
         plt.show(block=block)
 
     def highlight_path(self, path, block=False, **kwargs):
