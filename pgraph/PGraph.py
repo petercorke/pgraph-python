@@ -1844,3 +1844,15 @@ class DVertex(Vertex):
 
     def remove(self):
         self._edgelist = None  # remove all references to edges
+
+
+if __name__ == "__main__":
+
+    g = UGraph()
+
+    for i in range(10):
+        g.add_vertex()
+
+    g.add_edge(g[0], g[1])
+
+    print(g)
