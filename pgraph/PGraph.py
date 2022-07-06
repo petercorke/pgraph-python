@@ -151,7 +151,7 @@ class PGraph(ABC):
 
         :param vertex: vertex to add
         :type vertex: Vertex subclass
-        :param name: name of node
+        :param name: name of vertex
         :type name: str
 
         ``G.add_vertex(v)`` add vertex ``v`` to the graph ``G``.
@@ -230,7 +230,7 @@ class PGraph(ABC):
             x.v2._connectivitychange = True
             self._connectivitychange = True
 
-            # remove references to the nodes
+            # remove references to the vertices
             x.v1 = None
             x.v2 = None
 
@@ -411,9 +411,9 @@ class PGraph(ABC):
 
         Retrieve a vertex by index or name:
 
-        -``g[i]`` is the i'th node in the graph.  This reflects the order of 
+        -``g[i]`` is the i'th vertex in the graph.  This reflects the order of 
          addition to the graph.
-        -``g[s]`` is node named ``s``
+        -``g[s]`` is vertex named ``s``
         -``g[v]`` is ``v`` where ``v`` is a ``Vertex`` subclass
 
         This method also supports iteration over the vertices in a graph::
@@ -439,7 +439,7 @@ class PGraph(ABC):
         :return: true if vertex exists in the graph
         :rtype: bool
 
-        - ``'name' in graph`` is true if a node named ``'name'`` exists in the
+        - ``'name' in graph`` is true if a vertex named ``'name'`` exists in the
           graph.
         - ``v in graph`` is true if the vertex reference ``v`` exists in the
           graph.
@@ -561,7 +561,7 @@ class PGraph(ABC):
         :param block: [description], defaults to True
         :type block: bool, optional
 
-        The nodes and edges along the path are overwritten with a different
+        The vertices and edges along the path are overwritten with a different
         size/width and color.
 
         :seealso: :meth:`highlight_vertex` :meth:`highlight_edge`
@@ -590,7 +590,7 @@ class PGraph(ABC):
         plt.plot([p1.x, p2.x], [p1.y, p2.y], color=color,
                  linewidth=3 * scale, alpha=alpha)
 
-    def highlight_vertex(self, node, scale=2, color='r', alpha=0.5):
+    def highlight_vertex(self, vertex, scale=2, color='r', alpha=0.5):
         """
         Highlight a vertex in the graph
 
@@ -602,12 +602,14 @@ class PGraph(ABC):
         :param color: Overwrite with a line in this color, defaults to 'r'
         :type color: str, optional
         """
-        if isinstance(node, Iterable):
-            for n in node:
+        if isinstance(vertex, Iterable):
+            for n in vertex:
+                if isinstance(n, str):
+                    n = self[n]
                 plt.plot(n.x, n.y, 'o', color=color,
                          markersize=12 * scale, alpha=alpha)
         else:
-            plt.plot(node.x, node.y, 'o', color=color,
+            plt.plot(vertex.x, vertex.y, 'o', color=color,
                      markersize=12 * scale, alpha=alpha)
 
     def dotfile(self, filename=None, direction=None):
@@ -646,13 +648,13 @@ class PGraph(ABC):
         if direction is not None:
             print(f"rankdir = {direction}", file=f)
 
-        # add the nodes including name and position
-        for node in self:
-            if node.coord is None:
-                print('  "{:s}"'.format(node.name), file=f)
+        # add the vertices including name and position
+        for vertex in self:
+            if vertex.coord is None:
+                print('  "{:s}"'.format(vertex.name), file=f)
             else:
                 print('  "{:s}" [pos="{:.5g},{:.5g}"]'.format(
-                    node.name, node.coord[0], node.coord[1]), file=f)
+                    vertex.name, vertex.coord[0], vertex.coord[1]), file=f)
         print(file=f)
         # add the edges
         for e in self.edges():
@@ -671,13 +673,13 @@ class PGraph(ABC):
         Display a link transform graph in browser
         :param etsbox: Put the link ETS in a box, otherwise an edge label
         :type etsbox: bool
-        :param jtype: Arrowhead to node indicates revolute or prismatic type
+        :param jtype: Arrowhead to vertex indicates revolute or prismatic type
         :type jtype: bool
         :param static: Show static joints in blue and bold
         :type static: bool
         ``robot.showgraph()`` displays a graph of the robot's link frames
         and the ETS between them.  It uses GraphViz dot.
-        The nodes are:
+        The vertices are:
             - Base is shown as a grey square.  This is the world frame origin,
               but can be changed using the ``base`` attribute of the robot.
             - Link frames are indicated by circles
@@ -688,7 +690,7 @@ class PGraph(ABC):
               revolute
             - an arrow with a box head if `jtype` is True and the joint is
               prismatic
-        Edge labels or nodes in blue have a fixed transformation to the
+        Edge labels or vertices in blue have a fixed transformation to the
         preceding link.
         Example::
             >>> import roboticstoolbox as rtb
@@ -817,15 +819,15 @@ class PGraph(ABC):
 
         :seealso: :meth:`Laplacian` :meth:`incidence` :meth:`degree`
         """
-        # create a dict mapping node to an id
+        # create a dict mapping vertex to an id
         vdict = {}
         for i, vert in enumerate(self):
             vdict[vert] = i
 
         A = np.zeros((self.n, self.n))
-        for node in self:
-            for n in node.neighbours():
-                A[vdict[node], vdict[n]] = 1
+        for vertex in self:
+            for n in vertex.neighbours():
+                A[vdict[vertex], vdict[n]] = 1
         return A
 
     def incidence(self):
@@ -854,8 +856,8 @@ class PGraph(ABC):
         for i, edge in enumerate(edges):
             edict[edge] = i
 
-        for i, node in enumerate(self):
-            for i, e in enumerate(node.edges()):
+        for i, vertex in enumerate(self):
+            for i, e in enumerate(vertex.edges()):
                 I[i, edict[e]] = 1
 
         return I
@@ -871,7 +873,7 @@ class PGraph(ABC):
         from vertex ``i`` to vertex ``j``. It is zero if the vertices are not
         connected.
         """
-        # create a dict mapping node to an id
+        # create a dict mapping vertex to an id
         vdict = {}
         for i, vert in enumerate(self):
             vdict[vert] = i
@@ -930,7 +932,7 @@ class PGraph(ABC):
 
     def component(self, c):
         """
-        All nodes in specified graph component
+        All vertices in specified graph component
 
         ``graph.component(c)`` is a list of all vertices in graph component ``c``.
         """
@@ -1007,7 +1009,7 @@ class PGraph(ABC):
             if verbose:
                 print('   expand', x.name)
 
-            # expand the node
+            # expand the vertex
             for n in x.neighbours():
                 if n is G:
                     if verbose:
@@ -1093,7 +1095,7 @@ class PGraph(ABC):
                 print('   expand', x.name)
             if x is G:
                 break
-            # expand the node
+            # expand the vertex
             for n, e in x.incidences():
                 fnew = f[x] + e.cost
                 if n not in frontier and n not in explored:
@@ -1187,7 +1189,7 @@ class PGraph(ABC):
                 print('   expand', x.name)
             if x is G:
                 break
-            # expand the node
+            # expand the vertex
             for n, e in x.incidences():
                 if n not in frontier and n not in explored:
                     # add it to the frontier
@@ -1251,7 +1253,7 @@ class UGraph(PGraph):
 
         :param coord: coordinate for an embedded graph, defaults to None
         :type coord: array-like, optional
-        :param name: node name, defaults to "#i"
+        :param name: vertex name, defaults to "#i"
         :type name: str, optional
         :return: new vertex
         :rtype: UVertex
@@ -1262,11 +1264,11 @@ class UGraph(PGraph):
           it to the graph
         """
         if isinstance(coord, UVertex):
-            node = coord
+            vertex = coord
         else:
-            node = UVertex(coord)
-        super().add_vertex(node, name=name)
-        return node
+            vertex = UVertex(coord)
+        super().add_vertex(vertex, name=name)
+        return vertex
 
     @classmethod
     def vertex_copy(self, vertex):
@@ -1284,7 +1286,7 @@ class DGraph(PGraph):
 
         :param coord: coordinate for an embedded graph, defaults to None
         :type coord: array-like, optional
-        :param name: node name, defaults to "#i"
+        :param name: vertex name, defaults to "#i"
         :type name: str, optional
         :return: new vertex
         :rtype: DVertex
@@ -1295,11 +1297,11 @@ class DGraph(PGraph):
           it to the graph
         """
         if isinstance(coord, DVertex):
-            node = coord
+            vertex = coord
         else:
-            node = DVertex(coord)
-        super().add_vertex(node, name=name)
-        return node
+            vertex = DVertex(coord)
+        super().add_vertex(vertex, name=name)
+        return vertex
 
     @classmethod
     def vertex_copy(self, vertex):
@@ -1450,7 +1452,7 @@ class Edge:
     #     ``e.remove()`` removes ``e`` from the graph, but does not delete the
     #     edge object.
     #     """
-    #     # remove this edge from the edge list of both end nodes
+    #     # remove this edge from the edge list of both end vertices
     #     if self in self.v1._edgelist:
     #         self.v1._edgelist.remove(self)
     #     if self in self.v2._edgelist:
@@ -1460,7 +1462,7 @@ class Edge:
     #     self.v1._connectivitychange = True
     #     self.v2._connectivitychange = True
 
-    #     # remove references to the nodes
+    #     # remove references to the vertices
     #     self.v1 = None
     #     self.v2 = None
 
@@ -1495,7 +1497,8 @@ class Vertex:
         return f"[{self.name:s}]"
 
     def __repr__(self):
-        return f"{self.__class__.__name__}(name={self.name:s}, coord={self.coord})"
+        coord = ', '.join([f"{x:.4g}" for x in self.coord])
+        return f"{self.__class__.__name__}[{self.name:s}, coord=({coord})]"
 
     def copy(self, cls=None):
         if cls is not None:
@@ -1542,7 +1545,7 @@ class Vertex:
         """
         Connect two vertices with an edge
 
-        :param dest: The node to connect to
+        :param dest: The vertex to connect to
         :type dest: ``Vertex`` subclass
         :param edge: Use this as the edge object, otherwise a new ``Edge``
                      object is created from the vertices being connected,
@@ -1554,7 +1557,7 @@ class Vertex:
                      defaults to None
         :type data: Any, optional
         :raises TypeError: vertex types are different subclasses
-        :return: the edge connecting the nodes
+        :return: the edge connecting the vertices
         :rtype: Edge
 
         ``v1.connect(v2)`` connects vertex ``v1`` to vertex ``v2``.
@@ -1585,10 +1588,10 @@ class Vertex:
         """
         Get edge connecting vertex to specific neighbour
 
-        :param dest: a neigbouring node
+        :param dest: a neigbouring vertex
         :type dest: ``Vertex`` subclass
         :raises ValueError: ``dest`` is not a neighbour
-        :return: the edge from this node to ``dest``
+        :return: the edge from this vertex to ``dest``
         :rtype: Edge
 
         .. note::
@@ -1604,7 +1607,7 @@ class Vertex:
         """
         All outgoing edges of vertex
 
-        :return: List of all edges leaving this node
+        :return: List of all edges leaving this vertex
         :rtype: list of Edge
 
         .. note::
