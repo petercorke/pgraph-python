@@ -1731,7 +1731,7 @@ class Vertex:
         Distance from vertex to point
 
         :param coord: coordinates of the point
-        :type coord: ndarray(n)
+        :type coord: ndarray(n) or Vertex
         :return: distance
         :rtype: float
 
@@ -1739,6 +1739,8 @@ class Vertex:
 
         :seealso: :meth:`metric`
         """
+        if isinstance(coord, Vertex):
+            coord = coord.coord
         return self._graph.metric(self.coord - coord)
 
     @property
