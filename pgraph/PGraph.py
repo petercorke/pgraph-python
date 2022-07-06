@@ -393,10 +393,10 @@ class PGraph(ABC):
 
     def __repr__(self):
         s = []
-        for node in self:
-            ss = f"{node.name} at {node.coord}"
-            if node.label is not None:
-                ss += " component={node.label}"
+        for vertex in self:
+            ss = f"{vertex.name} at {vertex.coord}"
+            if vertex.label is not None:
+                ss += " component={vertex.label}"
             s.append(ss)
         return '\n'.join(s)
 
