@@ -45,7 +45,7 @@ class PGraph(ABC):
         return __str__(self)
 
     @classmethod
-    def Dict(cls, d, reverse=False, copy=False):
+    def Dict(cls, d, reverse=False):
         """
         Create graph from parent/child dictionary
 
@@ -60,26 +60,23 @@ class PGraph(ABC):
         dictionary that maps vertices to parents.  From this information it
         can create a tree graph.
 
-        By default parent nodes are linked their children. If ``reverse`` is
+        By default parent vertices are linked their children. If ``reverse`` is
         True then children are linked to their parents.
         """
 
         g = cls()
 
         for vertex, parent in d.items():
-            if vertex.name not in g:
-                if copy:
-                    vertex = vertex.copy(cls)
-                g.add_vertex(vertex, name=vertex.name)
-            if parent.name not in g:
-                if copy:
-                    parent = parent.copy(cls)
-                g.add_vertex(parent, name=parent.name)
+            if vertex not in g:
+
+                g.add_vertex(name=vertex)
+            if parent not in g:
+                g.add_vertex(name=parent)
 
             if reverse:
-                g.add_edge(vertex.name, parent.name)
+                g.add_edge(vertex, parent)
             else:
-                g.add_edge(parent.name, vertex.name)
+                g.add_edge(parent, vertex)
 
         return g
 
