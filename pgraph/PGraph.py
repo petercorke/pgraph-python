@@ -469,6 +469,7 @@ class PGraph(ABC):
         :seealso: :meth:`metric`
         """
         min_dist = np.Inf
+        min_which = None
 
         for vertex in self:
             d = self.metric(vertex.coord - coord)
