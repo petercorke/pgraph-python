@@ -1,9 +1,11 @@
 # PGraph: graphs for Python
 
+[![A Python Robotics Package](https://raw.githubusercontent.com/petercorke/robotics-toolbox-python/master/.github/svg/py_collection.min.svg)](https://github.com/petercorke/robotics-toolbox-python)
+[![QUT Centre for Robotics Open Source](https://github.com/qcr/qcr.github.io/raw/master/misc/badge.svg)](https://qcr.github.io)
+
 [![PyPI version fury.io](https://badge.fury.io/py/pgraph-python.svg)](https://pypi.python.org/pypi/pgraph-python/)
 [![PyPI pyversions](https://img.shields.io/pypi/pyversions/pgraph-python)](https://pypi.python.org/pypi/pgraph-python/)
 [![GitHub license](https://img.shields.io/github/license/Naereen/StrapDown.js.svg)](https://github.com/petercorke/pgraph-python/blob/master/LICENSE)
-[![QUT Centre for Robotics Open Source](https://github.com/qcr/qcr.github.io/raw/master/misc/badge.svg)](https://qcr.github.io)
 
 [![Build Status](https://github.com/petercorke/pgraph-python/workflows/build/badge.svg?branch=master)](https://github.com/petercorke/pgraph-python/actions?query=workflow%3Abuild)
 [![Coverage](https://codecov.io/gh/petercorke/pgraph-python/branch/master/graph/badge.svg)](https://codecov.io/gh/petercorke/pgraph-python)
