@@ -1596,11 +1596,22 @@ class Vertex:
         """
         Neighbours of a vertex
 
-        ``v.neighbours()`` is a list of neighbour of the vertex object ``v``.
+        ``v.neighbours()`` is a list of neighbours of this vertex.
 
         .. note:: For a directed graph the neighbours are those on edges leaving this vertex
         """
         return [e.next(self) for e in self._edgelist]
+
+    def neighbors(self):
+        """
+        Neighbors of a vertex
+
+        ``v.neighbors()`` is a list of neighbors of this vertex.
+
+        .. note:: For a directed graph the neighbours are those on edges leaving this vertex
+        """
+        return [e.next(self) for e in self._edgelist]
+
 
     def isneighbour(self, vertex):
         """
