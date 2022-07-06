@@ -1789,7 +1789,8 @@ class Vertex:
         """
         return self.coord[2]
 
-
+    def closest(self):
+        return self._graph.closest(self.coord)
 
 class UVertex(Vertex):
     """
