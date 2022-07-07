@@ -15,6 +15,7 @@ req = [
     'numpy>=1.18.0',
     'matplotlib',
     'ansitable',
+    'spatialmath-python'
 ]
 
 docs_req = [
