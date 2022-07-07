@@ -59,11 +59,14 @@ class PGraph(ABC):
         g = cls()
 
         for vertex, parent in d.items():
-            if vertex not in g:
-
-                g.add_vertex(name=vertex)
-            if parent not in g:
-                g.add_vertex(name=parent)
+            if vertex.name in g:
+                vertex = g[vertex.name]
+            else:
+                vertex = g.add_vertex(UVertex(), name=vertex.name)
+            if parent.name in g:
+                parent = g[parent.name]
+            else:
+                parent = g.add_vertex(UVertex(), name=parent.name)
 
             if reverse:
                 g.add_edge(vertex, parent)

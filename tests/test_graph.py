@@ -386,14 +386,14 @@ class TestUGraph(unittest.TestCase):
         self.assertIsInstance(g, UGraph)
         self.assertEqual(g.n, 4)
         self.assertEqual(g.ne, 3)
-        self.assertTrue(v1 in g)
-        self.assertTrue(v2 in g)
-        self.assertTrue(v3 in g)
-        self.assertTrue(v4 in g)
+        self.assertTrue('v1' in g)
+        self.assertTrue('v2' in g)
+        self.assertTrue('v3' in g)
+        self.assertTrue('v4' in g)
 
-        self.assertTrue(v2 in v1.neighbours())
-        self.assertTrue(v3 in v1.neighbours())
-        self.assertTrue(v4 in v3.neighbours())
+        self.assertTrue(g['v2'] in g['v1'].neighbours())
+        self.assertTrue(g['v3'] in g['v1'].neighbours())
+        self.assertTrue(g['v4'] in g['v3'].neighbours())
 
     def test_Adjacency(self):
         A = np.zeros((5, 5))
