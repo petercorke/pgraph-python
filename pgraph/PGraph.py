@@ -14,14 +14,6 @@ from spatialmath.base.graphics import axes_logic
 
 class PGraph(ABC):
 
-    @abstractmethod
-    def add_vertex(self, coord=None, name=None):
-        pass  # pragma: no cover
-
-    # @abstractmethod
-    # def add_edge(self, v1, v2, cost=None):
-    #     pass
-
     def __init__(self, arg=None, metric=None, heuristic=None, verbose=False):
         # we use a list and a dict, the list respects the order of adding
         self._vertexlist = []
