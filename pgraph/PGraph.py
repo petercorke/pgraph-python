@@ -1582,7 +1582,10 @@ class Vertex:
         return f"[{self.name:s}]"
 
     def __repr__(self):
-        coord = ', '.join([f"{x:.4g}" for x in self.coord])
+        if self.coord is None:
+            coord = '?'
+        else:
+            coord = ', '.join([f"{x:.4g}" for x in self.coord])
         return f"{self.__class__.__name__}[{self.name:s}, coord=({coord})]"
 
     def copy(self, cls=None):
