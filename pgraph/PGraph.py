@@ -168,6 +168,7 @@ class PGraph(ABC):
             print(f"New vertex {vertex.name}: {vertex.coord}")
         vertex._graph = self
         self._connectivitychange = True
+        return vertex
 
     def add_edge(self, v1, v2, **kwargs):
         """
