@@ -34,7 +34,7 @@ class TestUGraph(unittest.TestCase):
         v1 = g.add_vertex([1,2,3])
         v0.connect(v1)
 
-        self.assertEqual(str(g), "UGraph: 2 vertices, 1 edges, 1 components")
+        self.assertEqual(str(g), "UGraph: 2 vertices, 1 edge, 1 component")
 
         g = DGraph()
 
@@ -42,7 +42,7 @@ class TestUGraph(unittest.TestCase):
         v1 = g.add_vertex([1,2,3])
         v0.connect(v1)
 
-        self.assertEqual(str(g), "DGraph: 2 vertices, 1 edges, 1 components")
+        self.assertEqual(str(g), "DGraph: 2 vertices, 1 edge, 1 component")
 
 
         s = repr(g)
@@ -631,10 +631,10 @@ class TestUGraph(unittest.TestCase):
         self.assertIsInstance(length, float)
         self.assertAlmostEqual(length, 5.656854249492381)
         self.assertIsInstance(parent, dict)
-        self.assertEqual(parent[v2], v1)
-        self.assertEqual(parent[v3], v2)
-        self.assertEqual(parent[v4], v3)
-        self.assertEqual(parent[v5], v4)
+        self.assertEqual(parent[v2.name], v1.name)
+        self.assertEqual(parent[v3.name], v2.name)
+        self.assertEqual(parent[v4.name], v3.name)
+        self.assertEqual(parent[v5.name], v4.name)
 
     def test_Astar(self):
         g = UGraph()
@@ -662,11 +662,12 @@ class TestUGraph(unittest.TestCase):
         self.assertEqual(p, [v1, v2, v3, v4, v5])
         self.assertIsInstance(length, float)
         self.assertAlmostEqual(length, 5.656854249492381)
+
         self.assertIsInstance(parent, dict)
-        self.assertEqual(parent[v2], v1)
-        self.assertEqual(parent[v3], v2)
-        self.assertEqual(parent[v4], v3)
-        self.assertEqual(parent[v5], v4)
+        self.assertEqual(parent[v2.name], v1.name)
+        self.assertEqual(parent[v3.name], v2.name)
+        self.assertEqual(parent[v4.name], v3.name)
+        self.assertEqual(parent[v5.name], v4.name)
 
     def test_plot(self):
 
