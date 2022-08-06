@@ -35,5 +35,5 @@ g.highlight_path(p, alpha=0.5, scale=2)
 
 # turn the vertex parent information into a tree, it's a dict that maps a
 # vertex to its parent.
-tree = DGraph.Dict(parents, copy=True)
+tree = DGraph.Dict(parents)
 tree.showgraph()  # display it via the browser
