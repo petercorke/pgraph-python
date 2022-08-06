@@ -723,12 +723,14 @@ class PGraph(ABC):
         # rewind the dot file, create PDF file in the filesystem, run dot
         dotfile.seek(0)
         pdffile = tempfile.NamedTemporaryFile(suffix=".pdf", delete=False)
-        subprocess.run("dot -Tpdf", shell=True, stdin=dotfile, stdout=pdffile)
+        result = subprocess.run("dot -Tpdf", shell=True, stdin=dotfile, stdout=pdffile)
 
-        # open the PDF file in browser (hopefully portable), then cleanup
-        webbrowser.open(f"file://{pdffile.name}")
-        # time.sleep(1)
-        # os.remove(pdffile.name)
+        if result.returncode == 0:
+            # dot ran happily
+            # open the PDF file in browser (hopefully portable), then cleanup
+            webbrowser.open(f"file://{pdffile.name}")
+            # time.sleep(1)
+            # os.remove(pdffile.name)
 
     def iscyclic(self):
         pass
