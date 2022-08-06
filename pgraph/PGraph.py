@@ -1,4 +1,4 @@
-from abc import ABC, abstractmethod
+from abc import ABC
 import sys
 import numpy as np
 import matplotlib.pyplot as plt
@@ -34,7 +34,7 @@ class PGraph(ABC):
         return s
 
     def __repr__(self):
-        return __str__(self)
+        return str(self)
 
     @classmethod
     def Dict(cls, d, reverse=False):
@@ -968,7 +968,6 @@ class PGraph(ABC):
         # mode, really need ordered sets...
         frontier = [S]
         explored = []
-        evaluation = [None for i in range(self.n)]
         parent = {}
         done = False
 
