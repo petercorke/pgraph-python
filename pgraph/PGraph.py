@@ -639,14 +639,14 @@ class PGraph(ABC):
 
     def dotfile(self, filename=None, direction=None):
         """
-        Create a GraphViz dot file
+        Export graph as a GraphViz dot file
 
         :param filename: filename to save graph to, defaults to None
         :type filename: str, optional
 
         ``g.dotfile()`` creates the specified file which contains the
-        GraphViz code to represent the embedded graph.  By default output
-        is to the console
+        `GraphViz <https://graphviz.org>`_ code to represent the embedded graph.  By default output
+        is to the console.
 
         .. note::
 
@@ -656,6 +656,8 @@ class PGraph(ABC):
 
         .. note:: If ``filename`` is a file object then the file will *not*
             be closed after the GraphViz model is written.
+
+        :seealso: :func:`showgraph`
         """
 
         if filename is None:
@@ -695,37 +697,16 @@ class PGraph(ABC):
 
     def showgraph(self, **kwargs):
         """
-        Display a link transform graph in browser
-        :param etsbox: Put the link ETS in a box, otherwise an edge label
-        :type etsbox: bool
-        :param jtype: Arrowhead to vertex indicates revolute or prismatic type
-        :type jtype: bool
-        :param static: Show static joints in blue and bold
-        :type static: bool
-        ``robot.showgraph()`` displays a graph of the robot's link frames
-        and the ETS between them.  It uses GraphViz dot.
-        The vertices are:
-            - Base is shown as a grey square.  This is the world frame origin,
-              but can be changed using the ``base`` attribute of the robot.
-            - Link frames are indicated by circles
-            - ETS transforms are indicated by rounded boxes
-        The edges are:
-            - an arrow if `jtype` is False or the joint is fixed
-            - an arrow with a round head if `jtype` is True and the joint is
-              revolute
-            - an arrow with a box head if `jtype` is True and the joint is
-              prismatic
-        Edge labels or vertices in blue have a fixed transformation to the
-        preceding link.
-        Example::
-            >>> import roboticstoolbox as rtb
-            >>> panda = rtb.models.URDF.Panda()
-            >>> panda.showgraph()
-        .. image:: ../figs/panda-graph.svg
-            :width: 600
+        Display graph in a browser tab
+
+        :param kwargs: arguments passed to :meth:`dotfile`
+
+        ``g.showgraph()`` renders and displays the graph in a browser tab.  The
+        graph is exported in `GraphViz <https://graphviz.org>`_ format, rendered to
+        PDF using ``dot`` and then displayed in a browser tab.
+
         :seealso: :func:`dotfile`
         """
-
         # create the temporary dotfile
         dotfile = tempfile.TemporaryFile(mode="w")
         self.dotfile(dotfile, **kwargs)
@@ -791,17 +772,16 @@ class PGraph(ABC):
         """
         Graph connectivity
 
-        :return: [description]
-        :rtype: [type]
+        :return: a list with the number of edges per vertex
+        :rtype: list
 
-        % C = G.connectivity() is a vector (Nx1) with the number of edges per
-        % vertex.
-        %
-        % The average vertex connectivity is
-        %         mean(g.connectivity())
-        %
-        % and the minimum vertex connectivity is
-        %         min(g.connectivity())
+        The average vertex connectivity is::
+
+            mean(g.connectivity())
+        
+        and the minimum vertex connectivity is::
+
+            min(g.connectivity())
         """
 
         c = []
@@ -813,12 +793,15 @@ class PGraph(ABC):
 
     def degree(self):
         """
-        %Pgraph.degree Degree matrix of graph
-        %
-        % D = G.degree() is a diagonal matrix (NxN) where element D(i,i) is the number
-        % of edges connected to vertex id i.
-        %
-        % See also PGraph.adjacency, PGraph.incidence, PGraph.laplacian.
+        Degree matrix of graph
+
+        :return: degree matrix
+        :rtype: ndarray(N,N)
+
+        This is a diagonal matrix  where element ``[i,i]`` is the number
+        of edges connected to vertex id ``i``.
+        
+        :seealso: :meth:`adjacency` :meth:`incidence` :meth:`laplacian`
         """
 
         return np.diag(self.connectivity())
@@ -828,9 +811,9 @@ class PGraph(ABC):
         Adjacency matrix of graph
 
         :returns: adjacency matrix
-        :rtype: ndarray(n,n)
+        :rtype: ndarray(N,N)
 
-        The elements of the adjacency matrix ``A[i,j]`` are 1 if vertex ``i`` is
+        The elements of the adjacency matrix ``[i,j]`` are 1 if vertex ``i`` is
         connected to vertex ``j``, else 0.
 
         .. note::
@@ -926,10 +909,19 @@ class PGraph(ABC):
 
     def samecomponent(self, v1, v2):
         """
-        %PGraph.component Graph component
-        %
-        % C = G.component(V) is the id of the graph component that contains vertex
-        % V.
+        Test if vertices belong to same graph component
+
+        :param v1: vertex
+        :type v1: Vertex subclass
+        :param v2: vertex
+        :type v2: Vertex subclass
+        :return: true if vertices belong to same graph component
+        :rtype: bool
+
+        Test whether vertices belong to the same component.  For a:
+        
+        - directed graph this implies a path between them
+        - undirected graph there is not necessarily a path between them
         """
         self._graphcolor()  # ensure labels are uptodate
 
