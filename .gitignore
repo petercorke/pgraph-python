@@ -3,3 +3,7 @@ dist/
 *.code-workspace
 __pycache__
 *.egg-info
+.vscode/
+*.pdf
+*.dot
+*.mat
