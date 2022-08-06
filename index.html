@@ -4,11 +4,10 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Robotics Toolbox for Python &mdash; Robotics Toolbox for Python  documentation</title>
+  <title>Graphs for Python &mdash; Simple graph functionality for Python  documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
-      <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -21,7 +20,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Introduction" href="intro.html" /> 
+    <link rel="next" title="Directed graphs" href="directed.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -29,8 +28,7 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="#" class="icon icon-home"> Robotics Toolbox for Python
-            <img src="_static/RobToolBox_RoundLogoB.png" class="logo" alt="Logo"/>
+            <a href="#" class="icon icon-home"> Simple graph functionality for Python
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -41,10 +39,11 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
-<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="arm.html">Manipulator arms</a></li>
-<li class="toctree-l1"><a class="reference internal" href="mobile.html">Mobile robots</a></li>
-<li class="toctree-l1"><a class="reference internal" href="blocks.html">bdsim blocks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="directed.html">Directed graphs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="undirected.html">Undirected graphs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="edge.html">Edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="planning.html">Path planning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="matrices.html">Convert graph to matrix form</a></li>
 </ul>
 
         </div>
@@ -53,80 +52,67 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="#">Robotics Toolbox for Python</a>
+          <a href="#">Simple graph functionality for Python</a>
       </nav>
 
       <div class="wy-nav-content">
-        <div class="rst-content style-external-links">
+        <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="#" class="icon icon-home"></a> &raquo;</li>
-      <li>Robotics Toolbox for Python</li>
+      <li>Graphs for Python</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
-        <a href="intro.html" class="btn btn-neutral float-right" title="Introduction" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="directed.html" class="btn btn-neutral float-right" title="Directed graphs" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
   </div>
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="robotics-toolbox-for-python">
-<h1>Robotics Toolbox for Python<a class="headerlink" href="#robotics-toolbox-for-python" title="Permalink to this heading"></a></h1>
+  <section id="graphs-for-python">
+<h1>Graphs for Python<a class="headerlink" href="#graphs-for-python" title="Permalink to this heading"></a></h1>
+<p>This package provides a set of classes for manipulating simple directed and undirected graphs in Python.</p>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="intro.html#id1">Introduction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="intro.html#a-python-version">A Python version</a></li>
-<li class="toctree-l2"><a class="reference internal" href="intro.html#spatial-math-layer">Spatial math layer</a></li>
-<li class="toctree-l2"><a class="reference internal" href="intro.html#robotics-toolbox">Robotics Toolbox</a></li>
-<li class="toctree-l2"><a class="reference internal" href="intro.html#trajectories">Trajectories</a></li>
-<li class="toctree-l2"><a class="reference internal" href="intro.html#symbolic-manipulation">Symbolic manipulation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="intro.html#differential-kinematics">Differential kinematics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="intro.html#new-capability">New capability</a></li>
-<li class="toctree-l2"><a class="reference internal" href="intro.html#conclusion">Conclusion</a></li>
-<li class="toctree-l2"><a class="reference internal" href="intro.html#references">References</a></li>
+<li class="toctree-l1"><a class="reference internal" href="directed.html">Directed graphs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="dgraph.html">Directed graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dvertex.html">Directed graph vertex</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="arm.html">Manipulator arms</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="arm_models.html">Manipulator models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="arm_backend.html">Backends</a></li>
-<li class="toctree-l2"><a class="reference internal" href="arm_trajectory.html">Trajectories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="undirected.html">Undirected graphs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ugraph.html">Undirected graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="uvertex.html">Undirected graph vertex</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="mobile.html">Mobile robots</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="mobile_vehicle.html">Mobile robot kinematic models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mobile_vehicle_animation.html">Mobile robot animations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mobile_drivers.html">Mobile robot drivers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mobile_reactive.html">Reactive navigation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mobile_planner.html">Mobile robot path planning</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mobile_SLAM.html">Localization and Mapping</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="blocks.html">bdsim blocks</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="blocks-arm.html">Robot manipulator blocks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="blocks-mobile.html">Mobile robot blocks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="blocks-uav.html">UAV blocks</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="edge.html">Edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="planning.html">Path planning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="matrices.html">Convert graph to matrix form</a></li>
 </ul>
 </div>
+</section>
+<section id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this heading"></a></h1>
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="intro.html" class="btn btn-neutral float-right" title="Introduction" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="directed.html" class="btn btn-neutral float-right" title="Directed graphs" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2020, Jesse Haviland and Peter Corke.
-      <span class="lastupdated">Last updated on 07-Jul-2022.
+    <p>&#169; Copyright 2020, Peter Corke.
+      <span class="lastupdated">Last updated on 06-Aug-2022.
       </span></p>
   </div>
 
