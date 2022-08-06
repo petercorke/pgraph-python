@@ -59,14 +59,24 @@ class PGraph(ABC):
         g = cls()
 
         for vertex, parent in d.items():
-            if vertex.name in g:
-                vertex = g[vertex.name]
+            if isinstance(vertex, str):
+                vertex_name = vertex
             else:
-                vertex = g.add_vertex(UVertex(), name=vertex.name)
-            if parent.name in g:
-                parent = g[parent.name]
+                vertex_name = vertex.name
+
+            if vertex_name in g:
+                vertex = g[vertex_name]
             else:
-                parent = g.add_vertex(UVertex(), name=parent.name)
+                vertex = g.add_vertex(UVertex(), name=vertex_name)
+
+            if isinstance(parent, str):
+                parent_name = parent
+            else:
+                parent_name = parent.name
+            if parent_name in g:
+                parent = g[parent_name]
+            else:
+                parent = g.add_vertex(UVertex(), name=parent_name)
 
             if reverse:
                 g.add_edge(vertex, parent)
@@ -1324,10 +1334,10 @@ class DGraph(PGraph):
         - ``g.add_vertex(v)`` takes an instance or subclass of DVertex and adds
           it to the graph
         """
-        if isinstance(coord, DVertex):
+        if isinstance(coord, Vertex):
             vertex = coord
         else:
-            vertex = DVertex(coord)
+            vertex = DVertex(coord=coord, name=name)
         super().add_vertex(vertex, name=name)
         return vertex
 
