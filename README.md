@@ -7,9 +7,8 @@
 [![PyPI pyversions](https://img.shields.io/pypi/pyversions/pgraph-python)](https://pypi.python.org/pypi/pgraph-python/)
 [![GitHub license](https://img.shields.io/github/license/Naereen/StrapDown.js.svg)](https://github.com/petercorke/pgraph-python/blob/master/LICENSE)
 
-[![Build Status](https://github.com/petercorke/pgraph-python/workflows/build/badge.svg?branch=master)](https://github.com/petercorke/pgraph-python/actions?query=workflow%3Abuild)
+[![Build Status](https://github.com/petercorke/pgraph-python/actions/workflows/pythonpackage.yml/badge.svg)](https://github.com/petercorke/pgraph-python/actions?query=workflow%3Abuild)
 [![Coverage](https://codecov.io/gh/petercorke/pgraph-python/branch/master/graph/badge.svg)](https://codecov.io/gh/petercorke/pgraph-python)
-[![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/petercorke/pgraph-python.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/petercorke/pgraph-python/context:python)
 ![pypi downloads](https://img.shields.io/pypi/dw/pgraph-python)
 
 - GitHub repository: [https://github.com/petercorke/pgraph-python](https://github.com/petercorke/pgraph-python)
