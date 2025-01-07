@@ -19,6 +19,8 @@ class PGraph(ABC):
         self._vertexdict = {}
         self._edgelist = set()
         self._verbose = verbose
+        self._ncomponents = 0
+        self._connectivitychange = False
         if metric is None:
             self.metric = "L2"
         else:
@@ -1888,6 +1890,7 @@ class DVertex(Vertex):
 if __name__ == "__main__":
 
     g = UGraph()
+    print(g)
 
     for i in range(10):
         g.add_vertex()
