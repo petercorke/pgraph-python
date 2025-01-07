@@ -11,7 +11,6 @@ import webbrowser
 from spatialmath.base.graphics import axes_logic
 
 
-
 class PGraph(ABC):
 
     def __init__(self, arg=None, metric=None, heuristic=None, verbose=False):
@@ -21,7 +20,7 @@ class PGraph(ABC):
         self._edgelist = set()
         self._verbose = verbose
         if metric is None:
-            self.metric = 'L2'
+            self.metric = "L2"
         else:
             self.metric = metric
         if heuristic is None:
@@ -108,11 +107,11 @@ class PGraph(ABC):
         """
 
         if A.shape[0] != A.shape[1]:
-            raise ValueError('Adjacency matrix must be square')
+            raise ValueError("Adjacency matrix must be square")
         if names is not None and len(names) != A.shape[0]:
-            raise ValueError('length of names must match dimension of adjacency matrix')
+            raise ValueError("length of names must match dimension of adjacency matrix")
         if coords is not None and coords.shape[0] != A.shape[0]:
-                raise ValueError('coords must have same number of rows as adjacency matrix')
+            raise ValueError("coords must have same number of rows as adjacency matrix")
 
         g = cls()
 
@@ -128,20 +127,19 @@ class PGraph(ABC):
         if isinstance(g, UGraph):
             # undirected graph
             for i in range(A.shape[0]):
-                for j in range(i+1, A.shape[1]):
+                for j in range(i + 1, A.shape[1]):
                     if A[i, j] > 0:
-                        g[i].connect(g[j], cost=A[i,j])
+                        g[i].connect(g[j], cost=A[i, j])
         else:
             # directed graph
             for i in range(A.shape[0]):
                 for j in range(A.shape[1]):
                     if A[i, j] > 0:
                         if i == j:
-                            raise ValueError('loops in graph not supported')
-                        g[i].connect(g[j], cost=A[i,j])
+                            raise ValueError("loops in graph not supported")
+                        g[i].connect(g[j], cost=A[i, j])
 
         return g
-
 
     def copy(self):
         """
@@ -197,7 +195,7 @@ class PGraph(ABC):
 
         Create an edge between a vertex pair and adds it to the graph.
 
-        This is a graph centric way of creating an edge.  The 
+        This is a graph centric way of creating an edge.  The
         alternative is the ``connect`` method of a vertex.
 
         :seealso: :meth:`Edge.connect` :meth:`Vertex.connect`
@@ -205,12 +203,12 @@ class PGraph(ABC):
         if isinstance(v1, str):
             v1 = self[v1]
         elif not isinstance(v1, Vertex):
-            raise TypeError('v1 must be Vertex subclass or string name')
+            raise TypeError("v1 must be Vertex subclass or string name")
         if isinstance(v2, str):
             v2 = self[v2]
         elif not isinstance(v2, Vertex):
-            raise TypeError('v2 must be Vertex subclass or string name')
-        
+            raise TypeError("v2 must be Vertex subclass or string name")
+
         if self._verbose:
             print(f"New edge from {v1.name} to {v2.name}")
         return v1.connect(v2, **kwargs)
@@ -258,15 +256,15 @@ class PGraph(ABC):
             self._vertexlist.remove(x)
             del self._vertexdict[x.name]
         else:
-            raise TypeError('expecting Edge or Vertex')
+            raise TypeError("expecting Edge or Vertex")
 
     def show(self):
-        print('vertices:')
+        print("vertices:")
         for v in self._vertexlist:
-            print('  ' + str(v))
-        print('edges:')
+            print("  " + str(v))
+        print("edges:")
         for e in self._edgelist:
-            print('  ' + str(e))
+            print("  " + str(e))
 
     @property
     def n(self):
@@ -302,9 +300,9 @@ class PGraph(ABC):
             - A graph coloring algorithm is run if the graph connectivity
               has changed.
 
-        .. note:: A lazy approach is used, and if a connectivity changing 
+        .. note:: A lazy approach is used, and if a connectivity changing
             operation has been performed since the last call, the graph
-            coloring algorithm is run which is potentially expensive for 
+            coloring algorithm is run which is potentially expensive for
             a large graph.
         """
         self._graphcolor()
@@ -317,7 +315,7 @@ class PGraph(ABC):
 
         def L2(v):
             return np.linalg.norm(v)
-        
+
         def SE2(v):
             # wrap angle to range [-pi, pi)
             v[2] = (v[2] + np.pi) % (2 * np.pi) - np.pi
@@ -326,14 +324,14 @@ class PGraph(ABC):
         if callable(metric):
             return metric
         elif isinstance(metric, str):
-            if metric == 'L1':
+            if metric == "L1":
                 return L1
-            elif metric == 'L2':
+            elif metric == "L2":
                 return L2
-            elif metric == 'SE2':
+            elif metric == "SE2":
                 return SE2
         else:
-            raise ValueError('unknown metric')
+            raise ValueError("unknown metric")
 
     @property
     def metric(self):
@@ -355,7 +353,7 @@ class PGraph(ABC):
         :param metric: distance metric
         :type metric: callable or str
 
-        This is a function of a vector and returns a scalar.  It can be 
+        This is a function of a vector and returns a scalar.  It can be
         user defined function or a string:
 
         - 'L1' is the norm :math:`L_1 = \Sigma_i | v_i |`
@@ -363,7 +361,7 @@ class PGraph(ABC):
         - 'SE2' is a mixed norm for vectors :math:`(x, y, \theta)` and
             is :math:`\sqrt{x^2 + y^2 + \bar{\theta}^2}` where :math:`\bar{\theta}`
             is :math:`\theta` wrapped to the interval :math:`[-\pi, \pi)`
-        
+
         The metric is used by :meth:`closest` and :meth:`distance`
         """
         self._metric = self._metricfunc(metric)
@@ -388,7 +386,7 @@ class PGraph(ABC):
         :param metric: heuristic distance metric
         :type metric: callable or str
 
-        This is a function of a vector and returns a scalar.  It can be 
+        This is a function of a vector and returns a scalar.  It can be
         user defined function or a string:
 
         - 'L1' is the norm :math:`L_1 = \Sigma_i | v_i |`
@@ -408,7 +406,7 @@ class PGraph(ABC):
             if vertex.label is not None:
                 ss += " component={vertex.label}"
             s.append(ss)
-        return '\n'.join(s)
+        return "\n".join(s)
 
     def __getitem__(self, i):
         """
@@ -421,7 +419,7 @@ class PGraph(ABC):
 
         Retrieve a vertex by index or name:
 
-        -``g[i]`` is the i'th vertex in the graph.  This reflects the order of 
+        -``g[i]`` is the i'th vertex in the graph.  This reflects the order of
          addition to the graph.
         -``g[s]`` is vertex named ``s``
         -``g[v]`` is ``v`` where ``v`` is a ``Vertex`` subclass
@@ -482,7 +480,7 @@ class PGraph(ABC):
             if d < min_dist:
                 min_dist = d
                 min_which = vertex
-        
+
         return min_which, min_dist
 
     def edges(self):
@@ -504,7 +502,17 @@ class PGraph(ABC):
         """
         return self._edgelist
 
-    def plot(self, colorcomponents=True, force2d=False, vopt={}, eopt={}, text={}, block=False, grid=True, ax=None):
+    def plot(
+        self,
+        colorcomponents=True,
+        force2d=False,
+        vopt={},
+        eopt={},
+        text={},
+        block=False,
+        grid=True,
+        ax=None,
+    ):
         """
         Plot the graph
 
@@ -528,9 +536,8 @@ class PGraph(ABC):
         which are the vertex names.  If ``text`` is None default formatting is
         used.  If ``text`` is False no labels are added.
         """
-        vopt = {**dict(marker='o', markersize=12), **vopt}
+        vopt = {**dict(marker="o", markersize=12), **vopt}
         eopt = {**dict(linewidth=3), **eopt}
-
 
         if colorcomponents:
             color = plt.cm.coolwarm(np.linspace(0, 1, self.nc))
@@ -547,8 +554,12 @@ class PGraph(ABC):
                     if colorcomponents:
                         ax.plot(vertex.x, vertex.y, color=color[c, :], **vopt)
                         for v in vertex.neighbours():
-                            ax.plot([vertex.x, v.x], [vertex.y, v.y],
-                                    color=color[c, :], **eopt)
+                            ax.plot(
+                                [vertex.x, v.x],
+                                [vertex.y, v.y],
+                                color=color[c, :],
+                                **eopt,
+                            )
                     else:
                         ax.plot(vertex.x, vertex.y, **vopt)
                         for v in vertex.neighbours():
@@ -561,16 +572,32 @@ class PGraph(ABC):
                 # for each component
                 for vertex in self.component(c):
                     if text is not False:
-                        ax.text(vertex.x, vertex.y, vertex.z, "  " + vertex.name, **text)
+                        ax.text(
+                            vertex.x, vertex.y, vertex.z, "  " + vertex.name, **text
+                        )
                     if colorcomponents:
-                        ax.plot(vertex.x, vertex.y, vertex.z, **{**dict(color=color[c, :]), **vopt})
+                        ax.plot(
+                            vertex.x,
+                            vertex.y,
+                            vertex.z,
+                            **{**dict(color=color[c, :]), **vopt},
+                        )
                         for v in vertex.neighbours():
-                            ax.plot([vertex.x, v.x], [vertex.y, v.y], [vertex.z, v.z],
-                                    **{**dict(color=color[c, :]), **eopt})
+                            ax.plot(
+                                [vertex.x, v.x],
+                                [vertex.y, v.y],
+                                [vertex.z, v.z],
+                                **{**dict(color=color[c, :]), **eopt},
+                            )
                     else:
                         ax.plot(vertex.x, vertex.y, **vopt)
                         for v in vertex.neighbours():
-                            ax.plot([vertex.x, v.x], [vertex.y, v.y], [vertex.z, v.z], **eopt)
+                            ax.plot(
+                                [vertex.x, v.x],
+                                [vertex.y, v.y],
+                                [vertex.z, v.z],
+                                **eopt,
+                            )
         # if nc > 1:
         #     # add a colorbar
         #     plt.colorbar()
@@ -593,12 +620,12 @@ class PGraph(ABC):
         """
         for i in range(len(path)):
             if i < len(path) - 1:
-                e = path[i].edgeto(path[i+1])
+                e = path[i].edgeto(path[i + 1])
                 self.highlight_edge(e, **kwargs)
             self.highlight_vertex(path[i], **kwargs)
         plt.show(block=block)
 
-    def highlight_edge(self, edge, scale=2, color='r', alpha=0.5):
+    def highlight_edge(self, edge, scale=2, color="r", alpha=0.5):
         """
         Highlight an edge in the graph
 
@@ -612,10 +639,11 @@ class PGraph(ABC):
         """
         p1 = edge.v1
         p2 = edge.v2
-        plt.plot([p1.x, p2.x], [p1.y, p2.y], color=color,
-                 linewidth=3 * scale, alpha=alpha)
+        plt.plot(
+            [p1.x, p2.x], [p1.y, p2.y], color=color, linewidth=3 * scale, alpha=alpha
+        )
 
-    def highlight_vertex(self, vertex, scale=2, color='r', alpha=0.5):
+    def highlight_vertex(self, vertex, scale=2, color="r", alpha=0.5):
         """
         Highlight a vertex in the graph
 
@@ -631,11 +659,11 @@ class PGraph(ABC):
             for n in vertex:
                 if isinstance(n, str):
                     n = self[n]
-                plt.plot(n.x, n.y, 'o', color=color,
-                         markersize=12 * scale, alpha=alpha)
+                plt.plot(n.x, n.y, "o", color=color, markersize=12 * scale, alpha=alpha)
         else:
-            plt.plot(vertex.x, vertex.y, 'o', color=color,
-                     markersize=12 * scale, alpha=alpha)
+            plt.plot(
+                vertex.x, vertex.y, "o", color=color, markersize=12 * scale, alpha=alpha
+            )
 
     def dotfile(self, filename=None, direction=None):
         """
@@ -680,8 +708,12 @@ class PGraph(ABC):
             if vertex.coord is None:
                 print('  "{:s}"'.format(vertex.name), file=f)
             else:
-                print('  "{:s}" [pos="{:.5g},{:.5g}"]'.format(
-                    vertex.name, vertex.coord[0], vertex.coord[1]), file=f)
+                print(
+                    '  "{:s}" [pos="{:.5g},{:.5g}"]'.format(
+                        vertex.name, vertex.coord[0], vertex.coord[1]
+                    ),
+                    file=f,
+                )
         print(file=f)
         # add the edges
         for e in self.edges():
@@ -690,7 +722,7 @@ class PGraph(ABC):
             else:
                 print('  "{:s}" -- "{:s}"'.format(e.v1.name, e.v2.name), file=f)
 
-        print('}', file=f)
+        print("}", file=f)
 
         if filename is None or isinstance(filename, str):
             f.close()  # noqa
@@ -733,7 +765,7 @@ class PGraph(ABC):
         :return: average degree
         :rtype: float
 
-        Average degree is :math:`2 E / N` for an undirected graph and 
+        Average degree is :math:`2 E / N` for an undirected graph and
         :math:`E / N` for a directed graph where :math:`E` is the total number of
         edges and :math:`N` is the number of vertices.
 
@@ -743,7 +775,7 @@ class PGraph(ABC):
         elif isinstance(self, UGraph):
             return 2 * len(self.edges()) / self.n
 
-# --------------------------------------------------------------------------- #
+    # --------------------------------------------------------------------------- #
 
     # MATRIX REPRESENTATIONS
 
@@ -761,7 +793,7 @@ class PGraph(ABC):
 
             - Laplacian is always positive-semidefinite.
             - Laplacian has at least one zero eigenvalue.
-            - The number of zero-valued eigenvalues is the number of connected 
+            - The number of zero-valued eigenvalues is the number of connected
                 components in the graph.
 
         :seealso: :meth:`adjacency` :meth:`incidence` :meth:`degree`
@@ -778,7 +810,7 @@ class PGraph(ABC):
         The average vertex connectivity is::
 
             mean(g.connectivity())
-        
+
         and the minimum vertex connectivity is::
 
             min(g.connectivity())
@@ -800,7 +832,7 @@ class PGraph(ABC):
 
         This is a diagonal matrix  where element ``[i,i]`` is the number
         of edges connected to vertex id ``i``.
-        
+
         :seealso: :meth:`adjacency` :meth:`incidence` :meth:`laplacian`
         """
 
@@ -896,8 +928,6 @@ class PGraph(ABC):
 
     # GRAPH COMPONENTS
 
-
-
     def component(self, c):
         """
         All vertices in specified graph component
@@ -919,7 +949,7 @@ class PGraph(ABC):
         :rtype: bool
 
         Test whether vertices belong to the same component.  For a:
-        
+
         - directed graph this implies a path between them
         - undirected graph there is not necessarily a path between them
         """
@@ -942,7 +972,7 @@ class PGraph(ABC):
     #             break
 
     #     v._edgelist = []  # remove all references to edges
-# --------------------------------------------------------------------------- #
+    # --------------------------------------------------------------------------- #
 
     def path_BFS(self, S, G, verbose=False, summary=False):
         """
@@ -962,11 +992,11 @@ class PGraph(ABC):
         if isinstance(S, str):
             S = self[S]
         elif not isinstance(S, Vertex):
-            raise TypeError('start must be Vertex subclass or string name')
+            raise TypeError("start must be Vertex subclass or string name")
         if isinstance(G, str):
             G = self[G]
         elif not isinstance(S, Vertex):
-            raise TypeError('goal must be Vertex subclass or string name')
+            raise TypeError("goal must be Vertex subclass or string name")
 
         # we use lists not sets since the order is instructive in verbose
         # mode, really need ordered sets...
@@ -978,18 +1008,18 @@ class PGraph(ABC):
         while frontier:
             if verbose:
                 print()
-                print('FRONTIER:', ", ".join([v.name for v in frontier]))
-                print('EXPLORED:', ", ".join([v.name for v in explored]))
+                print("FRONTIER:", ", ".join([v.name for v in frontier]))
+                print("EXPLORED:", ", ".join([v.name for v in explored]))
 
             x = frontier.pop(0)
             if verbose:
-                print('   expand', x.name)
+                print("   expand", x.name)
 
             # expand the vertex
             for n in x.neighbours():
                 if n is G:
                     if verbose:
-                        print('     goal', n.name, 'reached')
+                        print("     goal", n.name, "reached")
                     parent[n] = x
                     done = True
                     break
@@ -997,13 +1027,13 @@ class PGraph(ABC):
                     # add it to the frontier
                     frontier.append(n)
                     if verbose:
-                        print('      add', n.name, 'to the frontier')
+                        print("      add", n.name, "to the frontier")
                     parent[n] = x
             if done:
                 break
             explored.append(x)
             if verbose:
-                print('     move', x.name, 'to the explored list')
+                print("     move", x.name, "to the explored list")
         else:
             # no path
             return None
@@ -1021,7 +1051,8 @@ class PGraph(ABC):
 
         if summary or verbose:
             print(
-                f"{len(explored)} vertices explored, {len(frontier)} remaining on the frontier")
+                f"{len(explored)} vertices explored, {len(frontier)} remaining on the frontier"
+            )
 
         return path, length
 
@@ -1047,11 +1078,11 @@ class PGraph(ABC):
         if isinstance(S, str):
             S = self[S]
         elif not isinstance(S, Vertex):
-            raise TypeError('start must be Vertex subclass or string name')
+            raise TypeError("start must be Vertex subclass or string name")
         if isinstance(G, str):
             G = self[G]
         elif not isinstance(S, Vertex):
-            raise TypeError('goal must be Vertex subclass or string name')
+            raise TypeError("goal must be Vertex subclass or string name")
 
         frontier = [S]
         explored = []
@@ -1061,14 +1092,15 @@ class PGraph(ABC):
         while frontier:
             if verbose:
                 print()
-                print('FRONTIER:', ", ".join(
-                    [f"{v.name}({f[v]:.0f})" for v in frontier]))
-                print('EXPLORED:', ", ".join([v.name for v in explored]))
+                print(
+                    "FRONTIER:", ", ".join([f"{v.name}({f[v]:.0f})" for v in frontier])
+                )
+                print("EXPLORED:", ", ".join([v.name for v in explored]))
 
             i = np.argmin([f[n] for n in frontier])  # minimum f in frontier
             x = frontier.pop(i)
             if verbose:
-                print('   expand', x.name)
+                print("   expand", x.name)
             if x is G:
                 break
             # expand the vertex
@@ -1080,7 +1112,7 @@ class PGraph(ABC):
                     f[n] = fnew
                     frontier.append(n)
                     if verbose:
-                        print('      add', n.name, 'to the frontier')
+                        print("      add", n.name, "to the frontier")
 
                 elif n in frontier:
                     # neighbour is already in the frontier
@@ -1088,13 +1120,14 @@ class PGraph(ABC):
                     if fnew < f[n]:
                         if verbose:
                             print(
-                                f" reparent {n.name}: cost {fnew} via {x.name} is less than cost {f[n]} via {parent[n].name}, change parent from {parent[n].name} to {x.name} ")
+                                f" reparent {n.name}: cost {fnew} via {x.name} is less than cost {f[n]} via {parent[n].name}, change parent from {parent[n].name} to {x.name} "
+                            )
                         f[n] = fnew
                         parent[n] = x
 
             explored.append(x)
             if verbose:
-                print('     move', x.name, 'to the explored list')
+                print("     move", x.name, "to the explored list")
         else:
             # no path
             return None
@@ -1116,7 +1149,8 @@ class PGraph(ABC):
 
         if summary or verbose:
             print(
-                f"{len(explored)} vertices explored, {len(frontier)} remaining on the frontier")
+                f"{len(explored)} vertices explored, {len(frontier)} remaining on the frontier"
+            )
 
         return path, length, parent_names
 
@@ -1144,11 +1178,11 @@ class PGraph(ABC):
         if isinstance(S, str):
             S = self[S]
         elif not isinstance(S, Vertex):
-            raise TypeError('start must be Vertex subclass or string name')
+            raise TypeError("start must be Vertex subclass or string name")
         if isinstance(G, str):
             G = self[G]
         elif not isinstance(S, Vertex):
-            raise TypeError('goal must be Vertex subclass or string name')
+            raise TypeError("goal must be Vertex subclass or string name")
 
         frontier = [S]
         explored = []
@@ -1159,14 +1193,15 @@ class PGraph(ABC):
         while frontier:
             if verbose:
                 print()
-                print('FRONTIER:', ", ".join(
-                    [f"{v.name}({f[v]:.0f})" for v in frontier]))
-                print('EXPLORED:', ", ".join([v.name for v in explored]))
+                print(
+                    "FRONTIER:", ", ".join([f"{v.name}({f[v]:.0f})" for v in frontier])
+                )
+                print("EXPLORED:", ", ".join([v.name for v in explored]))
 
             i = np.argmin([f[n] for n in frontier])  # minimum f in frontier
             x = frontier.pop(i)
             if verbose:
-                print('   expand', x.name)
+                print("   expand", x.name)
             if x is G:
                 break
             # expand the vertex
@@ -1178,7 +1213,7 @@ class PGraph(ABC):
                     g[n] = g[x] + e.cost  # update cost to come
                     f[n] = g[n] + n.heuristic_distance(G)  # heuristic
                     if verbose:
-                        print('      add', n.name, 'to the frontier')
+                        print("      add", n.name, "to the frontier")
                 elif n in frontier:
                     # neighbour is already in the frontier
                     gnew = g[x] + e.cost
@@ -1186,7 +1221,8 @@ class PGraph(ABC):
                         # cost of path via x is lower that previous, reparent it
                         if verbose:
                             print(
-                                f" reparent {n.name}: cost {gnew} via {x.name} is less than cost {g[n]} via {parent[n].name}, change parent from {parent[n].name} to {x.name} ")
+                                f" reparent {n.name}: cost {gnew} via {x.name} is less than cost {g[n]} via {parent[n].name}, change parent from {parent[n].name} to {x.name} "
+                            )
                         g[n] = gnew
                         f[n] = g[n] + n.heuristic_distance(G)  # heuristic
 
@@ -1194,7 +1230,7 @@ class PGraph(ABC):
 
             explored.append(x)
             if verbose:
-                print('     move', x.name, 'to the explored list')
+                print("     move", x.name, "to the explored list")
 
         else:
             # no path
@@ -1217,12 +1253,14 @@ class PGraph(ABC):
 
         if summary or verbose:
             print(
-                f"{len(explored)} vertices explored, {len(frontier)} remaining on the frontier")
+                f"{len(explored)} vertices explored, {len(frontier)} remaining on the frontier"
+            )
 
         return path, length, parent_names
 
 
 # -------------------------------------------------------------------------- #
+
 
 class UGraph(PGraph):
     """
@@ -1262,7 +1300,7 @@ class UGraph(PGraph):
         """
         Color the graph
 
-        Performs a depth-first labeling operation, assigning the ``label`` 
+        Performs a depth-first labeling operation, assigning the ``label``
         attribute of every vertex with a sequential integer starting from 0.
 
         This method checks the ``_connectivitychange`` attribute of all vertices
@@ -1279,7 +1317,6 @@ class UGraph(PGraph):
             for vertex in self:
                 vertex.label = None
                 vertex._connectivitychange = False
-
 
             lastlabel = None
             for label in range(self.n):
@@ -1302,6 +1339,7 @@ class UGraph(PGraph):
                     break
 
             self._ncomponents = lastlabel + 1
+
 
 class DGraph(PGraph):
     """
@@ -1341,7 +1379,7 @@ class DGraph(PGraph):
         """
         Color the graph
 
-        Performs a depth-first labeling operation, assigning the ``label`` 
+        Performs a depth-first labeling operation, assigning the ``label``
         attribute of every vertex with a sequential integer starting from 0.
 
         This method checks the ``_connectivitychange`` attribute of all vertices
@@ -1398,7 +1436,9 @@ class DGraph(PGraph):
 
         self._ncomponents = len(unique)
 
+
 # ========================================================================== #
+
 
 class Edge:
     """
@@ -1414,7 +1454,7 @@ class Edge:
 
     .. note::
 
-        - An undirected graph is created by having a single edge object in the 
+        - An undirected graph is created by having a single edge object in the
           edgelist of _each_ vertex.
         - This class can be inherited to provide user objects with graph capability.
         - Inheritance is an alternative to providing arbitrary user data.
@@ -1467,7 +1507,6 @@ class Edge:
         else:
             self.cost = None
 
-
     def __repr__(self):
         return str(self)
 
@@ -1488,16 +1527,16 @@ class Edge:
         :type v2: Vertex subclass
 
         The edge is added to the graph and connects vertices ``v1`` and ``v2``.
-        
+
         .. note:: The vertices must already be added to the graph.
         """
 
         if v1._graph is None:
-            raise ValueError('vertex v1 does not belong to a graph')
+            raise ValueError("vertex v1 does not belong to a graph")
         if v2._graph is None:
-            raise ValueError('vertex v2 does not belong to a graph')
+            raise ValueError("vertex v2 does not belong to a graph")
         if not v1._graph is v2._graph:
-            raise ValueError('vertices must belong to the same graph')
+            raise ValueError("vertices must belong to the same graph")
 
         # connect edge to its vertices
         self.v1 = v1
@@ -1506,7 +1545,6 @@ class Edge:
         # tell the vertices to add edge to their edgelists as appropriate for
         # DGraph or UGraph
         v1.connect(v2, edge=self)
-
 
     def next(self, vertex):
         """
@@ -1518,7 +1556,7 @@ class Edge:
         :return: the other vertex on the edge
         :rtype: Vertex subclass
 
-        ``e.next(v1)`` is the vertex at the other end of edge ``e``, ie. the 
+        ``e.next(v1)`` is the vertex at the other end of edge ``e``, ie. the
         vertex that is not ``v1``.
         """
 
@@ -1527,10 +1565,10 @@ class Edge:
         elif self.v2 is vertex:
             return self.v1
         else:
-            raise ValueError('shouldnt happen')
+            raise ValueError("shouldnt happen")
 
     def vertices(self):
-        raise DeprecationWarning('use endpoints instead')
+        raise DeprecationWarning("use endpoints instead")
 
     @property
     def endpoints(self):
@@ -1556,6 +1594,7 @@ class Edge:
     #     # remove references to the vertices
     #     self.v1 = None
     #     self.v2 = None
+
 
 # ========================================================================== #
 
@@ -1589,9 +1628,9 @@ class Vertex:
 
     def __repr__(self):
         if self.coord is None:
-            coord = '?'
+            coord = "?"
         else:
-            coord = ', '.join([f"{x:.4g}" for x in self.coord])
+            coord = ", ".join([f"{x:.4g}" for x in self.coord])
         return f"{self.__class__.__name__}[{self.name:s}, coord=({coord})]"
 
     def copy(self, cls=None):
@@ -1620,7 +1659,6 @@ class Vertex:
         """
         return [e.next(self) for e in self._edgelist]
 
-
     def isneighbour(self, vertex):
         """
         Test if vertex is a neigbour
@@ -1639,7 +1677,7 @@ class Vertex:
         """
         Neighbours and edges of a vertex
 
-        ``v.incidences()`` is a generator that returns a list of incidences, 
+        ``v.incidences()`` is a generator that returns a list of incidences,
         tuples of (vertex, edge) for all neighbours of the vertex ``v``.
 
         .. note:: For a directed graph the edges are those leaving this vertex
@@ -1677,7 +1715,7 @@ class Vertex:
         """
 
         if not dest.__class__.__bases__[0] is self.__class__.__bases__[0]:
-            raise TypeError('must connect vertices of same type')
+            raise TypeError("must connect vertices of same type")
         elif isinstance(edge, Edge):
             e = edge
         else:
@@ -1703,10 +1741,10 @@ class Vertex:
 
             - For a directed graph ``dest`` must be at the arrow end of the edge
         """
-        for (n, e) in self.incidences():
+        for n, e in self.incidences():
             if n is dest:
                 return e
-        raise ValueError('dest is not a neighbour')
+        raise ValueError("dest is not a neighbour")
 
     def edges(self):
         """
@@ -1792,6 +1830,7 @@ class Vertex:
     def closest(self):
         return self._graph.closest(self.coord)
 
+
 class UVertex(Vertex):
     """
     Vertex subclass for undirected graphs
@@ -1810,7 +1849,7 @@ class UVertex(Vertex):
         elif isinstance(other, Edge):
             e = super().connect(edge=other)
         else:
-            raise TypeError('bad argument')
+            raise TypeError("bad argument")
 
         # e = super().connect(other, **kwargs)
 
@@ -1837,7 +1876,7 @@ class DVertex(Vertex):
         elif isinstance(other, Edge):
             e = super().connect(edge=other)
         else:
-            raise TypeError('bad argument')
+            raise TypeError("bad argument")
 
         self._edgelist.append(e)
         return e
