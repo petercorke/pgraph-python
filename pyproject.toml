@@ -1,0 +1,77 @@
+[project]
+name = "pgraph-python"
+version = "0.6.3"
+authors = [{ name = "Peter Corke", email = "rvc@petercorke.com" }]
+description = "Mathematical graphs for Python"
+readme = "README.md"
+requires-python = ">=3.7"
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    # Indicate who your project is intended for
+    "Intended Audience :: Developers",
+    # Specify the Python versions you support here.
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+keywords = [
+    "machine vision",
+    "computer vision",
+    "multiview geometry",
+    "stereo vision",
+    "bundle adjustment",
+    "visual servoing",
+    "image features",
+    "color",
+    "blobs",
+    "morphology",
+    "image segmentation",
+    "opencv",
+    "open3d",
+]
+
+dependencies = ["numpy>=1.18.0", "scipy", "matplotlib"]
+
+[project.urls]
+
+"Homepage" = "https://github.com/petercorke/pgraph-python"
+"Bug Tracker" = "https://github.com/pypa/sampleproject/issues"
+"Documentation" = "https://petercorke.github.io/pgraph-python"
+"GitHub Source" = "https://github.com/petercorke/pgraph-python"
+"Changelog" = "https://github.com/petercorke/pgraph-python/blob/master/CHANGELOG.md"
+"Coverage" = "https://codecov.io/gh/petercorke/spatialmath-python"
+
+[project.optional-dependencies]
+
+dev = ["pytest", "pytest-cov"]
+
+docs = [
+    "sphinx",
+    "recommonmark",
+    "sphinx-rtd-theme",
+    "sphinx-autorun",
+    "sphinx-favicon",
+]
+
+[tool.pytest.ini_options]
+pythonpath = [".", "pgraph", "mvtb-data", "mvtb-data/mvtbdata"]
+
+
+[build-system]
+requires = ["setuptools", "oldest-supported-numpy"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["pgraph"]
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+
+[tool.coverage.run]
+omit = []
