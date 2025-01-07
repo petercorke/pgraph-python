@@ -20,19 +20,15 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 keywords = [
-    "machine vision",
-    "computer vision",
-    "multiview geometry",
-    "stereo vision",
-    "bundle adjustment",
-    "visual servoing",
-    "image features",
-    "color",
-    "blobs",
-    "morphology",
-    "image segmentation",
-    "opencv",
-    "open3d",
+    "python",
+    "graph",
+    "directed graph",
+    "undirected graph",
+    "a* search",
+    "adjacency matrix",
+    "Laplacian matrix",
+    "plotting",
+    "optimal path",
 ]
 
 dependencies = ["numpy>=1.18.0", "scipy", "matplotlib"]
@@ -59,7 +55,7 @@ docs = [
 ]
 
 [tool.pytest.ini_options]
-pythonpath = [".", "pgraph", "mvtb-data", "mvtb-data/mvtbdata"]
+pythonpath = [".", "pgraph"]
 
 
 [build-system]
