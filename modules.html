@@ -1,0 +1,209 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pgraph &mdash; Simple graph functionality for Python  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Simple graph functionality for Python
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="directed.html">Directed graphs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="undirected.html">Undirected graphs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="edge.html">Edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="planning.html">Path planning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="matrices.html">Convert graph to matrix form</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Simple graph functionality for Python</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">pgraph</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/modules.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="pgraph">
+<h1>pgraph<a class="headerlink" href="#pgraph" title="Link to this heading"></a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="PGraph.html">PGraph module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="PGraph.html#PGraph.DGraph"><code class="docutils literal notranslate"><span class="pre">DGraph</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="PGraph.html#PGraph.DGraph.add_vertex"><code class="docutils literal notranslate"><span class="pre">DGraph.add_vertex()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="PGraph.html#PGraph.DGraph.vertex_copy"><code class="docutils literal notranslate"><span class="pre">DGraph.vertex_copy()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="PGraph.html#PGraph.DVertex"><code class="docutils literal notranslate"><span class="pre">DVertex</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="PGraph.html#PGraph.DVertex.connect"><code class="docutils literal notranslate"><span class="pre">DVertex.connect()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="PGraph.html#PGraph.DVertex.remove"><code class="docutils literal notranslate"><span class="pre">DVertex.remove()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="PGraph.html#PGraph.Edge"><code class="docutils literal notranslate"><span class="pre">Edge</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="PGraph.html#PGraph.Edge.connect"><code class="docutils literal notranslate"><span class="pre">Edge.connect()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="PGraph.html#PGraph.Edge.endpoints"><code class="docutils literal notranslate"><span class="pre">Edge.endpoints</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="PGraph.html#PGraph.Edge.next"><code class="docutils literal notranslate"><span class="pre">Edge.next()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="PGraph.html#PGraph.Edge.vertices"><code class="docutils literal notranslate"><span class="pre">Edge.vertices()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="PGraph.html#PGraph.PGraph"><code class="docutils literal notranslate"><span class="pre">PGraph</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="PGraph.html#PGraph.PGraph.Adjacency"><code class="docutils literal notranslate"><span class="pre">PGraph.Adjacency()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="PGraph.html#PGraph.PGraph.Dict"><code class="docutils literal notranslate"><span class="pre">PGraph.Dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="PGraph.html#PGraph.PGraph.Laplacian"><code class="docutils literal notranslate"><span class="pre">PGraph.Laplacian()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="PGraph.html#PGraph.PGraph.add_edge"><code class="docutils literal notranslate"><span class="pre">PGraph.add_edge()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="PGraph.html#PGraph.PGraph.add_vertex"><code class="docutils literal notranslate"><span class="pre">PGraph.add_vertex()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="PGraph.html#PGraph.PGraph.adjacency"><code class="docutils literal notranslate"><span class="pre">PGraph.adjacency()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="PGraph.html#PGraph.PGraph.average_degree"><code class="docutils literal notranslate"><span class="pre">PGraph.average_degree()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="PGraph.html#PGraph.PGraph.closest"><code class="docutils literal notranslate"><span class="pre">PGraph.closest()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="PGraph.html#PGraph.PGraph.component"><code class="docutils literal notranslate"><span class="pre">PGraph.component()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="PGraph.html#PGraph.PGraph.connectivity"><code class="docutils literal notranslate"><span class="pre">PGraph.connectivity()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="PGraph.html#PGraph.PGraph.copy"><code class="docutils literal notranslate"><span class="pre">PGraph.copy()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="PGraph.html#PGraph.PGraph.degree"><code class="docutils literal notranslate"><span class="pre">PGraph.degree()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="PGraph.html#PGraph.PGraph.distance"><code class="docutils literal notranslate"><span class="pre">PGraph.distance()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="PGraph.html#PGraph.PGraph.dotfile"><code class="docutils literal notranslate"><span class="pre">PGraph.dotfile()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="PGraph.html#PGraph.PGraph.edges"><code class="docutils literal notranslate"><span class="pre">PGraph.edges()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="PGraph.html#PGraph.PGraph.heuristic"><code class="docutils literal notranslate"><span class="pre">PGraph.heuristic</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="PGraph.html#PGraph.PGraph.highlight_edge"><code class="docutils literal notranslate"><span class="pre">PGraph.highlight_edge()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="PGraph.html#PGraph.PGraph.highlight_path"><code class="docutils literal notranslate"><span class="pre">PGraph.highlight_path()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="PGraph.html#PGraph.PGraph.highlight_vertex"><code class="docutils literal notranslate"><span class="pre">PGraph.highlight_vertex()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="PGraph.html#PGraph.PGraph.incidence"><code class="docutils literal notranslate"><span class="pre">PGraph.incidence()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="PGraph.html#PGraph.PGraph.iscyclic"><code class="docutils literal notranslate"><span class="pre">PGraph.iscyclic()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="PGraph.html#PGraph.PGraph.metric"><code class="docutils literal notranslate"><span class="pre">PGraph.metric</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="PGraph.html#PGraph.PGraph.n"><code class="docutils literal notranslate"><span class="pre">PGraph.n</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="PGraph.html#PGraph.PGraph.nc"><code class="docutils literal notranslate"><span class="pre">PGraph.nc</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="PGraph.html#PGraph.PGraph.ne"><code class="docutils literal notranslate"><span class="pre">PGraph.ne</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="PGraph.html#PGraph.PGraph.path_Astar"><code class="docutils literal notranslate"><span class="pre">PGraph.path_Astar()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="PGraph.html#PGraph.PGraph.path_BFS"><code class="docutils literal notranslate"><span class="pre">PGraph.path_BFS()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="PGraph.html#PGraph.PGraph.path_UCS"><code class="docutils literal notranslate"><span class="pre">PGraph.path_UCS()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="PGraph.html#PGraph.PGraph.plot"><code class="docutils literal notranslate"><span class="pre">PGraph.plot()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="PGraph.html#PGraph.PGraph.remove"><code class="docutils literal notranslate"><span class="pre">PGraph.remove()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="PGraph.html#PGraph.PGraph.samecomponent"><code class="docutils literal notranslate"><span class="pre">PGraph.samecomponent()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="PGraph.html#PGraph.PGraph.show"><code class="docutils literal notranslate"><span class="pre">PGraph.show()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="PGraph.html#PGraph.PGraph.showgraph"><code class="docutils literal notranslate"><span class="pre">PGraph.showgraph()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="PGraph.html#PGraph.UGraph"><code class="docutils literal notranslate"><span class="pre">UGraph</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="PGraph.html#PGraph.UGraph.add_vertex"><code class="docutils literal notranslate"><span class="pre">UGraph.add_vertex()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="PGraph.html#PGraph.UGraph.vertex_copy"><code class="docutils literal notranslate"><span class="pre">UGraph.vertex_copy()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="PGraph.html#PGraph.UVertex"><code class="docutils literal notranslate"><span class="pre">UVertex</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="PGraph.html#PGraph.UVertex.connect"><code class="docutils literal notranslate"><span class="pre">UVertex.connect()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="PGraph.html#PGraph.Vertex"><code class="docutils literal notranslate"><span class="pre">Vertex</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="PGraph.html#PGraph.Vertex.closest"><code class="docutils literal notranslate"><span class="pre">Vertex.closest()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="PGraph.html#PGraph.Vertex.connect"><code class="docutils literal notranslate"><span class="pre">Vertex.connect()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="PGraph.html#PGraph.Vertex.copy"><code class="docutils literal notranslate"><span class="pre">Vertex.copy()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="PGraph.html#PGraph.Vertex.degree"><code class="docutils literal notranslate"><span class="pre">Vertex.degree</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="PGraph.html#PGraph.Vertex.distance"><code class="docutils literal notranslate"><span class="pre">Vertex.distance()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="PGraph.html#PGraph.Vertex.edges"><code class="docutils literal notranslate"><span class="pre">Vertex.edges()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="PGraph.html#PGraph.Vertex.edgeto"><code class="docutils literal notranslate"><span class="pre">Vertex.edgeto()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="PGraph.html#PGraph.Vertex.heuristic_distance"><code class="docutils literal notranslate"><span class="pre">Vertex.heuristic_distance()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="PGraph.html#PGraph.Vertex.incidences"><code class="docutils literal notranslate"><span class="pre">Vertex.incidences()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="PGraph.html#PGraph.Vertex.isneighbour"><code class="docutils literal notranslate"><span class="pre">Vertex.isneighbour()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="PGraph.html#PGraph.Vertex.neighbors"><code class="docutils literal notranslate"><span class="pre">Vertex.neighbors()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="PGraph.html#PGraph.Vertex.neighbours"><code class="docutils literal notranslate"><span class="pre">Vertex.neighbours()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="PGraph.html#PGraph.Vertex.x"><code class="docutils literal notranslate"><span class="pre">Vertex.x</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="PGraph.html#PGraph.Vertex.y"><code class="docutils literal notranslate"><span class="pre">Vertex.y</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="PGraph.html#PGraph.Vertex.z"><code class="docutils literal notranslate"><span class="pre">Vertex.z</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020, Peter Corke.
+      <span class="lastupdated">Last updated on 08-Jan-2025.
+      </span></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+    <!-- Theme Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-11Q6WJM565"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-11Q6WJM565', {
+          'anonymize_ip': false,
+      });
+    </script> 
+
+</body>
+</html>
