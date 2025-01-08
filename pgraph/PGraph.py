@@ -674,15 +674,19 @@ class PGraph(ABC):
         :param filename: filename to save graph to, defaults to None
         :type filename: str, optional
 
-        ``g.dotfile()`` creates the specified file which contains the
-        `GraphViz <https://graphviz.org>`_ code to represent the embedded graph.  By default output
-        is to the console.
+        ``g.dotfile()`` creates the specified file which contains the `GraphViz
+        <https://graphviz.org>`_ code to represent the embedded graph.  By default
+        output is to the console.
 
         .. note::
 
             - The graph is undirected if it is a subclass of ``UGraph``
             - The graph is directed if it is a subclass of ``DGraph``
-            - Use ``neato`` rather than dot to get the embedded layout
+
+        The ``graphviz`` formatters ``dot`` and ``neato`` can be used to render the
+        graph in various formats including PDF, PNG, JPG, GIF, SVG, etc.  The formmatters are
+        similar, but ``dot`` is better suited for directed graphs while ``neato`` is better
+        suited for undirected graphs.
 
         .. note:: If ``filename`` is a file object then the file will *not*
             be closed after the GraphViz model is written.
