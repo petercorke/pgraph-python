@@ -1,6 +1,7 @@
 # PGraph: graphs for Python
 
 [![A Python Robotics Package](https://raw.githubusercontent.com/petercorke/robotics-toolbox-python/master/.github/svg/py_collection.min.svg)](https://github.com/petercorke/robotics-toolbox-python)
+[![Powered by Spatial Maths](https://raw.githubusercontent.com/petercorke/spatialmath-python/master/.github/svg/sm_powered.min.svg)](https://github.com/petercorke/spatialmath-python)
 [![QUT Centre for Robotics Open Source](https://github.com/qcr/qcr.github.io/raw/master/misc/badge.svg)](https://qcr.github.io)
 
 [![PyPI version fury.io](https://badge.fury.io/py/pgraph-python.svg)](https://pypi.python.org/pypi/pgraph-python/)
@@ -11,10 +12,11 @@
 [![Coverage](https://codecov.io/gh/petercorke/pgraph-python/branch/master/graph/badge.svg)](https://codecov.io/gh/petercorke/pgraph-python)
 ![pypi downloads](https://img.shields.io/pypi/dw/pgraph-python)
 
-- GitHub repository: [https://github.com/petercorke/pgraph-python](https://github.com/petercorke/pgraph-python)
-- Wiki (examples and details) [https://github.com/petercorke/pgraph-python/wiki](https://github.com/petercorke/pgraph-python/wiki)
-- Documentation: [https://petercorke.github.io/pgraph-python](https://petercorke.github.io/pgraph-python)
-- Dependencies: `numpy`
+- [GitHub repository](https://github.com/petercorke/pgraph-python)
+- [Wiki (examples and details)](https://github.com/petercorke/pgraph-python/wiki)
+- [Documentation](https://petercorke.github.io/pgraph-python)
+- [Changelog](https://github.com/petercorke/pgraph-python/blob/master/CHANGELOG.md)
+- Dependencies: [`numpy`](https://numpy.org) [`spatialmath`](https://github.com/bdaiinstitute/spatialmath-python)
 
 
 This Python package allows the manipulation of directed and non-directed graphs.  Also supports embedded graphs.  It is suitable for graphs with thousands of nodes.
