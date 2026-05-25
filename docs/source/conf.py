@@ -13,13 +13,14 @@
 
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../../pgraph'))
+
+sys.path.insert(0, os.path.abspath("../../src"))
 
 # -- Project information -----------------------------------------------------
 
-project = 'Simple graph functionality for Python'
-copyright = '2020, Peter Corke'
-author = 'Peter Corke'
+project = "Simple graph functionality for Python"
+copyright = "2020, Peter Corke"
+author = "Peter Corke"
 
 
 # -- General configuration ---------------------------------------------------
@@ -28,29 +29,28 @@ author = 'Peter Corke'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
- 'sphinx.ext.autodoc',
- 'sphinx.ext.todo',
- 'sphinx.ext.viewcode',
- 'sphinx.ext.mathjax',
- 'sphinx.ext.coverage',
- 'sphinx.ext.inheritance_diagram',
+    "sphinx.ext.autodoc",
+    "sphinx.ext.todo",
+    "sphinx.ext.viewcode",
+    "sphinx.ext.mathjax",
+    "sphinx.ext.coverage",
+    "sphinx.ext.inheritance_diagram",
 ]
 
 html_theme_options = {
-    'logo_only': False,
-    'display_version': True,
-    'prev_next_buttons_location': 'both',
-    'analytics_id': 'G-11Q6WJM565',
-
-    }
+    "logo_only": False,
+    "display_version": True,
+    "prev_next_buttons_location": "both",
+    "analytics_id": "G-11Q6WJM565",
+}
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = ["_templates"]
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ['test_*']
+exclude_patterns = ["test_*"]
 
 
 # -- Options for HTML output -------------------------------------------------
@@ -58,12 +58,12 @@ exclude_patterns = ['test_*']
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'sphinx_rtd_theme'
+html_theme = "sphinx_rtd_theme"
 html_show_sourcelink = True
-html_last_updated_fmt = '%d-%b-%Y'
+html_last_updated_fmt = "%d-%b-%Y"
 show_authors = True
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+html_static_path = ["_static"]

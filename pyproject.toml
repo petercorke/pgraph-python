@@ -36,11 +36,11 @@ dependencies = ["spatialmath-python", "numpy>=1.18.0", "scipy", "matplotlib"]
 [project.urls]
 
 "Homepage" = "https://github.com/petercorke/pgraph-python"
-"Bug Tracker" = "https://github.com/pypa/sampleproject/issues"
+"Bug Tracker" = "https://github.com/petercorke/pgraph-python/issues"
 "Documentation" = "https://petercorke.github.io/pgraph-python"
 "GitHub Source" = "https://github.com/petercorke/pgraph-python"
-"Changelog" = "https://github.com/petercorke/pgraph-python/blob/master/CHANGELOG.md"
-"Coverage" = "https://codecov.io/gh/petercorke/spatialmath-python"
+"Changelog" = "https://github.com/petercorke/pgraph-python/blob/main/CHANGELOG.md"
+"Coverage" = "https://codecov.io/gh/petercorke/pgraph-python"
 
 [project.optional-dependencies]
 
@@ -55,15 +55,15 @@ docs = [
 ]
 
 [tool.pytest.ini_options]
-pythonpath = [".", "pgraph"]
+pythonpath = ["src"]
 
 
 [build-system]
-requires = ["setuptools", "oldest-supported-numpy"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
-[tool.setuptools]
-packages = ["pgraph"]
+[tool.hatch.build.targets.wheel]
+packages = ["src/pgraph"]
 
 [tool.black]
 line-length = 88

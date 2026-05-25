@@ -1,27 +1,27 @@
 # PGraph: graphs for Python
 
-[![A Python Robotics Package](https://raw.githubusercontent.com/petercorke/robotics-toolbox-python/master/.github/svg/py_collection.min.svg)](https://github.com/petercorke/robotics-toolbox-python)
-[![Powered by Spatial Maths](https://raw.githubusercontent.com/petercorke/spatialmath-python/master/.github/svg/sm_powered.min.svg)](https://github.com/petercorke/spatialmath-python)
-[![QUT Centre for Robotics Open Source](https://github.com/qcr/qcr.github.io/raw/master/misc/badge.svg)](https://qcr.github.io)
+[![A Python Robotics Package](https://raw.githubusercontent.com/petercorke/robotics-toolbox-python/main/.github/svg/py_collection.min.svg)](https://github.com/petercorke/robotics-toolbox-python)
+[![Powered by Spatial Maths](https://raw.githubusercontent.com/petercorke/spatialmath-python/main/.github/svg/sm_powered.min.svg)](https://github.com/petercorke/spatialmath-python)
+[![QUT Centre for Robotics Open Source](https://github.com/qcr/qcr.github.io/raw/main/misc/badge.svg)](https://qcr.github.io)
 
 [![PyPI version fury.io](https://badge.fury.io/py/pgraph-python.svg)](https://pypi.python.org/pypi/pgraph-python/)
 [![PyPI pyversions](https://img.shields.io/pypi/pyversions/pgraph-python)](https://pypi.python.org/pypi/pgraph-python/)
-[![GitHub license](https://img.shields.io/github/license/Naereen/StrapDown.js.svg)](https://github.com/petercorke/pgraph-python/blob/master/LICENSE)
+[![GitHub license](https://img.shields.io/github/license/Naereen/StrapDown.js.svg)](https://github.com/petercorke/pgraph-python/blob/main/LICENSE)
 
-[![Build Status](https://github.com/petercorke/pgraph-python/actions/workflows/master.yml/badge.svg)](https://github.com/petercorke/pgraph-python/actions?query=workflow%3Abuild)
-[![Coverage](https://codecov.io/gh/petercorke/pgraph-python/branch/master/graph/badge.svg)](https://codecov.io/gh/petercorke/pgraph-python)
+[![Build Status](https://github.com/petercorke/pgraph-python/actions/workflows/ci.yml/badge.svg)](https://github.com/petercorke/pgraph-python/actions?query=workflow%3ACI)
+[![Coverage](https://codecov.io/gh/petercorke/pgraph-python/branch/main/graph/badge.svg)](https://codecov.io/gh/petercorke/pgraph-python)
 ![pypi downloads](https://img.shields.io/pypi/dw/pgraph-python)
 
 - [GitHub repository](https://github.com/petercorke/pgraph-python)
 - [Wiki (examples and details)](https://github.com/petercorke/pgraph-python/wiki)
 - [Documentation](https://petercorke.github.io/pgraph-python)
-- [Changelog](https://github.com/petercorke/pgraph-python/blob/master/CHANGELOG.md)
+- [Changelog](https://github.com/petercorke/pgraph-python/blob/main/CHANGELOG.md)
 - Dependencies: [`numpy`](https://numpy.org) [`spatialmath`](https://github.com/bdaiinstitute/spatialmath-python)
 
 
 This Python package allows the manipulation of directed and non-directed graphs.  Also supports embedded graphs.  It is suitable for graphs with thousands of nodes.
 
-![road network](https://github.com/petercorke/pgraph-python/raw/master/examples/roads.png)
+![road network](https://github.com/petercorke/pgraph-python/raw/main/examples/roads.png)
 
 ```
 from pgraph import *
@@ -123,11 +123,11 @@ for f in f1.neighbours():
 
 The key objects and their interactions are shown below.
 
-![data structures](https://github.com/petercorke/pgraph-python/raw/master/docs/source/datastructures.png)
+![data structures](https://github.com/petercorke/pgraph-python/raw/main/docs/source/datastructures.png)
 
 ## MATLAB version
 
-This is a re-engineered version of [PGraph.m](https://github.com/petercorke/spatialmath-matlab/blob/master/PGraph.m) which ships as part of the [Spatial Math Toolbox for MATLAB](https://github.com/petercorke/spatialmath-matlab).  This class is used to support bundle adjustment, pose-graph SLAM and various planners such as PRM, RRT and Lattice.
+This is a re-engineered version of [PGraph.m](https://github.com/petercorke/spatialmath-matlab/blob/main/PGraph.m) which ships as part of the [Spatial Math Toolbox for MATLAB](https://github.com/petercorke/spatialmath-matlab).  This class is used to support bundle adjustment, pose-graph SLAM and various planners such as PRM, RRT and Lattice.
 
 The Python version was designed from the start to work with directed and undirected graphs, whereas directed graphs were a late addition to the MATLAB version.  Semantics are similar but not identical.  In particular the use of subclassing rather than references to
 _user data_ is encouraged.
