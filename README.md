@@ -1,8 +1,8 @@
 # PGraph: graphs for Python
 
 [![A Python Robotics Package](https://raw.githubusercontent.com/petercorke/robotics-toolbox-python/main/.github/svg/py_collection.min.svg)](https://github.com/petercorke/robotics-toolbox-python)
-[![Powered by Spatial Maths](https://raw.githubusercontent.com/petercorke/spatialmath-python/main/.github/svg/sm_powered.min.svg)](https://github.com/petercorke/spatialmath-python)
-[![QUT Centre for Robotics Open Source](https://github.com/qcr/qcr.github.io/raw/main/misc/badge.svg)](https://qcr.github.io)
+[![Powered by Spatial Maths](https://raw.githubusercontent.com/petercorke/spatialmath-python/master/.github/svg/sm_powered.min.svg)](https://github.com/petercorke/spatialmath-python)
+[![QUT Centre for Robotics Open Source](https://github.com/qcr/qcr.github.io/raw/master/misc/badge.svg)](https://qcr.github.io)
 
 [![PyPI version fury.io](https://badge.fury.io/py/pgraph-python.svg)](https://pypi.python.org/pypi/pgraph-python/)
 [![PyPI pyversions](https://img.shields.io/pypi/pyversions/pgraph-python)](https://pypi.python.org/pypi/pgraph-python/)
