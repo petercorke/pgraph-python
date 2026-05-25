@@ -607,7 +607,8 @@ class PGraph(ABC):
         #     # add a colorbar
         #     plt.colorbar()
         ax.grid(grid)
-        plt.show(block=block)
+        if block is not None:
+            plt.show(block=block)
 
     def highlight_path(self, path, block=False, **kwargs):
         """
@@ -628,7 +629,8 @@ class PGraph(ABC):
                 e = path[i].edgeto(path[i + 1])
                 self.highlight_edge(e, **kwargs)
             self.highlight_vertex(path[i], **kwargs)
-        plt.show(block=block)
+        if block is not None:
+            plt.show(block=block)
 
     def highlight_edge(self, edge, scale=2, color="r", alpha=0.5):
         """
@@ -1443,7 +1445,10 @@ class DGraph(PGraph):
             for v in self:
                 v.label = final[v.label]
 
-        self._ncomponents = len(unique)
+            return len(unique)
+        else:
+            # no coloring performed
+            return None
 
 
 # ========================================================================== #
