@@ -307,7 +307,10 @@ class PGraph(ABC):
             coloring algorithm is run which is potentially expensive for
             a large graph.
         """
-        self._graphcolor()
+        n = self._graphcolor()
+        if n is not None:
+            self._ncomponents = n
+
         return self._ncomponents
 
     def _metricfunc(self, metric):
