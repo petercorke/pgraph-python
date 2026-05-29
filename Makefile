@@ -34,8 +34,16 @@ dist: .FORCE
 	#$(MAKE) test
 	python -m build
 
-upload: .FORCE
+pypi: .FORCE
+	validate-pyproject pyproject.toml
+	@if ! git diff --quiet || ! git diff --cached --quiet; then \
+		echo "Error: uncommitted changes present, aborting upload"; exit 1; \
+	fi
+	$(eval VERSION := $(shell grep '^version' pyproject.toml | sed 's/version = "\(.*\)"/\1/'))
+	python -m build
 	twine upload dist/*
+	git tag v$(VERSION)
+	git push origin v$(VERSION)
 
 clean: .FORCE
 	(cd docs; make clean)
