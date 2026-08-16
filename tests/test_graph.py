@@ -151,6 +151,18 @@ class TestUGraph(unittest.TestCase):
         self.assertFalse(v1.isneighbour(v3))
         self.assertFalse(v3.isneighbour(v1))
 
+    def test_adjacent_deprecated(self):
+        # adjacent() must still work (same result as neighbours()) but
+        # emit a DeprecationWarning, not a hard failure
+        g = UGraph()
+        v1 = g.add_vertex(name='v1')
+        v2 = g.add_vertex(name='v2')
+        v1.connect(v2)
+
+        with self.assertWarns(DeprecationWarning):
+            n = v1.adjacent()
+        self.assertEqual(n, v1.neighbours())
+
     def test_getitem(self):
         g = UGraph()
         v1 = g.add_vertex(name='v1')
@@ -281,6 +293,20 @@ class TestUGraph(unittest.TestCase):
         self.assertTrue(v2 in v1.neighbours())
         self.assertTrue(v3 in v1.neighbours())
         self.assertFalse(v4 in v1.neighbours())
+
+    def test_edge_vertices_deprecated(self):
+        # vertices() must still work (same result as endpoints) but emit
+        # a DeprecationWarning, not raise DeprecationWarning as a hard
+        # failure (raising it aborts the call exactly like a missing
+        # method would -- no backward compatibility at all)
+        g = UGraph()
+        v1 = g.add_vertex(name='v1')
+        v2 = g.add_vertex(name='v2')
+        e = v1.connect(v2)
+
+        with self.assertWarns(DeprecationWarning):
+            verts = e.vertices()
+        self.assertEqual(verts, e.endpoints)
 
     def test_edge3(self):
 
