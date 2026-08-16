@@ -1,5 +1,6 @@
 from abc import ABC
 import sys
+import warnings
 import numpy as np
 import matplotlib.pyplot as plt
 import copy
@@ -1582,7 +1583,20 @@ class Edge:
             raise ValueError("shouldnt happen")
 
     def vertices(self):
-        raise DeprecationWarning("use endpoints instead")
+        """
+        Vertices of an edge (deprecated)
+
+        :return: the two vertices of this edge
+        :rtype: list of Vertex subclass
+
+        .. deprecated:: use :attr:`endpoints` instead
+        """
+        warnings.warn(
+            "vertices() is deprecated, use endpoints instead",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.endpoints
 
     @property
     def endpoints(self):
@@ -1672,6 +1686,22 @@ class Vertex:
         .. note:: For a directed graph the neighbours are those on edges leaving this vertex
         """
         return [e.next(self) for e in self._edgelist]
+
+    def adjacent(self):
+        """
+        Neighbours of a vertex (deprecated)
+
+        :return: a list of neighbours of this vertex
+        :rtype: list of Vertex subclass
+
+        .. deprecated:: use :meth:`neighbours` instead
+        """
+        warnings.warn(
+            "adjacent() is deprecated, use neighbours() instead",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.neighbours()
 
     def isneighbour(self, vertex):
         """
