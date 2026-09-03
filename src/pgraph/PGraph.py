@@ -108,6 +108,13 @@ class _BaseGraph(ABC):
         By default parent vertices are linked their children. If ``reverse`` is
         True then children are linked to their parents.
 
+        .. runblock:: pycon
+
+            >>> from pgraph import UGraph
+            >>> d = {'b': 'a', 'c': 'a', 'd': 'b'}
+            >>> g = UGraph.Dict(d)
+            >>> print(g)
+
         :seealso: :meth:`Adjacency`
         """
 
@@ -165,6 +172,14 @@ class _BaseGraph(ABC):
         .. warning:: For undirected graph ``A`` should be symmetric but this
             is not checked.  Only the upper triangular part is used.
 
+        .. runblock:: pycon
+
+            >>> from pgraph import UGraph
+            >>> import numpy as np
+            >>> A = np.array([[0, 1, 0], [1, 0, 1], [0, 1, 0]])
+            >>> g = UGraph.Adjacency(A)
+            >>> print(g)
+
         :seealso: :meth:`Dict` :meth:`adjacency`
         """
 
@@ -209,6 +224,15 @@ class _BaseGraph(ABC):
 
         :return: deep copy
         :rtype: _BaseGraph
+
+        .. runblock:: pycon
+
+            >>> from pgraph import UGraph
+            >>> g = UGraph()
+            >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+            >>> g2 = g.copy()
+            >>> g2 is g
+            >>> g2[0] is g[0]
         """
         return copy.deepcopy(self)
 
@@ -242,6 +266,15 @@ class _BaseGraph(ABC):
         :class:`DGraph`, is parameterized by each subclass's
         :attr:`_vertex_cls` rather than duplicated per subclass -- see
         :doc:`policy` for why that matters.
+
+        .. runblock:: pycon
+
+            >>> from pgraph import UGraph, UVertex
+            >>> g = UGraph()
+            >>> v1 = g.add_vertex(coord=[0,0])
+            >>> print(v1.name)
+            >>> v2 = g.add_vertex(UVertex(coord=[1,1], name='v2'))
+            >>> print(v2.name)
 
         :seealso: :meth:`vertex_copy`
         """
@@ -281,6 +314,14 @@ class _BaseGraph(ABC):
         A vertex can only belong to a single graph, so this method is used to
         create a new vertex with the same name and coordinates for inclusion
         in a new graph -- of ``cls``'s own vertex kind, per :attr:`_vertex_cls`.
+
+        .. runblock:: pycon
+
+            >>> from pgraph import UGraph, DGraph
+            >>> g = UGraph()
+            >>> v = g.add_vertex(coord=[1,2], name='v1')
+            >>> newv = DGraph.vertex_copy(v)
+            >>> print(newv)
 
         :seealso: :meth:`BaseVertex.copy`
         """
@@ -359,6 +400,18 @@ class _BaseGraph(ABC):
         This is a graph centric way of creating an edge.  The
         alternative is the ``connect`` method of a vertex.
 
+        .. runblock:: pycon
+
+            >>> from pgraph import UGraph
+            >>> g = UGraph()
+            >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+            >>> v2 = g.add_vertex(coord=[1,1], name='v2')
+            >>> v3 = g.add_vertex(coord=[2,2], name='v3')
+            >>> e = g.add_edge(v1, v2)
+            >>> print(e)
+            >>> e2 = g.add_edge('v2', 'v3', cost=99)
+            >>> print(e2)
+
         :seealso: :meth:`Edge.connect` :meth:`BaseVertex.connect`
         """
         v1 = self._resolve_vertex(v1, "v1")
@@ -387,6 +440,16 @@ class _BaseGraph(ABC):
             -- removing a directed edge from an undirected-only
             implementation would otherwise raise ``ValueError`` on the
             target side.
+
+        .. runblock:: pycon
+
+            >>> from pgraph import UGraph
+            >>> g = UGraph()
+            >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+            >>> v2 = g.add_vertex(coord=[1,1], name='v2')
+            >>> e = g.add_edge(v1, v2)
+            >>> g.remove_edge(e)
+            >>> print(g)
 
         :seealso: :meth:`remove_vertex` :meth:`Edge.remove`
         """
@@ -425,6 +488,16 @@ class _BaseGraph(ABC):
             for a ``DGraph`` vertex that only ever reports outgoing edges
             (see :attr:`BaseVertex.edges`), so incoming edges would
             otherwise be missed and left dangling.
+
+        .. runblock:: pycon
+
+            >>> from pgraph import UGraph
+            >>> g = UGraph()
+            >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+            >>> v2 = g.add_vertex(coord=[1,1], name='v2')
+            >>> g.add_edge(v1, v2)
+            >>> g.remove_vertex(v2)
+            >>> print(g)
 
         :seealso: :meth:`remove_edge` :meth:`BaseVertex.remove`
         """
@@ -469,6 +542,15 @@ class _BaseGraph(ABC):
         """
         Print a summary of all vertices and edges to stdout
 
+        .. runblock:: pycon
+
+            >>> from pgraph import UGraph
+            >>> g = UGraph()
+            >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+            >>> v2 = g.add_vertex(coord=[1,1], name='v2')
+            >>> g.add_edge(v1, v2)
+            >>> g.show()
+
         :seealso: :meth:`__str__`
         """
         print("vertices:")
@@ -485,6 +567,14 @@ class _BaseGraph(ABC):
 
         :return: Number of vertices
         :rtype: int
+
+        .. runblock:: pycon
+
+            >>> from pgraph import UGraph
+            >>> g = UGraph()
+            >>> g.add_vertex(name='v1')
+            >>> g.add_vertex(name='v2')
+            >>> print(g.n)
         """
         return len(self._vertexdict)
 
@@ -495,6 +585,15 @@ class _BaseGraph(ABC):
 
         :return: Number of vertices
         :rtype: int
+
+        .. runblock:: pycon
+
+            >>> from pgraph import UGraph
+            >>> g = UGraph()
+            >>> v1 = g.add_vertex(name='v1')
+            >>> v2 = g.add_vertex(name='v2')
+            >>> g.add_edge(v1, v2)
+            >>> print(g.ne)
         """
         return len(self._edgelist)
 
@@ -526,6 +625,16 @@ class _BaseGraph(ABC):
             operation has been performed since the last call, the graph
             coloring algorithm is run which is potentially expensive for
             a large graph.
+
+        .. runblock:: pycon
+
+            >>> from pgraph import UGraph
+            >>> g = UGraph()
+            >>> v1 = g.add_vertex(name='v1')
+            >>> v2 = g.add_vertex(name='v2')
+            >>> v3 = g.add_vertex(name='v3')
+            >>> g.add_edge(v1, v2)
+            >>> print(g.nc)
         """
         n = self._graphcolor()
         if n is not None:
@@ -621,6 +730,14 @@ class _BaseGraph(ABC):
             exactly 3 elements; raises :exc:`ValueError` otherwise.
 
         The metric is used by :meth:`closest` and :meth:`distance`
+
+        .. runblock:: pycon
+
+            >>> from pgraph import UGraph
+            >>> import numpy as np
+            >>> g = UGraph()
+            >>> g.metric = 'L1'
+            >>> print(g.metric(np.r_[3, -4]))
         """
         self._metric = self._metricfunc(metric)
 
@@ -659,6 +776,14 @@ class _BaseGraph(ABC):
             exactly 3 elements; raises :exc:`ValueError` otherwise.
 
         The heuristic distance is only used by the A* planner :meth:`path_Astar`.
+
+        .. runblock:: pycon
+
+            >>> from pgraph import UGraph
+            >>> import numpy as np
+            >>> g = UGraph()
+            >>> g.heuristic = 'L2'
+            >>> print(g.heuristic(np.r_[3, 4]))
         """
         self._heuristic = self._metricfunc(heuristic)
 
@@ -775,6 +900,15 @@ class _BaseGraph(ABC):
         according to the graph's metric. Vertices without a coordinate
         (``coord`` is None) are skipped -- they have no position to compare.
 
+        .. runblock:: pycon
+
+            >>> from pgraph import UGraph
+            >>> g = UGraph()
+            >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+            >>> v2 = g.add_vertex(coord=[10,10], name='v2')
+            >>> vertex, d = g.closest([1, 1])
+            >>> print(vertex, d)
+
         :seealso: :meth:`metric`
         """
         min_dist = np.inf
@@ -805,6 +939,15 @@ class _BaseGraph(ABC):
         .. note:: Unlike :meth:`BaseVertex.edges`, which returns a ``list`` in
             connection order, this returns a ``set`` with no defined
             iteration order.
+
+        .. runblock:: pycon
+
+            >>> from pgraph import UGraph
+            >>> g = UGraph()
+            >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+            >>> v2 = g.add_vertex(coord=[1,1], name='v2')
+            >>> g.add_edge(v1, v2)
+            >>> print(g.edges())
 
         :seealso: :meth:`BaseVertex.edges`
         """
@@ -843,6 +986,24 @@ class _BaseGraph(ABC):
         If ``text`` is a dict it is used to format text labels for the vertices
         which are the vertex names.  If ``text`` is None default formatting is
         used.  If ``text`` is False no labels are added.
+
+        .. runblock:: pycon
+
+            >>> from pgraph import UGraph
+            >>> g = UGraph()
+            >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+            >>> v2 = g.add_vertex(coord=[1,1], name='v2')
+            >>> g.add_edge(v1, v2)
+            >>> g.plot(block=None)
+
+        .. plot::
+
+            from pgraph import UGraph
+            g = UGraph()
+            v1 = g.add_vertex(coord=[0,0], name='v1')
+            v2 = g.add_vertex(coord=[1,1], name='v2')
+            g.add_edge(v1, v2)
+            g.plot(block=None)
 
         :seealso: :meth:`highlight_path`
         """
@@ -928,6 +1089,30 @@ class _BaseGraph(ABC):
         The vertices and edges along the path are overwritten with a different
         size/width and color.
 
+        .. runblock:: pycon
+
+            >>> from pgraph import UGraph
+            >>> g = UGraph()
+            >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+            >>> v2 = g.add_vertex(coord=[1,1], name='v2')
+            >>> v3 = g.add_vertex(coord=[2,2], name='v3')
+            >>> g.add_edge(v1, v2)
+            >>> g.add_edge(v2, v3)
+            >>> g.plot(block=None)
+            >>> g.highlight_path([v1, v2, v3], block=None)
+
+        .. plot::
+
+            from pgraph import UGraph
+            g = UGraph()
+            v1 = g.add_vertex(coord=[0,0], name='v1')
+            v2 = g.add_vertex(coord=[1,1], name='v2')
+            v3 = g.add_vertex(coord=[2,2], name='v3')
+            g.add_edge(v1, v2)
+            g.add_edge(v2, v3)
+            g.plot(block=None)
+            g.highlight_path([v1, v2, v3], block=None)
+
         :seealso: :meth:`highlight_vertex` :meth:`highlight_edge`
         """
         for i in range(len(path)):
@@ -951,6 +1136,33 @@ class _BaseGraph(ABC):
         :type scale: float, optional
         :param color: Overwrite with a line in this color, defaults to 'r'
         :type color: str, optional
+        :param alpha: Transparency of the highlight, defaults to 0.5
+        :type alpha: float, optional
+        :rtype: None
+
+        .. runblock:: pycon
+
+            >>> from pgraph import UGraph
+            >>> g = UGraph()
+            >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+            >>> v2 = g.add_vertex(coord=[1,1], name='v2')
+            >>> e = g.add_edge(v1, v2)
+            >>> g.plot(block=None)
+            >>> g.highlight_edge(e)
+
+        The plot produced looks like:
+
+        .. plot::
+
+            from pgraph import UGraph
+            g = UGraph()
+            v1 = g.add_vertex(coord=[0,0], name='v1')
+            v2 = g.add_vertex(coord=[1,1], name='v2')
+            e = g.add_edge(v1, v2)
+            g.plot(block=None)
+            g.highlight_edge(e)
+
+        :seealso: :meth:`highlight_vertex` :meth:`highlight_path`
         """
         p1 = edge.v1
         p2 = edge.v2
@@ -968,13 +1180,37 @@ class _BaseGraph(ABC):
         """
         Highlight a vertex in the graph
 
-        :param edge: The vertex to highlight
-        :type edge: BaseVertex subclass
+        :param vertex: The vertex (or vertices, or vertex names) to highlight
+        :type vertex: BaseVertex subclass, or iterable of BaseVertex subclass or str
         :param scale: Overwrite with a line this much bigger than the original,
                       defaults to 1.5
         :type scale: float, optional
         :param color: Overwrite with a line in this color, defaults to 'r'
         :type color: str, optional
+        :param alpha: Transparency of the highlight, defaults to 0.5
+        :type alpha: float, optional
+        :rtype: None
+
+        .. runblock:: pycon
+
+            >>> from pgraph import UGraph
+            >>> g = UGraph()
+            >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+            >>> v2 = g.add_vertex(coord=[1,1], name='v2')
+            >>> g.add_edge(v1, v2)
+            >>> g.plot(block=None)
+            >>> g.highlight_vertex(v1)
+
+        .. plot::
+
+            from pgraph import UGraph
+            g = UGraph()
+            v1 = g.add_vertex(coord=[0,0], name='v1')
+            v2 = g.add_vertex(coord=[1,1], name='v2')
+            g.add_edge(v1, v2)
+            g.plot(block=None)
+            g.highlight_vertex(v1)
+
         """
         if isinstance(vertex, Iterable):
             for n in vertex:
@@ -1009,6 +1245,15 @@ class _BaseGraph(ABC):
 
         .. note:: If ``filename`` is a file object then the file will *not*
             be closed after the GraphViz model is written.
+
+        .. runblock:: pycon
+
+            >>> from pgraph import UGraph
+            >>> g = UGraph()
+            >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+            >>> v2 = g.add_vertex(coord=[1,1], name='v2')
+            >>> g.add_edge(v1, v2)
+            >>> g.dotfile()
 
         :seealso: :func:`showgraph`
         """
@@ -1050,7 +1295,7 @@ class _BaseGraph(ABC):
 
         print("}", file=f)
 
-        if filename is None or isinstance(filename, str):
+        if isinstance(filename, str):
             f.close()  # noqa
 
     def showgraph(self, **kwargs: Any) -> None:
@@ -1108,6 +1353,19 @@ class _BaseGraph(ABC):
             question Kahn's algorithm answers exactly with integers in
             O(V+E). Not used here for that reason.
 
+        .. runblock:: pycon
+
+            >>> from pgraph import UGraph
+            >>> g = UGraph()
+            >>> v1 = g.add_vertex(name='v1')
+            >>> v2 = g.add_vertex(name='v2')
+            >>> v3 = g.add_vertex(name='v3')
+            >>> g.add_edge(v1, v2)
+            >>> g.add_edge(v2, v3)
+            >>> print(g.iscyclic())
+            >>> g.add_edge(v3, v1)
+            >>> print(g.iscyclic())
+
         :seealso: :meth:`adjacency`
         """
         if isinstance(self, UGraph):
@@ -1141,6 +1399,17 @@ class _BaseGraph(ABC):
         Average degree is :math:`2 E / N` for an undirected graph and
         :math:`E / N` for a directed graph where :math:`E` is the total number of
         edges and :math:`N` is the number of vertices.
+
+        .. runblock:: pycon
+
+            >>> from pgraph import UGraph
+            >>> g = UGraph()
+            >>> v1 = g.add_vertex(name='v1')
+            >>> v2 = g.add_vertex(name='v2')
+            >>> v3 = g.add_vertex(name='v3')
+            >>> g.add_edge(v1, v2)
+            >>> g.add_edge(v2, v3)
+            >>> print(g.average_degree())
 
         :seealso: :meth:`degree`
         """
@@ -1425,6 +1694,16 @@ class _BaseGraph(ABC):
 
         ``graph.component(c)`` is a list of all vertices in graph component ``c``.
 
+        .. runblock:: pycon
+
+            >>> from pgraph import UGraph
+            >>> g = UGraph()
+            >>> v1 = g.add_vertex(name='v1')
+            >>> v2 = g.add_vertex(name='v2')
+            >>> v3 = g.add_vertex(name='v3')
+            >>> g.add_edge(v1, v2)
+            >>> print(g.component(0))
+
         :seealso: :meth:`nc` :meth:`samecomponent`
         """
         self._graphcolor()  # ensure labels are uptodate
@@ -1445,6 +1724,17 @@ class _BaseGraph(ABC):
 
         - directed graph this implies a path between them
         - undirected graph there is not necessarily a path between them
+
+        .. runblock:: pycon
+
+            >>> from pgraph import UGraph
+            >>> g = UGraph()
+            >>> v1 = g.add_vertex(name='v1')
+            >>> v2 = g.add_vertex(name='v2')
+            >>> v3 = g.add_vertex(name='v3')
+            >>> g.add_edge(v1, v2)
+            >>> print(g.samecomponent(v1, v2))
+            >>> print(g.samecomponent(v1, v3))
 
         :seealso: :meth:`component`
         """
@@ -1471,6 +1761,19 @@ class _BaseGraph(ABC):
 
         Returns a list of vertices that form a path from vertex ``S`` to
         vertex ``G`` if possible, otherwise return None.
+
+        .. runblock:: pycon
+
+            >>> from pgraph import UGraph
+            >>> g = UGraph()
+            >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+            >>> v2 = g.add_vertex(coord=[1,0], name='v2')
+            >>> v3 = g.add_vertex(coord=[2,0], name='v3')
+            >>> g.add_edge(v1, v2)
+            >>> g.add_edge(v2, v3)
+            >>> path, length = g.path_BFS(v1, v3)
+            >>> print(path)
+            >>> print(length)
 
         :seealso: :meth:`path_UCS` :meth:`path_Astar`
         """
@@ -1557,6 +1860,19 @@ class _BaseGraph(ABC):
 
         The heuristic is the distance metric of the graph, which defaults to
         Euclidean distance.
+
+        .. runblock:: pycon
+
+            >>> from pgraph import UGraph
+            >>> g = UGraph()
+            >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+            >>> v2 = g.add_vertex(coord=[1,0], name='v2')
+            >>> v3 = g.add_vertex(coord=[2,0], name='v3')
+            >>> g.add_edge(v1, v2)
+            >>> g.add_edge(v2, v3)
+            >>> path, length, tree = g.path_UCS(v1, v3)
+            >>> print(path)
+            >>> print(length)
 
         :seealso: :meth:`path_BFS` :meth:`path_Astar`
         """
@@ -1656,6 +1972,19 @@ class _BaseGraph(ABC):
 
         The heuristic is the distance metric of the graph, which defaults to
         Euclidean distance.
+
+        .. runblock:: pycon
+
+            >>> from pgraph import UGraph
+            >>> g = UGraph()
+            >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+            >>> v2 = g.add_vertex(coord=[1,0], name='v2')
+            >>> v3 = g.add_vertex(coord=[2,0], name='v3')
+            >>> g.add_edge(v1, v2)
+            >>> g.add_edge(v2, v3)
+            >>> path, length, tree = g.path_Astar(v1, v3)
+            >>> print(path)
+            >>> print(length)
 
         :seealso: :meth:`heuristic` :meth:`path_BFS` :meth:`path_UCS`
         """
@@ -2140,6 +2469,18 @@ class Edge:
         .. note:: This is a thin convenience wrapper around
             :meth:`_BaseGraph.remove_edge`.
 
+        :rtype: None
+
+        .. runblock:: pycon
+
+            >>> from pgraph import UGraph
+            >>> g = UGraph()
+            >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+            >>> v2 = g.add_vertex(coord=[1,1], name='v2')
+            >>> e = g.add_edge(v1, v2)
+            >>> e.remove()
+            >>> print(g)
+
         :seealso: :meth:`_BaseGraph.remove_edge` :meth:`BaseVertex.remove`
         """
         if self.v1 is None or self.v1._graph is None:
@@ -2243,6 +2584,13 @@ class BaseVertex:
         vertex of the appropriate subclass for that graph type, otherwise a
         vertex of the same class as ``self`` is created directly.
 
+        .. runblock:: pycon
+
+            >>> from pgraph import UVertex, DGraph
+            >>> v = UVertex(coord=[1,2], name='v1')
+            >>> v2 = v.copy(cls=DGraph)
+            >>> print(v2)
+
         :seealso: :meth:`UGraph.vertex_copy` :meth:`DGraph.vertex_copy`
         """
         if cls is not None:
@@ -2258,6 +2606,17 @@ class BaseVertex:
 
         .. note:: For a directed graph the neighbours are those on edges leaving this vertex
 
+        .. runblock:: pycon
+
+            >>> from pgraph import UGraph
+            >>> g = UGraph()
+            >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+            >>> v2 = g.add_vertex(coord=[1,1], name='v2')
+            >>> v3 = g.add_vertex(coord=[2,2], name='v3')
+            >>> g.add_edge(v1, v2)
+            >>> g.add_edge(v1, v3)
+            >>> print(v1.neighbours())
+
         :seealso: :meth:`neighbors` :meth:`incidences`
         """
         return [e.next(self) for e in self._edgelist]
@@ -2269,6 +2628,15 @@ class BaseVertex:
         ``v.neighbors()`` is a list of neighbors of this vertex.
 
         .. note:: For a directed graph the neighbours are those on edges leaving this vertex
+
+        .. runblock:: pycon
+
+            >>> from pgraph import UGraph
+            >>> g = UGraph()
+            >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+            >>> v2 = g.add_vertex(coord=[1,1], name='v2')
+            >>> g.add_edge(v1, v2)
+            >>> print(v1.neighbors())
 
         :seealso: :meth:`neighbours`
         """
@@ -2302,6 +2670,17 @@ class BaseVertex:
         For a directed graph this is true only if the edge is from ``self`` to
         ``vertex``.
 
+        .. runblock:: pycon
+
+            >>> from pgraph import UGraph
+            >>> g = UGraph()
+            >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+            >>> v2 = g.add_vertex(coord=[1,1], name='v2')
+            >>> v3 = g.add_vertex(coord=[2,2], name='v3')
+            >>> g.add_edge(v1, v2)
+            >>> print(v1.isneighbour(v2))
+            >>> print(v1.isneighbour(v3))
+
         :seealso: :meth:`neighbours`
         """
         return vertex in [e.next(self) for e in self._edgelist]
@@ -2314,6 +2693,15 @@ class BaseVertex:
         tuples of (vertex, edge) for all neighbours of the vertex ``v``.
 
         .. note:: For a directed graph the edges are those leaving this vertex
+
+        .. runblock:: pycon
+
+            >>> from pgraph import UGraph
+            >>> g = UGraph()
+            >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+            >>> v2 = g.add_vertex(coord=[1,1], name='v2')
+            >>> g.add_edge(v1, v2)
+            >>> print(v1.incidences())
 
         :seealso: :meth:`neighbours` :meth:`edges`
         """
@@ -2357,6 +2745,15 @@ class BaseVertex:
               :meth:`DGraph.add_vertex`), this also rules out connecting a
               ``UVertex`` to a ``DVertex``.
 
+        .. runblock:: pycon
+
+            >>> from pgraph import UGraph
+            >>> g = UGraph()
+            >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+            >>> v2 = g.add_vertex(coord=[1,1], name='v2')
+            >>> e = v1.connect(v2, cost=1.414)
+            >>> print(e)
+
         :seealso: :meth:`Edge` :meth:`Edge.connect`
         """
 
@@ -2390,6 +2787,15 @@ class BaseVertex:
         .. note::
 
             - For a directed graph ``dest`` must be at the arrow end of the edge
+
+        .. runblock:: pycon
+
+            >>> from pgraph import UGraph
+            >>> g = UGraph()
+            >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+            >>> v2 = g.add_vertex(coord=[1,1], name='v2')
+            >>> g.add_edge(v1, v2, cost=1.414)
+            >>> print(v1.edgeto(v2))
         """
         for n, e in self.incidences():
             if n is dest:
@@ -2408,6 +2814,15 @@ class BaseVertex:
             - For a directed graph the edges are those leaving this vertex
             - For a non-directed graph the edges are those leaving or entering
                 this vertex
+
+        .. runblock:: pycon
+
+            >>> from pgraph import UGraph
+            >>> g = UGraph()
+            >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+            >>> v2 = g.add_vertex(coord=[1,1], name='v2')
+            >>> g.add_edge(v1, v2)
+            >>> print(v1.edges())
         """
         return self._edgelist
 
@@ -2453,6 +2868,14 @@ class BaseVertex:
         must belong to a graph, since the metric is a property of the
         graph, not the vertex.
 
+        .. runblock:: pycon
+
+            >>> from pgraph import UGraph
+            >>> g = UGraph()
+            >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+            >>> v2 = g.add_vertex(coord=[3,4], name='v2')
+            >>> print(v1.distance(v2))
+
         :seealso: :meth:`metric`
         """
         if self._graph is None:
@@ -2474,6 +2897,17 @@ class BaseVertex:
 
         .. note:: For a ``DGraph`` only outgoing edges are considered.
 
+        .. runblock:: pycon
+
+            >>> from pgraph import UGraph
+            >>> g = UGraph()
+            >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+            >>> v2 = g.add_vertex(coord=[1,1], name='v2')
+            >>> v3 = g.add_vertex(coord=[2,2], name='v3')
+            >>> g.add_edge(v1, v2)
+            >>> g.add_edge(v1, v3)
+            >>> print(v1.degree)
+
         :seealso: :meth:`edges`
         """
         return len(self.edges())
@@ -2486,6 +2920,12 @@ class BaseVertex:
         :raises ValueError: the vertex has no coordinate
         :return: The x-coordinate
         :rtype: float
+
+        .. runblock:: pycon
+
+            >>> from pgraph import UVertex
+            >>> v = UVertex(coord=[1,2], name='v1')
+            >>> print(v.x)
         """
         if self.coord is None:
             raise ValueError("vertex has no coordinate")
@@ -2499,6 +2939,12 @@ class BaseVertex:
         :raises ValueError: the vertex has no coordinate
         :return: The y-coordinate
         :rtype: float
+
+        .. runblock:: pycon
+
+            >>> from pgraph import UVertex
+            >>> v = UVertex(coord=[1,2], name='v1')
+            >>> print(v.y)
         """
         if self.coord is None:
             raise ValueError("vertex has no coordinate")
@@ -2512,6 +2958,12 @@ class BaseVertex:
         :raises ValueError: the vertex has no coordinate
         :return: The z-coordinate
         :rtype: float
+
+        .. runblock:: pycon
+
+            >>> from pgraph import UVertex
+            >>> v = UVertex(coord=[1,2,3], name='v1')
+            >>> print(v.z)
         """
         if self.coord is None:
             raise ValueError("vertex has no coordinate")
@@ -2558,6 +3010,18 @@ class BaseVertex:
 
         .. note:: This is a thin convenience wrapper around
             :meth:`_BaseGraph.remove_vertex`.
+
+        :rtype: None
+
+        .. runblock:: pycon
+
+            >>> from pgraph import UGraph
+            >>> g = UGraph()
+            >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+            >>> v2 = g.add_vertex(coord=[1,1], name='v2')
+            >>> g.add_edge(v1, v2)
+            >>> v2.remove()
+            >>> print(g)
 
         :seealso: :meth:`_BaseGraph.remove_vertex` :meth:`Edge.remove`
         """
