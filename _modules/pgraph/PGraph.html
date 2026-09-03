@@ -12,6 +12,7 @@
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="../../_static/sphinx-codeautolink.css?v=b2176991" />
       <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=83abaecb" />
 
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
@@ -108,6 +109,7 @@
         <span class="n">metric</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">NDArray</span><span class="p">],</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">heuristic</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">NDArray</span><span class="p">],</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">dim</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Abstract base class for graphs</span>
@@ -119,17 +121,25 @@
 <span class="sd">        :type heuristic: callable or str, optional</span>
 <span class="sd">        :param verbose: print diagnostic information as vertices/edges are</span>
 <span class="sd">            added, defaults to False</span>
+<span class="sd">        :param dim: required length of every vertex's ``coord``, defaults to</span>
+<span class="sd">            None (unconstrained -- vertices may have coordinates of any</span>
+<span class="sd">            length, or none at all)</span>
+<span class="sd">        :type dim: int, optional</span>
+<span class="sd">        :raises ValueError: ``dim`` is given but is not a positive integer</span>
 
 <span class="sd">        This is the common base class of :class:`UGraph` and :class:`DGraph`</span>
 <span class="sd">        and should not be instantiated directly.</span>
 
-<span class="sd">        :seealso: :class:`UGraph` :class:`DGraph`</span>
+<span class="sd">        :seealso: :class:`UGraph` :class:`DGraph` :meth:`add_vertex`</span>
 <span class="sd">        """</span>
+        <span class="k">if</span> <span class="n">dim</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">dim</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"dim must be a positive integer, got </span><span class="si">{</span><span class="n">dim</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span>
         <span class="c1"># we use a list and a dict, the list respects the order of adding</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_vertexlist</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">BaseVertex</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_vertexdict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">BaseVertex</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_edgelist</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">Edge</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span> <span class="o">=</span> <span class="n">verbose</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dim</span> <span class="o">=</span> <span class="n">dim</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_ncomponents</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_connectivitychange</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">if</span> <span class="n">metric</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -329,6 +339,8 @@
 <span class="sd">        :param name: name of vertex, defaults to "#i"</span>
 <span class="sd">        :type name: str, optional</span>
 <span class="sd">        :raises TypeError: ``coord`` is a ``BaseVertex`` of the wrong kind</span>
+<span class="sd">        :raises ValueError: the graph was constructed with ``dim``, and</span>
+<span class="sd">            ``coord`` is given but its length doesn't match</span>
 <span class="sd">        :return: the added vertex</span>
 <span class="sd">        :rtype: BaseVertex subclass</span>
 
@@ -356,6 +368,18 @@
 <span class="sd">            &gt;&gt;&gt; v2 = g.add_vertex(UVertex(coord=[1,1], name='v2'))</span>
 <span class="sd">            &gt;&gt;&gt; print(v2.name)</span>
 
+<span class="sd">        If the graph was constructed with a required ``dim`` (see</span>
+<span class="sd">        :meth:`_BaseGraph.__init__`), every embedded vertex must have a</span>
+<span class="sd">        coordinate of exactly that length -- adding one of the wrong length</span>
+<span class="sd">        raises ``ValueError``:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from pgraph import UGraph</span>
+<span class="sd">            &gt;&gt;&gt; g = UGraph(dim=6)</span>
+<span class="sd">            &gt;&gt;&gt; v1 = g.add_vertex(coord=[0, 0, 0, 0, 0, 0], name='pose1')</span>
+<span class="sd">            &gt;&gt;&gt; print(v1)</span>
+
 <span class="sd">        :seealso: :meth:`vertex_copy`</span>
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">coord</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vertex_cls</span><span class="p">):</span>
@@ -367,6 +391,16 @@
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">vertex</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vertex_cls</span><span class="p">(</span><span class="n">coord</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_dim</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="ow">and</span> <span class="n">vertex</span><span class="o">.</span><span class="n">coord</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">vertex</span><span class="o">.</span><span class="n">coord</span><span class="p">)</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dim</span>
+        <span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"vertex coord has length </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">vertex</span><span class="o">.</span><span class="n">coord</span><span class="p">)</span><span class="si">}</span><span class="s2">, "</span>
+                <span class="sa">f</span><span class="s2">"but this graph requires dim=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_dim</span><span class="si">}</span><span class="s2">"</span>
+            <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">name</span> <span class="o">=</span> <span class="n">vertex</span><span class="o">.</span><span class="n">name</span>
@@ -3333,9 +3367,10 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2020, Peter Corke.
-      <span class="lastupdated">Last updated on 03-Sep-2026.
-      </span></p>
+  <p>Copyright &#169; 2020-present, Peter Corke: built 2026-09-03.
+  </p>
+  <a href="https://github.com/petercorke/pgraph-python" class="footer-github-link">GitHub</a>
+
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
