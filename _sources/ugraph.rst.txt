@@ -2,7 +2,7 @@ Undirected graph
 ----------------
 
 
-.. autoclass:: PGraph.UGraph
+.. autoclass:: pgraph.PGraph.UGraph
    :undoc-members:
    :show-inheritance:
    :inherited-members:

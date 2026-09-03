@@ -1,7 +1,7 @@
 PGraph module
 =============
 
-.. automodule:: PGraph
+.. automodule:: pgraph.PGraph
    :members:
    :undoc-members:
    :show-inheritance:
