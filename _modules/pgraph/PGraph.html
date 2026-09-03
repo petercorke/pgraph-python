@@ -11,6 +11,8 @@
       <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="../../_static/sphinx-codeautolink.css?v=b2176991" />
+      <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=83abaecb" />
 
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
@@ -187,6 +189,13 @@
 <span class="sd">        By default parent vertices are linked their children. If ``reverse`` is</span>
 <span class="sd">        True then children are linked to their parents.</span>
 
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from pgraph import UGraph</span>
+<span class="sd">            &gt;&gt;&gt; d = {'b': 'a', 'c': 'a', 'd': 'b'}</span>
+<span class="sd">            &gt;&gt;&gt; g = UGraph.Dict(d)</span>
+<span class="sd">            &gt;&gt;&gt; print(g)</span>
+
 <span class="sd">        :seealso: :meth:`Adjacency`</span>
 <span class="sd">        """</span>
 
@@ -244,6 +253,14 @@
 <span class="sd">        .. warning:: For undirected graph ``A`` should be symmetric but this</span>
 <span class="sd">            is not checked.  Only the upper triangular part is used.</span>
 
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from pgraph import UGraph</span>
+<span class="sd">            &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">            &gt;&gt;&gt; A = np.array([[0, 1, 0], [1, 0, 1], [0, 1, 0]])</span>
+<span class="sd">            &gt;&gt;&gt; g = UGraph.Adjacency(A)</span>
+<span class="sd">            &gt;&gt;&gt; print(g)</span>
+
 <span class="sd">        :seealso: :meth:`Dict` :meth:`adjacency`</span>
 <span class="sd">        """</span>
 
@@ -288,6 +305,15 @@
 
 <span class="sd">        :return: deep copy</span>
 <span class="sd">        :rtype: _BaseGraph</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from pgraph import UGraph</span>
+<span class="sd">            &gt;&gt;&gt; g = UGraph()</span>
+<span class="sd">            &gt;&gt;&gt; v1 = g.add_vertex(coord=[0,0], name='v1')</span>
+<span class="sd">            &gt;&gt;&gt; g2 = g.copy()</span>
+<span class="sd">            &gt;&gt;&gt; g2 is g</span>
+<span class="sd">            &gt;&gt;&gt; g2[0] is g[0]</span>
 <span class="sd">        """</span>
         <span class="k">return</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
@@ -321,6 +347,15 @@
 <span class="sd">        :class:`DGraph`, is parameterized by each subclass's</span>
 <span class="sd">        :attr:`_vertex_cls` rather than duplicated per subclass -- see</span>
 <span class="sd">        :doc:`policy` for why that matters.</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from pgraph import UGraph, UVertex</span>
+<span class="sd">            &gt;&gt;&gt; g = UGraph()</span>
+<span class="sd">            &gt;&gt;&gt; v1 = g.add_vertex(coord=[0,0])</span>
+<span class="sd">            &gt;&gt;&gt; print(v1.name)</span>
+<span class="sd">            &gt;&gt;&gt; v2 = g.add_vertex(UVertex(coord=[1,1], name='v2'))</span>
+<span class="sd">            &gt;&gt;&gt; print(v2.name)</span>
 
 <span class="sd">        :seealso: :meth:`vertex_copy`</span>
 <span class="sd">        """</span>
@@ -360,6 +395,14 @@
 <span class="sd">        A vertex can only belong to a single graph, so this method is used to</span>
 <span class="sd">        create a new vertex with the same name and coordinates for inclusion</span>
 <span class="sd">        in a new graph -- of ``cls``'s own vertex kind, per :attr:`_vertex_cls`.</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from pgraph import UGraph, DGraph</span>
+<span class="sd">            &gt;&gt;&gt; g = UGraph()</span>
+<span class="sd">            &gt;&gt;&gt; v = g.add_vertex(coord=[1,2], name='v1')</span>
+<span class="sd">            &gt;&gt;&gt; newv = DGraph.vertex_copy(v)</span>
+<span class="sd">            &gt;&gt;&gt; print(newv)</span>
 
 <span class="sd">        :seealso: :meth:`BaseVertex.copy`</span>
 <span class="sd">        """</span>
@@ -438,6 +481,18 @@
 <span class="sd">        This is a graph centric way of creating an edge.  The</span>
 <span class="sd">        alternative is the ``connect`` method of a vertex.</span>
 
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from pgraph import UGraph</span>
+<span class="sd">            &gt;&gt;&gt; g = UGraph()</span>
+<span class="sd">            &gt;&gt;&gt; v1 = g.add_vertex(coord=[0,0], name='v1')</span>
+<span class="sd">            &gt;&gt;&gt; v2 = g.add_vertex(coord=[1,1], name='v2')</span>
+<span class="sd">            &gt;&gt;&gt; v3 = g.add_vertex(coord=[2,2], name='v3')</span>
+<span class="sd">            &gt;&gt;&gt; e = g.add_edge(v1, v2)</span>
+<span class="sd">            &gt;&gt;&gt; print(e)</span>
+<span class="sd">            &gt;&gt;&gt; e2 = g.add_edge('v2', 'v3', cost=99)</span>
+<span class="sd">            &gt;&gt;&gt; print(e2)</span>
+
 <span class="sd">        :seealso: :meth:`Edge.connect` :meth:`BaseVertex.connect`</span>
 <span class="sd">        """</span>
         <span class="n">v1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_vertex</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="s2">"v1"</span><span class="p">)</span>
@@ -466,6 +521,16 @@
 <span class="sd">            -- removing a directed edge from an undirected-only</span>
 <span class="sd">            implementation would otherwise raise ``ValueError`` on the</span>
 <span class="sd">            target side.</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from pgraph import UGraph</span>
+<span class="sd">            &gt;&gt;&gt; g = UGraph()</span>
+<span class="sd">            &gt;&gt;&gt; v1 = g.add_vertex(coord=[0,0], name='v1')</span>
+<span class="sd">            &gt;&gt;&gt; v2 = g.add_vertex(coord=[1,1], name='v2')</span>
+<span class="sd">            &gt;&gt;&gt; e = g.add_edge(v1, v2)</span>
+<span class="sd">            &gt;&gt;&gt; g.remove_edge(e)</span>
+<span class="sd">            &gt;&gt;&gt; print(g)</span>
 
 <span class="sd">        :seealso: :meth:`remove_vertex` :meth:`Edge.remove`</span>
 <span class="sd">        """</span>
@@ -504,6 +569,16 @@
 <span class="sd">            for a ``DGraph`` vertex that only ever reports outgoing edges</span>
 <span class="sd">            (see :attr:`BaseVertex.edges`), so incoming edges would</span>
 <span class="sd">            otherwise be missed and left dangling.</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from pgraph import UGraph</span>
+<span class="sd">            &gt;&gt;&gt; g = UGraph()</span>
+<span class="sd">            &gt;&gt;&gt; v1 = g.add_vertex(coord=[0,0], name='v1')</span>
+<span class="sd">            &gt;&gt;&gt; v2 = g.add_vertex(coord=[1,1], name='v2')</span>
+<span class="sd">            &gt;&gt;&gt; g.add_edge(v1, v2)</span>
+<span class="sd">            &gt;&gt;&gt; g.remove_vertex(v2)</span>
+<span class="sd">            &gt;&gt;&gt; print(g)</span>
 
 <span class="sd">        :seealso: :meth:`remove_edge` :meth:`BaseVertex.remove`</span>
 <span class="sd">        """</span>
@@ -548,6 +623,15 @@
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Print a summary of all vertices and edges to stdout</span>
 
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from pgraph import UGraph</span>
+<span class="sd">            &gt;&gt;&gt; g = UGraph()</span>
+<span class="sd">            &gt;&gt;&gt; v1 = g.add_vertex(coord=[0,0], name='v1')</span>
+<span class="sd">            &gt;&gt;&gt; v2 = g.add_vertex(coord=[1,1], name='v2')</span>
+<span class="sd">            &gt;&gt;&gt; g.add_edge(v1, v2)</span>
+<span class="sd">            &gt;&gt;&gt; g.show()</span>
+
 <span class="sd">        :seealso: :meth:`__str__`</span>
 <span class="sd">        """</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">"vertices:"</span><span class="p">)</span>
@@ -564,6 +648,14 @@
 
 <span class="sd">        :return: Number of vertices</span>
 <span class="sd">        :rtype: int</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from pgraph import UGraph</span>
+<span class="sd">            &gt;&gt;&gt; g = UGraph()</span>
+<span class="sd">            &gt;&gt;&gt; g.add_vertex(name='v1')</span>
+<span class="sd">            &gt;&gt;&gt; g.add_vertex(name='v2')</span>
+<span class="sd">            &gt;&gt;&gt; print(g.n)</span>
 <span class="sd">        """</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_vertexdict</span><span class="p">)</span>
 
@@ -574,6 +666,15 @@
 
 <span class="sd">        :return: Number of vertices</span>
 <span class="sd">        :rtype: int</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from pgraph import UGraph</span>
+<span class="sd">            &gt;&gt;&gt; g = UGraph()</span>
+<span class="sd">            &gt;&gt;&gt; v1 = g.add_vertex(name='v1')</span>
+<span class="sd">            &gt;&gt;&gt; v2 = g.add_vertex(name='v2')</span>
+<span class="sd">            &gt;&gt;&gt; g.add_edge(v1, v2)</span>
+<span class="sd">            &gt;&gt;&gt; print(g.ne)</span>
 <span class="sd">        """</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_edgelist</span><span class="p">)</span>
 
@@ -605,6 +706,16 @@
 <span class="sd">            operation has been performed since the last call, the graph</span>
 <span class="sd">            coloring algorithm is run which is potentially expensive for</span>
 <span class="sd">            a large graph.</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from pgraph import UGraph</span>
+<span class="sd">            &gt;&gt;&gt; g = UGraph()</span>
+<span class="sd">            &gt;&gt;&gt; v1 = g.add_vertex(name='v1')</span>
+<span class="sd">            &gt;&gt;&gt; v2 = g.add_vertex(name='v2')</span>
+<span class="sd">            &gt;&gt;&gt; v3 = g.add_vertex(name='v3')</span>
+<span class="sd">            &gt;&gt;&gt; g.add_edge(v1, v2)</span>
+<span class="sd">            &gt;&gt;&gt; print(g.nc)</span>
 <span class="sd">        """</span>
         <span class="n">n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_graphcolor</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">n</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -700,6 +811,14 @@
 <span class="sd">            exactly 3 elements; raises :exc:`ValueError` otherwise.</span>
 
 <span class="sd">        The metric is used by :meth:`closest` and :meth:`distance`</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from pgraph import UGraph</span>
+<span class="sd">            &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">            &gt;&gt;&gt; g = UGraph()</span>
+<span class="sd">            &gt;&gt;&gt; g.metric = 'L1'</span>
+<span class="sd">            &gt;&gt;&gt; print(g.metric(np.r_[3, -4]))</span>
 <span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_metric</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metricfunc</span><span class="p">(</span><span class="n">metric</span><span class="p">)</span>
 
@@ -738,6 +857,14 @@
 <span class="sd">            exactly 3 elements; raises :exc:`ValueError` otherwise.</span>
 
 <span class="sd">        The heuristic distance is only used by the A* planner :meth:`path_Astar`.</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from pgraph import UGraph</span>
+<span class="sd">            &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">            &gt;&gt;&gt; g = UGraph()</span>
+<span class="sd">            &gt;&gt;&gt; g.heuristic = 'L2'</span>
+<span class="sd">            &gt;&gt;&gt; print(g.heuristic(np.r_[3, 4]))</span>
 <span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_heuristic</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metricfunc</span><span class="p">(</span><span class="n">heuristic</span><span class="p">)</span>
 
@@ -854,6 +981,15 @@
 <span class="sd">        according to the graph's metric. Vertices without a coordinate</span>
 <span class="sd">        (``coord`` is None) are skipped -- they have no position to compare.</span>
 
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from pgraph import UGraph</span>
+<span class="sd">            &gt;&gt;&gt; g = UGraph()</span>
+<span class="sd">            &gt;&gt;&gt; v1 = g.add_vertex(coord=[0,0], name='v1')</span>
+<span class="sd">            &gt;&gt;&gt; v2 = g.add_vertex(coord=[10,10], name='v2')</span>
+<span class="sd">            &gt;&gt;&gt; vertex, d = g.closest([1, 1])</span>
+<span class="sd">            &gt;&gt;&gt; print(vertex, d)</span>
+
 <span class="sd">        :seealso: :meth:`metric`</span>
 <span class="sd">        """</span>
         <span class="n">min_dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
@@ -884,6 +1020,15 @@
 <span class="sd">        .. note:: Unlike :meth:`BaseVertex.edges`, which returns a ``list`` in</span>
 <span class="sd">            connection order, this returns a ``set`` with no defined</span>
 <span class="sd">            iteration order.</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from pgraph import UGraph</span>
+<span class="sd">            &gt;&gt;&gt; g = UGraph()</span>
+<span class="sd">            &gt;&gt;&gt; v1 = g.add_vertex(coord=[0,0], name='v1')</span>
+<span class="sd">            &gt;&gt;&gt; v2 = g.add_vertex(coord=[1,1], name='v2')</span>
+<span class="sd">            &gt;&gt;&gt; g.add_edge(v1, v2)</span>
+<span class="sd">            &gt;&gt;&gt; print(g.edges())</span>
 
 <span class="sd">        :seealso: :meth:`BaseVertex.edges`</span>
 <span class="sd">        """</span>
@@ -922,6 +1067,24 @@
 <span class="sd">        If ``text`` is a dict it is used to format text labels for the vertices</span>
 <span class="sd">        which are the vertex names.  If ``text`` is None default formatting is</span>
 <span class="sd">        used.  If ``text`` is False no labels are added.</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from pgraph import UGraph</span>
+<span class="sd">            &gt;&gt;&gt; g = UGraph()</span>
+<span class="sd">            &gt;&gt;&gt; v1 = g.add_vertex(coord=[0,0], name='v1')</span>
+<span class="sd">            &gt;&gt;&gt; v2 = g.add_vertex(coord=[1,1], name='v2')</span>
+<span class="sd">            &gt;&gt;&gt; g.add_edge(v1, v2)</span>
+<span class="sd">            &gt;&gt;&gt; g.plot(block=None)</span>
+
+<span class="sd">        .. plot::</span>
+
+<span class="sd">            from pgraph import UGraph</span>
+<span class="sd">            g = UGraph()</span>
+<span class="sd">            v1 = g.add_vertex(coord=[0,0], name='v1')</span>
+<span class="sd">            v2 = g.add_vertex(coord=[1,1], name='v2')</span>
+<span class="sd">            g.add_edge(v1, v2)</span>
+<span class="sd">            g.plot(block=None)</span>
 
 <span class="sd">        :seealso: :meth:`highlight_path`</span>
 <span class="sd">        """</span>
@@ -1007,6 +1170,30 @@
 <span class="sd">        The vertices and edges along the path are overwritten with a different</span>
 <span class="sd">        size/width and color.</span>
 
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from pgraph import UGraph</span>
+<span class="sd">            &gt;&gt;&gt; g = UGraph()</span>
+<span class="sd">            &gt;&gt;&gt; v1 = g.add_vertex(coord=[0,0], name='v1')</span>
+<span class="sd">            &gt;&gt;&gt; v2 = g.add_vertex(coord=[1,1], name='v2')</span>
+<span class="sd">            &gt;&gt;&gt; v3 = g.add_vertex(coord=[2,2], name='v3')</span>
+<span class="sd">            &gt;&gt;&gt; g.add_edge(v1, v2)</span>
+<span class="sd">            &gt;&gt;&gt; g.add_edge(v2, v3)</span>
+<span class="sd">            &gt;&gt;&gt; g.plot(block=None)</span>
+<span class="sd">            &gt;&gt;&gt; g.highlight_path([v1, v2, v3], block=None)</span>
+
+<span class="sd">        .. plot::</span>
+
+<span class="sd">            from pgraph import UGraph</span>
+<span class="sd">            g = UGraph()</span>
+<span class="sd">            v1 = g.add_vertex(coord=[0,0], name='v1')</span>
+<span class="sd">            v2 = g.add_vertex(coord=[1,1], name='v2')</span>
+<span class="sd">            v3 = g.add_vertex(coord=[2,2], name='v3')</span>
+<span class="sd">            g.add_edge(v1, v2)</span>
+<span class="sd">            g.add_edge(v2, v3)</span>
+<span class="sd">            g.plot(block=None)</span>
+<span class="sd">            g.highlight_path([v1, v2, v3], block=None)</span>
+
 <span class="sd">        :seealso: :meth:`highlight_vertex` :meth:`highlight_edge`</span>
 <span class="sd">        """</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">path</span><span class="p">)):</span>
@@ -1030,6 +1217,33 @@
 <span class="sd">        :type scale: float, optional</span>
 <span class="sd">        :param color: Overwrite with a line in this color, defaults to 'r'</span>
 <span class="sd">        :type color: str, optional</span>
+<span class="sd">        :param alpha: Transparency of the highlight, defaults to 0.5</span>
+<span class="sd">        :type alpha: float, optional</span>
+<span class="sd">        :rtype: None</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from pgraph import UGraph</span>
+<span class="sd">            &gt;&gt;&gt; g = UGraph()</span>
+<span class="sd">            &gt;&gt;&gt; v1 = g.add_vertex(coord=[0,0], name='v1')</span>
+<span class="sd">            &gt;&gt;&gt; v2 = g.add_vertex(coord=[1,1], name='v2')</span>
+<span class="sd">            &gt;&gt;&gt; e = g.add_edge(v1, v2)</span>
+<span class="sd">            &gt;&gt;&gt; g.plot(block=None)</span>
+<span class="sd">            &gt;&gt;&gt; g.highlight_edge(e)</span>
+
+<span class="sd">        The plot produced looks like:</span>
+
+<span class="sd">        .. plot::</span>
+
+<span class="sd">            from pgraph import UGraph</span>
+<span class="sd">            g = UGraph()</span>
+<span class="sd">            v1 = g.add_vertex(coord=[0,0], name='v1')</span>
+<span class="sd">            v2 = g.add_vertex(coord=[1,1], name='v2')</span>
+<span class="sd">            e = g.add_edge(v1, v2)</span>
+<span class="sd">            g.plot(block=None)</span>
+<span class="sd">            g.highlight_edge(e)</span>
+
+<span class="sd">        :seealso: :meth:`highlight_vertex` :meth:`highlight_path`</span>
 <span class="sd">        """</span>
         <span class="n">p1</span> <span class="o">=</span> <span class="n">edge</span><span class="o">.</span><span class="n">v1</span>
         <span class="n">p2</span> <span class="o">=</span> <span class="n">edge</span><span class="o">.</span><span class="n">v2</span>
@@ -1047,13 +1261,37 @@
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Highlight a vertex in the graph</span>
 
-<span class="sd">        :param edge: The vertex to highlight</span>
-<span class="sd">        :type edge: BaseVertex subclass</span>
+<span class="sd">        :param vertex: The vertex (or vertices, or vertex names) to highlight</span>
+<span class="sd">        :type vertex: BaseVertex subclass, or iterable of BaseVertex subclass or str</span>
 <span class="sd">        :param scale: Overwrite with a line this much bigger than the original,</span>
 <span class="sd">                      defaults to 1.5</span>
 <span class="sd">        :type scale: float, optional</span>
 <span class="sd">        :param color: Overwrite with a line in this color, defaults to 'r'</span>
 <span class="sd">        :type color: str, optional</span>
+<span class="sd">        :param alpha: Transparency of the highlight, defaults to 0.5</span>
+<span class="sd">        :type alpha: float, optional</span>
+<span class="sd">        :rtype: None</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from pgraph import UGraph</span>
+<span class="sd">            &gt;&gt;&gt; g = UGraph()</span>
+<span class="sd">            &gt;&gt;&gt; v1 = g.add_vertex(coord=[0,0], name='v1')</span>
+<span class="sd">            &gt;&gt;&gt; v2 = g.add_vertex(coord=[1,1], name='v2')</span>
+<span class="sd">            &gt;&gt;&gt; g.add_edge(v1, v2)</span>
+<span class="sd">            &gt;&gt;&gt; g.plot(block=None)</span>
+<span class="sd">            &gt;&gt;&gt; g.highlight_vertex(v1)</span>
+
+<span class="sd">        .. plot::</span>
+
+<span class="sd">            from pgraph import UGraph</span>
+<span class="sd">            g = UGraph()</span>
+<span class="sd">            v1 = g.add_vertex(coord=[0,0], name='v1')</span>
+<span class="sd">            v2 = g.add_vertex(coord=[1,1], name='v2')</span>
+<span class="sd">            g.add_edge(v1, v2)</span>
+<span class="sd">            g.plot(block=None)</span>
+<span class="sd">            g.highlight_vertex(v1)</span>
+
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">vertex</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">vertex</span><span class="p">:</span>
@@ -1088,6 +1326,15 @@
 
 <span class="sd">        .. note:: If ``filename`` is a file object then the file will *not*</span>
 <span class="sd">            be closed after the GraphViz model is written.</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from pgraph import UGraph</span>
+<span class="sd">            &gt;&gt;&gt; g = UGraph()</span>
+<span class="sd">            &gt;&gt;&gt; v1 = g.add_vertex(coord=[0,0], name='v1')</span>
+<span class="sd">            &gt;&gt;&gt; v2 = g.add_vertex(coord=[1,1], name='v2')</span>
+<span class="sd">            &gt;&gt;&gt; g.add_edge(v1, v2)</span>
+<span class="sd">            &gt;&gt;&gt; g.dotfile()</span>
 
 <span class="sd">        :seealso: :func:`showgraph`</span>
 <span class="sd">        """</span>
@@ -1129,7 +1376,7 @@
 
         <span class="nb">print</span><span class="p">(</span><span class="s2">"}"</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">f</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">filename</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>  <span class="c1"># noqa</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">showgraph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -1187,6 +1434,19 @@
 <span class="sd">            question Kahn's algorithm answers exactly with integers in</span>
 <span class="sd">            O(V+E). Not used here for that reason.</span>
 
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from pgraph import UGraph</span>
+<span class="sd">            &gt;&gt;&gt; g = UGraph()</span>
+<span class="sd">            &gt;&gt;&gt; v1 = g.add_vertex(name='v1')</span>
+<span class="sd">            &gt;&gt;&gt; v2 = g.add_vertex(name='v2')</span>
+<span class="sd">            &gt;&gt;&gt; v3 = g.add_vertex(name='v3')</span>
+<span class="sd">            &gt;&gt;&gt; g.add_edge(v1, v2)</span>
+<span class="sd">            &gt;&gt;&gt; g.add_edge(v2, v3)</span>
+<span class="sd">            &gt;&gt;&gt; print(g.iscyclic())</span>
+<span class="sd">            &gt;&gt;&gt; g.add_edge(v3, v1)</span>
+<span class="sd">            &gt;&gt;&gt; print(g.iscyclic())</span>
+
 <span class="sd">        :seealso: :meth:`adjacency`</span>
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">UGraph</span><span class="p">):</span>
@@ -1220,6 +1480,17 @@
 <span class="sd">        Average degree is :math:`2 E / N` for an undirected graph and</span>
 <span class="sd">        :math:`E / N` for a directed graph where :math:`E` is the total number of</span>
 <span class="sd">        edges and :math:`N` is the number of vertices.</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from pgraph import UGraph</span>
+<span class="sd">            &gt;&gt;&gt; g = UGraph()</span>
+<span class="sd">            &gt;&gt;&gt; v1 = g.add_vertex(name='v1')</span>
+<span class="sd">            &gt;&gt;&gt; v2 = g.add_vertex(name='v2')</span>
+<span class="sd">            &gt;&gt;&gt; v3 = g.add_vertex(name='v3')</span>
+<span class="sd">            &gt;&gt;&gt; g.add_edge(v1, v2)</span>
+<span class="sd">            &gt;&gt;&gt; g.add_edge(v2, v3)</span>
+<span class="sd">            &gt;&gt;&gt; print(g.average_degree())</span>
 
 <span class="sd">        :seealso: :meth:`degree`</span>
 <span class="sd">        """</span>
@@ -1504,6 +1775,16 @@
 
 <span class="sd">        ``graph.component(c)`` is a list of all vertices in graph component ``c``.</span>
 
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from pgraph import UGraph</span>
+<span class="sd">            &gt;&gt;&gt; g = UGraph()</span>
+<span class="sd">            &gt;&gt;&gt; v1 = g.add_vertex(name='v1')</span>
+<span class="sd">            &gt;&gt;&gt; v2 = g.add_vertex(name='v2')</span>
+<span class="sd">            &gt;&gt;&gt; v3 = g.add_vertex(name='v3')</span>
+<span class="sd">            &gt;&gt;&gt; g.add_edge(v1, v2)</span>
+<span class="sd">            &gt;&gt;&gt; print(g.component(0))</span>
+
 <span class="sd">        :seealso: :meth:`nc` :meth:`samecomponent`</span>
 <span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_graphcolor</span><span class="p">()</span>  <span class="c1"># ensure labels are uptodate</span>
@@ -1524,6 +1805,17 @@
 
 <span class="sd">        - directed graph this implies a path between them</span>
 <span class="sd">        - undirected graph there is not necessarily a path between them</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from pgraph import UGraph</span>
+<span class="sd">            &gt;&gt;&gt; g = UGraph()</span>
+<span class="sd">            &gt;&gt;&gt; v1 = g.add_vertex(name='v1')</span>
+<span class="sd">            &gt;&gt;&gt; v2 = g.add_vertex(name='v2')</span>
+<span class="sd">            &gt;&gt;&gt; v3 = g.add_vertex(name='v3')</span>
+<span class="sd">            &gt;&gt;&gt; g.add_edge(v1, v2)</span>
+<span class="sd">            &gt;&gt;&gt; print(g.samecomponent(v1, v2))</span>
+<span class="sd">            &gt;&gt;&gt; print(g.samecomponent(v1, v3))</span>
 
 <span class="sd">        :seealso: :meth:`component`</span>
 <span class="sd">        """</span>
@@ -1550,6 +1842,19 @@
 
 <span class="sd">        Returns a list of vertices that form a path from vertex ``S`` to</span>
 <span class="sd">        vertex ``G`` if possible, otherwise return None.</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from pgraph import UGraph</span>
+<span class="sd">            &gt;&gt;&gt; g = UGraph()</span>
+<span class="sd">            &gt;&gt;&gt; v1 = g.add_vertex(coord=[0,0], name='v1')</span>
+<span class="sd">            &gt;&gt;&gt; v2 = g.add_vertex(coord=[1,0], name='v2')</span>
+<span class="sd">            &gt;&gt;&gt; v3 = g.add_vertex(coord=[2,0], name='v3')</span>
+<span class="sd">            &gt;&gt;&gt; g.add_edge(v1, v2)</span>
+<span class="sd">            &gt;&gt;&gt; g.add_edge(v2, v3)</span>
+<span class="sd">            &gt;&gt;&gt; path, length = g.path_BFS(v1, v3)</span>
+<span class="sd">            &gt;&gt;&gt; print(path)</span>
+<span class="sd">            &gt;&gt;&gt; print(length)</span>
 
 <span class="sd">        :seealso: :meth:`path_UCS` :meth:`path_Astar`</span>
 <span class="sd">        """</span>
@@ -1636,6 +1941,19 @@
 
 <span class="sd">        The heuristic is the distance metric of the graph, which defaults to</span>
 <span class="sd">        Euclidean distance.</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from pgraph import UGraph</span>
+<span class="sd">            &gt;&gt;&gt; g = UGraph()</span>
+<span class="sd">            &gt;&gt;&gt; v1 = g.add_vertex(coord=[0,0], name='v1')</span>
+<span class="sd">            &gt;&gt;&gt; v2 = g.add_vertex(coord=[1,0], name='v2')</span>
+<span class="sd">            &gt;&gt;&gt; v3 = g.add_vertex(coord=[2,0], name='v3')</span>
+<span class="sd">            &gt;&gt;&gt; g.add_edge(v1, v2)</span>
+<span class="sd">            &gt;&gt;&gt; g.add_edge(v2, v3)</span>
+<span class="sd">            &gt;&gt;&gt; path, length, tree = g.path_UCS(v1, v3)</span>
+<span class="sd">            &gt;&gt;&gt; print(path)</span>
+<span class="sd">            &gt;&gt;&gt; print(length)</span>
 
 <span class="sd">        :seealso: :meth:`path_BFS` :meth:`path_Astar`</span>
 <span class="sd">        """</span>
@@ -1735,6 +2053,19 @@
 
 <span class="sd">        The heuristic is the distance metric of the graph, which defaults to</span>
 <span class="sd">        Euclidean distance.</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from pgraph import UGraph</span>
+<span class="sd">            &gt;&gt;&gt; g = UGraph()</span>
+<span class="sd">            &gt;&gt;&gt; v1 = g.add_vertex(coord=[0,0], name='v1')</span>
+<span class="sd">            &gt;&gt;&gt; v2 = g.add_vertex(coord=[1,0], name='v2')</span>
+<span class="sd">            &gt;&gt;&gt; v3 = g.add_vertex(coord=[2,0], name='v3')</span>
+<span class="sd">            &gt;&gt;&gt; g.add_edge(v1, v2)</span>
+<span class="sd">            &gt;&gt;&gt; g.add_edge(v2, v3)</span>
+<span class="sd">            &gt;&gt;&gt; path, length, tree = g.path_Astar(v1, v3)</span>
+<span class="sd">            &gt;&gt;&gt; print(path)</span>
+<span class="sd">            &gt;&gt;&gt; print(length)</span>
 
 <span class="sd">        :seealso: :meth:`heuristic` :meth:`path_BFS` :meth:`path_UCS`</span>
 <span class="sd">        """</span>
@@ -2241,6 +2572,18 @@
 <span class="sd">        .. note:: This is a thin convenience wrapper around</span>
 <span class="sd">            :meth:`_BaseGraph.remove_edge`.</span>
 
+<span class="sd">        :rtype: None</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from pgraph import UGraph</span>
+<span class="sd">            &gt;&gt;&gt; g = UGraph()</span>
+<span class="sd">            &gt;&gt;&gt; v1 = g.add_vertex(coord=[0,0], name='v1')</span>
+<span class="sd">            &gt;&gt;&gt; v2 = g.add_vertex(coord=[1,1], name='v2')</span>
+<span class="sd">            &gt;&gt;&gt; e = g.add_edge(v1, v2)</span>
+<span class="sd">            &gt;&gt;&gt; e.remove()</span>
+<span class="sd">            &gt;&gt;&gt; print(g)</span>
+
 <span class="sd">        :seealso: :meth:`_BaseGraph.remove_edge` :meth:`BaseVertex.remove`</span>
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">v1</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">v1</span><span class="o">.</span><span class="n">_graph</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -2350,6 +2693,13 @@
 <span class="sd">        vertex of the appropriate subclass for that graph type, otherwise a</span>
 <span class="sd">        vertex of the same class as ``self`` is created directly.</span>
 
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from pgraph import UVertex, DGraph</span>
+<span class="sd">            &gt;&gt;&gt; v = UVertex(coord=[1,2], name='v1')</span>
+<span class="sd">            &gt;&gt;&gt; v2 = v.copy(cls=DGraph)</span>
+<span class="sd">            &gt;&gt;&gt; print(v2)</span>
+
 <span class="sd">        :seealso: :meth:`UGraph.vertex_copy` :meth:`DGraph.vertex_copy`</span>
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="bp">cls</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -2368,6 +2718,17 @@
 
 <span class="sd">        .. note:: For a directed graph the neighbours are those on edges leaving this vertex</span>
 
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from pgraph import UGraph</span>
+<span class="sd">            &gt;&gt;&gt; g = UGraph()</span>
+<span class="sd">            &gt;&gt;&gt; v1 = g.add_vertex(coord=[0,0], name='v1')</span>
+<span class="sd">            &gt;&gt;&gt; v2 = g.add_vertex(coord=[1,1], name='v2')</span>
+<span class="sd">            &gt;&gt;&gt; v3 = g.add_vertex(coord=[2,2], name='v3')</span>
+<span class="sd">            &gt;&gt;&gt; g.add_edge(v1, v2)</span>
+<span class="sd">            &gt;&gt;&gt; g.add_edge(v1, v3)</span>
+<span class="sd">            &gt;&gt;&gt; print(v1.neighbours())</span>
+
 <span class="sd">        :seealso: :meth:`neighbors` :meth:`incidences`</span>
 <span class="sd">        """</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">next</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edgelist</span><span class="p">]</span></div>
@@ -2382,6 +2743,15 @@
 <span class="sd">        ``v.neighbors()`` is a list of neighbors of this vertex.</span>
 
 <span class="sd">        .. note:: For a directed graph the neighbours are those on edges leaving this vertex</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from pgraph import UGraph</span>
+<span class="sd">            &gt;&gt;&gt; g = UGraph()</span>
+<span class="sd">            &gt;&gt;&gt; v1 = g.add_vertex(coord=[0,0], name='v1')</span>
+<span class="sd">            &gt;&gt;&gt; v2 = g.add_vertex(coord=[1,1], name='v2')</span>
+<span class="sd">            &gt;&gt;&gt; g.add_edge(v1, v2)</span>
+<span class="sd">            &gt;&gt;&gt; print(v1.neighbors())</span>
 
 <span class="sd">        :seealso: :meth:`neighbours`</span>
 <span class="sd">        """</span>
@@ -2421,6 +2791,17 @@
 <span class="sd">        For a directed graph this is true only if the edge is from ``self`` to</span>
 <span class="sd">        ``vertex``.</span>
 
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from pgraph import UGraph</span>
+<span class="sd">            &gt;&gt;&gt; g = UGraph()</span>
+<span class="sd">            &gt;&gt;&gt; v1 = g.add_vertex(coord=[0,0], name='v1')</span>
+<span class="sd">            &gt;&gt;&gt; v2 = g.add_vertex(coord=[1,1], name='v2')</span>
+<span class="sd">            &gt;&gt;&gt; v3 = g.add_vertex(coord=[2,2], name='v3')</span>
+<span class="sd">            &gt;&gt;&gt; g.add_edge(v1, v2)</span>
+<span class="sd">            &gt;&gt;&gt; print(v1.isneighbour(v2))</span>
+<span class="sd">            &gt;&gt;&gt; print(v1.isneighbour(v3))</span>
+
 <span class="sd">        :seealso: :meth:`neighbours`</span>
 <span class="sd">        """</span>
         <span class="k">return</span> <span class="n">vertex</span> <span class="ow">in</span> <span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">next</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edgelist</span><span class="p">]</span></div>
@@ -2436,6 +2817,15 @@
 <span class="sd">        tuples of (vertex, edge) for all neighbours of the vertex ``v``.</span>
 
 <span class="sd">        .. note:: For a directed graph the edges are those leaving this vertex</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from pgraph import UGraph</span>
+<span class="sd">            &gt;&gt;&gt; g = UGraph()</span>
+<span class="sd">            &gt;&gt;&gt; v1 = g.add_vertex(coord=[0,0], name='v1')</span>
+<span class="sd">            &gt;&gt;&gt; v2 = g.add_vertex(coord=[1,1], name='v2')</span>
+<span class="sd">            &gt;&gt;&gt; g.add_edge(v1, v2)</span>
+<span class="sd">            &gt;&gt;&gt; print(v1.incidences())</span>
 
 <span class="sd">        :seealso: :meth:`neighbours` :meth:`edges`</span>
 <span class="sd">        """</span>
@@ -2482,6 +2872,15 @@
 <span class="sd">              :meth:`DGraph.add_vertex`), this also rules out connecting a</span>
 <span class="sd">              ``UVertex`` to a ``DVertex``.</span>
 
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from pgraph import UGraph</span>
+<span class="sd">            &gt;&gt;&gt; g = UGraph()</span>
+<span class="sd">            &gt;&gt;&gt; v1 = g.add_vertex(coord=[0,0], name='v1')</span>
+<span class="sd">            &gt;&gt;&gt; v2 = g.add_vertex(coord=[1,1], name='v2')</span>
+<span class="sd">            &gt;&gt;&gt; e = v1.connect(v2, cost=1.414)</span>
+<span class="sd">            &gt;&gt;&gt; print(e)</span>
+
 <span class="sd">        :seealso: :meth:`Edge` :meth:`Edge.connect`</span>
 <span class="sd">        """</span>
 
@@ -2518,6 +2917,15 @@
 <span class="sd">        .. note::</span>
 
 <span class="sd">            - For a directed graph ``dest`` must be at the arrow end of the edge</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from pgraph import UGraph</span>
+<span class="sd">            &gt;&gt;&gt; g = UGraph()</span>
+<span class="sd">            &gt;&gt;&gt; v1 = g.add_vertex(coord=[0,0], name='v1')</span>
+<span class="sd">            &gt;&gt;&gt; v2 = g.add_vertex(coord=[1,1], name='v2')</span>
+<span class="sd">            &gt;&gt;&gt; g.add_edge(v1, v2, cost=1.414)</span>
+<span class="sd">            &gt;&gt;&gt; print(v1.edgeto(v2))</span>
 <span class="sd">        """</span>
         <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">incidences</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">n</span> <span class="ow">is</span> <span class="n">dest</span><span class="p">:</span>
@@ -2539,6 +2947,15 @@
 <span class="sd">            - For a directed graph the edges are those leaving this vertex</span>
 <span class="sd">            - For a non-directed graph the edges are those leaving or entering</span>
 <span class="sd">                this vertex</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from pgraph import UGraph</span>
+<span class="sd">            &gt;&gt;&gt; g = UGraph()</span>
+<span class="sd">            &gt;&gt;&gt; v1 = g.add_vertex(coord=[0,0], name='v1')</span>
+<span class="sd">            &gt;&gt;&gt; v2 = g.add_vertex(coord=[1,1], name='v2')</span>
+<span class="sd">            &gt;&gt;&gt; g.add_edge(v1, v2)</span>
+<span class="sd">            &gt;&gt;&gt; print(v1.edges())</span>
 <span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edgelist</span></div>
 
@@ -2590,6 +3007,14 @@
 <span class="sd">        must belong to a graph, since the metric is a property of the</span>
 <span class="sd">        graph, not the vertex.</span>
 
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from pgraph import UGraph</span>
+<span class="sd">            &gt;&gt;&gt; g = UGraph()</span>
+<span class="sd">            &gt;&gt;&gt; v1 = g.add_vertex(coord=[0,0], name='v1')</span>
+<span class="sd">            &gt;&gt;&gt; v2 = g.add_vertex(coord=[3,4], name='v2')</span>
+<span class="sd">            &gt;&gt;&gt; print(v1.distance(v2))</span>
+
 <span class="sd">        :seealso: :meth:`metric`</span>
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_graph</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -2612,6 +3037,17 @@
 
 <span class="sd">        .. note:: For a ``DGraph`` only outgoing edges are considered.</span>
 
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from pgraph import UGraph</span>
+<span class="sd">            &gt;&gt;&gt; g = UGraph()</span>
+<span class="sd">            &gt;&gt;&gt; v1 = g.add_vertex(coord=[0,0], name='v1')</span>
+<span class="sd">            &gt;&gt;&gt; v2 = g.add_vertex(coord=[1,1], name='v2')</span>
+<span class="sd">            &gt;&gt;&gt; v3 = g.add_vertex(coord=[2,2], name='v3')</span>
+<span class="sd">            &gt;&gt;&gt; g.add_edge(v1, v2)</span>
+<span class="sd">            &gt;&gt;&gt; g.add_edge(v1, v3)</span>
+<span class="sd">            &gt;&gt;&gt; print(v1.degree)</span>
+
 <span class="sd">        :seealso: :meth:`edges`</span>
 <span class="sd">        """</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">edges</span><span class="p">())</span>
@@ -2624,6 +3060,12 @@
 <span class="sd">        :raises ValueError: the vertex has no coordinate</span>
 <span class="sd">        :return: The x-coordinate</span>
 <span class="sd">        :rtype: float</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from pgraph import UVertex</span>
+<span class="sd">            &gt;&gt;&gt; v = UVertex(coord=[1,2], name='v1')</span>
+<span class="sd">            &gt;&gt;&gt; print(v.x)</span>
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">coord</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"vertex has no coordinate"</span><span class="p">)</span>
@@ -2637,6 +3079,12 @@
 <span class="sd">        :raises ValueError: the vertex has no coordinate</span>
 <span class="sd">        :return: The y-coordinate</span>
 <span class="sd">        :rtype: float</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from pgraph import UVertex</span>
+<span class="sd">            &gt;&gt;&gt; v = UVertex(coord=[1,2], name='v1')</span>
+<span class="sd">            &gt;&gt;&gt; print(v.y)</span>
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">coord</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"vertex has no coordinate"</span><span class="p">)</span>
@@ -2650,6 +3098,12 @@
 <span class="sd">        :raises ValueError: the vertex has no coordinate</span>
 <span class="sd">        :return: The z-coordinate</span>
 <span class="sd">        :rtype: float</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from pgraph import UVertex</span>
+<span class="sd">            &gt;&gt;&gt; v = UVertex(coord=[1,2,3], name='v1')</span>
+<span class="sd">            &gt;&gt;&gt; print(v.z)</span>
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">coord</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"vertex has no coordinate"</span><span class="p">)</span>
@@ -2701,6 +3155,18 @@
 
 <span class="sd">        .. note:: This is a thin convenience wrapper around</span>
 <span class="sd">            :meth:`_BaseGraph.remove_vertex`.</span>
+
+<span class="sd">        :rtype: None</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from pgraph import UGraph</span>
+<span class="sd">            &gt;&gt;&gt; g = UGraph()</span>
+<span class="sd">            &gt;&gt;&gt; v1 = g.add_vertex(coord=[0,0], name='v1')</span>
+<span class="sd">            &gt;&gt;&gt; v2 = g.add_vertex(coord=[1,1], name='v2')</span>
+<span class="sd">            &gt;&gt;&gt; g.add_edge(v1, v2)</span>
+<span class="sd">            &gt;&gt;&gt; v2.remove()</span>
+<span class="sd">            &gt;&gt;&gt; print(g)</span>
 
 <span class="sd">        :seealso: :meth:`_BaseGraph.remove_vertex` :meth:`Edge.remove`</span>
 <span class="sd">        """</span>
@@ -2868,9 +3334,10 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2020, Peter Corke.
-      <span class="lastupdated">Last updated on 03-Sep-2026.
-      </span></p>
+  <p>Copyright &#169; 2020-present, Peter Corke: built 2026-09-03.
+  </p>
+  <a href="https://github.com/petercorke/pgraph-python" class="footer-github-link">GitHub</a>
+
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
