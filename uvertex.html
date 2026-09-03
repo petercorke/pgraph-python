@@ -103,16 +103,16 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="pgraph.PGraph.UVertex">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pgraph.PGraph.</span></span><span class="sig-name descname"><span class="pre">UVertex</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coord</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pgraph/PGraph.html#UVertex"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pgraph.PGraph.UVertex" title="Link to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="PGraph.html#pgraph.PGraph.Vertex" title="pgraph.PGraph.Vertex"><code class="xref py py-class docutils literal notranslate"><span class="pre">Vertex</span></code></a></p>
-<p>Vertex subclass for undirected graphs</p>
+<dd><p>Bases: <a class="reference internal" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseVertex</span></code></a></p>
+<p>BaseVertex subclass for undirected graphs</p>
 <p>This class can be inherited to provide user objects with graph capability.</p>
-<div class="graphviz"><img alt="Inheritance diagram of UVertex" class="inheritance graphviz" src="_images/inheritance-bc34ee8792abcd9961cb6646fb12764ef56106bd.png" usemap="#inheritanceb6dbe7050d"/></div>
+<div class="graphviz"><img alt="Inheritance diagram of UVertex" class="inheritance graphviz" src="_images/inheritance-dedbefe8e376c42b85ac567022ffba985e5a9040.png" usemap="#inheritanceb6dbe7050d"/></div>
 <map id="inheritanceb6dbe7050d" name="inheritanceb6dbe7050d">
-<area alt="" coords="217,5,392,31" href="#pgraph.PGraph.UVertex" id="node1" shape="rect" target="_top" title="Vertex subclass for undirected graphs"/>
-<area alt="" coords="5,5,169,31" href="PGraph.html#pgraph.PGraph.Vertex" id="node2" shape="rect" target="_top" title="Base class for vertices of directed and non-directed graphs."/>
+<area alt="" coords="5,5,201,31" href="PGraph.html#pgraph.PGraph.BaseVertex" id="node1" shape="rect" target="_top" title="Base class for vertices of directed and non-directed graphs."/>
+<area alt="" coords="249,5,424,31" href="#pgraph.PGraph.UVertex" id="node2" shape="rect" target="_top" title="BaseVertex subclass for undirected graphs"/>
 </map><dl class="field-list simple">
 <dt class="field-odd">Seealso<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="PGraph.html#pgraph.PGraph.Vertex" title="pgraph.PGraph.Vertex"><code class="xref py py-class docutils literal notranslate"><span class="pre">Vertex</span></code></a> <a class="reference internal" href="dvertex.html#pgraph.PGraph.DVertex" title="pgraph.PGraph.DVertex"><code class="xref py py-class docutils literal notranslate"><span class="pre">DVertex</span></code></a></p>
+<dd class="field-odd"><p><a class="reference internal" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseVertex</span></code></a> <a class="reference internal" href="dvertex.html#pgraph.PGraph.DVertex" title="pgraph.PGraph.DVertex"><code class="xref py py-class docutils literal notranslate"><span class="pre">DVertex</span></code></a></p>
 </dd>
 </dl>
 <dl class="py method">
@@ -128,7 +128,7 @@
 </dd>
 </dl>
 <p>Creates a vertex but does not add it to a graph – use
-<a class="reference internal" href="PGraph.html#pgraph.PGraph.PGraph.add_vertex" title="pgraph.PGraph.PGraph.add_vertex"><code class="xref py py-meth docutils literal notranslate"><span class="pre">PGraph.add_vertex()</span></code></a> for that.</p>
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">_BaseGraph.add_vertex()</span></code> for that.</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pgraph</span><span class="w"> </span><span class="kn">import</span> <a class="sphinx-codeautolink-a" href="uvertex.html#pgraph.PGraph.UVertex" title="pgraph.PGraph.UVertex"><span class="n">UVertex</span></a>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="uvertex.html#pgraph.PGraph.UVertex" title="pgraph.PGraph.UVertex"><span class="n">v1</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="uvertex.html#pgraph.PGraph.UVertex" title="pgraph.PGraph.UVertex"><span class="n">UVertex</span></a><span class="p">(</span><span class="n">coord</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s1">'v1'</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#print"><span class="nb">print</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="uvertex.html#pgraph.PGraph.UVertex" title="pgraph.PGraph.UVertex"><span class="n">v1</span></a><span class="p">)</span>
@@ -137,7 +137,7 @@
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Seealso<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="PGraph.html#pgraph.PGraph.PGraph.add_vertex" title="pgraph.PGraph.PGraph.add_vertex"><code class="xref py py-meth docutils literal notranslate"><span class="pre">PGraph.add_vertex()</span></code></a></p>
+<dd class="field-odd"><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">_BaseGraph.add_vertex()</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -150,7 +150,7 @@
 <dd class="field-odd"><p>a list of neighbours of this vertex</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a> of Vertex subclass</p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a> of BaseVertex subclass</p>
 </dd>
 </dl>
 <div class="deprecated">
@@ -160,13 +160,13 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="pgraph.PGraph.UVertex.closest">
 <span class="sig-name descname"><span class="pre">closest</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pgraph.PGraph.UVertex.closest" title="Link to this definition"></a></dt>
-<dd><p>Vertex closest to this vertex</p>
+<dd><p>BaseVertex closest to this vertex</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>closest vertex and its distance</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>Vertex subclass, <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)">float</a></p>
+<dd class="field-even"><p>BaseVertex subclass, <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)">float</a></p>
 </dd>
 </dl>
 <p>Equivalent to <code class="docutils literal notranslate"><span class="pre">self._graph.closest(self.coord)</span></code>.</p>
@@ -182,7 +182,7 @@
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Seealso<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="PGraph.html#pgraph.PGraph.PGraph.closest" title="pgraph.PGraph.PGraph.closest"><code class="xref py py-meth docutils literal notranslate"><span class="pre">PGraph.closest()</span></code></a></p>
+<dd class="field-odd"><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">_BaseGraph.closest()</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -193,13 +193,13 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>other</strong> (<em>Vertex subclass</em><em> or </em><a class="reference internal" href="edge.html#pgraph.PGraph.Edge" title="pgraph.PGraph.Edge"><em>Edge</em></a>) – vertex to connect to, or an existing edge to attach</p></li>
-<li><p><strong>kwargs</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a></span>) – arguments passed to <a class="reference internal" href="PGraph.html#pgraph.PGraph.Vertex.connect" title="pgraph.PGraph.Vertex.connect"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Vertex.connect()</span></code></a>, ignored if
+<li><p><strong>other</strong> (<em>BaseVertex subclass</em><em> or </em><a class="reference internal" href="edge.html#pgraph.PGraph.Edge" title="pgraph.PGraph.Edge"><em>Edge</em></a>) – vertex to connect to, or an existing edge to attach</p></li>
+<li><p><strong>kwargs</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a></span>) – arguments passed to <a class="reference internal" href="PGraph.html#pgraph.PGraph.BaseVertex.connect" title="pgraph.PGraph.BaseVertex.connect"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseVertex.connect()</span></code></a>, ignored if
 <code class="docutils literal notranslate"><span class="pre">other</span></code> is an <code class="docutils literal notranslate"><span class="pre">Edge</span></code></p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.14)"><strong>TypeError</strong></a> – <code class="docutils literal notranslate"><span class="pre">other</span></code> is neither a <code class="docutils literal notranslate"><span class="pre">Vertex</span></code> nor an <code class="docutils literal notranslate"><span class="pre">Edge</span></code></p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.14)"><strong>TypeError</strong></a> – <code class="docutils literal notranslate"><span class="pre">other</span></code> is neither a <code class="docutils literal notranslate"><span class="pre">BaseVertex</span></code> nor an <code class="docutils literal notranslate"><span class="pre">Edge</span></code></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>the edge connecting the vertices</p>
@@ -226,7 +226,7 @@
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Seealso<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="PGraph.html#pgraph.PGraph.Vertex.connect" title="pgraph.PGraph.Vertex.connect"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Vertex.connect()</span></code></a> <a class="reference internal" href="dvertex.html#pgraph.PGraph.DVertex.connect" title="pgraph.PGraph.DVertex.connect"><code class="xref py py-meth docutils literal notranslate"><span class="pre">DVertex.connect()</span></code></a></p>
+<dd class="field-odd"><p><a class="reference internal" href="PGraph.html#pgraph.PGraph.BaseVertex.connect" title="pgraph.PGraph.BaseVertex.connect"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseVertex.connect()</span></code></a> <a class="reference internal" href="dvertex.html#pgraph.PGraph.DVertex.connect" title="pgraph.PGraph.DVertex.connect"><code class="xref py py-meth docutils literal notranslate"><span class="pre">DVertex.connect()</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -243,7 +243,7 @@ create the copy, defaults to None</p>
 <dd class="field-even"><p>a new, unconnected vertex with the same coordinate and name</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Vertex subclass</p>
+<dd class="field-odd"><p>BaseVertex subclass</p>
 </dd>
 </dl>
 <p>If <code class="docutils literal notranslate"><span class="pre">cls</span></code> is given, <code class="docutils literal notranslate"><span class="pre">cls.vertex_copy(self)</span></code> is used to create a
@@ -284,7 +284,7 @@ vertex of the same class as <code class="docutils literal notranslate"><span cla
 <dd><p>Distance from vertex to point</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>coord</strong> (<em>ndarray</em><em>(</em><a class="reference internal" href="PGraph.html#pgraph.PGraph.PGraph.n" title="pgraph.PGraph.PGraph.n"><em>n</em></a><em>) or </em><a class="reference internal" href="PGraph.html#pgraph.PGraph.Vertex" title="pgraph.PGraph.Vertex"><em>Vertex</em></a>) – coordinates of the point</p>
+<dd class="field-odd"><p><strong>coord</strong> (<em>ndarray</em><em>(</em><a class="reference internal" href="dgraph.html#pgraph.PGraph.DGraph.n" title="pgraph.PGraph.DGraph.n"><em>n</em></a><em>) or </em><a class="reference internal" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><em>BaseVertex</em></a>) – coordinates of the point</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>distance</p>
@@ -330,7 +330,7 @@ vertex of the same class as <code class="docutils literal notranslate"><span cla
 <dd><p>Get edge connecting vertex to specific neighbour</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>dest</strong> (<code class="docutils literal notranslate"><span class="pre">Vertex</span></code> subclass) – a neigbouring vertex</p>
+<dd class="field-odd"><p><strong>dest</strong> (<code class="docutils literal notranslate"><span class="pre">BaseVertex</span></code> subclass) – a neigbouring vertex</p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – <code class="docutils literal notranslate"><span class="pre">dest</span></code> is not a neighbour</p>
@@ -368,7 +368,7 @@ tuples of (vertex, edge) for all neighbours of the vertex <code class="docutils 
 <dd class="field-odd"><p><a class="reference internal" href="#pgraph.PGraph.UVertex.neighbours" title="pgraph.PGraph.UVertex.neighbours"><code class="xref py py-meth docutils literal notranslate"><span class="pre">neighbours()</span></code></a> <a class="reference internal" href="#pgraph.PGraph.UVertex.edges" title="pgraph.PGraph.UVertex.edges"><code class="xref py py-meth docutils literal notranslate"><span class="pre">edges()</span></code></a></p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a>[<a class="reference internal" href="PGraph.html#pgraph.PGraph.Vertex" title="pgraph.PGraph.Vertex"><code class="xref py py-class docutils literal notranslate"><span class="pre">Vertex</span></code></a>, <a class="reference internal" href="edge.html#pgraph.PGraph.Edge" title="pgraph.PGraph.Edge"><code class="xref py py-class docutils literal notranslate"><span class="pre">Edge</span></code></a>]]</span></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a>[<a class="reference internal" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseVertex</span></code></a>, <a class="reference internal" href="edge.html#pgraph.PGraph.Edge" title="pgraph.PGraph.Edge"><code class="xref py py-class docutils literal notranslate"><span class="pre">Edge</span></code></a>]]</span></p>
 </dd>
 </dl>
 </dd></dl>
@@ -378,7 +378,7 @@ tuples of (vertex, edge) for all neighbours of the vertex <code class="docutils 
 <dd><p>Test if vertex is a neigbour</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>vertex</strong> (<em>Vertex subclass</em>) – vertex reference</p>
+<dd class="field-odd"><p><strong>vertex</strong> (<em>BaseVertex subclass</em>) – vertex reference</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>true if a neighbour</p>
@@ -409,7 +409,7 @@ tuples of (vertex, edge) for all neighbours of the vertex <code class="docutils 
 <dd class="field-odd"><p><a class="reference internal" href="#pgraph.PGraph.UVertex.neighbours" title="pgraph.PGraph.UVertex.neighbours"><code class="xref py py-meth docutils literal notranslate"><span class="pre">neighbours()</span></code></a></p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>[<a class="reference internal" href="PGraph.html#pgraph.PGraph.Vertex" title="pgraph.PGraph.Vertex"><code class="xref py py-class docutils literal notranslate"><span class="pre">Vertex</span></code></a>]</span></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>[<a class="reference internal" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseVertex</span></code></a>]</span></p>
 </dd>
 </dl>
 </dd></dl>
@@ -427,7 +427,7 @@ tuples of (vertex, edge) for all neighbours of the vertex <code class="docutils 
 <dd class="field-odd"><p><a class="reference internal" href="#pgraph.PGraph.UVertex.neighbors" title="pgraph.PGraph.UVertex.neighbors"><code class="xref py py-meth docutils literal notranslate"><span class="pre">neighbors()</span></code></a> <a class="reference internal" href="#pgraph.PGraph.UVertex.incidences" title="pgraph.PGraph.UVertex.incidences"><code class="xref py py-meth docutils literal notranslate"><span class="pre">incidences()</span></code></a></p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>[<a class="reference internal" href="PGraph.html#pgraph.PGraph.Vertex" title="pgraph.PGraph.Vertex"><code class="xref py py-class docutils literal notranslate"><span class="pre">Vertex</span></code></a>]</span></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>[<a class="reference internal" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseVertex</span></code></a>]</span></p>
 </dd>
 </dl>
 </dd></dl>

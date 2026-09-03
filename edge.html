@@ -108,7 +108,7 @@ get references back to the Edge object.</p>
 <p><code class="docutils literal notranslate"><span class="pre">graph.add_edge(v1,</span> <span class="pre">v2)</span></code> calls <code class="docutils literal notranslate"><span class="pre">v1.connect(v2)</span></code></p>
 <dl class="field-list simple">
 <dt class="field-odd">Seealso<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="PGraph.html#pgraph.PGraph.Vertex" title="pgraph.PGraph.Vertex"><code class="xref py py-class docutils literal notranslate"><span class="pre">Vertex</span></code></a></p>
+<dd class="field-odd"><p><a class="reference internal" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseVertex</span></code></a></p>
 </dd>
 </dl>
 <dl class="py method">
@@ -118,8 +118,8 @@ get references back to the Edge object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>v1</strong> (<em>Vertex subclass</em><em>, </em><em>optional</em>) – start of the edge, defaults to None</p></li>
-<li><p><strong>v2</strong> (<em>Vertex subclass</em><em>, </em><em>optional</em>) – end of the edge, defaults to None</p></li>
+<li><p><strong>v1</strong> (<em>BaseVertex subclass</em><em>, </em><em>optional</em>) – start of the edge, defaults to None</p></li>
+<li><p><strong>v2</strong> (<em>BaseVertex subclass</em><em>, </em><em>optional</em>) – end of the edge, defaults to None</p></li>
 <li><p><strong>cost</strong> (<em>any</em><em>, </em><em>optional</em>) – edge cost, defaults to None</p></li>
 <li><p><strong>data</strong> (<em>any</em><em>, </em><em>optional</em>) – edge data, defaults to None</p></li>
 </ul>
@@ -140,7 +140,7 @@ been added to the graph.</p>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Seealso<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#pgraph.PGraph.Edge.connect" title="pgraph.PGraph.Edge.connect"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Edge.connect()</span></code></a> <a class="reference internal" href="PGraph.html#pgraph.PGraph.Vertex.connect" title="pgraph.PGraph.Vertex.connect"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Vertex.connect()</span></code></a></p>
+<dd class="field-odd"><p><a class="reference internal" href="#pgraph.PGraph.Edge.connect" title="pgraph.PGraph.Edge.connect"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Edge.connect()</span></code></a> <a class="reference internal" href="PGraph.html#pgraph.PGraph.BaseVertex.connect" title="pgraph.PGraph.BaseVertex.connect"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseVertex.connect()</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -151,8 +151,8 @@ been added to the graph.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>v1</strong> (<em>Vertex subclass</em>) – start of the edge</p></li>
-<li><p><strong>v2</strong> (<em>Vertex subclass</em>) – end of the edge</p></li>
+<li><p><strong>v1</strong> (<em>BaseVertex subclass</em>) – start of the edge</p></li>
+<li><p><strong>v2</strong> (<em>BaseVertex subclass</em>) – end of the edge</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -177,20 +177,20 @@ graph that those vertices belong to.</p>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Seealso<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="PGraph.html#pgraph.PGraph.Vertex.connect" title="pgraph.PGraph.Vertex.connect"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Vertex.connect()</span></code></a></p>
+<dd class="field-odd"><p><a class="reference internal" href="PGraph.html#pgraph.PGraph.BaseVertex.connect" title="pgraph.PGraph.BaseVertex.connect"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseVertex.connect()</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pgraph.PGraph.Edge.endpoints">
-<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">endpoints</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="PGraph.html#pgraph.PGraph.Vertex" title="pgraph.PGraph.Vertex"><span class="pre">Vertex</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#pgraph.PGraph.Edge.endpoints" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">endpoints</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><span class="pre">BaseVertex</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#pgraph.PGraph.Edge.endpoints" title="Link to this definition"></a></dt>
 <dd><p>The two vertices of this edge</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>start and end vertex</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a> of Vertex subclass</p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a> of BaseVertex subclass</p>
 </dd>
 </dl>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pgraph</span><span class="w"> </span><span class="kn">import</span> <a class="sphinx-codeautolink-a" href="uvertex.html#pgraph.PGraph.UVertex" title="pgraph.PGraph.UVertex"><span class="n">UVertex</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="edge.html#pgraph.PGraph.Edge" title="pgraph.PGraph.Edge"><span class="n">Edge</span></a>
@@ -215,7 +215,7 @@ graph that those vertices belong to.</p>
 <dd><p>Return other end of an edge</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>vertex</strong> (<em>Vertex subclass</em>) – one vertex on the edge</p>
+<dd class="field-odd"><p><strong>vertex</strong> (<em>BaseVertex subclass</em>) – one vertex on the edge</p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – <code class="docutils literal notranslate"><span class="pre">vertex</span></code> is not on the edge</p>
@@ -224,7 +224,7 @@ graph that those vertices belong to.</p>
 <dd class="field-odd"><p>the other vertex on the edge</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>Vertex subclass</p>
+<dd class="field-even"><p>BaseVertex subclass</p>
 </dd>
 </dl>
 <p><code class="docutils literal notranslate"><span class="pre">e.next(v1)</span></code> is the vertex at the other end of edge <code class="docutils literal notranslate"><span class="pre">e</span></code>, ie. the
@@ -251,7 +251,7 @@ vertex that is not <code class="docutils literal notranslate"><span class="pre">
 <dd class="field-odd"><p>the two vertices of this edge</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a> of Vertex subclass</p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a> of BaseVertex subclass</p>
 </dd>
 </dl>
 <div class="deprecated">

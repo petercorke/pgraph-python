@@ -95,9 +95,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">spatialmath.base.graphics</span><span class="w"> </span><span class="kn">import</span> <span class="n">axes_logic</span>
 
 
-<div class="viewcode-block" id="PGraph">
-<a class="viewcode-back" href="../../planning.html#pgraph.PGraph.PGraph">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">PGraph</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_BaseGraph</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -122,8 +120,8 @@
 <span class="sd">        :seealso: :class:`UGraph` :class:`DGraph`</span>
 <span class="sd">        """</span>
         <span class="c1"># we use a list and a dict, the list respects the order of adding</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_vertexlist</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Vertex</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_vertexdict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Vertex</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_vertexlist</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">BaseVertex</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_vertexdict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">BaseVertex</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_edgelist</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">Edge</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span> <span class="o">=</span> <span class="n">verbose</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_ncomponents</span> <span class="o">=</span> <span class="mi">0</span>
@@ -166,14 +164,12 @@
         <span class="c1"># avoid changing behaviour as part of a typing-only pass.</span>
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
-<div class="viewcode-block" id="PGraph.Dict">
-<a class="viewcode-back" href="../../PGraph.html#pgraph.PGraph.PGraph.Dict">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">Dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">reverse</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UGraph</span> <span class="o">|</span> <span class="n">DGraph</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create graph from parent/child dictionary</span>
 
-<span class="sd">        :param d: dictionary that maps from ``Vertex`` subclass to ``Vertex`` subclass</span>
+<span class="sd">        :param d: dictionary that maps from ``BaseVertex`` subclass to ``BaseVertex`` subclass</span>
 <span class="sd">        :type d: dict</span>
 <span class="sd">        :param reverse: reverse link direction, defaults to False</span>
 <span class="sd">        :return: graph</span>
@@ -216,11 +212,8 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">g</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="n">vertex</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">g</span></div>
+        <span class="k">return</span> <span class="n">g</span>
 
-
-<div class="viewcode-block" id="PGraph.Adjacency">
-<a class="viewcode-back" href="../../PGraph.html#pgraph.PGraph.PGraph.Adjacency">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">Adjacency</span><span class="p">(</span>
         <span class="bp">cls</span><span class="p">,</span>
@@ -282,29 +275,23 @@
                             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"loops in graph not supported"</span><span class="p">)</span>
                         <span class="n">g</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">g</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">cost</span><span class="o">=</span><span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">])</span>
 
-        <span class="k">return</span> <span class="n">g</span></div>
+        <span class="k">return</span> <span class="n">g</span>
 
-
-<div class="viewcode-block" id="PGraph.copy">
-<a class="viewcode-back" href="../../PGraph.html#pgraph.PGraph.PGraph.copy">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PGraph</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_BaseGraph</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Deepcopy of graph</span>
 
 <span class="sd">        :return: deep copy</span>
-<span class="sd">        :rtype: PGraph</span>
+<span class="sd">        :rtype: _BaseGraph</span>
 <span class="sd">        """</span>
-        <span class="k">return</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
-
-<div class="viewcode-block" id="PGraph.add_vertex">
-<a class="viewcode-back" href="../../PGraph.html#pgraph.PGraph.PGraph.add_vertex">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">add_vertex</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vertex</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Add a vertex to the graph (superclass method)</span>
 
 <span class="sd">        :param vertex: vertex to add</span>
-<span class="sd">        :type vertex: Vertex subclass</span>
+<span class="sd">        :type vertex: BaseVertex subclass</span>
 <span class="sd">        :param name: name of vertex</span>
 <span class="sd">        :type name: str</span>
 
@@ -326,20 +313,17 @@
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"New vertex </span><span class="si">{</span><span class="n">vertex</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">vertex</span><span class="o">.</span><span class="n">coord</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="n">vertex</span><span class="o">.</span><span class="n">_graph</span> <span class="o">=</span> <span class="bp">self</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_connectivitychange</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="k">return</span> <span class="n">vertex</span></div>
+        <span class="k">return</span> <span class="n">vertex</span>
 
-
-<div class="viewcode-block" id="PGraph.add_edge">
-<a class="viewcode-back" href="../../PGraph.html#pgraph.PGraph.PGraph.add_edge">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">add_edge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Add an edge to the graph (superclass method)</span>
 
 <span class="sd">        :param v1: first vertex (start if a directed graph)</span>
-<span class="sd">        :type v1: Vertex subclass</span>
+<span class="sd">        :type v1: BaseVertex subclass</span>
 <span class="sd">        :param v2: second vertex (end if a directed graph)</span>
-<span class="sd">        :type v2: Vertex subclass</span>
-<span class="sd">        :param kwargs: optional arguments to pass to ``Vertex.connect``</span>
+<span class="sd">        :type v2: BaseVertex subclass</span>
+<span class="sd">        :param kwargs: optional arguments to pass to ``BaseVertex.connect``</span>
 <span class="sd">        :return: edge</span>
 <span class="sd">        :rtype: Edge</span>
 
@@ -348,30 +332,27 @@
 <span class="sd">        This is a graph centric way of creating an edge.  The</span>
 <span class="sd">        alternative is the ``connect`` method of a vertex.</span>
 
-<span class="sd">        :seealso: :meth:`Edge.connect` :meth:`Vertex.connect`</span>
+<span class="sd">        :seealso: :meth:`Edge.connect` :meth:`BaseVertex.connect`</span>
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">v1</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">v1</span><span class="p">]</span>
-        <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">Vertex</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">"v1 must be Vertex subclass or string name"</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">BaseVertex</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">"v1 must be BaseVertex subclass or string name"</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v2</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">v2</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">v2</span><span class="p">]</span>
-        <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v2</span><span class="p">,</span> <span class="n">Vertex</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">"v2 must be Vertex subclass or string name"</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v2</span><span class="p">,</span> <span class="n">BaseVertex</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">"v2 must be BaseVertex subclass or string name"</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"New edge from </span><span class="si">{</span><span class="n">v1</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">v2</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">v1</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">v2</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">v1</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">v2</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-
-<div class="viewcode-block" id="PGraph.remove">
-<a class="viewcode-back" href="../../PGraph.html#pgraph.PGraph.PGraph.remove">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Remove element from graph (superclass method)</span>
 
 <span class="sd">        :param x: element to remove from graph</span>
-<span class="sd">        :type x: Edge or Vertex subclass</span>
+<span class="sd">        :type x: Edge or BaseVertex subclass</span>
 <span class="sd">        :raises TypeError: unknown type</span>
 
 <span class="sd">        The edge or vertex is removed, and all references and lists are</span>
@@ -398,7 +379,7 @@
             <span class="c1"># remove from list of all edges</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_edgelist</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Vertex</span><span class="p">):</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">BaseVertex</span><span class="p">):</span>
             <span class="c1"># remove a vertex</span>
 
             <span class="c1"># remove all edges of this vertex</span>
@@ -409,11 +390,8 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_vertexlist</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
             <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vertexdict</span><span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">"expecting Edge or Vertex"</span><span class="p">)</span></div>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">"expecting Edge or BaseVertex"</span><span class="p">)</span>
 
-
-<div class="viewcode-block" id="PGraph.show">
-<a class="viewcode-back" href="../../PGraph.html#pgraph.PGraph.PGraph.show">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Print a summary of all vertices and edges to stdout</span>
@@ -425,8 +403,7 @@
             <span class="nb">print</span><span class="p">(</span><span class="s2">"  "</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">))</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">"edges:"</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edgelist</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">"  "</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span></div>
-
+            <span class="nb">print</span><span class="p">(</span><span class="s2">"  "</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">n</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
@@ -498,7 +475,7 @@
 <span class="sd">        array of multiple vectors. That vector is always the difference</span>
 <span class="sd">        between one vertex's ``coord`` and either another vertex's ``coord``</span>
 <span class="sd">        or an arbitrary point supplied by the caller (see :meth:`closest` and</span>
-<span class="sd">        :meth:`Vertex.distance`).</span>
+<span class="sd">        :meth:`BaseVertex.distance`).</span>
 
 <span class="sd">        If ``metric`` is already a callable matching this signature, it is</span>
 <span class="sd">        returned unchanged. Otherwise it must be one of the built-in names</span>
@@ -567,7 +544,7 @@
 <span class="sd">            is :math:`\sqrt{x^2 + y^2 + \bar{\theta}^2}` where :math:`\bar{\theta}`</span>
 <span class="sd">            is :math:`\theta` wrapped to the interval :math:`[-\pi, \pi)`.</span>
 <span class="sd">            Requires every coordinate involved -- vertex ``coord`` and any</span>
-<span class="sd">            point passed to :meth:`closest`/:meth:`Vertex.distance` -- to be</span>
+<span class="sd">            point passed to :meth:`closest`/:meth:`BaseVertex.distance` -- to be</span>
 <span class="sd">            exactly 3 elements; raises :exc:`ValueError` otherwise.</span>
 
 <span class="sd">        The metric is used by :meth:`closest` and :meth:`distance`</span>
@@ -605,7 +582,7 @@
 <span class="sd">            is :math:`\sqrt{x^2 + y^2 + \bar{\theta}^2}` where :math:`\bar{\theta}`</span>
 <span class="sd">            is :math:`\theta` wrapped to the interval :math:`[-\pi, \pi)`.</span>
 <span class="sd">            Requires every coordinate involved -- vertex ``coord`` and any</span>
-<span class="sd">            point passed to :meth:`closest`/:meth:`Vertex.distance` -- to be</span>
+<span class="sd">            point passed to :meth:`closest`/:meth:`BaseVertex.distance` -- to be</span>
 <span class="sd">            exactly 3 elements; raises :exc:`ValueError` otherwise.</span>
 
 <span class="sd">        The heuristic distance is only used by the A* planner :meth:`path_Astar`.</span>
@@ -621,21 +598,21 @@
             <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ss</span><span class="p">)</span>
         <span class="k">return</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Vertex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Vertex</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">BaseVertex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BaseVertex</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Get vertex (superclass method)</span>
 
 <span class="sd">        :param i: vertex description</span>
 <span class="sd">        :type i: int or str</span>
 <span class="sd">        :return: the referenced vertex</span>
-<span class="sd">        :rtype: Vertex subclass</span>
+<span class="sd">        :rtype: BaseVertex subclass</span>
 
 <span class="sd">        Retrieve a vertex by index or name:</span>
 
 <span class="sd">        -``g[i]`` is the i'th vertex in the graph.  This reflects the order of</span>
 <span class="sd">         addition to the graph.</span>
 <span class="sd">        -``g[s]`` is vertex named ``s``</span>
-<span class="sd">        -``g[v]`` is ``v`` where ``v`` is a ``Vertex`` subclass</span>
+<span class="sd">        -``g[v]`` is ``v`` where ``v`` is a ``BaseVertex`` subclass</span>
 
 <span class="sd">        This method also supports iteration over the vertices in a graph::</span>
 
@@ -648,15 +625,15 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vertexlist</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vertexdict</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">Vertex</span><span class="p">):</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">BaseVertex</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">i</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Vertex</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">BaseVertex</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Iterate over the vertices of the graph</span>
 
 <span class="sd">        :return: iterator over vertices, in order of addition</span>
-<span class="sd">        :rtype: iterator of Vertex subclass</span>
+<span class="sd">        :rtype: iterator of BaseVertex subclass</span>
 
 <span class="sd">        .. runblock:: pycon</span>
 
@@ -673,12 +650,12 @@
 <span class="sd">        """</span>
         <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_vertexlist</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">:</span> <span class="n">Vertex</span> <span class="o">|</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">:</span> <span class="n">BaseVertex</span> <span class="o">|</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Test if vertex in graph</span>
 
 <span class="sd">        :param item: vertex or name of vertex</span>
-<span class="sd">        :type item: Vertex subclass or str</span>
+<span class="sd">        :type item: BaseVertex subclass or str</span>
 <span class="sd">        :return: true if vertex exists in the graph</span>
 <span class="sd">        :rtype: bool</span>
 
@@ -690,19 +667,17 @@
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vertexdict</span>
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">Vertex</span><span class="p">):</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">BaseVertex</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vertexdict</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
 
-<div class="viewcode-block" id="PGraph.closest">
-<a class="viewcode-back" href="../../PGraph.html#pgraph.PGraph.PGraph.closest">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">closest</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coord</span><span class="p">:</span> <span class="n">ArrayLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Vertex</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">closest</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coord</span><span class="p">:</span> <span class="n">ArrayLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">BaseVertex</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Vertex closest to point</span>
+<span class="sd">        BaseVertex closest to point</span>
 
 <span class="sd">        :param coord: coordinates of a point</span>
 <span class="sd">        :type coord: ndarray(n)</span>
 <span class="sd">        :return: closest vertex and its distance</span>
-<span class="sd">        :rtype: Vertex subclass, float</span>
+<span class="sd">        :rtype: BaseVertex subclass, float</span>
 
 <span class="sd">        Returns the vertex closest to the given point. Distance is computed</span>
 <span class="sd">        according to the graph's metric.</span>
@@ -718,11 +693,8 @@
                 <span class="n">min_dist</span> <span class="o">=</span> <span class="n">d</span>
                 <span class="n">min_which</span> <span class="o">=</span> <span class="n">vertex</span>
 
-        <span class="k">return</span> <span class="n">min_which</span><span class="p">,</span> <span class="n">min_dist</span></div>
+        <span class="k">return</span> <span class="n">min_which</span><span class="p">,</span> <span class="n">min_dist</span>
 
-
-<div class="viewcode-block" id="PGraph.edges">
-<a class="viewcode-back" href="../../PGraph.html#pgraph.PGraph.PGraph.edges">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">edges</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">[</span><span class="n">Edge</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Get all edges in graph (superclass method)</span>
@@ -735,17 +707,14 @@
 <span class="sd">            for e in g.edges():</span>
 <span class="sd">                print(e)</span>
 
-<span class="sd">        .. note:: Unlike :meth:`Vertex.edges`, which returns a ``list`` in</span>
+<span class="sd">        .. note:: Unlike :meth:`BaseVertex.edges`, which returns a ``list`` in</span>
 <span class="sd">            connection order, this returns a ``set`` with no defined</span>
 <span class="sd">            iteration order.</span>
 
-<span class="sd">        :seealso: :meth:`Vertex.edges`</span>
+<span class="sd">        :seealso: :meth:`BaseVertex.edges`</span>
 <span class="sd">        """</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edgelist</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edgelist</span>
 
-
-<div class="viewcode-block" id="PGraph.plot">
-<a class="viewcode-back" href="../../PGraph.html#pgraph.PGraph.PGraph.plot">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">plot</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">colorcomponents</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
@@ -849,17 +818,14 @@
         <span class="c1">#     plt.colorbar()</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">block</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="n">block</span><span class="p">)</span></div>
+            <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="n">block</span><span class="p">)</span>
 
-
-<div class="viewcode-block" id="PGraph.highlight_path">
-<a class="viewcode-back" href="../../PGraph.html#pgraph.PGraph.PGraph.highlight_path">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">highlight_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Vertex</span><span class="p">],</span> <span class="n">block</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">highlight_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">BaseVertex</span><span class="p">],</span> <span class="n">block</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Highlight a path through the graph</span>
 
 <span class="sd">        :param path: sequence of vertices forming a path</span>
-<span class="sd">        :type path: list of Vertex subclass</span>
+<span class="sd">        :type path: list of BaseVertex subclass</span>
 <span class="sd">        :param block: block until figure is dismissed, defaults to False</span>
 <span class="sd">        :param kwargs: arguments passed to :meth:`highlight_edge` and</span>
 <span class="sd">            :meth:`highlight_vertex`</span>
@@ -875,11 +841,8 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">highlight_edge</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">highlight_vertex</span><span class="p">(</span><span class="n">path</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">block</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="n">block</span><span class="p">)</span></div>
+            <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">block</span><span class="o">=</span><span class="n">block</span><span class="p">)</span>
 
-
-<div class="viewcode-block" id="PGraph.highlight_edge">
-<a class="viewcode-back" href="../../PGraph.html#pgraph.PGraph.PGraph.highlight_edge">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">highlight_edge</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">edge</span><span class="p">:</span> <span class="n">Edge</span><span class="p">,</span> <span class="n">scale</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">color</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"r"</span><span class="p">,</span> <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -898,14 +861,11 @@
         <span class="n">p2</span> <span class="o">=</span> <span class="n">edge</span><span class="o">.</span><span class="n">v2</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
             <span class="p">[</span><span class="n">p1</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">p2</span><span class="o">.</span><span class="n">x</span><span class="p">],</span> <span class="p">[</span><span class="n">p1</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">p2</span><span class="o">.</span><span class="n">y</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">3</span> <span class="o">*</span> <span class="n">scale</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span>
-        <span class="p">)</span></div>
+        <span class="p">)</span>
 
-
-<div class="viewcode-block" id="PGraph.highlight_vertex">
-<a class="viewcode-back" href="../../PGraph.html#pgraph.PGraph.PGraph.highlight_vertex">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">highlight_vertex</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">vertex</span><span class="p">:</span> <span class="n">Vertex</span> <span class="o">|</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Vertex</span> <span class="o">|</span> <span class="nb">str</span><span class="p">],</span>
+        <span class="n">vertex</span><span class="p">:</span> <span class="n">BaseVertex</span> <span class="o">|</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">BaseVertex</span> <span class="o">|</span> <span class="nb">str</span><span class="p">],</span>
         <span class="n">scale</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
         <span class="n">color</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"r"</span><span class="p">,</span>
         <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
@@ -914,7 +874,7 @@
 <span class="sd">        Highlight a vertex in the graph</span>
 
 <span class="sd">        :param edge: The vertex to highlight</span>
-<span class="sd">        :type edge: Vertex subclass</span>
+<span class="sd">        :type edge: BaseVertex subclass</span>
 <span class="sd">        :param scale: Overwrite with a line this much bigger than the original,</span>
 <span class="sd">                      defaults to 1.5</span>
 <span class="sd">        :type scale: float, optional</span>
@@ -929,11 +889,8 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
                 <span class="n">vertex</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">vertex</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="s2">"o"</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">12</span> <span class="o">*</span> <span class="n">scale</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span>
-            <span class="p">)</span></div>
+            <span class="p">)</span>
 
-
-<div class="viewcode-block" id="PGraph.dotfile">
-<a class="viewcode-back" href="../../PGraph.html#pgraph.PGraph.PGraph.dotfile">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">dotfile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Any</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">direction</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Export graph as a GraphViz dot file</span>
@@ -998,11 +955,8 @@
         <span class="nb">print</span><span class="p">(</span><span class="s2">"}"</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">f</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">filename</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>  <span class="c1"># noqa</span></div>
+            <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>  <span class="c1"># noqa</span>
 
-
-<div class="viewcode-block" id="PGraph.showgraph">
-<a class="viewcode-back" href="../../PGraph.html#pgraph.PGraph.PGraph.showgraph">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">showgraph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Display graph in a browser tab</span>
@@ -1027,19 +981,13 @@
         <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">returncode</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="c1"># dot ran happily</span>
             <span class="c1"># open the PDF file in browser (hopefully portable), then cleanup</span>
-            <span class="n">webbrowser</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="sa">f</span><span class="s2">"file://</span><span class="si">{</span><span class="n">pdffile</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span></div>
-
+            <span class="n">webbrowser</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="sa">f</span><span class="s2">"file://</span><span class="si">{</span><span class="n">pdffile</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
             <span class="c1"># time.sleep(1)</span>
             <span class="c1"># os.remove(pdffile.name)</span>
 
-<div class="viewcode-block" id="PGraph.iscyclic">
-<a class="viewcode-back" href="../../PGraph.html#pgraph.PGraph.PGraph.iscyclic">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">iscyclic</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">pass</span></div>
+        <span class="k">pass</span>
 
-
-<div class="viewcode-block" id="PGraph.average_degree">
-<a class="viewcode-back" href="../../PGraph.html#pgraph.PGraph.PGraph.average_degree">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">average_degree</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">"""</span>
 <span class="sd">        Average degree of the graph</span>
@@ -1056,15 +1004,12 @@
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">DGraph</span><span class="p">):</span>
             <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">edges</span><span class="p">())</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">UGraph</span><span class="p">):</span>
-            <span class="k">return</span> <span class="mi">2</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">edges</span><span class="p">())</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span></div>
-
+            <span class="k">return</span> <span class="mi">2</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">edges</span><span class="p">())</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span>
 
     <span class="c1"># --------------------------------------------------------------------------- #</span>
 
     <span class="c1"># MATRIX REPRESENTATIONS</span>
 
-<div class="viewcode-block" id="PGraph.Laplacian">
-<a class="viewcode-back" href="../../matrices.html#pgraph.PGraph.PGraph.Laplacian">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">Laplacian</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NDArray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Laplacian matrix for the graph</span>
@@ -1108,18 +1053,15 @@
 
 <span class="sd">        :seealso: :meth:`adjacency` :meth:`incidence` :meth:`degree`</span>
 <span class="sd">        """</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">degree</span><span class="p">()</span> <span class="o">-</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">adjacency</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">degree</span><span class="p">()</span> <span class="o">-</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">adjacency</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
 
-
-<div class="viewcode-block" id="PGraph.connectivity">
-<a class="viewcode-back" href="../../PGraph.html#pgraph.PGraph.PGraph.connectivity">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">connectivity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vertices</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Vertex</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">connectivity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vertices</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">BaseVertex</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Graph connectivity</span>
 
 <span class="sd">        :param vertices: vertices to report connectivity for, defaults to all</span>
 <span class="sd">            vertices in the graph</span>
-<span class="sd">        :type vertices: iterable of Vertex subclass, optional</span>
+<span class="sd">        :type vertices: iterable of BaseVertex subclass, optional</span>
 <span class="sd">        :return: a list with the number of edges per vertex</span>
 <span class="sd">        :rtype: list</span>
 
@@ -1154,11 +1096,8 @@
             <span class="n">vertices</span> <span class="o">=</span> <span class="bp">self</span>
         <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">vertices</span><span class="p">:</span>
             <span class="n">c</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">_edgelist</span><span class="p">))</span>
-        <span class="k">return</span> <span class="n">c</span></div>
+        <span class="k">return</span> <span class="n">c</span>
 
-
-<div class="viewcode-block" id="PGraph.degree">
-<a class="viewcode-back" href="../../matrices.html#pgraph.PGraph.PGraph.degree">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">degree</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NDArray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Degree matrix of graph</span>
@@ -1170,7 +1109,7 @@
 <span class="sd">        of edges connected to vertex id ``i``.</span>
 
 <span class="sd">        .. note:: For a ``DGraph`` only outgoing edges are counted, matching</span>
-<span class="sd">            :attr:`Vertex.degree`.</span>
+<span class="sd">            :attr:`BaseVertex.degree`.</span>
 
 <span class="sd">        .. runblock:: pycon</span>
 
@@ -1189,11 +1128,8 @@
 <span class="sd">        :seealso: :meth:`adjacency` :meth:`incidence` :meth:`laplacian`</span>
 <span class="sd">        """</span>
 
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">connectivity</span><span class="p">())</span></div>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">connectivity</span><span class="p">())</span>
 
-
-<div class="viewcode-block" id="PGraph.adjacency">
-<a class="viewcode-back" href="../../matrices.html#pgraph.PGraph.PGraph.adjacency">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">adjacency</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NDArray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Adjacency matrix of graph</span>
@@ -1240,11 +1176,8 @@
         <span class="k">for</span> <span class="n">vertex</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">vertex</span><span class="o">.</span><span class="n">neighbours</span><span class="p">():</span>
                 <span class="n">A</span><span class="p">[</span><span class="n">vdict</span><span class="p">[</span><span class="n">vertex</span><span class="p">],</span> <span class="n">vdict</span><span class="p">[</span><span class="n">n</span><span class="p">]]</span> <span class="o">=</span> <span class="mi">1</span>
-        <span class="k">return</span> <span class="n">A</span></div>
+        <span class="k">return</span> <span class="n">A</span>
 
-
-<div class="viewcode-block" id="PGraph.incidence">
-<a class="viewcode-back" href="../../matrices.html#pgraph.PGraph.PGraph.incidence">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">incidence</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Incidence matrix of graph</span>
@@ -1275,11 +1208,8 @@
             <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">vertex</span><span class="o">.</span><span class="n">edges</span><span class="p">()):</span>
                 <span class="n">I</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">edict</span><span class="p">[</span><span class="n">e</span><span class="p">]]</span> <span class="o">=</span> <span class="mi">1</span>
 
-        <span class="k">return</span> <span class="n">I</span></div>
+        <span class="k">return</span> <span class="n">I</span>
 
-
-<div class="viewcode-block" id="PGraph.distance">
-<a class="viewcode-back" href="../../matrices.html#pgraph.PGraph.PGraph.distance">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">distance</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Distance matrix of graph</span>
@@ -1300,39 +1230,33 @@
         <span class="k">for</span> <span class="n">v1</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">v2</span><span class="p">,</span> <span class="n">edge</span> <span class="ow">in</span> <span class="n">v1</span><span class="o">.</span><span class="n">incidences</span><span class="p">():</span>
                 <span class="n">A</span><span class="p">[</span><span class="n">vdict</span><span class="p">[</span><span class="n">v1</span><span class="p">],</span> <span class="n">vdict</span><span class="p">[</span><span class="n">v2</span><span class="p">]]</span> <span class="o">=</span> <span class="n">edge</span><span class="o">.</span><span class="n">cost</span>
-        <span class="k">return</span> <span class="n">A</span></div>
-
+        <span class="k">return</span> <span class="n">A</span>
 
     <span class="c1"># GRAPH COMPONENTS</span>
 
-<div class="viewcode-block" id="PGraph.component">
-<a class="viewcode-back" href="../../PGraph.html#pgraph.PGraph.PGraph.component">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">component</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Vertex</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">component</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">BaseVertex</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        All vertices in specified graph component</span>
 
 <span class="sd">        :param c: component index</span>
 <span class="sd">        :return: vertices belonging to component ``c``</span>
-<span class="sd">        :rtype: list of Vertex subclass</span>
+<span class="sd">        :rtype: list of BaseVertex subclass</span>
 
 <span class="sd">        ``graph.component(c)`` is a list of all vertices in graph component ``c``.</span>
 
 <span class="sd">        :seealso: :meth:`nc` :meth:`samecomponent`</span>
 <span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_graphcolor</span><span class="p">()</span>  <span class="c1"># ensure labels are uptodate</span>
-        <span class="k">return</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span> <span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">label</span> <span class="o">==</span> <span class="n">c</span><span class="p">]</span></div>
+        <span class="k">return</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span> <span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">label</span> <span class="o">==</span> <span class="n">c</span><span class="p">]</span>
 
-
-<div class="viewcode-block" id="PGraph.samecomponent">
-<a class="viewcode-back" href="../../PGraph.html#pgraph.PGraph.PGraph.samecomponent">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">samecomponent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v1</span><span class="p">:</span> <span class="n">Vertex</span><span class="p">,</span> <span class="n">v2</span><span class="p">:</span> <span class="n">Vertex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">samecomponent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v1</span><span class="p">:</span> <span class="n">BaseVertex</span><span class="p">,</span> <span class="n">v2</span><span class="p">:</span> <span class="n">BaseVertex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Test if vertices belong to same graph component</span>
 
 <span class="sd">        :param v1: vertex</span>
-<span class="sd">        :type v1: Vertex subclass</span>
+<span class="sd">        :type v1: BaseVertex subclass</span>
 <span class="sd">        :param v2: vertex</span>
-<span class="sd">        :type v2: Vertex subclass</span>
+<span class="sd">        :type v2: BaseVertex subclass</span>
 <span class="sd">        :return: true if vertices belong to same graph component</span>
 <span class="sd">        :rtype: bool</span>
 
@@ -1345,8 +1269,7 @@
 <span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_graphcolor</span><span class="p">()</span>  <span class="c1"># ensure labels are uptodate</span>
 
-        <span class="k">return</span> <span class="n">v1</span><span class="o">.</span><span class="n">label</span> <span class="o">==</span> <span class="n">v2</span><span class="o">.</span><span class="n">label</span></div>
-
+        <span class="k">return</span> <span class="n">v1</span><span class="o">.</span><span class="n">label</span> <span class="o">==</span> <span class="n">v2</span><span class="o">.</span><span class="n">label</span>
 
     <span class="c1"># def remove(self, v):</span>
     <span class="c1">#     # remove edges from neighbour's edge list</span>
@@ -1365,18 +1288,16 @@
     <span class="c1">#     v._edgelist = []  # remove all references to edges</span>
     <span class="c1"># --------------------------------------------------------------------------- #</span>
 
-<div class="viewcode-block" id="PGraph.path_BFS">
-<a class="viewcode-back" href="../../planning.html#pgraph.PGraph.PGraph.path_BFS">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">path_BFS</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">G</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">summary</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Breadth-first search for path</span>
 
 <span class="sd">        :param S: start vertex</span>
-<span class="sd">        :type S: Vertex subclass</span>
+<span class="sd">        :type S: BaseVertex subclass</span>
 <span class="sd">        :param G: goal vertex</span>
-<span class="sd">        :type G: Vertex subclass</span>
+<span class="sd">        :type G: BaseVertex subclass</span>
 <span class="sd">        :return: list of vertices from S to G inclusive, path length</span>
-<span class="sd">        :rtype: list of Vertex subclass, float</span>
+<span class="sd">        :rtype: list of BaseVertex subclass, float</span>
 
 <span class="sd">        Returns a list of vertices that form a path from vertex ``S`` to</span>
 <span class="sd">        vertex ``G`` if possible, otherwise return None.</span>
@@ -1384,12 +1305,12 @@
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">S</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">S</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">S</span><span class="p">]</span>
-        <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">S</span><span class="p">,</span> <span class="n">Vertex</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">"start must be Vertex subclass or string name"</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">S</span><span class="p">,</span> <span class="n">BaseVertex</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">"start must be BaseVertex subclass or string name"</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">G</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">G</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">G</span><span class="p">]</span>
-        <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">S</span><span class="p">,</span> <span class="n">Vertex</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">"goal must be Vertex subclass or string name"</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">S</span><span class="p">,</span> <span class="n">BaseVertex</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">"goal must be BaseVertex subclass or string name"</span><span class="p">)</span>
 
         <span class="c1"># we use lists not sets since the order is instructive in verbose</span>
         <span class="c1"># mode, really need ordered sets...</span>
@@ -1447,21 +1368,18 @@
                 <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">explored</span><span class="p">)</span><span class="si">}</span><span class="s2"> vertices explored, </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">frontier</span><span class="p">)</span><span class="si">}</span><span class="s2"> remaining on the frontier"</span>
             <span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">path</span><span class="p">,</span> <span class="n">length</span></div>
+        <span class="k">return</span> <span class="n">path</span><span class="p">,</span> <span class="n">length</span>
 
-
-<div class="viewcode-block" id="PGraph.path_UCS">
-<a class="viewcode-back" href="../../planning.html#pgraph.PGraph.PGraph.path_UCS">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">path_UCS</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">G</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">summary</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Uniform cost search for path</span>
 
 <span class="sd">        :param S: start vertex</span>
-<span class="sd">        :type S: Vertex subclass</span>
+<span class="sd">        :type S: BaseVertex subclass</span>
 <span class="sd">        :param G: goal vertex</span>
-<span class="sd">        :type G: Vertex subclass</span>
+<span class="sd">        :type G: BaseVertex subclass</span>
 <span class="sd">        :return: list of vertices from S to G inclusive, path length, tree</span>
-<span class="sd">        :rtype: list of Vertex subclass, float, dict</span>
+<span class="sd">        :rtype: list of BaseVertex subclass, float, dict</span>
 
 <span class="sd">        Returns a list of vertices that form a path from vertex ``S`` to</span>
 <span class="sd">        vertex ``G`` if possible, otherwise return None.</span>
@@ -1473,12 +1391,12 @@
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">S</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">S</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">S</span><span class="p">]</span>
-        <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">S</span><span class="p">,</span> <span class="n">Vertex</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">"start must be Vertex subclass or string name"</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">S</span><span class="p">,</span> <span class="n">BaseVertex</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">"start must be BaseVertex subclass or string name"</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">G</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">G</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">G</span><span class="p">]</span>
-        <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">S</span><span class="p">,</span> <span class="n">Vertex</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">"goal must be Vertex subclass or string name"</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">S</span><span class="p">,</span> <span class="n">BaseVertex</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">"goal must be BaseVertex subclass or string name"</span><span class="p">)</span>
 
         <span class="n">frontier</span> <span class="o">=</span> <span class="p">[</span><span class="n">S</span><span class="p">]</span>
         <span class="n">explored</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1548,21 +1466,18 @@
                 <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">explored</span><span class="p">)</span><span class="si">}</span><span class="s2"> vertices explored, </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">frontier</span><span class="p">)</span><span class="si">}</span><span class="s2"> remaining on the frontier"</span>
             <span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">path</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">parent_names</span></div>
+        <span class="k">return</span> <span class="n">path</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">parent_names</span>
 
-
-<div class="viewcode-block" id="PGraph.path_Astar">
-<a class="viewcode-back" href="../../planning.html#pgraph.PGraph.PGraph.path_Astar">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">path_Astar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">G</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">summary</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        A* search for path</span>
 
 <span class="sd">        :param S: start vertex</span>
-<span class="sd">        :type S: Vertex subclass</span>
+<span class="sd">        :type S: BaseVertex subclass</span>
 <span class="sd">        :param G: goal vertex</span>
-<span class="sd">        :type G: Vertex subclass</span>
+<span class="sd">        :type G: BaseVertex subclass</span>
 <span class="sd">        :return: list of vertices from S to G inclusive, path length, tree</span>
-<span class="sd">        :rtype: list of Vertex subclass, float, dict</span>
+<span class="sd">        :rtype: list of BaseVertex subclass, float, dict</span>
 
 <span class="sd">        Returns a list of vertices that form a path from vertex ``S`` to</span>
 <span class="sd">        vertex ``G`` if possible, otherwise return None.</span>
@@ -1576,12 +1491,12 @@
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">S</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">S</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">S</span><span class="p">]</span>
-        <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">S</span><span class="p">,</span> <span class="n">Vertex</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">"start must be Vertex subclass or string name"</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">S</span><span class="p">,</span> <span class="n">BaseVertex</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">"start must be BaseVertex subclass or string name"</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">G</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">G</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">G</span><span class="p">]</span>
-        <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">S</span><span class="p">,</span> <span class="n">Vertex</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">"goal must be Vertex subclass or string name"</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">S</span><span class="p">,</span> <span class="n">BaseVertex</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">"goal must be BaseVertex subclass or string name"</span><span class="p">)</span>
 
         <span class="n">frontier</span> <span class="o">=</span> <span class="p">[</span><span class="n">S</span><span class="p">]</span>
         <span class="n">explored</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1655,9 +1570,7 @@
                 <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">explored</span><span class="p">)</span><span class="si">}</span><span class="s2"> vertices explored, </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">frontier</span><span class="p">)</span><span class="si">}</span><span class="s2"> remaining on the frontier"</span>
             <span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">path</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">parent_names</span></div>
-</div>
-
+        <span class="k">return</span> <span class="n">path</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">parent_names</span>
 
 
 <span class="c1"># -------------------------------------------------------------------------- #</span>
@@ -1665,13 +1578,13 @@
 
 <div class="viewcode-block" id="UGraph">
 <a class="viewcode-back" href="../../ugraph.html#pgraph.PGraph.UGraph">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">UGraph</span><span class="p">(</span><span class="n">PGraph</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">UGraph</span><span class="p">(</span><span class="n">_BaseGraph</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Class for undirected graphs</span>
 
 <span class="sd">    .. inheritance-diagram:: UGraph</span>
 
-<span class="sd">    :seealso: :class:`PGraph` :class:`DGraph`</span>
+<span class="sd">    :seealso: :class:`_BaseGraph` :class:`DGraph`</span>
 <span class="sd">    """</span>
 
 <div class="viewcode-block" id="UGraph.add_vertex">
@@ -1755,13 +1668,13 @@
 
 <div class="viewcode-block" id="DGraph">
 <a class="viewcode-back" href="../../dgraph.html#pgraph.PGraph.DGraph">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">DGraph</span><span class="p">(</span><span class="n">PGraph</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">DGraph</span><span class="p">(</span><span class="n">_BaseGraph</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Class for directed graphs</span>
 
 <span class="sd">    .. inheritance-diagram:: DGraph</span>
 
-<span class="sd">    :seealso: :class:`PGraph` :class:`UGraph`</span>
+<span class="sd">    :seealso: :class:`_BaseGraph` :class:`UGraph`</span>
 <span class="sd">    """</span>
 
 <div class="viewcode-block" id="DGraph.add_vertex">
@@ -1782,7 +1695,7 @@
 <span class="sd">        - ``g.add_vertex(v)`` takes an instance or subclass of DVertex and adds</span>
 <span class="sd">          it to the graph</span>
 <span class="sd">        """</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">coord</span><span class="p">,</span> <span class="n">Vertex</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">coord</span><span class="p">,</span> <span class="n">BaseVertex</span><span class="p">):</span>
             <span class="n">vertex</span> <span class="o">=</span> <span class="n">coord</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">vertex</span> <span class="o">=</span> <span class="n">DVertex</span><span class="p">(</span><span class="n">coord</span><span class="o">=</span><span class="n">coord</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
@@ -1892,15 +1805,15 @@
 
 <span class="sd">    ``graph.add_edge(v1, v2)`` calls ``v1.connect(v2)``</span>
 
-<span class="sd">    :seealso: :class:`Vertex`</span>
+<span class="sd">    :seealso: :class:`BaseVertex`</span>
 <span class="sd">    """</span>
 
 <div class="viewcode-block" id="Edge.__init__">
 <a class="viewcode-back" href="../../edge.html#pgraph.PGraph.Edge.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">v1</span><span class="p">:</span> <span class="n">Vertex</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">v2</span><span class="p">:</span> <span class="n">Vertex</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">v1</span><span class="p">:</span> <span class="n">BaseVertex</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">v2</span><span class="p">:</span> <span class="n">BaseVertex</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">cost</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">data</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
@@ -1908,9 +1821,9 @@
 <span class="sd">        Create an edge object</span>
 
 <span class="sd">        :param v1: start of the edge, defaults to None</span>
-<span class="sd">        :type v1: Vertex subclass, optional</span>
+<span class="sd">        :type v1: BaseVertex subclass, optional</span>
 <span class="sd">        :param v2: end of the edge, defaults to None</span>
-<span class="sd">        :type v2: Vertex subclass, optional</span>
+<span class="sd">        :type v2: BaseVertex subclass, optional</span>
 <span class="sd">        :param cost: edge cost, defaults to None</span>
 <span class="sd">        :type cost: any, optional</span>
 <span class="sd">        :param data: edge data, defaults to None</span>
@@ -1930,7 +1843,7 @@
 <span class="sd">        .. note:: To compute edge cost from the vertices, the vertices must have</span>
 <span class="sd">            been added to the graph.</span>
 
-<span class="sd">        :seealso: :meth:`Edge.connect` :meth:`Vertex.connect`</span>
+<span class="sd">        :seealso: :meth:`Edge.connect` :meth:`BaseVertex.connect`</span>
 <span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">v1</span> <span class="o">=</span> <span class="n">v1</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">v2</span> <span class="o">=</span> <span class="n">v2</span>
@@ -1958,14 +1871,14 @@
 
 <div class="viewcode-block" id="Edge.connect">
 <a class="viewcode-back" href="../../edge.html#pgraph.PGraph.Edge.connect">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">connect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v1</span><span class="p">:</span> <span class="n">Vertex</span><span class="p">,</span> <span class="n">v2</span><span class="p">:</span> <span class="n">Vertex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">connect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v1</span><span class="p">:</span> <span class="n">BaseVertex</span><span class="p">,</span> <span class="n">v2</span><span class="p">:</span> <span class="n">BaseVertex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Attach this edge to a pair of vertices</span>
 
 <span class="sd">        :param v1: start of the edge</span>
-<span class="sd">        :type v1: Vertex subclass</span>
+<span class="sd">        :type v1: BaseVertex subclass</span>
 <span class="sd">        :param v2: end of the edge</span>
-<span class="sd">        :type v2: Vertex subclass</span>
+<span class="sd">        :type v2: BaseVertex subclass</span>
 
 <span class="sd">        The edge connects vertices ``v1`` and ``v2``, and is added to the</span>
 <span class="sd">        graph that those vertices belong to.</span>
@@ -1982,7 +1895,7 @@
 
 <span class="sd">        .. note:: The vertices must already be added to the graph.</span>
 
-<span class="sd">        :seealso: :meth:`Vertex.connect`</span>
+<span class="sd">        :seealso: :meth:`BaseVertex.connect`</span>
 <span class="sd">        """</span>
 
         <span class="k">if</span> <span class="n">v1</span><span class="o">.</span><span class="n">_graph</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -2003,15 +1916,15 @@
 
 <div class="viewcode-block" id="Edge.next">
 <a class="viewcode-back" href="../../edge.html#pgraph.PGraph.Edge.next">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">next</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vertex</span><span class="p">:</span> <span class="n">Vertex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Vertex</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">next</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vertex</span><span class="p">:</span> <span class="n">BaseVertex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BaseVertex</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Return other end of an edge</span>
 
 <span class="sd">        :param vertex: one vertex on the edge</span>
-<span class="sd">        :type vertex: Vertex subclass</span>
+<span class="sd">        :type vertex: BaseVertex subclass</span>
 <span class="sd">        :raises ValueError: ``vertex`` is not on the edge</span>
 <span class="sd">        :return: the other vertex on the edge</span>
-<span class="sd">        :rtype: Vertex subclass</span>
+<span class="sd">        :rtype: BaseVertex subclass</span>
 
 <span class="sd">        ``e.next(v1)`` is the vertex at the other end of edge ``e``, ie. the</span>
 <span class="sd">        vertex that is not ``v1``.</span>
@@ -2038,12 +1951,12 @@
 
 <div class="viewcode-block" id="Edge.vertices">
 <a class="viewcode-back" href="../../edge.html#pgraph.PGraph.Edge.vertices">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">vertices</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Vertex</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">vertices</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">BaseVertex</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Vertices of an edge (deprecated)</span>
 
 <span class="sd">        :return: the two vertices of this edge</span>
-<span class="sd">        :rtype: list of Vertex subclass</span>
+<span class="sd">        :rtype: list of BaseVertex subclass</span>
 
 <span class="sd">        .. deprecated:: use :attr:`endpoints` instead</span>
 <span class="sd">        """</span>
@@ -2056,12 +1969,12 @@
 
 
     <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">endpoints</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Vertex</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">endpoints</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">BaseVertex</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        The two vertices of this edge</span>
 
 <span class="sd">        :return: start and end vertex</span>
-<span class="sd">        :rtype: list of Vertex subclass</span>
+<span class="sd">        :rtype: list of BaseVertex subclass</span>
 
 <span class="sd">        .. runblock:: pycon</span>
 
@@ -2102,9 +2015,9 @@
 <span class="c1"># ========================================================================== #</span>
 
 
-<div class="viewcode-block" id="Vertex">
-<a class="viewcode-back" href="../../PGraph.html#pgraph.PGraph.Vertex">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">Vertex</span><span class="p">:</span>
+<div class="viewcode-block" id="BaseVertex">
+<a class="viewcode-back" href="../../PGraph.html#pgraph.PGraph.BaseVertex">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">BaseVertex</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Base class for vertices of directed and non-directed graphs.</span>
 
@@ -2127,7 +2040,7 @@
 <span class="sd">        :type name: str, optional</span>
 
 <span class="sd">        Creates a vertex but does not add it to a graph -- use</span>
-<span class="sd">        :meth:`PGraph.add_vertex` for that.</span>
+<span class="sd">        :meth:`_BaseGraph.add_vertex` for that.</span>
 
 <span class="sd">        .. runblock:: pycon</span>
 
@@ -2135,7 +2048,7 @@
 <span class="sd">            &gt;&gt;&gt; v1 = UVertex(coord=[0,0], name='v1')</span>
 <span class="sd">            &gt;&gt;&gt; print(v1)</span>
 
-<span class="sd">        :seealso: :meth:`PGraph.add_vertex`</span>
+<span class="sd">        :seealso: :meth:`_BaseGraph.add_vertex`</span>
 <span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_edgelist</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Edge</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="n">coord</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -2146,8 +2059,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">label</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_connectivitychange</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_edgelist</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_graph</span><span class="p">:</span> <span class="n">PGraph</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># reference to owning graph</span>
-        <span class="c1"># print('Vertex init', type(self))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_graph</span><span class="p">:</span> <span class="n">_BaseGraph</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># reference to owning graph</span>
+        <span class="c1"># print('BaseVertex init', type(self))</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
@@ -2183,9 +2096,9 @@
             <span class="n">coord</span> <span class="o">=</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">x</span><span class="si">:</span><span class="s2">.4g</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">coord</span><span class="p">])</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">[</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">:</span><span class="s2">s</span><span class="si">}</span><span class="s2">, coord=(</span><span class="si">{</span><span class="n">coord</span><span class="si">}</span><span class="s2">)]"</span>
 
-<div class="viewcode-block" id="Vertex.copy">
-<a class="viewcode-back" href="../../PGraph.html#pgraph.PGraph.Vertex.copy">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">cls</span><span class="p">:</span> <span class="nb">type</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Vertex</span><span class="p">:</span>
+<div class="viewcode-block" id="BaseVertex.copy">
+<a class="viewcode-back" href="../../PGraph.html#pgraph.PGraph.BaseVertex.copy">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">cls</span><span class="p">:</span> <span class="nb">type</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BaseVertex</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Copy a vertex</span>
 
@@ -2193,7 +2106,7 @@
 <span class="sd">            create the copy, defaults to None</span>
 <span class="sd">        :type cls: UGraph or DGraph subclass, optional</span>
 <span class="sd">        :return: a new, unconnected vertex with the same coordinate and name</span>
-<span class="sd">        :rtype: Vertex subclass</span>
+<span class="sd">        :rtype: BaseVertex subclass</span>
 
 <span class="sd">        If ``cls`` is given, ``cls.vertex_copy(self)`` is used to create a</span>
 <span class="sd">        vertex of the appropriate subclass for that graph type, otherwise a</span>
@@ -2207,9 +2120,9 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">coord</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">coord</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="Vertex.neighbours">
-<a class="viewcode-back" href="../../PGraph.html#pgraph.PGraph.Vertex.neighbours">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">neighbours</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Vertex</span><span class="p">]:</span>
+<div class="viewcode-block" id="BaseVertex.neighbours">
+<a class="viewcode-back" href="../../PGraph.html#pgraph.PGraph.BaseVertex.neighbours">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">neighbours</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">BaseVertex</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Neighbours of a vertex</span>
 
@@ -2222,9 +2135,9 @@
         <span class="k">return</span> <span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">next</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edgelist</span><span class="p">]</span></div>
 
 
-<div class="viewcode-block" id="Vertex.neighbors">
-<a class="viewcode-back" href="../../PGraph.html#pgraph.PGraph.Vertex.neighbors">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">neighbors</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Vertex</span><span class="p">]:</span>
+<div class="viewcode-block" id="BaseVertex.neighbors">
+<a class="viewcode-back" href="../../PGraph.html#pgraph.PGraph.BaseVertex.neighbors">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">neighbors</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">BaseVertex</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Neighbors of a vertex</span>
 
@@ -2237,14 +2150,14 @@
         <span class="k">return</span> <span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">next</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edgelist</span><span class="p">]</span></div>
 
 
-<div class="viewcode-block" id="Vertex.adjacent">
-<a class="viewcode-back" href="../../PGraph.html#pgraph.PGraph.Vertex.adjacent">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">adjacent</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Vertex</span><span class="p">]:</span>
+<div class="viewcode-block" id="BaseVertex.adjacent">
+<a class="viewcode-back" href="../../PGraph.html#pgraph.PGraph.BaseVertex.adjacent">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">adjacent</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">BaseVertex</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Neighbours of a vertex (deprecated)</span>
 
 <span class="sd">        :return: a list of neighbours of this vertex</span>
-<span class="sd">        :rtype: list of Vertex subclass</span>
+<span class="sd">        :rtype: list of BaseVertex subclass</span>
 
 <span class="sd">        .. deprecated:: use :meth:`neighbours` instead</span>
 <span class="sd">        """</span>
@@ -2256,14 +2169,14 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">neighbours</span><span class="p">()</span></div>
 
 
-<div class="viewcode-block" id="Vertex.isneighbour">
-<a class="viewcode-back" href="../../PGraph.html#pgraph.PGraph.Vertex.isneighbour">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">isneighbour</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vertex</span><span class="p">:</span> <span class="n">Vertex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<div class="viewcode-block" id="BaseVertex.isneighbour">
+<a class="viewcode-back" href="../../PGraph.html#pgraph.PGraph.BaseVertex.isneighbour">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">isneighbour</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vertex</span><span class="p">:</span> <span class="n">BaseVertex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Test if vertex is a neigbour</span>
 
 <span class="sd">        :param vertex: vertex reference</span>
-<span class="sd">        :type vertex: Vertex subclass</span>
+<span class="sd">        :type vertex: BaseVertex subclass</span>
 <span class="sd">        :return: true if a neighbour</span>
 <span class="sd">        :rtype: bool</span>
 
@@ -2275,9 +2188,9 @@
         <span class="k">return</span> <span class="n">vertex</span> <span class="ow">in</span> <span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">next</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edgelist</span><span class="p">]</span></div>
 
 
-<div class="viewcode-block" id="Vertex.incidences">
-<a class="viewcode-back" href="../../PGraph.html#pgraph.PGraph.Vertex.incidences">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">incidences</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">Vertex</span><span class="p">,</span> <span class="n">Edge</span><span class="p">]]:</span>
+<div class="viewcode-block" id="BaseVertex.incidences">
+<a class="viewcode-back" href="../../PGraph.html#pgraph.PGraph.BaseVertex.incidences">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">incidences</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">BaseVertex</span><span class="p">,</span> <span class="n">Edge</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Neighbours and edges of a vertex</span>
 
@@ -2291,14 +2204,14 @@
         <span class="k">return</span> <span class="p">[(</span><span class="n">e</span><span class="o">.</span><span class="n">next</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="n">e</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edgelist</span><span class="p">]</span></div>
 
 
-<div class="viewcode-block" id="Vertex.connect">
-<a class="viewcode-back" href="../../PGraph.html#pgraph.PGraph.Vertex.connect">[docs]</a>
+<div class="viewcode-block" id="BaseVertex.connect">
+<a class="viewcode-back" href="../../PGraph.html#pgraph.PGraph.BaseVertex.connect">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">connect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dest</span><span class="p">,</span> <span class="n">edge</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cost</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Connect two vertices with an edge</span>
 
 <span class="sd">        :param dest: The vertex to connect to</span>
-<span class="sd">        :type dest: ``Vertex`` subclass</span>
+<span class="sd">        :type dest: ``BaseVertex`` subclass</span>
 <span class="sd">        :param edge: Use this as the edge object, otherwise a new ``Edge``</span>
 <span class="sd">                     object is created from the vertices being connected,</span>
 <span class="sd">                     and the ``cost`` and ``edge`` parameters, defaults to None</span>
@@ -2318,7 +2231,7 @@
 
 <span class="sd">            - If the vertices subclass ``UVertex`` the edge is undirected, and if</span>
 <span class="sd">              they subclass ``DVertex`` the edge is directed.</span>
-<span class="sd">            - Vertices must both be of the same ``Vertex`` subclass</span>
+<span class="sd">            - Vertices must both be of the same ``BaseVertex`` subclass</span>
 
 <span class="sd">        :seealso: :meth:`Edge`</span>
 <span class="sd">        """</span>
@@ -2337,14 +2250,14 @@
         <span class="k">return</span> <span class="n">e</span></div>
 
 
-<div class="viewcode-block" id="Vertex.edgeto">
-<a class="viewcode-back" href="../../PGraph.html#pgraph.PGraph.Vertex.edgeto">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">edgeto</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dest</span><span class="p">:</span> <span class="n">Vertex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Edge</span><span class="p">:</span>
+<div class="viewcode-block" id="BaseVertex.edgeto">
+<a class="viewcode-back" href="../../PGraph.html#pgraph.PGraph.BaseVertex.edgeto">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">edgeto</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dest</span><span class="p">:</span> <span class="n">BaseVertex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Edge</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Get edge connecting vertex to specific neighbour</span>
 
 <span class="sd">        :param dest: a neigbouring vertex</span>
-<span class="sd">        :type dest: ``Vertex`` subclass</span>
+<span class="sd">        :type dest: ``BaseVertex`` subclass</span>
 <span class="sd">        :raises ValueError: ``dest`` is not a neighbour</span>
 <span class="sd">        :return: the edge from this vertex to ``dest``</span>
 <span class="sd">        :rtype: Edge</span>
@@ -2359,8 +2272,8 @@
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"dest is not a neighbour"</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="Vertex.edges">
-<a class="viewcode-back" href="../../PGraph.html#pgraph.PGraph.Vertex.edges">[docs]</a>
+<div class="viewcode-block" id="BaseVertex.edges">
+<a class="viewcode-back" href="../../PGraph.html#pgraph.PGraph.BaseVertex.edges">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">edges</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Edge</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        All outgoing edges of vertex</span>
@@ -2377,20 +2290,20 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edgelist</span></div>
 
 
-<div class="viewcode-block" id="Vertex.heuristic_distance">
-<a class="viewcode-back" href="../../PGraph.html#pgraph.PGraph.Vertex.heuristic_distance">[docs]</a>
+<div class="viewcode-block" id="BaseVertex.heuristic_distance">
+<a class="viewcode-back" href="../../PGraph.html#pgraph.PGraph.BaseVertex.heuristic_distance">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">heuristic_distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v2</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_graph</span><span class="o">.</span><span class="n">heuristic</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coord</span> <span class="o">-</span> <span class="n">v2</span><span class="o">.</span><span class="n">coord</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="Vertex.distance">
-<a class="viewcode-back" href="../../PGraph.html#pgraph.PGraph.Vertex.distance">[docs]</a>
+<div class="viewcode-block" id="BaseVertex.distance">
+<a class="viewcode-back" href="../../PGraph.html#pgraph.PGraph.BaseVertex.distance">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coord</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Distance from vertex to point</span>
 
 <span class="sd">        :param coord: coordinates of the point</span>
-<span class="sd">        :type coord: ndarray(n) or Vertex</span>
+<span class="sd">        :type coord: ndarray(n) or BaseVertex</span>
 <span class="sd">        :return: distance</span>
 <span class="sd">        :rtype: float</span>
 
@@ -2398,7 +2311,7 @@
 
 <span class="sd">        :seealso: :meth:`metric`</span>
 <span class="sd">        """</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">coord</span><span class="p">,</span> <span class="n">Vertex</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">coord</span><span class="p">,</span> <span class="n">BaseVertex</span><span class="p">):</span>
             <span class="n">coord</span> <span class="o">=</span> <span class="n">coord</span><span class="o">.</span><span class="n">coord</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_graph</span><span class="o">.</span><span class="n">metric</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coord</span> <span class="o">-</span> <span class="n">coord</span><span class="p">)</span></div>
 
@@ -2449,14 +2362,14 @@
 <span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">coord</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
 
-<div class="viewcode-block" id="Vertex.closest">
-<a class="viewcode-back" href="../../PGraph.html#pgraph.PGraph.Vertex.closest">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">closest</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Vertex</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<div class="viewcode-block" id="BaseVertex.closest">
+<a class="viewcode-back" href="../../PGraph.html#pgraph.PGraph.BaseVertex.closest">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">closest</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">BaseVertex</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Vertex closest to this vertex</span>
+<span class="sd">        BaseVertex closest to this vertex</span>
 
 <span class="sd">        :return: closest vertex and its distance</span>
-<span class="sd">        :rtype: Vertex subclass, float</span>
+<span class="sd">        :rtype: BaseVertex subclass, float</span>
 
 <span class="sd">        Equivalent to ``self._graph.closest(self.coord)``.</span>
 
@@ -2470,7 +2383,7 @@
 <span class="sd">            &gt;&gt;&gt; v4 = g.add_vertex(coord=[4,3], name='v4')</span>
 <span class="sd">            &gt;&gt;&gt; print(v1.closest())</span>
 
-<span class="sd">        :seealso: :meth:`PGraph.closest`</span>
+<span class="sd">        :seealso: :meth:`_BaseGraph.closest`</span>
 <span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_graph</span><span class="o">.</span><span class="n">closest</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coord</span><span class="p">)</span></div>
 </div>
@@ -2479,29 +2392,29 @@
 
 <div class="viewcode-block" id="UVertex">
 <a class="viewcode-back" href="../../uvertex.html#pgraph.PGraph.UVertex">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">UVertex</span><span class="p">(</span><span class="n">Vertex</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">UVertex</span><span class="p">(</span><span class="n">BaseVertex</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
-<span class="sd">    Vertex subclass for undirected graphs</span>
+<span class="sd">    BaseVertex subclass for undirected graphs</span>
 
 <span class="sd">    This class can be inherited to provide user objects with graph capability.</span>
 
 
 <span class="sd">    .. inheritance-diagram:: UVertex</span>
 
-<span class="sd">    :seealso: :class:`Vertex` :class:`DVertex`</span>
+<span class="sd">    :seealso: :class:`BaseVertex` :class:`DVertex`</span>
 <span class="sd">    """</span>
 
 <div class="viewcode-block" id="UVertex.connect">
 <a class="viewcode-back" href="../../uvertex.html#pgraph.PGraph.UVertex.connect">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">connect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Vertex</span> <span class="o">|</span> <span class="n">Edge</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Edge</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">connect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">BaseVertex</span> <span class="o">|</span> <span class="n">Edge</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Edge</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Connect this vertex to another with an undirected edge</span>
 
 <span class="sd">        :param other: vertex to connect to, or an existing edge to attach</span>
-<span class="sd">        :type other: Vertex subclass or Edge</span>
-<span class="sd">        :param kwargs: arguments passed to :meth:`Vertex.connect`, ignored if</span>
+<span class="sd">        :type other: BaseVertex subclass or Edge</span>
+<span class="sd">        :param kwargs: arguments passed to :meth:`BaseVertex.connect`, ignored if</span>
 <span class="sd">            ``other`` is an ``Edge``</span>
-<span class="sd">        :raises TypeError: ``other`` is neither a ``Vertex`` nor an ``Edge``</span>
+<span class="sd">        :raises TypeError: ``other`` is neither a ``BaseVertex`` nor an ``Edge``</span>
 <span class="sd">        :return: the edge connecting the vertices</span>
 <span class="sd">        :rtype: Edge</span>
 
@@ -2519,10 +2432,10 @@
 <span class="sd">            &gt;&gt;&gt; print(g.edges())</span>
 <span class="sd">            &gt;&gt;&gt; print(g)</span>
 
-<span class="sd">        :seealso: :meth:`Vertex.connect` :meth:`DVertex.connect`</span>
+<span class="sd">        :seealso: :meth:`BaseVertex.connect` :meth:`DVertex.connect`</span>
 <span class="sd">        """</span>
 
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Vertex</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">BaseVertex</span><span class="p">):</span>
             <span class="n">e</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Edge</span><span class="p">):</span>
             <span class="n">e</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">edge</span><span class="o">=</span><span class="n">other</span><span class="p">)</span>
@@ -2542,28 +2455,28 @@
 
 <div class="viewcode-block" id="DVertex">
 <a class="viewcode-back" href="../../dvertex.html#pgraph.PGraph.DVertex">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">DVertex</span><span class="p">(</span><span class="n">Vertex</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">DVertex</span><span class="p">(</span><span class="n">BaseVertex</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
-<span class="sd">    Vertex subclass for directed graphs</span>
+<span class="sd">    BaseVertex subclass for directed graphs</span>
 
 <span class="sd">    This class can be inherited to provide user objects with graph capability.</span>
 
 <span class="sd">    .. inheritance-diagram:: DVertex</span>
 
-<span class="sd">    :seealso: :class:`Vertex` :class:`UVertex`</span>
+<span class="sd">    :seealso: :class:`BaseVertex` :class:`UVertex`</span>
 <span class="sd">    """</span>
 
 <div class="viewcode-block" id="DVertex.connect">
 <a class="viewcode-back" href="../../dvertex.html#pgraph.PGraph.DVertex.connect">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">connect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Vertex</span> <span class="o">|</span> <span class="n">Edge</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Edge</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">connect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">BaseVertex</span> <span class="o">|</span> <span class="n">Edge</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Edge</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Connect this vertex to another with a directed edge</span>
 
 <span class="sd">        :param other: vertex to connect to, or an existing edge to attach</span>
-<span class="sd">        :type other: Vertex subclass or Edge</span>
-<span class="sd">        :param kwargs: arguments passed to :meth:`Vertex.connect`, ignored if</span>
+<span class="sd">        :type other: BaseVertex subclass or Edge</span>
+<span class="sd">        :param kwargs: arguments passed to :meth:`BaseVertex.connect`, ignored if</span>
 <span class="sd">            ``other`` is an ``Edge``</span>
-<span class="sd">        :raises TypeError: ``other`` is neither a ``Vertex`` nor an ``Edge``</span>
+<span class="sd">        :raises TypeError: ``other`` is neither a ``BaseVertex`` nor an ``Edge``</span>
 <span class="sd">        :return: the edge connecting the vertices</span>
 <span class="sd">        :rtype: Edge</span>
 
@@ -2582,9 +2495,9 @@
 <span class="sd">            &gt;&gt;&gt; print(g.edges())</span>
 <span class="sd">            &gt;&gt;&gt; print(g)</span>
 
-<span class="sd">        :seealso: :meth:`Vertex.connect` :meth:`UVertex.connect`</span>
+<span class="sd">        :seealso: :meth:`BaseVertex.connect` :meth:`UVertex.connect`</span>
 <span class="sd">        """</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Vertex</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">BaseVertex</span><span class="p">):</span>
             <span class="n">e</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Edge</span><span class="p">):</span>
             <span class="n">e</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">edge</span><span class="o">=</span><span class="n">other</span><span class="p">)</span>
