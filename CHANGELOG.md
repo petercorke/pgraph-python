@@ -1,10 +1,10 @@
 1.0.0
 
 - First 1.0 release: six years of production use since the first commit
-  in 2020 (including as a real dependency of the Robotics Toolbox for
-  Python), and this cycle's comprehensive type-hinting, documentation,
-  and bug-fixing pass, felt like the right point to commit to API
-  stability.
+  in 2020 (including as a real dependency of both the Robotics Toolbox
+  for Python and the Machine Vision Toolbox for Python), and this
+  cycle's comprehensive type-hinting, documentation, and bug-fixing
+  pass, felt like the right point to commit to API stability.
 - Breaking (internal-only): renamed the abstract base classes `PGraph` ->
   `_BaseGraph` and `Vertex` -> `BaseVertex`. Neither was ever exported
   from the package or referenced by name elsewhere in the ecosystem.
