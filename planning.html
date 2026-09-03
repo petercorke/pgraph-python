@@ -1,110 +1,244 @@
 
-
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" data-content_root="./">
+
+<html class="writer-html5" data-content_root="./" lang="en">
 <head>
-  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
-
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Path planning &mdash; Simple graph functionality for Python  documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
-      <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
-      <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
-      <link rel="stylesheet" type="text/css" href="_static/sphinx-codeautolink.css?v=b2176991" />
-      <link rel="stylesheet" type="text/css" href="_static/plot_directive.css" />
-      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=83abaecb" />
-
-  
-      <script src="_static/jquery.js?v=5d32c60e"></script>
-      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=5929fcd5"></script>
-      <script src="_static/doctools.js?v=fd6eb6e6"></script>
-      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
-      <script src="_static/clipboard.min.js?v=a7894cd8"></script>
-      <script src="_static/copybutton.js?v=ccdb6887"></script>
-    <script src="_static/js/theme.js"></script>
-    <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Convert graph to matrix form" href="matrices.html" />
-    <link rel="prev" title="Edge" href="edge.html" /> 
+<meta charset="utf-8"/><meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Path planning — Simple graph functionality for Python  documentation</title>
+<link href="_static/pygments.css?v=b86133f3" rel="stylesheet" type="text/css"/>
+<link href="_static/css/theme.css?v=9edc463e" rel="stylesheet" type="text/css"/>
+<link href="_static/graphviz.css?v=4ae1632d" rel="stylesheet" type="text/css"/>
+<link href="_static/copybutton.css?v=76b2166b" rel="stylesheet" type="text/css"/>
+<link href="_static/sphinx-codeautolink.css?v=b2176991" rel="stylesheet" type="text/css"/>
+<link href="_static/plot_directive.css" rel="stylesheet" type="text/css"/>
+<link href="_static/custom.css?v=83abaecb" rel="stylesheet" type="text/css"/>
+<script src="_static/jquery.js?v=5d32c60e"></script>
+<script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+<script src="_static/documentation_options.js?v=5929fcd5"></script>
+<script src="_static/doctools.js?v=fd6eb6e6"></script>
+<script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+<script src="_static/clipboard.min.js?v=a7894cd8"></script>
+<script src="_static/copybutton.js?v=ccdb6887"></script>
+<script src="_static/js/theme.js"></script>
+<link href="genindex.html" rel="index" title="Index"/>
+<link href="search.html" rel="search" title="Search"/>
+<link href="matrices.html" rel="next" title="Convert graph to matrix form"/>
+<link href="edge.html" rel="prev" title="Edge"/>
 </head>
-
-<body class="wy-body-for-nav"> 
-  <div class="wy-grid-for-nav">
-    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
-      <div class="wy-side-scroll">
-        <div class="wy-side-nav-search" >
-
-          
-          
-          <a href="index.html" class="icon icon-home">
+<body class="wy-body-for-nav">
+<div class="wy-grid-for-nav">
+<nav class="wy-nav-side" data-toggle="wy-nav-shift">
+<div class="wy-side-scroll">
+<div class="wy-side-nav-search">
+<a class="icon icon-home" href="index.html">
             Simple graph functionality for Python
           </a>
 <div role="search">
-  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
-    <input type="hidden" name="check_keywords" value="yes" />
-    <input type="hidden" name="area" value="default" />
-  </form>
+<form action="search.html" class="wy-form" id="rtd-search-form" method="get">
+<input aria-label="Search docs" name="q" placeholder="Search docs" type="text"/>
+<input name="check_keywords" type="hidden" value="yes"/>
+<input name="area" type="hidden" value="default"/>
+</form>
 </div>
-        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul class="current">
+</div><div aria-label="Navigation menu" class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation">
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="directed.html">Directed graphs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="undirected.html">Undirected graphs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="edge.html">Edge</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Path planning</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Path planning</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#pgraph.PGraph._BaseGraph"><code class="docutils literal notranslate"><span class="pre">_BaseGraph</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pgraph.PGraph._BaseGraph.path_Astar"><code class="docutils literal notranslate"><span class="pre">_BaseGraph.path_Astar()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pgraph.PGraph._BaseGraph.path_BFS"><code class="docutils literal notranslate"><span class="pre">_BaseGraph.path_BFS()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pgraph.PGraph._BaseGraph.path_UCS"><code class="docutils literal notranslate"><span class="pre">_BaseGraph.path_UCS()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="matrices.html">Convert graph to matrix form</a></li>
 </ul>
-
-        </div>
-      </div>
-    </nav>
-
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
-          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">Simple graph functionality for Python</a>
-      </nav>
-
-      <div class="wy-nav-content">
-        <div class="rst-content">
-          <div role="navigation" aria-label="Page navigation">
-  <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Path planning</li>
-      <li class="wy-breadcrumbs-aside">
-            <a href="_sources/planning.rst.txt" rel="nofollow"> View page source</a>
-      </li>
-  </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
-        <a href="edge.html" class="btn btn-neutral float-left" title="Edge" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="matrices.html" class="btn btn-neutral float-right" title="Convert graph to matrix form" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-  </div>
-  <hr/>
 </div>
-          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
-           <div itemprop="articleBody">
-             
-  <section id="path-planning">
+</div>
+</nav>
+<section class="wy-nav-content-wrap" data-toggle="wy-nav-shift"><nav aria-label="Mobile navigation menu" class="wy-nav-top">
+<i class="fa fa-bars" data-toggle="wy-nav-top"></i>
+<a href="index.html">Simple graph functionality for Python</a>
+</nav>
+<div class="wy-nav-content">
+<div class="rst-content">
+<div aria-label="Page navigation" role="navigation">
+<ul class="wy-breadcrumbs">
+<li><a aria-label="Home" class="icon icon-home" href="index.html"></a></li>
+<li class="breadcrumb-item active">Path planning</li>
+<li class="wy-breadcrumbs-aside">
+<a href="_sources/planning.rst.txt" rel="nofollow"> View page source</a>
+</li>
+</ul><div aria-label="Sequential page navigation" class="rst-breadcrumbs-buttons" role="navigation">
+<a accesskey="p" class="btn btn-neutral float-left" href="edge.html" title="Edge"><span aria-hidden="true" class="fa fa-arrow-circle-left"></span> Previous</a>
+<a accesskey="n" class="btn btn-neutral float-right" href="matrices.html" title="Convert graph to matrix form">Next <span aria-hidden="true" class="fa fa-arrow-circle-right"></span></a>
+</div>
+<hr/>
+</div>
+<div class="document" itemscope="itemscope" itemtype="http://schema.org/Article" role="main">
+<div itemprop="articleBody">
+<section id="path-planning">
 <h1>Path planning<a class="headerlink" href="#path-planning" title="Link to this heading"></a></h1>
 <p>These methods find optimal paths from a start vertex to a goal vertex.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="pgraph.PGraph._BaseGraph">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pgraph.PGraph.</span></span><span class="sig-name descname"><span class="pre">_BaseGraph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">heuristic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pgraph/PGraph.html#_BaseGraph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pgraph.PGraph._BaseGraph" title="Link to this definition"></a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="pgraph.PGraph._BaseGraph.path_Astar">
+<span class="sig-name descname"><span class="pre">path_Astar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">S</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">G</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">summary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pgraph/PGraph.html#_BaseGraph.path_Astar"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pgraph.PGraph._BaseGraph.path_Astar" title="Link to this definition"></a></dt>
+<dd><p>A* search for path</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>S</strong> (<em>BaseVertex subclass</em>) – start vertex</p></li>
+<li><p><strong>G</strong> (<em>BaseVertex subclass</em>) – goal vertex</p></li>
+<li><p><strong>verbose</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span>) – print search progress, defaults to False</p></li>
+<li><p><strong>summary</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span>) – print a one-line search summary, defaults to False</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>list of vertices from S to G inclusive, path length, tree</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a> of BaseVertex subclass, <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)">float</a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
+</dd>
+</dl>
+<p>Returns a list of vertices that form a path from vertex <code class="docutils literal notranslate"><span class="pre">S</span></code> to
+vertex <code class="docutils literal notranslate"><span class="pre">G</span></code> if possible, otherwise return None.</p>
+<p>The search tree is returned as dict that maps a vertex to its parent.</p>
+<p>The heuristic is the distance metric of the graph, which defaults to
+Euclidean distance.</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pgraph</span><span class="w"> </span><span class="kn">import</span> <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">UGraph</span></a>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">g</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">UGraph</span></a><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><span class="n">v1</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph.add_vertex" title="pgraph.PGraph.UGraph.add_vertex"><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span></a><span class="p">(</span><span class="n">coord</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s1">'v1'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><span class="n">v2</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph.add_vertex" title="pgraph.PGraph.UGraph.add_vertex"><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span></a><span class="p">(</span><span class="n">coord</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s1">'v2'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><span class="n">v3</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph.add_vertex" title="pgraph.PGraph.UGraph.add_vertex"><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span></a><span class="p">(</span><span class="n">coord</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s1">'v3'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph.add_edge" title="pgraph.PGraph.UGraph.add_edge"><span class="n">g</span><span class="o">.</span><span class="n">add_edge</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><span class="n">v1</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><span class="n">v2</span></a><span class="p">)</span>
+<span class="go">Edge{[v1] -- [v2], cost=1}</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph.add_edge" title="pgraph.PGraph.UGraph.add_edge"><span class="n">g</span><span class="o">.</span><span class="n">add_edge</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><span class="n">v2</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><span class="n">v3</span></a><span class="p">)</span>
+<span class="go">Edge{[v2] -- [v3], cost=1}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">path</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">tree</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph.path_Astar" title="pgraph.PGraph.UGraph.path_Astar"><span class="n">g</span><span class="o">.</span><span class="n">path_Astar</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><span class="n">v1</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><span class="n">v3</span></a><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#print"><span class="nb">print</span></a><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+<span class="go">[UVertex[v1, coord=(0, 0)], UVertex[v2, coord=(1, 0)], UVertex[v3, coord=(2, 0)]]</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#print"><span class="nb">print</span></a><span class="p">(</span><span class="n">length</span><span class="p">)</span>
+<span class="go">2.0</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">heuristic()</span></code> <a class="reference internal" href="#pgraph.PGraph._BaseGraph.path_BFS" title="pgraph.PGraph._BaseGraph.path_BFS"><code class="xref py py-meth docutils literal notranslate"><span class="pre">path_BFS()</span></code></a> <a class="reference internal" href="#pgraph.PGraph._BaseGraph.path_UCS" title="pgraph.PGraph._BaseGraph.path_UCS"><code class="xref py py-meth docutils literal notranslate"><span class="pre">path_UCS()</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pgraph.PGraph._BaseGraph.path_BFS">
+<span class="sig-name descname"><span class="pre">path_BFS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">S</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">G</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">summary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pgraph/PGraph.html#_BaseGraph.path_BFS"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pgraph.PGraph._BaseGraph.path_BFS" title="Link to this definition"></a></dt>
+<dd><p>Breadth-first search for path</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>S</strong> (<em>BaseVertex subclass</em>) – start vertex</p></li>
+<li><p><strong>G</strong> (<em>BaseVertex subclass</em>) – goal vertex</p></li>
+<li><p><strong>verbose</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span>) – print search progress, defaults to False</p></li>
+<li><p><strong>summary</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span>) – print a one-line search summary, defaults to False</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>list of vertices from S to G inclusive, path length</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a> of BaseVertex subclass, <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)">float</a></p>
+</dd>
+</dl>
+<p>Returns a list of vertices that form a path from vertex <code class="docutils literal notranslate"><span class="pre">S</span></code> to
+vertex <code class="docutils literal notranslate"><span class="pre">G</span></code> if possible, otherwise return None.</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pgraph</span><span class="w"> </span><span class="kn">import</span> <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">UGraph</span></a>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">g</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">UGraph</span></a><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><span class="n">v1</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph.add_vertex" title="pgraph.PGraph.UGraph.add_vertex"><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span></a><span class="p">(</span><span class="n">coord</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s1">'v1'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><span class="n">v2</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph.add_vertex" title="pgraph.PGraph.UGraph.add_vertex"><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span></a><span class="p">(</span><span class="n">coord</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s1">'v2'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><span class="n">v3</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph.add_vertex" title="pgraph.PGraph.UGraph.add_vertex"><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span></a><span class="p">(</span><span class="n">coord</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s1">'v3'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph.add_edge" title="pgraph.PGraph.UGraph.add_edge"><span class="n">g</span><span class="o">.</span><span class="n">add_edge</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><span class="n">v1</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><span class="n">v2</span></a><span class="p">)</span>
+<span class="go">Edge{[v1] -- [v2], cost=1}</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph.add_edge" title="pgraph.PGraph.UGraph.add_edge"><span class="n">g</span><span class="o">.</span><span class="n">add_edge</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><span class="n">v2</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><span class="n">v3</span></a><span class="p">)</span>
+<span class="go">Edge{[v2] -- [v3], cost=1}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">path</span><span class="p">,</span> <span class="n">length</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph.path_BFS" title="pgraph.PGraph.UGraph.path_BFS"><span class="n">g</span><span class="o">.</span><span class="n">path_BFS</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><span class="n">v1</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><span class="n">v3</span></a><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#print"><span class="nb">print</span></a><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+<span class="go">[UVertex[v1, coord=(0, 0)], UVertex[v2, coord=(1, 0)], UVertex[v3, coord=(2, 0)]]</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#print"><span class="nb">print</span></a><span class="p">(</span><span class="n">length</span><span class="p">)</span>
+<span class="go">2.0</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#pgraph.PGraph._BaseGraph.path_UCS" title="pgraph.PGraph._BaseGraph.path_UCS"><code class="xref py py-meth docutils literal notranslate"><span class="pre">path_UCS()</span></code></a> <a class="reference internal" href="#pgraph.PGraph._BaseGraph.path_Astar" title="pgraph.PGraph._BaseGraph.path_Astar"><code class="xref py py-meth docutils literal notranslate"><span class="pre">path_Astar()</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pgraph.PGraph._BaseGraph.path_UCS">
+<span class="sig-name descname"><span class="pre">path_UCS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">S</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">G</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">summary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pgraph/PGraph.html#_BaseGraph.path_UCS"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pgraph.PGraph._BaseGraph.path_UCS" title="Link to this definition"></a></dt>
+<dd><p>Uniform cost search for path</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>S</strong> (<em>BaseVertex subclass</em>) – start vertex</p></li>
+<li><p><strong>G</strong> (<em>BaseVertex subclass</em>) – goal vertex</p></li>
+<li><p><strong>verbose</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span>) – print search progress, defaults to False</p></li>
+<li><p><strong>summary</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span>) – print a one-line search summary, defaults to False</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>list of vertices from S to G inclusive, path length, tree</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a> of BaseVertex subclass, <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)">float</a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
+</dd>
+</dl>
+<p>Returns a list of vertices that form a path from vertex <code class="docutils literal notranslate"><span class="pre">S</span></code> to
+vertex <code class="docutils literal notranslate"><span class="pre">G</span></code> if possible, otherwise return None.</p>
+<p>The search tree is returned as dict that maps a vertex to its parent.</p>
+<p>The heuristic is the distance metric of the graph, which defaults to
+Euclidean distance.</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pgraph</span><span class="w"> </span><span class="kn">import</span> <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">UGraph</span></a>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">g</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">UGraph</span></a><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><span class="n">v1</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph.add_vertex" title="pgraph.PGraph.UGraph.add_vertex"><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span></a><span class="p">(</span><span class="n">coord</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s1">'v1'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><span class="n">v2</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph.add_vertex" title="pgraph.PGraph.UGraph.add_vertex"><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span></a><span class="p">(</span><span class="n">coord</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s1">'v2'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><span class="n">v3</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph.add_vertex" title="pgraph.PGraph.UGraph.add_vertex"><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span></a><span class="p">(</span><span class="n">coord</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s1">'v3'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph.add_edge" title="pgraph.PGraph.UGraph.add_edge"><span class="n">g</span><span class="o">.</span><span class="n">add_edge</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><span class="n">v1</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><span class="n">v2</span></a><span class="p">)</span>
+<span class="go">Edge{[v1] -- [v2], cost=1}</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph.add_edge" title="pgraph.PGraph.UGraph.add_edge"><span class="n">g</span><span class="o">.</span><span class="n">add_edge</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><span class="n">v2</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><span class="n">v3</span></a><span class="p">)</span>
+<span class="go">Edge{[v2] -- [v3], cost=1}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">path</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">tree</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph.path_UCS" title="pgraph.PGraph.UGraph.path_UCS"><span class="n">g</span><span class="o">.</span><span class="n">path_UCS</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><span class="n">v1</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><span class="n">v3</span></a><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#print"><span class="nb">print</span></a><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+<span class="go">[UVertex[v1, coord=(0, 0)], UVertex[v2, coord=(1, 0)], UVertex[v3, coord=(2, 0)]]</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#print"><span class="nb">print</span></a><span class="p">(</span><span class="n">length</span><span class="p">)</span>
+<span class="go">2.0</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#pgraph.PGraph._BaseGraph.path_BFS" title="pgraph.PGraph._BaseGraph.path_BFS"><code class="xref py py-meth docutils literal notranslate"><span class="pre">path_BFS()</span></code></a> <a class="reference internal" href="#pgraph.PGraph._BaseGraph.path_Astar" title="pgraph.PGraph._BaseGraph.path_Astar"><code class="xref py py-meth docutils literal notranslate"><span class="pre">path_Astar()</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+</dd></dl>
 </section>
-
-
-           </div>
-          </div>
-          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="edge.html" class="btn btn-neutral float-left" title="Edge" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="matrices.html" class="btn btn-neutral float-right" title="Convert graph to matrix form" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-    </div>
-
-  <hr/>
-
-  <div role="contentinfo">
-  <p>Copyright &#169; 2020-present, Peter Corke: built 2026-09-03.
+</div>
+</div>
+<footer><div aria-label="Footer" class="rst-footer-buttons" role="navigation">
+<a accesskey="p" class="btn btn-neutral float-left" href="edge.html" rel="prev" title="Edge"><span aria-hidden="true" class="fa fa-arrow-circle-left"></span> Previous</a>
+<a accesskey="n" class="btn btn-neutral float-right" href="matrices.html" rel="next" title="Convert graph to matrix form">Next <span aria-hidden="true" class="fa fa-arrow-circle-right"></span></a>
+</div>
+<hr/>
+<div role="contentinfo">
+<p>Copyright © 2020-present, Peter Corke: built 2026-09-03.
   </p>
-  <a href="https://github.com/petercorke/pgraph-python" class="footer-github-link">GitHub</a>
-
-  </div>
+<a class="footer-github-link" href="https://github.com/petercorke/pgraph-python">GitHub</a>
+</div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
@@ -112,18 +246,18 @@
    
 
 </footer>
-        </div>
-      </div>
-    </section>
-  </div>
-  <script>
+</div>
+</div>
+</section>
+</div>
+<script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
   </script>
-    <!-- Theme Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-11Q6WJM565"></script>
-    <script>
+<!-- Theme Analytics -->
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-11Q6WJM565"></script>
+<script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
@@ -131,7 +265,6 @@
       gtag('config', 'G-11Q6WJM565', {
           'anonymize_ip': false,
       });
-    </script> 
-
+    </script>
 </body>
 </html>

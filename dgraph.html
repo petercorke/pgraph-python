@@ -126,14 +126,14 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="pgraph.PGraph.DGraph">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pgraph.PGraph.</span></span><span class="sig-name descname"><span class="pre">DGraph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">heuristic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pgraph/PGraph.html#DGraph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pgraph.PGraph.DGraph" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">_BaseGraph</span></code></p>
+<dd><p>Bases: <a class="reference internal" href="planning.html#pgraph.PGraph._BaseGraph" title="pgraph.PGraph._BaseGraph"><code class="xref py py-class docutils literal notranslate"><span class="pre">_BaseGraph</span></code></a></p>
 <p>Class for directed graphs</p>
 <div class="graphviz"><img alt="Inheritance diagram of DGraph" class="inheritance graphviz" src="_images/inheritance-0ff46b1f96e9181a797a41b542f330ee66108f62.png" usemap="#inheritance55b8aa88e1"/></div>
 <map id="inheritance55b8aa88e1" name="inheritance55b8aa88e1">
 <area alt="" coords="5,5,176,31" href="#pgraph.PGraph.DGraph" id="node1" shape="rect" target="_top" title="Class for directed graphs"/>
 </map><dl class="field-list simple">
 <dt class="field-odd">Seealso<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">_BaseGraph</span></code> <a class="reference internal" href="ugraph.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><code class="xref py py-class docutils literal notranslate"><span class="pre">UGraph</span></code></a></p>
+<dd class="field-odd"><p><a class="reference internal" href="planning.html#pgraph.PGraph._BaseGraph" title="pgraph.PGraph._BaseGraph"><code class="xref py py-class docutils literal notranslate"><span class="pre">_BaseGraph</span></code></a> <a class="reference internal" href="ugraph.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><code class="xref py py-class docutils literal notranslate"><span class="pre">UGraph</span></code></a></p>
 </dd>
 </dl>
 <dl class="py method">
@@ -165,8 +165,8 @@ is not checked.  Only the upper triangular part is used.</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pgraph</span><span class="w"> </span><span class="kn">import</span> <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">UGraph</span></a>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><a class="sphinx-codeautolink-a" href="https://numpy.org/doc/stable/reference/index.html#module-numpy"><span class="nn">numpy</span></a><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">A</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="https://numpy.org/doc/stable/reference/generated/numpy.array.html#numpy.array" title="numpy.array"><span class="n">np</span><span class="o">.</span><span class="n">array</span></a><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">g</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph.Adjacency" title="pgraph.PGraph.UGraph.Adjacency"><span class="n">UGraph</span><span class="o">.</span><span class="n">Adjacency</span></a><span class="p">(</span><span class="n">A</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#print"><span class="nb">print</span></a><span class="p">(</span><span class="n">g</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="planning.html#pgraph.PGraph._BaseGraph" title="pgraph.PGraph._BaseGraph"><span class="n">g</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph.Adjacency" title="pgraph.PGraph.UGraph.Adjacency"><span class="n">UGraph</span><span class="o">.</span><span class="n">Adjacency</span></a><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#print"><span class="nb">print</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="planning.html#pgraph.PGraph._BaseGraph" title="pgraph.PGraph._BaseGraph"><span class="n">g</span></a><span class="p">)</span>
 <span class="go">UGraph: 3 vertices, 2 edges, 1 component</span>
 </pre></div>
 </div>
@@ -201,8 +201,8 @@ can create a tree graph.</p>
 True then children are linked to their parents.</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pgraph</span><span class="w"> </span><span class="kn">import</span> <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">UGraph</span></a>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'b'</span><span class="p">:</span> <span class="s1">'a'</span><span class="p">,</span> <span class="s1">'c'</span><span class="p">:</span> <span class="s1">'a'</span><span class="p">,</span> <span class="s1">'d'</span><span class="p">:</span> <span class="s1">'b'</span><span class="p">}</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">g</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph.Dict" title="pgraph.PGraph.UGraph.Dict"><span class="n">UGraph</span><span class="o">.</span><span class="n">Dict</span></a><span class="p">(</span><span class="n">d</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#print"><span class="nb">print</span></a><span class="p">(</span><span class="n">g</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="planning.html#pgraph.PGraph._BaseGraph" title="pgraph.PGraph._BaseGraph"><span class="n">g</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph.Dict" title="pgraph.PGraph.UGraph.Dict"><span class="n">UGraph</span><span class="o">.</span><span class="n">Dict</span></a><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#print"><span class="nb">print</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="planning.html#pgraph.PGraph._BaseGraph" title="pgraph.PGraph._BaseGraph"><span class="n">g</span></a><span class="p">)</span>
 <span class="go">UGraph: 4 vertices, 3 edges, 1 component</span>
 </pre></div>
 </div>
@@ -231,19 +231,19 @@ is the number of vertices.</p>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">g</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">UGraph</span></a><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#range"><span class="nb">range</span></a><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
 <span class="gp">... </span>    <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph.add_vertex" title="pgraph.PGraph.UGraph.add_vertex"><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="https://numpy.org/doc/stable/reference/random/generated/numpy.random.rand.html#numpy.random.rand" title="numpy.random.rand"><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span></a><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
-<span class="go">UVertex[#0, coord=(0.455, 0.2355)]</span>
-<span class="go">UVertex[#1, coord=(0.07525, 0.6272)]</span>
-<span class="go">UVertex[#2, coord=(0.4045, 0.2113)]</span>
-<span class="go">UVertex[#3, coord=(0.4674, 0.7159)]</span>
-<span class="go">UVertex[#4, coord=(0.5436, 0.504)]</span>
+<span class="go">UVertex[#0, coord=(0.9304, 0.11)]</span>
+<span class="go">UVertex[#1, coord=(0.898, 0.1481)]</span>
+<span class="go">UVertex[#2, coord=(0.6966, 0.4046)]</span>
+<span class="go">UVertex[#3, coord=(0.2608, 0.1806)]</span>
+<span class="go">UVertex[#4, coord=(0.2134, 0.7436)]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">)]:</span>
 <span class="gp">... </span>    <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph.add_edge" title="pgraph.PGraph.UGraph.add_edge"><span class="n">g</span><span class="o">.</span><span class="n">add_edge</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">g</span></a><span class="p">[</span><span class="n">i</span><span class="p">],</span> <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">g</span></a><span class="p">[</span><span class="n">j</span><span class="p">])</span>
-<span class="go">Edge{[#0] -- [#1], cost=0.5456}</span>
-<span class="go">Edge{[#0] -- [#2], cost=0.05594}</span>
-<span class="go">Edge{[#0] -- [#3], cost=0.4806}</span>
-<span class="go">Edge{[#1] -- [#2], cost=0.5304}</span>
-<span class="go">Edge{[#1] -- [#3], cost=0.402}</span>
-<span class="go">Edge{[#3] -- [#4], cost=0.2251}</span>
+<span class="go">Edge{[#0] -- [#1], cost=0.0501}</span>
+<span class="go">Edge{[#0] -- [#2], cost=0.3761}</span>
+<span class="go">Edge{[#0] -- [#3], cost=0.6733}</span>
+<span class="go">Edge{[#1] -- [#2], cost=0.3261}</span>
+<span class="go">Edge{[#1] -- [#3], cost=0.638}</span>
+<span class="go">Edge{[#3] -- [#4], cost=0.565}</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray"><span class="n">L</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph.Laplacian" title="pgraph.PGraph.UGraph.Laplacian"><span class="n">g</span><span class="o">.</span><span class="n">Laplacian</span></a><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#print"><span class="nb">print</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray"><span class="n">L</span></a><span class="p">)</span>
 <span class="go">[[ 3 -1 -1 -1  0]</span>
@@ -434,19 +434,19 @@ connected to vertex <code class="docutils literal notranslate"><span class="pre"
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">g</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">UGraph</span></a><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#range"><span class="nb">range</span></a><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
 <span class="gp">... </span>    <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph.add_vertex" title="pgraph.PGraph.UGraph.add_vertex"><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="https://numpy.org/doc/stable/reference/random/generated/numpy.random.rand.html#numpy.random.rand" title="numpy.random.rand"><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span></a><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
-<span class="go">UVertex[#0, coord=(0.3081, 0.2801)]</span>
-<span class="go">UVertex[#1, coord=(0.6544, 0.3897)]</span>
-<span class="go">UVertex[#2, coord=(0.102, 0.02685)]</span>
-<span class="go">UVertex[#3, coord=(0.6203, 0.09002)]</span>
-<span class="go">UVertex[#4, coord=(0.4109, 0.4557)]</span>
+<span class="go">UVertex[#0, coord=(0.6191, 0.7627)]</span>
+<span class="go">UVertex[#1, coord=(0.582, 0.2112)]</span>
+<span class="go">UVertex[#2, coord=(0.1573, 0.4096)]</span>
+<span class="go">UVertex[#3, coord=(0.6645, 0.5581)]</span>
+<span class="go">UVertex[#4, coord=(0.6361, 0.6398)]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">)]:</span>
 <span class="gp">... </span>    <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph.add_edge" title="pgraph.PGraph.UGraph.add_edge"><span class="n">g</span><span class="o">.</span><span class="n">add_edge</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">g</span></a><span class="p">[</span><span class="n">i</span><span class="p">],</span> <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">g</span></a><span class="p">[</span><span class="n">j</span><span class="p">])</span>
-<span class="go">Edge{[#0] -- [#1], cost=0.3632}</span>
-<span class="go">Edge{[#0] -- [#2], cost=0.3266}</span>
-<span class="go">Edge{[#0] -- [#3], cost=0.3655}</span>
-<span class="go">Edge{[#1] -- [#2], cost=0.6609}</span>
-<span class="go">Edge{[#1] -- [#3], cost=0.3016}</span>
-<span class="go">Edge{[#3] -- [#4], cost=0.4214}</span>
+<span class="go">Edge{[#0] -- [#1], cost=0.5527}</span>
+<span class="go">Edge{[#0] -- [#2], cost=0.5814}</span>
+<span class="go">Edge{[#0] -- [#3], cost=0.2096}</span>
+<span class="go">Edge{[#1] -- [#2], cost=0.4688}</span>
+<span class="go">Edge{[#1] -- [#3], cost=0.3565}</span>
+<span class="go">Edge{[#3] -- [#4], cost=0.08651}</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray"><span class="n">A</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph.adjacency" title="pgraph.PGraph.UGraph.adjacency"><span class="n">g</span><span class="o">.</span><span class="n">adjacency</span></a><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#print"><span class="nb">print</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray"><span class="n">A</span></a><span class="p">)</span>
 <span class="go">[[0. 1. 1. 1. 0.]</span>
@@ -605,19 +605,19 @@ vertices in the graph</p>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">g</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">UGraph</span></a><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#range"><span class="nb">range</span></a><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
 <span class="gp">... </span>    <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph.add_vertex" title="pgraph.PGraph.UGraph.add_vertex"><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="https://numpy.org/doc/stable/reference/random/generated/numpy.random.rand.html#numpy.random.rand" title="numpy.random.rand"><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span></a><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
-<span class="go">UVertex[#0, coord=(0.02404, 0.4951)]</span>
-<span class="go">UVertex[#1, coord=(0.2779, 0.6282)]</span>
-<span class="go">UVertex[#2, coord=(0.2111, 0.8508)]</span>
-<span class="go">UVertex[#3, coord=(0.3802, 0.03845)]</span>
-<span class="go">UVertex[#4, coord=(0.6237, 0.6874)]</span>
+<span class="go">UVertex[#0, coord=(0.1513, 0.4635)]</span>
+<span class="go">UVertex[#1, coord=(0.9992, 0.07304)]</span>
+<span class="go">UVertex[#2, coord=(0.3221, 0.7206)]</span>
+<span class="go">UVertex[#3, coord=(0.06223, 0.1156)]</span>
+<span class="go">UVertex[#4, coord=(0.5276, 0.4744)]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">)]:</span>
 <span class="gp">... </span>    <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph.add_edge" title="pgraph.PGraph.UGraph.add_edge"><span class="n">g</span><span class="o">.</span><span class="n">add_edge</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">g</span></a><span class="p">[</span><span class="n">i</span><span class="p">],</span> <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">g</span></a><span class="p">[</span><span class="n">j</span><span class="p">])</span>
-<span class="go">Edge{[#0] -- [#1], cost=0.2867}</span>
-<span class="go">Edge{[#0] -- [#2], cost=0.4019}</span>
-<span class="go">Edge{[#0] -- [#3], cost=0.5791}</span>
-<span class="go">Edge{[#1] -- [#2], cost=0.2323}</span>
-<span class="go">Edge{[#1] -- [#3], cost=0.5986}</span>
-<span class="go">Edge{[#3] -- [#4], cost=0.6931}</span>
+<span class="go">Edge{[#0] -- [#1], cost=0.9336}</span>
+<span class="go">Edge{[#0] -- [#2], cost=0.3087}</span>
+<span class="go">Edge{[#0] -- [#3], cost=0.3591}</span>
+<span class="go">Edge{[#1] -- [#2], cost=0.9369}</span>
+<span class="go">Edge{[#1] -- [#3], cost=0.938}</span>
+<span class="go">Edge{[#3] -- [#4], cost=0.5876}</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">c</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph.connectivity" title="pgraph.PGraph.UGraph.connectivity"><span class="n">g</span><span class="o">.</span><span class="n">connectivity</span></a><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#print"><span class="nb">print</span></a><span class="p">(</span><span class="n">c</span><span class="p">)</span>
 <span class="go">[3, 3, 2, 3, 1]</span>
@@ -638,16 +638,16 @@ vertices in the graph</p>
 <dd class="field-odd"><p>deep copy</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>_BaseGraph</p>
+<dd class="field-even"><p><a class="reference internal" href="planning.html#pgraph.PGraph._BaseGraph" title="pgraph.PGraph._BaseGraph">_BaseGraph</a></p>
 </dd>
 </dl>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pgraph</span><span class="w"> </span><span class="kn">import</span> <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">UGraph</span></a>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">g</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">UGraph</span></a><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><span class="n">v1</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph.add_vertex" title="pgraph.PGraph.UGraph.add_vertex"><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span></a><span class="p">(</span><span class="n">coord</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s1">'v1'</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">g2</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph.copy" title="pgraph.PGraph.UGraph.copy"><span class="n">g</span><span class="o">.</span><span class="n">copy</span></a><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">g2</span> <span class="ow">is</span> <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">g</span></a>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="planning.html#pgraph.PGraph._BaseGraph" title="pgraph.PGraph._BaseGraph"><span class="n">g2</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph.copy" title="pgraph.PGraph.UGraph.copy"><span class="n">g</span><span class="o">.</span><span class="n">copy</span></a><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="planning.html#pgraph.PGraph._BaseGraph" title="pgraph.PGraph._BaseGraph"><span class="n">g2</span></a> <span class="ow">is</span> <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">g</span></a>
 <span class="go">False</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">g2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">is</span> <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">g</span></a><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="planning.html#pgraph.PGraph._BaseGraph" title="pgraph.PGraph._BaseGraph"><span class="n">g2</span></a><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">is</span> <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">g</span></a><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 <span class="go">False</span>
 </pre></div>
 </div>
@@ -676,19 +676,19 @@ of edges connected to vertex id <code class="docutils literal notranslate"><span
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">g</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">UGraph</span></a><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#range"><span class="nb">range</span></a><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
 <span class="gp">... </span>    <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph.add_vertex" title="pgraph.PGraph.UGraph.add_vertex"><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="https://numpy.org/doc/stable/reference/random/generated/numpy.random.rand.html#numpy.random.rand" title="numpy.random.rand"><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span></a><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
-<span class="go">UVertex[#0, coord=(0.4631, 0.376)]</span>
-<span class="go">UVertex[#1, coord=(0.4291, 0.695)]</span>
-<span class="go">UVertex[#2, coord=(0.8106, 0.5104)]</span>
-<span class="go">UVertex[#3, coord=(0.4723, 0.751)]</span>
-<span class="go">UVertex[#4, coord=(0.7768, 0.2794)]</span>
+<span class="go">UVertex[#0, coord=(0.9438, 0.6787)]</span>
+<span class="go">UVertex[#1, coord=(0.1485, 0.3425)]</span>
+<span class="go">UVertex[#2, coord=(0.2493, 0.4151)]</span>
+<span class="go">UVertex[#3, coord=(0.2796, 0.5472)]</span>
+<span class="go">UVertex[#4, coord=(0.998, 0.6133)]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">)]:</span>
 <span class="gp">... </span>    <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph.add_edge" title="pgraph.PGraph.UGraph.add_edge"><span class="n">g</span><span class="o">.</span><span class="n">add_edge</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">g</span></a><span class="p">[</span><span class="n">i</span><span class="p">],</span> <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">g</span></a><span class="p">[</span><span class="n">j</span><span class="p">])</span>
-<span class="go">Edge{[#0] -- [#1], cost=0.3208}</span>
-<span class="go">Edge{[#0] -- [#2], cost=0.3726}</span>
-<span class="go">Edge{[#0] -- [#3], cost=0.3751}</span>
-<span class="go">Edge{[#1] -- [#2], cost=0.4238}</span>
-<span class="go">Edge{[#1] -- [#3], cost=0.07071}</span>
-<span class="go">Edge{[#3] -- [#4], cost=0.5614}</span>
+<span class="go">Edge{[#0] -- [#1], cost=0.8634}</span>
+<span class="go">Edge{[#0] -- [#2], cost=0.7428}</span>
+<span class="go">Edge{[#0] -- [#3], cost=0.6771}</span>
+<span class="go">Edge{[#1] -- [#2], cost=0.1243}</span>
+<span class="go">Edge{[#1] -- [#3], cost=0.2431}</span>
+<span class="go">Edge{[#3] -- [#4], cost=0.7215}</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray"><span class="n">d</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph.degree" title="pgraph.PGraph.UGraph.degree"><span class="n">g</span><span class="o">.</span><span class="n">degree</span></a><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#print"><span class="nb">print</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray"><span class="n">d</span></a><span class="p">)</span>
 <span class="go">[[3 0 0 0 0]</span>
@@ -724,26 +724,26 @@ connected.</p>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">g</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">UGraph</span></a><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#range"><span class="nb">range</span></a><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
 <span class="gp">... </span>    <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph.add_vertex" title="pgraph.PGraph.UGraph.add_vertex"><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="https://numpy.org/doc/stable/reference/random/generated/numpy.random.rand.html#numpy.random.rand" title="numpy.random.rand"><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span></a><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
-<span class="go">UVertex[#0, coord=(0.4393, 0.2817)]</span>
-<span class="go">UVertex[#1, coord=(0.1797, 0.04233)]</span>
-<span class="go">UVertex[#2, coord=(0.9487, 0.4691)]</span>
-<span class="go">UVertex[#3, coord=(0.8838, 0.5502)]</span>
-<span class="go">UVertex[#4, coord=(0.8346, 0.4014)]</span>
+<span class="go">UVertex[#0, coord=(0.3717, 0.5366)]</span>
+<span class="go">UVertex[#1, coord=(0.6091, 0.4993)]</span>
+<span class="go">UVertex[#2, coord=(0.3711, 0.708)]</span>
+<span class="go">UVertex[#3, coord=(0.7262, 0.924)]</span>
+<span class="go">UVertex[#4, coord=(0.1795, 0.2854)]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">)]:</span>
 <span class="gp">... </span>    <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph.add_edge" title="pgraph.PGraph.UGraph.add_edge"><span class="n">g</span><span class="o">.</span><span class="n">add_edge</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">g</span></a><span class="p">[</span><span class="n">i</span><span class="p">],</span> <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">g</span></a><span class="p">[</span><span class="n">j</span><span class="p">])</span>
-<span class="go">Edge{[#0] -- [#1], cost=0.3531}</span>
-<span class="go">Edge{[#0] -- [#2], cost=0.5428}</span>
-<span class="go">Edge{[#0] -- [#3], cost=0.5193}</span>
-<span class="go">Edge{[#1] -- [#2], cost=0.8795}</span>
-<span class="go">Edge{[#1] -- [#3], cost=0.8681}</span>
-<span class="go">Edge{[#3] -- [#4], cost=0.1566}</span>
+<span class="go">Edge{[#0] -- [#1], cost=0.2403}</span>
+<span class="go">Edge{[#0] -- [#2], cost=0.1714}</span>
+<span class="go">Edge{[#0] -- [#3], cost=0.5251}</span>
+<span class="go">Edge{[#1] -- [#2], cost=0.3165}</span>
+<span class="go">Edge{[#1] -- [#3], cost=0.4405}</span>
+<span class="go">Edge{[#3] -- [#4], cost=0.8407}</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray"><span class="n">d</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph.distance" title="pgraph.PGraph.UGraph.distance"><span class="n">g</span><span class="o">.</span><span class="n">distance</span></a><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#print"><span class="nb">print</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray"><span class="n">d</span></a><span class="p">)</span>
-<span class="go">[[0.         0.3531004  0.54284994 0.51929532 0.        ]</span>
-<span class="go"> [0.3531004  0.         0.87954651 0.86813439 0.        ]</span>
-<span class="go"> [0.54284994 0.87954651 0.         0.         0.        ]</span>
-<span class="go"> [0.51929532 0.86813439 0.         0.         0.15663914]</span>
-<span class="go"> [0.         0.         0.         0.15663914 0.        ]]</span>
+<span class="go">[[0.         0.24028648 0.17138028 0.52512716 0.        ]</span>
+<span class="go"> [0.24028648 0.         0.31648758 0.44052845 0.        ]</span>
+<span class="go"> [0.17138028 0.31648758 0.         0.         0.        ]</span>
+<span class="go"> [0.52512716 0.44052845 0.         0.         0.84070072]</span>
+<span class="go"> [0.         0.         0.         0.84070072 0.        ]]</span>
 </pre></div>
 </div>
 <dl class="field-list simple">
@@ -989,24 +989,24 @@ connected to edge <code class="docutils literal notranslate"><span class="pre">j
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">g</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">UGraph</span></a><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/stdtypes.html#range"><span class="nb">range</span></a><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
 <span class="gp">... </span>    <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph.add_vertex" title="pgraph.PGraph.UGraph.add_vertex"><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="https://numpy.org/doc/stable/reference/random/generated/numpy.random.rand.html#numpy.random.rand" title="numpy.random.rand"><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span></a><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
-<span class="go">UVertex[#0, coord=(0.5957, 0.4221)]</span>
-<span class="go">UVertex[#1, coord=(0.5556, 0.5936)]</span>
-<span class="go">UVertex[#2, coord=(0.3983, 0.4448)]</span>
-<span class="go">UVertex[#3, coord=(0.3451, 0.1432)]</span>
-<span class="go">UVertex[#4, coord=(0.9224, 0.2528)]</span>
+<span class="go">UVertex[#0, coord=(0.01007, 0.1271)]</span>
+<span class="go">UVertex[#1, coord=(0.233, 0.9108)]</span>
+<span class="go">UVertex[#2, coord=(0.7701, 0.2037)]</span>
+<span class="go">UVertex[#3, coord=(0.6348, 0.7036)]</span>
+<span class="go">UVertex[#4, coord=(0.0008872, 0.4206)]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">)]:</span>
 <span class="gp">... </span>    <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph.add_edge" title="pgraph.PGraph.UGraph.add_edge"><span class="n">g</span><span class="o">.</span><span class="n">add_edge</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">g</span></a><span class="p">[</span><span class="n">i</span><span class="p">],</span> <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">g</span></a><span class="p">[</span><span class="n">j</span><span class="p">])</span>
-<span class="go">Edge{[#0] -- [#1], cost=0.1761}</span>
-<span class="go">Edge{[#0] -- [#2], cost=0.1987}</span>
-<span class="go">Edge{[#0] -- [#3], cost=0.375}</span>
-<span class="go">Edge{[#1] -- [#2], cost=0.2165}</span>
-<span class="go">Edge{[#1] -- [#3], cost=0.4972}</span>
-<span class="go">Edge{[#3] -- [#4], cost=0.5875}</span>
+<span class="go">Edge{[#0] -- [#1], cost=0.8148}</span>
+<span class="go">Edge{[#0] -- [#2], cost=0.7638}</span>
+<span class="go">Edge{[#0] -- [#3], cost=0.8501}</span>
+<span class="go">Edge{[#1] -- [#2], cost=0.8879}</span>
+<span class="go">Edge{[#1] -- [#3], cost=0.4521}</span>
+<span class="go">Edge{[#3] -- [#4], cost=0.6943}</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray"><span class="n">I</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph.incidence" title="pgraph.PGraph.UGraph.incidence"><span class="n">g</span><span class="o">.</span><span class="n">incidence</span></a><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/library/functions.html#print"><span class="nb">print</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray"><span class="n">I</span></a><span class="p">)</span>
-<span class="go">[[1. 0. 0. 0. 1. 1.]</span>
+<span class="go">[[0. 1. 0. 0. 1. 1.]</span>
 <span class="go"> [1. 1. 0. 1. 0. 0.]</span>
-<span class="go"> [0. 1. 0. 0. 1. 0.]</span>
+<span class="go"> [1. 0. 0. 0. 1. 0.]</span>
 <span class="go"> [0. 0. 1. 1. 0. 1.]</span>
 <span class="go"> [0. 0. 1. 0. 0. 0.]]</span>
 </pre></div>

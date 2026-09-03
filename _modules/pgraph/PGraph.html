@@ -97,6 +97,8 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">spatialmath.base.graphics</span><span class="w"> </span><span class="kn">import</span> <span class="n">axes_logic</span>
 
 
+<div class="viewcode-block" id="_BaseGraph">
+<a class="viewcode-back" href="../../planning.html#pgraph.PGraph._BaseGraph">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">_BaseGraph</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
 
     <span class="c1">#: concrete vertex type for this graph kind, provided by :class:`UGraph`</span>
@@ -1538,6 +1540,8 @@
 
     <span class="c1"># MATRIX REPRESENTATIONS</span>
 
+<div class="viewcode-block" id="_BaseGraph.Laplacian">
+<a class="viewcode-back" href="../../matrices.html#pgraph.PGraph._BaseGraph.Laplacian">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">Laplacian</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NDArray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Laplacian matrix for the graph</span>
@@ -1581,7 +1585,8 @@
 
 <span class="sd">        :seealso: :meth:`adjacency` :meth:`incidence` :meth:`degree`</span>
 <span class="sd">        """</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">degree</span><span class="p">()</span> <span class="o">-</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">adjacency</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">degree</span><span class="p">()</span> <span class="o">-</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">adjacency</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span></div>
+
 
     <span class="k">def</span><span class="w"> </span><span class="nf">connectivity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vertices</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">BaseVertex</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">"""</span>
@@ -1626,6 +1631,8 @@
             <span class="n">c</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">_edgelist</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">c</span>
 
+<div class="viewcode-block" id="_BaseGraph.degree">
+<a class="viewcode-back" href="../../matrices.html#pgraph.PGraph._BaseGraph.degree">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">degree</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NDArray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Degree matrix of graph</span>
@@ -1656,8 +1663,11 @@
 <span class="sd">        :seealso: :meth:`adjacency` :meth:`incidence` :meth:`laplacian`</span>
 <span class="sd">        """</span>
 
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">connectivity</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">connectivity</span><span class="p">())</span></div>
 
+
+<div class="viewcode-block" id="_BaseGraph.adjacency">
+<a class="viewcode-back" href="../../matrices.html#pgraph.PGraph._BaseGraph.adjacency">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">adjacency</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NDArray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Adjacency matrix of graph</span>
@@ -1704,8 +1714,11 @@
         <span class="k">for</span> <span class="n">vertex</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">vertex</span><span class="o">.</span><span class="n">neighbours</span><span class="p">():</span>
                 <span class="n">A</span><span class="p">[</span><span class="n">vdict</span><span class="p">[</span><span class="n">vertex</span><span class="p">],</span> <span class="n">vdict</span><span class="p">[</span><span class="n">n</span><span class="p">]]</span> <span class="o">=</span> <span class="mi">1</span>
-        <span class="k">return</span> <span class="n">A</span>
+        <span class="k">return</span> <span class="n">A</span></div>
 
+
+<div class="viewcode-block" id="_BaseGraph.incidence">
+<a class="viewcode-back" href="../../matrices.html#pgraph.PGraph._BaseGraph.incidence">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">incidence</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NDArray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Incidence matrix of graph</span>
@@ -1756,8 +1769,11 @@
             <span class="n">I</span><span class="p">[</span><span class="n">vdict</span><span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">v1</span><span class="p">],</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
             <span class="n">I</span><span class="p">[</span><span class="n">vdict</span><span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">v2</span><span class="p">],</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
 
-        <span class="k">return</span> <span class="n">I</span>
+        <span class="k">return</span> <span class="n">I</span></div>
 
+
+<div class="viewcode-block" id="_BaseGraph.distance">
+<a class="viewcode-back" href="../../matrices.html#pgraph.PGraph._BaseGraph.distance">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">distance</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NDArray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Distance matrix of graph</span>
@@ -1794,7 +1810,8 @@
         <span class="k">for</span> <span class="n">v1</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">v2</span><span class="p">,</span> <span class="n">edge</span> <span class="ow">in</span> <span class="n">v1</span><span class="o">.</span><span class="n">incidences</span><span class="p">():</span>
                 <span class="n">A</span><span class="p">[</span><span class="n">vdict</span><span class="p">[</span><span class="n">v1</span><span class="p">],</span> <span class="n">vdict</span><span class="p">[</span><span class="n">v2</span><span class="p">]]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_require_cost</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">A</span>
+        <span class="k">return</span> <span class="n">A</span></div>
+
 
     <span class="c1"># GRAPH COMPONENTS</span>
 
@@ -1858,6 +1875,8 @@
 
     <span class="c1"># --------------------------------------------------------------------------- #</span>
 
+<div class="viewcode-block" id="_BaseGraph.path_BFS">
+<a class="viewcode-back" href="../../planning.html#pgraph.PGraph._BaseGraph.path_BFS">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">path_BFS</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">S</span><span class="p">:</span> <span class="n">BaseVertex</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span> <span class="n">G</span><span class="p">:</span> <span class="n">BaseVertex</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">summary</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">BaseVertex</span><span class="p">],</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
@@ -1950,8 +1969,11 @@
                 <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">explored</span><span class="p">)</span><span class="si">}</span><span class="s2"> vertices explored, </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">frontier</span><span class="p">)</span><span class="si">}</span><span class="s2"> remaining on the frontier"</span>
             <span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">path</span><span class="p">,</span> <span class="n">length</span>
+        <span class="k">return</span> <span class="n">path</span><span class="p">,</span> <span class="n">length</span></div>
 
+
+<div class="viewcode-block" id="_BaseGraph.path_UCS">
+<a class="viewcode-back" href="../../planning.html#pgraph.PGraph._BaseGraph.path_UCS">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">path_UCS</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">S</span><span class="p">:</span> <span class="n">BaseVertex</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span> <span class="n">G</span><span class="p">:</span> <span class="n">BaseVertex</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">summary</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">BaseVertex</span><span class="p">],</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
@@ -2062,8 +2084,11 @@
                 <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">explored</span><span class="p">)</span><span class="si">}</span><span class="s2"> vertices explored, </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">frontier</span><span class="p">)</span><span class="si">}</span><span class="s2"> remaining on the frontier"</span>
             <span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">path</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">parent_names</span>
+        <span class="k">return</span> <span class="n">path</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">parent_names</span></div>
 
+
+<div class="viewcode-block" id="_BaseGraph.path_Astar">
+<a class="viewcode-back" href="../../planning.html#pgraph.PGraph._BaseGraph.path_Astar">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">path_Astar</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">S</span><span class="p">:</span> <span class="n">BaseVertex</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span> <span class="n">G</span><span class="p">:</span> <span class="n">BaseVertex</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">summary</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">BaseVertex</span><span class="p">],</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
@@ -2178,7 +2203,9 @@
                 <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">explored</span><span class="p">)</span><span class="si">}</span><span class="s2"> vertices explored, </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">frontier</span><span class="p">)</span><span class="si">}</span><span class="s2"> remaining on the frontier"</span>
             <span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">path</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">parent_names</span>
+        <span class="k">return</span> <span class="n">path</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">parent_names</span></div>
+</div>
+
 
 
 <span class="c1"># -------------------------------------------------------------------------- #</span>
