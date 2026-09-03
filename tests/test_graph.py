@@ -525,6 +525,29 @@ class TestUGraph(unittest.TestCase):
         v1.connect(v3)
         self.assertEqual(g.nc, 1)
 
+    def test_iscyclic(self):
+
+        # tree: acyclic
+        g = UGraph()
+        v = [g.add_vertex(name=str(i)) for i in range(4)]
+        g.add_edge(v[0], v[1])
+        g.add_edge(v[1], v[2])
+        g.add_edge(v[2], v[3])
+        self.assertFalse(g.iscyclic())
+
+        # one extra edge closes a cycle
+        g.add_edge(v[3], v[0])
+        self.assertTrue(g.iscyclic())
+
+        # two disconnected trees: still acyclic
+        g2 = UGraph()
+        a = [g2.add_vertex(name=f'a{i}') for i in range(3)]
+        b = [g2.add_vertex(name=f'b{i}') for i in range(2)]
+        g2.add_edge(a[0], a[1])
+        g2.add_edge(a[1], a[2])
+        g2.add_edge(b[0], b[1])
+        self.assertFalse(g2.iscyclic())
+
     def test_matrices(self):
         g = UGraph()
         # coordinates are needed so edge cost auto-computes, otherwise
@@ -795,6 +818,38 @@ class TestDGraph(unittest.TestCase):
         self.assertEqual(g.n, 2)
         for v in g:
             self.assertIsInstance(v, DVertex)
+
+    def test_iscyclic(self):
+
+        # diamond DAG: shared descendant, but acyclic -- a classic false
+        # positive for a naive/buggy cycle detector
+        g = DGraph()
+        v = [g.add_vertex(name=str(i)) for i in range(4)]
+        g.add_edge(v[0], v[1])
+        g.add_edge(v[0], v[2])
+        g.add_edge(v[1], v[3])
+        g.add_edge(v[2], v[3])
+        self.assertFalse(g.iscyclic())
+
+        # a back-edge closes an actual directed cycle
+        g.add_edge(v[3], v[0])
+        self.assertTrue(g.iscyclic())
+
+        # disconnected DAG components: still acyclic
+        g2 = DGraph()
+        x = [g2.add_vertex(name=f'x{i}') for i in range(2)]
+        y = [g2.add_vertex(name=f'y{i}') for i in range(2)]
+        g2.add_edge(x[0], x[1])
+        g2.add_edge(y[0], y[1])
+        self.assertFalse(g2.iscyclic())
+
+        # pure 3-cycle, no self-loops
+        g3 = DGraph()
+        t = [g3.add_vertex(name=str(i)) for i in range(3)]
+        g3.add_edge(t[0], t[1])
+        g3.add_edge(t[1], t[2])
+        g3.add_edge(t[2], t[0])
+        self.assertTrue(g3.iscyclic())
 
     def test_matrices(self):
         # 3-4-5 triangle, directed 0->1, 0->2, 1->2 -- deliberately
