@@ -9,8 +9,8 @@ help:
 	@echo " make docs - build Sphinx documentation"
 	@echo " make docupdate - upload Sphinx documentation to GitHub pages"
 	@echo " make dist - build dist files"
-	@echo " make upload - upload to PyPI"
 	@echo " make clean - remove dist and docs build files"
+	@echo " (PyPI publish is via GitHub Releases, see .github/workflows/publish.yml)"
 	@echo " make help - this message$(BLACK)"
 
 test:
@@ -33,17 +33,6 @@ docupdate: docs
 dist: .FORCE
 	#$(MAKE) test
 	python -m build
-
-pypi: .FORCE
-	validate-pyproject pyproject.toml
-	@if ! git diff --quiet || ! git diff --cached --quiet; then \
-		echo "Error: uncommitted changes present, aborting upload"; exit 1; \
-	fi
-	$(eval VERSION := $(shell grep '^version' pyproject.toml | sed 's/version = "\(.*\)"/\1/'))
-	python -m build
-	twine upload dist/*
-	git tag v$(VERSION)
-	git push origin v$(VERSION)
 
 clean: .FORCE
 	(cd docs; make clean)
