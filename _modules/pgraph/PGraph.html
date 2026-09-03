@@ -807,7 +807,7 @@
 
 <span class="sd">        .. runblock:: pycon</span>
 
-
+<span class="sd">        </span>
 <span class="sd">            &gt;&gt;&gt; from pgraph import UGraph</span>
 <span class="sd">            &gt;&gt;&gt; g = UGraph()</span>
 <span class="sd">            &gt;&gt;&gt; v1 = g.add_vertex(coord=[0,0], name='v1')</span>
@@ -1155,8 +1155,55 @@
             <span class="c1"># time.sleep(1)</span>
             <span class="c1"># os.remove(pdffile.name)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">iscyclic</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">pass</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">iscyclic</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Test if graph is cyclic</span>
+
+<span class="sd">        :return: true if the graph contains at least one cycle</span>
+<span class="sd">        :rtype: bool</span>
+
+<span class="sd">        For an undirected graph this is a simple count: a forest (acyclic)</span>
+<span class="sd">        has exactly ``n - nc`` edges, one per component-connecting edge with</span>
+<span class="sd">        no redundancy, so any excess indicates a cycle. This is O(1) given</span>
+<span class="sd">        :meth:`n`, :meth:`ne` and :meth:`nc`, which are already cached.</span>
+
+<span class="sd">        For a directed graph this runs `Kahn's algorithm</span>
+<span class="sd">        &lt;https://en.wikipedia.org/wiki/Topological_sorting#Kahn's_algorithm&gt;`_:</span>
+<span class="sd">        repeatedly remove vertices with no remaining incoming edges. If every</span>
+<span class="sd">        vertex can eventually be removed, the graph is a DAG (acyclic); if</span>
+<span class="sd">        some are never freed, they form a cycle. This is O(V+E), using</span>
+<span class="sd">        vertices' outgoing edges via :meth:`BaseVertex.neighbours` the same</span>
+<span class="sd">        way :meth:`path_BFS` and friends do.</span>
+
+<span class="sd">        .. note:: A matrix-based test also exists in theory -- a digraph is</span>
+<span class="sd">            acyclic iff its adjacency matrix is nilpotent (all eigenvalues</span>
+<span class="sd">            zero) -- but that needs an O(N^3) eigendecomposition plus a</span>
+<span class="sd">            floating-point zero-tolerance judgement call, to answer a</span>
+<span class="sd">            question Kahn's algorithm answers exactly with integers in</span>
+<span class="sd">            O(V+E). Not used here for that reason.</span>
+
+<span class="sd">        :seealso: :meth:`adjacency`</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">UGraph</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ne</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">nc</span>
+
+        <span class="c1"># DGraph: Kahn's algorithm</span>
+        <span class="n">indegree</span> <span class="o">=</span> <span class="p">{</span><span class="n">vertex</span><span class="p">:</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">vertex</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">}</span>
+        <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">edges</span><span class="p">():</span>
+            <span class="k">assert</span> <span class="n">e</span><span class="o">.</span><span class="n">v2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="n">indegree</span><span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">v2</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="n">frontier</span> <span class="o">=</span> <span class="p">[</span><span class="n">vertex</span> <span class="k">for</span> <span class="n">vertex</span> <span class="ow">in</span> <span class="bp">self</span> <span class="k">if</span> <span class="n">indegree</span><span class="p">[</span><span class="n">vertex</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">removed</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="n">frontier</span><span class="p">:</span>
+            <span class="n">vertex</span> <span class="o">=</span> <span class="n">frontier</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+            <span class="n">removed</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">vertex</span><span class="o">.</span><span class="n">neighbours</span><span class="p">():</span>
+                <span class="n">indegree</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">-=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">indegree</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">frontier</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">removed</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">average_degree</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sa">r</span><span class="sd">"""</span>
