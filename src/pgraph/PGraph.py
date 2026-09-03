@@ -28,6 +28,7 @@ class _BaseGraph(ABC):
         metric: Callable[[NDArray], float] | str | None = None,
         heuristic: Callable[[NDArray], float] | str | None = None,
         verbose: bool = False,
+        dim: int | None = None,
     ):
         """
         Abstract base class for graphs
@@ -39,17 +40,25 @@ class _BaseGraph(ABC):
         :type heuristic: callable or str, optional
         :param verbose: print diagnostic information as vertices/edges are
             added, defaults to False
+        :param dim: required length of every vertex's ``coord``, defaults to
+            None (unconstrained -- vertices may have coordinates of any
+            length, or none at all)
+        :type dim: int, optional
+        :raises ValueError: ``dim`` is given but is not a positive integer
 
         This is the common base class of :class:`UGraph` and :class:`DGraph`
         and should not be instantiated directly.
 
-        :seealso: :class:`UGraph` :class:`DGraph`
+        :seealso: :class:`UGraph` :class:`DGraph` :meth:`add_vertex`
         """
+        if dim is not None and dim <= 0:
+            raise ValueError(f"dim must be a positive integer, got {dim!r}")
         # we use a list and a dict, the list respects the order of adding
         self._vertexlist: list[BaseVertex] = []
         self._vertexdict: dict[str, BaseVertex] = {}
         self._edgelist: set[Edge] = set()
         self._verbose = verbose
+        self._dim = dim
         self._ncomponents = 0
         self._connectivitychange = False
         if metric is None:
@@ -249,6 +258,8 @@ class _BaseGraph(ABC):
         :param name: name of vertex, defaults to "#i"
         :type name: str, optional
         :raises TypeError: ``coord`` is a ``BaseVertex`` of the wrong kind
+        :raises ValueError: the graph was constructed with ``dim``, and
+            ``coord`` is given but its length doesn't match
         :return: the added vertex
         :rtype: BaseVertex subclass
 
@@ -276,6 +287,18 @@ class _BaseGraph(ABC):
             >>> v2 = g.add_vertex(UVertex(coord=[1,1], name='v2'))
             >>> print(v2.name)
 
+        If the graph was constructed with a required ``dim`` (see
+        :meth:`_BaseGraph.__init__`), every embedded vertex must have a
+        coordinate of exactly that length -- adding one of the wrong length
+        raises ``ValueError``:
+
+        .. runblock:: pycon
+
+            >>> from pgraph import UGraph
+            >>> g = UGraph(dim=6)
+            >>> v1 = g.add_vertex(coord=[0, 0, 0, 0, 0, 0], name='pose1')
+            >>> print(v1)
+
         :seealso: :meth:`vertex_copy`
         """
         if isinstance(coord, self._vertex_cls):
@@ -287,6 +310,16 @@ class _BaseGraph(ABC):
             )
         else:
             vertex = self._vertex_cls(coord, name=name)
+
+        if (
+            self._dim is not None
+            and vertex.coord is not None
+            and len(vertex.coord) != self._dim
+        ):
+            raise ValueError(
+                f"vertex coord has length {len(vertex.coord)}, "
+                f"but this graph requires dim={self._dim}"
+            )
 
         if name is None:
             name = vertex.name

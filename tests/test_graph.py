@@ -358,6 +358,29 @@ class TestUGraph(unittest.TestCase):
         self.assertTrue(v in g)
         self.assertTrue(v._graph, g)
 
+    def test_dim(self):
+
+        # unconstrained by default: any length, or no coord at all
+        g = UGraph()
+        g.add_vertex(coord=[1, 2])
+        g.add_vertex(coord=[1, 2, 3, 4])
+        g.add_vertex()
+        self.assertEqual(g.n, 3)
+
+        # dim enforces every embedded vertex has exactly that length
+        g = UGraph(dim=6)
+        g.add_vertex(coord=[0, 0, 0, 0, 0, 0], name='pose1')
+        g.add_vertex(name='untyped')  # no coord: not checked
+        with self.assertRaises(ValueError):
+            g.add_vertex(coord=[1, 2, 3], name='bad')
+        self.assertEqual(g.n, 2)
+
+        # dim must be a positive integer
+        with self.assertRaises(ValueError):
+            UGraph(dim=0)
+        with self.assertRaises(ValueError):
+            UGraph(dim=-1)
+
     def test_properties(self):
 
         g = UGraph()
