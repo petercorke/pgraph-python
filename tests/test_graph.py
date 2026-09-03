@@ -781,6 +781,7 @@ class TestUGraph(unittest.TestCase):
 
     def test_dotfile(self):
         import pathlib
+        import unittest.mock
 
         g = UGraph()
         v1 = g.add_vertex(coord=[0,0], name='v1')
@@ -795,7 +796,17 @@ class TestUGraph(unittest.TestCase):
         g.dotfile(str(path))
         self.assertTrue(path.is_file())
 
-        g.showgraph()
+        # showgraph() pops a PDF up in a browser via webbrowser.open() --
+        # mock that so the test runs headless, but still exercise the real
+        # dot->PDF rendering and check the result is an actual PDF file.
+        with unittest.mock.patch('pgraph.PGraph.webbrowser.open') as mock_open:
+            g.showgraph()
+
+        mock_open.assert_called_once()
+        pdf_url = mock_open.call_args[0][0]
+        pdf_path = pathlib.Path(pdf_url.removeprefix('file://'))
+        self.assertTrue(pdf_path.is_file())
+        self.assertEqual(pdf_path.read_bytes()[:5], b'%PDF-')
 
 class TestDGraph(unittest.TestCase):
 
