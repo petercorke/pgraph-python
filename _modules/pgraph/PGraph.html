@@ -170,7 +170,7 @@
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">Dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">reverse</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UGraph</span> <span class="o">|</span> <span class="n">DGraph</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">Dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">reverse</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_BaseGraph</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create graph from parent/child dictionary</span>
 
@@ -225,7 +225,7 @@
         <span class="n">A</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">,</span>
         <span class="n">coords</span><span class="p">:</span> <span class="n">NDArray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">names</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">UGraph</span> <span class="o">|</span> <span class="n">DGraph</span><span class="p">:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_BaseGraph</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create graph from adjacency matrix</span>
 
@@ -840,24 +840,28 @@
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">BaseVertex</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vertexdict</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">closest</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coord</span><span class="p">:</span> <span class="n">ArrayLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">BaseVertex</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">closest</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coord</span><span class="p">:</span> <span class="n">ArrayLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">BaseVertex</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        BaseVertex closest to point</span>
 
 <span class="sd">        :param coord: coordinates of a point</span>
 <span class="sd">        :type coord: ndarray(n)</span>
-<span class="sd">        :return: closest vertex and its distance</span>
-<span class="sd">        :rtype: BaseVertex subclass, float</span>
+<span class="sd">        :return: closest vertex and its distance, or ``(None, inf)`` if no</span>
+<span class="sd">            vertex in the graph has a coordinate</span>
+<span class="sd">        :rtype: BaseVertex subclass or None, float</span>
 
 <span class="sd">        Returns the vertex closest to the given point. Distance is computed</span>
-<span class="sd">        according to the graph's metric.</span>
+<span class="sd">        according to the graph's metric. Vertices without a coordinate</span>
+<span class="sd">        (``coord`` is None) are skipped -- they have no position to compare.</span>
 
 <span class="sd">        :seealso: :meth:`metric`</span>
 <span class="sd">        """</span>
         <span class="n">min_dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
-        <span class="n">min_which</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">min_which</span><span class="p">:</span> <span class="n">BaseVertex</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="k">for</span> <span class="n">vertex</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">vertex</span><span class="o">.</span><span class="n">coord</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">continue</span>
             <span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metric</span><span class="p">(</span><span class="n">vertex</span><span class="o">.</span><span class="n">coord</span> <span class="o">-</span> <span class="n">coord</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">d</span> <span class="o">&lt;</span> <span class="n">min_dist</span><span class="p">:</span>
                 <span class="n">min_dist</span> <span class="o">=</span> <span class="n">d</span>
@@ -1117,6 +1121,7 @@
         <span class="nb">print</span><span class="p">(</span><span class="n">file</span><span class="o">=</span><span class="n">f</span><span class="p">)</span>
         <span class="c1"># add the edges</span>
         <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">edges</span><span class="p">():</span>
+            <span class="k">assert</span> <span class="n">e</span><span class="o">.</span><span class="n">v1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">e</span><span class="o">.</span><span class="n">v2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">DGraph</span><span class="p">):</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s1">'  "</span><span class="si">{:s}</span><span class="s1">" -&gt; "</span><span class="si">{:s}</span><span class="s1">"'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">v1</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">v2</span><span class="o">.</span><span class="n">name</span><span class="p">),</span> <span class="n">file</span><span class="o">=</span><span class="n">f</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
@@ -1222,6 +1227,8 @@
             <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">edges</span><span class="p">())</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">UGraph</span><span class="p">):</span>
             <span class="k">return</span> <span class="mi">2</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">edges</span><span class="p">())</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"unsupported graph type </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
     <span class="c1"># --------------------------------------------------------------------------- #</span>
 
@@ -1441,6 +1448,7 @@
             <span class="n">vdict</span><span class="p">[</span><span class="n">vertex</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span>
 
         <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">edges</span><span class="p">):</span>
+            <span class="k">assert</span> <span class="n">e</span><span class="o">.</span><span class="n">v1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">e</span><span class="o">.</span><span class="n">v2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
             <span class="n">I</span><span class="p">[</span><span class="n">vdict</span><span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">v1</span><span class="p">],</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
             <span class="n">I</span><span class="p">[</span><span class="n">vdict</span><span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">v2</span><span class="p">],</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
 
@@ -1558,8 +1566,8 @@
         <span class="k">while</span> <span class="n">frontier</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">()</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s2">"FRONTIER:"</span><span class="p">,</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">v</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">frontier</span><span class="p">]))</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s2">"EXPLORED:"</span><span class="p">,</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">v</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">explored</span><span class="p">]))</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">"FRONTIER:"</span><span class="p">,</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">frontier</span><span class="p">]))</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">"EXPLORED:"</span><span class="p">,</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">explored</span><span class="p">]))</span>
 
             <span class="n">x</span> <span class="o">=</span> <span class="n">frontier</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
@@ -1591,7 +1599,7 @@
         <span class="c1"># reconstruct the path from start to goal</span>
         <span class="n">x</span> <span class="o">=</span> <span class="n">G</span>
         <span class="n">path</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">]</span>
-        <span class="n">length</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">length</span> <span class="o">=</span> <span class="mf">0.0</span>
 
         <span class="k">while</span> <span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">S</span><span class="p">:</span>
             <span class="n">p</span> <span class="o">=</span> <span class="n">parent</span><span class="p">[</span><span class="n">x</span><span class="p">]</span>
@@ -1645,7 +1653,7 @@
                 <span class="nb">print</span><span class="p">(</span>
                     <span class="s2">"FRONTIER:"</span><span class="p">,</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">v</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="n">f</span><span class="p">[</span><span class="n">v</span><span class="p">]</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">)"</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">frontier</span><span class="p">])</span>
                 <span class="p">)</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s2">"EXPLORED:"</span><span class="p">,</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">v</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">explored</span><span class="p">]))</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">"EXPLORED:"</span><span class="p">,</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">explored</span><span class="p">]))</span>
 
             <span class="n">i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">([</span><span class="n">f</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">frontier</span><span class="p">])</span>  <span class="c1"># minimum f in frontier</span>
             <span class="n">x</span> <span class="o">=</span> <span class="n">frontier</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
@@ -1685,7 +1693,7 @@
         <span class="c1"># reconstruct the path from start to goal</span>
         <span class="n">x</span> <span class="o">=</span> <span class="n">G</span>
         <span class="n">path</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">]</span>
-        <span class="n">length</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">length</span> <span class="o">=</span> <span class="mf">0.0</span>
 
         <span class="k">while</span> <span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">S</span><span class="p">:</span>
             <span class="n">p</span> <span class="o">=</span> <span class="n">parent</span><span class="p">[</span><span class="n">x</span><span class="p">]</span>
@@ -1745,7 +1753,7 @@
                 <span class="nb">print</span><span class="p">(</span>
                     <span class="s2">"FRONTIER:"</span><span class="p">,</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">v</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="n">f</span><span class="p">[</span><span class="n">v</span><span class="p">]</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">)"</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">frontier</span><span class="p">])</span>
                 <span class="p">)</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s2">"EXPLORED:"</span><span class="p">,</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">v</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">explored</span><span class="p">]))</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">"EXPLORED:"</span><span class="p">,</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">explored</span><span class="p">]))</span>
 
             <span class="n">i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">([</span><span class="n">f</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">frontier</span><span class="p">])</span>  <span class="c1"># minimum f in frontier</span>
             <span class="n">x</span> <span class="o">=</span> <span class="n">frontier</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
@@ -1788,7 +1796,7 @@
         <span class="c1"># reconstruct the path from start to goal</span>
         <span class="n">x</span> <span class="o">=</span> <span class="n">G</span>
         <span class="n">path</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">]</span>
-        <span class="n">length</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">length</span> <span class="o">=</span> <span class="mf">0.0</span>
 
         <span class="k">while</span> <span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">S</span><span class="p">:</span>
             <span class="n">p</span> <span class="o">=</span> <span class="n">parent</span><span class="p">[</span><span class="n">x</span><span class="p">]</span>
@@ -1845,7 +1853,7 @@
                 <span class="n">vertex</span><span class="o">.</span><span class="n">label</span> <span class="o">=</span> <span class="kc">None</span>
                 <span class="n">vertex</span><span class="o">.</span><span class="n">_connectivitychange</span> <span class="o">=</span> <span class="kc">False</span>
 
-            <span class="n">lastlabel</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">lastlabel</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">):</span>
                 <span class="n">assignment</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
@@ -1865,7 +1873,7 @@
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">assignment</span><span class="p">:</span>
                     <span class="k">break</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">_ncomponents</span> <span class="o">=</span> <span class="n">lastlabel</span> <span class="o">+</span> <span class="mi">1</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_ncomponents</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">lastlabel</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">lastlabel</span> <span class="o">+</span> <span class="mi">1</span></div>
 
 
 
@@ -1919,25 +1927,34 @@
                     <span class="n">v</span><span class="o">.</span><span class="n">label</span> <span class="o">=</span> <span class="n">nextlabel</span>
                     <span class="n">nextlabel</span> <span class="o">+=</span> <span class="mi">1</span>
 
+                <span class="n">label</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">label</span>
+                <span class="k">assert</span> <span class="n">label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+
                 <span class="c1"># now look for clashes</span>
                 <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">v</span><span class="o">.</span><span class="n">neighbours</span><span class="p">():</span>
                     <span class="k">if</span> <span class="n">n</span><span class="o">.</span><span class="n">label</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                         <span class="c1"># neighbour has no label, give it this one</span>
-                        <span class="n">n</span><span class="o">.</span><span class="n">label</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">label</span>
-                    <span class="k">elif</span> <span class="n">v</span><span class="o">.</span><span class="n">label</span> <span class="o">!=</span> <span class="n">n</span><span class="o">.</span><span class="n">label</span><span class="p">:</span>
+                        <span class="n">n</span><span class="o">.</span><span class="n">label</span> <span class="o">=</span> <span class="n">label</span>
+                    <span class="k">elif</span> <span class="n">label</span> <span class="o">!=</span> <span class="n">n</span><span class="o">.</span><span class="n">label</span><span class="p">:</span>
                         <span class="c1"># label clash, note it for merging</span>
-                        <span class="n">merge</span><span class="p">[</span><span class="n">n</span><span class="o">.</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">label</span>
+                        <span class="k">assert</span> <span class="n">n</span><span class="o">.</span><span class="n">label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                        <span class="n">merge</span><span class="p">[</span><span class="n">n</span><span class="o">.</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="n">label</span>
 
             <span class="c1"># merge labels and find unique labels</span>
             <span class="n">unique</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
             <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
-                <span class="k">while</span> <span class="n">v</span><span class="o">.</span><span class="n">label</span> <span class="ow">in</span> <span class="n">merge</span><span class="p">:</span>
-                    <span class="n">v</span><span class="o">.</span><span class="n">label</span> <span class="o">=</span> <span class="n">merge</span><span class="p">[</span><span class="n">v</span><span class="o">.</span><span class="n">label</span><span class="p">]</span>
-                <span class="n">unique</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">label</span><span class="p">)</span>
+                <span class="n">vlabel</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">label</span>
+                <span class="k">assert</span> <span class="n">vlabel</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                <span class="k">while</span> <span class="n">vlabel</span> <span class="ow">in</span> <span class="n">merge</span><span class="p">:</span>
+                    <span class="n">vlabel</span> <span class="o">=</span> <span class="n">merge</span><span class="p">[</span><span class="n">vlabel</span><span class="p">]</span>
+                <span class="n">v</span><span class="o">.</span><span class="n">label</span> <span class="o">=</span> <span class="n">vlabel</span>
+                <span class="n">unique</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">vlabel</span><span class="p">)</span>
 
             <span class="n">final</span> <span class="o">=</span> <span class="p">{</span><span class="n">u</span><span class="p">:</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">u</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">unique</span><span class="p">)}</span>
             <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
-                <span class="n">v</span><span class="o">.</span><span class="n">label</span> <span class="o">=</span> <span class="n">final</span><span class="p">[</span><span class="n">v</span><span class="o">.</span><span class="n">label</span><span class="p">]</span>
+                <span class="n">vlabel</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">label</span>
+                <span class="k">assert</span> <span class="n">vlabel</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                <span class="n">v</span><span class="o">.</span><span class="n">label</span> <span class="o">=</span> <span class="n">final</span><span class="p">[</span><span class="n">vlabel</span><span class="p">]</span>
 
             <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">unique</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -2023,6 +2040,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
 
         <span class="c1"># try to compute edge cost as metric distance if not given</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cost</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">cost</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">cost</span> <span class="o">=</span> <span class="n">cost</span>
         <span class="k">elif</span> <span class="p">(</span>
@@ -2154,8 +2172,10 @@
 <span class="sd">        """</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">v1</span> <span class="ow">is</span> <span class="n">vertex</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">v2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">v2</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">v2</span> <span class="ow">is</span> <span class="n">vertex</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">v1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">v1</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"shouldnt happen"</span><span class="p">)</span></div>
@@ -2199,6 +2219,7 @@
 
 <span class="sd">        :seealso: :meth:`vertices`</span>
 <span class="sd">        """</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">v1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">v2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">v1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">v2</span><span class="p">]</span>
 
 <div class="viewcode-block" id="Edge.remove">
@@ -2273,7 +2294,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">coord</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="n">coord</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">label</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_connectivitychange</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_edgelist</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_graph</span><span class="p">:</span> <span class="n">_BaseGraph</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># reference to owning graph</span>
@@ -2315,7 +2336,7 @@
 
 <div class="viewcode-block" id="BaseVertex.copy">
 <a class="viewcode-back" href="../../PGraph.html#pgraph.PGraph.BaseVertex.copy">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">cls</span><span class="p">:</span> <span class="nb">type</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BaseVertex</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">cls</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">_BaseGraph</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BaseVertex</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Copy a vertex</span>
 
@@ -2549,6 +2570,8 @@
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_graph</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"vertex is not connected to a graph"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">coord</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">v2</span><span class="o">.</span><span class="n">coord</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"both vertices must have a coordinate"</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_graph</span><span class="o">.</span><span class="n">heuristic</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coord</span> <span class="o">-</span> <span class="n">v2</span><span class="o">.</span><span class="n">coord</span><span class="p">)</span></div>
 
 
@@ -2571,9 +2594,10 @@
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_graph</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"vertex is not connected to a graph"</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">coord</span><span class="p">,</span> <span class="n">BaseVertex</span><span class="p">):</span>
-            <span class="n">coord</span> <span class="o">=</span> <span class="n">coord</span><span class="o">.</span><span class="n">coord</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_graph</span><span class="o">.</span><span class="n">metric</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coord</span> <span class="o">-</span> <span class="n">coord</span><span class="p">)</span></div>
+        <span class="n">target</span> <span class="o">=</span> <span class="n">coord</span><span class="o">.</span><span class="n">coord</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">coord</span><span class="p">,</span> <span class="n">BaseVertex</span><span class="p">)</span> <span class="k">else</span> <span class="n">coord</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">coord</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">target</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"vertex, and coord if given as a vertex, must have a coordinate"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_graph</span><span class="o">.</span><span class="n">metric</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coord</span> <span class="o">-</span> <span class="n">target</span><span class="p">)</span></div>
 
 
     <span class="nd">@property</span>
@@ -2597,9 +2621,12 @@
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        The x-coordinate of an embedded vertex</span>
 
+<span class="sd">        :raises ValueError: the vertex has no coordinate</span>
 <span class="sd">        :return: The x-coordinate</span>
 <span class="sd">        :rtype: float</span>
 <span class="sd">        """</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">coord</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"vertex has no coordinate"</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">coord</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
     <span class="nd">@property</span>
@@ -2607,9 +2634,12 @@
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        The y-coordinate of an embedded vertex</span>
 
+<span class="sd">        :raises ValueError: the vertex has no coordinate</span>
 <span class="sd">        :return: The y-coordinate</span>
 <span class="sd">        :rtype: float</span>
 <span class="sd">        """</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">coord</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"vertex has no coordinate"</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">coord</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 
     <span class="nd">@property</span>
@@ -2617,21 +2647,26 @@
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        The z-coordinate of an embedded vertex</span>
 
+<span class="sd">        :raises ValueError: the vertex has no coordinate</span>
 <span class="sd">        :return: The z-coordinate</span>
 <span class="sd">        :rtype: float</span>
 <span class="sd">        """</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">coord</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"vertex has no coordinate"</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">coord</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
 
 <div class="viewcode-block" id="BaseVertex.closest">
 <a class="viewcode-back" href="../../PGraph.html#pgraph.PGraph.BaseVertex.closest">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">closest</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">BaseVertex</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">closest</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">BaseVertex</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        BaseVertex closest to this vertex</span>
 
 <span class="sd">        :return: closest vertex and its distance</span>
-<span class="sd">        :rtype: BaseVertex subclass, float</span>
+<span class="sd">        :rtype: BaseVertex subclass or None, float</span>
 
-<span class="sd">        Equivalent to ``self._graph.closest(self.coord)``.</span>
+<span class="sd">        Equivalent to ``self._graph.closest(self.coord)``. The vertex must</span>
+<span class="sd">        belong to a graph, since ``closest()`` searches that graph's other</span>
+<span class="sd">        vertices.</span>
 
 <span class="sd">        .. runblock:: pycon</span>
 
@@ -2645,6 +2680,10 @@
 
 <span class="sd">        :seealso: :meth:`_BaseGraph.closest`</span>
 <span class="sd">        """</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_graph</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"vertex is not connected to a graph"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">coord</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"vertex must have a coordinate"</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_graph</span><span class="o">.</span><span class="n">closest</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coord</span><span class="p">)</span></div>
 
 
@@ -2688,15 +2727,26 @@
 
 <div class="viewcode-block" id="UVertex.connect">
 <a class="viewcode-back" href="../../uvertex.html#pgraph.PGraph.UVertex.connect">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">connect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">BaseVertex</span> <span class="o">|</span> <span class="n">Edge</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Edge</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">connect</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">dest</span><span class="p">:</span> <span class="n">BaseVertex</span><span class="p">,</span>
+        <span class="n">edge</span><span class="p">:</span> <span class="n">Edge</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">cost</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">data</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Edge</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Connect this vertex to another with an undirected edge</span>
 
-<span class="sd">        :param other: vertex to connect to, or an existing edge to attach</span>
-<span class="sd">        :type other: BaseVertex subclass or Edge</span>
-<span class="sd">        :param kwargs: arguments passed to :meth:`BaseVertex.connect`, ignored if</span>
-<span class="sd">            ``other`` is an ``Edge``</span>
-<span class="sd">        :raises TypeError: ``other`` is neither a ``BaseVertex`` nor an ``Edge``</span>
+<span class="sd">        :param dest: vertex to connect to</span>
+<span class="sd">        :type dest: BaseVertex subclass</span>
+<span class="sd">        :param edge: Use this as the edge object, otherwise a new ``Edge``</span>
+<span class="sd">                     object is created, defaults to None</span>
+<span class="sd">        :type edge: ``Edge`` subclass, optional</span>
+<span class="sd">        :param cost: the cost to traverse this edge, defaults to None</span>
+<span class="sd">        :type cost: float, optional</span>
+<span class="sd">        :param data: reference to arbitrary data associated with the edge,</span>
+<span class="sd">                     defaults to None</span>
+<span class="sd">        :type data: Any, optional</span>
 <span class="sd">        :return: the edge connecting the vertices</span>
 <span class="sd">        :rtype: Edge</span>
 
@@ -2717,18 +2767,10 @@
 <span class="sd">        :seealso: :meth:`BaseVertex.connect` :meth:`DVertex.connect`</span>
 <span class="sd">        """</span>
 
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">BaseVertex</span><span class="p">):</span>
-            <span class="n">e</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Edge</span><span class="p">):</span>
-            <span class="n">e</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">edge</span><span class="o">=</span><span class="n">other</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">"bad argument"</span><span class="p">)</span>
-
-        <span class="c1"># e = super().connect(other, **kwargs)</span>
+        <span class="n">e</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">edge</span><span class="o">=</span><span class="n">edge</span><span class="p">,</span> <span class="n">cost</span><span class="o">=</span><span class="n">cost</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_edgelist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
-        <span class="n">other</span><span class="o">.</span><span class="n">_edgelist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_graph</span><span class="o">.</span><span class="n">_edgelist</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="n">dest</span><span class="o">.</span><span class="n">_edgelist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">e</span></div>
 </div>
@@ -2750,15 +2792,26 @@
 
 <div class="viewcode-block" id="DVertex.connect">
 <a class="viewcode-back" href="../../dvertex.html#pgraph.PGraph.DVertex.connect">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">connect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">BaseVertex</span> <span class="o">|</span> <span class="n">Edge</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Edge</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">connect</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">dest</span><span class="p">:</span> <span class="n">BaseVertex</span><span class="p">,</span>
+        <span class="n">edge</span><span class="p">:</span> <span class="n">Edge</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">cost</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">data</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Edge</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Connect this vertex to another with a directed edge</span>
 
-<span class="sd">        :param other: vertex to connect to, or an existing edge to attach</span>
-<span class="sd">        :type other: BaseVertex subclass or Edge</span>
-<span class="sd">        :param kwargs: arguments passed to :meth:`BaseVertex.connect`, ignored if</span>
-<span class="sd">            ``other`` is an ``Edge``</span>
-<span class="sd">        :raises TypeError: ``other`` is neither a ``BaseVertex`` nor an ``Edge``</span>
+<span class="sd">        :param dest: vertex to connect to</span>
+<span class="sd">        :type dest: BaseVertex subclass</span>
+<span class="sd">        :param edge: Use this as the edge object, otherwise a new ``Edge``</span>
+<span class="sd">                     object is created, defaults to None</span>
+<span class="sd">        :type edge: ``Edge`` subclass, optional</span>
+<span class="sd">        :param cost: the cost to traverse this edge, defaults to None</span>
+<span class="sd">        :type cost: float, optional</span>
+<span class="sd">        :param data: reference to arbitrary data associated with the edge,</span>
+<span class="sd">                     defaults to None</span>
+<span class="sd">        :type data: Any, optional</span>
 <span class="sd">        :return: the edge connecting the vertices</span>
 <span class="sd">        :rtype: Edge</span>
 
@@ -2779,12 +2832,7 @@
 
 <span class="sd">        :seealso: :meth:`BaseVertex.connect` :meth:`UVertex.connect`</span>
 <span class="sd">        """</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">BaseVertex</span><span class="p">):</span>
-            <span class="n">e</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Edge</span><span class="p">):</span>
-            <span class="n">e</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">edge</span><span class="o">=</span><span class="n">other</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">"bad argument"</span><span class="p">)</span>
+        <span class="n">e</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">edge</span><span class="o">=</span><span class="n">edge</span><span class="p">,</span> <span class="n">cost</span><span class="o">=</span><span class="n">cost</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_edgelist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">e</span></div>
