@@ -91,7 +91,7 @@ class _BaseGraph(ABC):
         return str(self)
 
     @classmethod
-    def Dict(cls, d: dict, reverse: bool = False) -> UGraph | DGraph:
+    def Dict(cls, d: dict, reverse: bool = False) -> _BaseGraph:
         """
         Create graph from parent/child dictionary
 
@@ -146,7 +146,7 @@ class _BaseGraph(ABC):
         A: NDArray,
         coords: NDArray | None = None,
         names: list[str] | None = None,
-    ) -> UGraph | DGraph:
+    ) -> _BaseGraph:
         """
         Create graph from adjacency matrix
 
@@ -761,24 +761,28 @@ class _BaseGraph(ABC):
         elif isinstance(item, BaseVertex):
             return item in self._vertexdict.values()
 
-    def closest(self, coord: ArrayLike) -> tuple[BaseVertex, float]:
+    def closest(self, coord: ArrayLike) -> tuple[BaseVertex | None, float]:
         """
         BaseVertex closest to point
 
         :param coord: coordinates of a point
         :type coord: ndarray(n)
-        :return: closest vertex and its distance
-        :rtype: BaseVertex subclass, float
+        :return: closest vertex and its distance, or ``(None, inf)`` if no
+            vertex in the graph has a coordinate
+        :rtype: BaseVertex subclass or None, float
 
         Returns the vertex closest to the given point. Distance is computed
-        according to the graph's metric.
+        according to the graph's metric. Vertices without a coordinate
+        (``coord`` is None) are skipped -- they have no position to compare.
 
         :seealso: :meth:`metric`
         """
         min_dist = np.inf
-        min_which = None
+        min_which: BaseVertex | None = None
 
         for vertex in self:
+            if vertex.coord is None:
+                continue
             d = self.metric(vertex.coord - coord)
             if d < min_dist:
                 min_dist = d
@@ -1038,6 +1042,7 @@ class _BaseGraph(ABC):
         print(file=f)
         # add the edges
         for e in self.edges():
+            assert e.v1 is not None and e.v2 is not None
             if isinstance(self, DGraph):
                 print('  "{:s}" -> "{:s}"'.format(e.v1.name, e.v2.name), file=f)
             else:
@@ -1143,6 +1148,8 @@ class _BaseGraph(ABC):
             return len(self.edges()) / self.n
         elif isinstance(self, UGraph):
             return 2 * len(self.edges()) / self.n
+        else:
+            raise TypeError(f"unsupported graph type {type(self).__name__}")
 
     # --------------------------------------------------------------------------- #
 
@@ -1362,6 +1369,7 @@ class _BaseGraph(ABC):
             vdict[vertex] = i
 
         for j, e in enumerate(edges):
+            assert e.v1 is not None and e.v2 is not None
             I[vdict[e.v1], j] = 1
             I[vdict[e.v2], j] = 1
 
@@ -1479,8 +1487,8 @@ class _BaseGraph(ABC):
         while frontier:
             if verbose:
                 print()
-                print("FRONTIER:", ", ".join([v.name for v in frontier]))
-                print("EXPLORED:", ", ".join([v.name for v in explored]))
+                print("FRONTIER:", ", ".join([str(v.name) for v in frontier]))
+                print("EXPLORED:", ", ".join([str(v.name) for v in explored]))
 
             x = frontier.pop(0)
             if verbose:
@@ -1512,7 +1520,7 @@ class _BaseGraph(ABC):
         # reconstruct the path from start to goal
         x = G
         path = [x]
-        length = 0
+        length = 0.0
 
         while x is not S:
             p = parent[x]
@@ -1566,7 +1574,7 @@ class _BaseGraph(ABC):
                 print(
                     "FRONTIER:", ", ".join([f"{v.name}({f[v]:.0f})" for v in frontier])
                 )
-                print("EXPLORED:", ", ".join([v.name for v in explored]))
+                print("EXPLORED:", ", ".join([str(v.name) for v in explored]))
 
             i = np.argmin([f[n] for n in frontier])  # minimum f in frontier
             x = frontier.pop(i)
@@ -1606,7 +1614,7 @@ class _BaseGraph(ABC):
         # reconstruct the path from start to goal
         x = G
         path = [x]
-        length = 0
+        length = 0.0
 
         while x is not S:
             p = parent[x]
@@ -1666,7 +1674,7 @@ class _BaseGraph(ABC):
                 print(
                     "FRONTIER:", ", ".join([f"{v.name}({f[v]:.0f})" for v in frontier])
                 )
-                print("EXPLORED:", ", ".join([v.name for v in explored]))
+                print("EXPLORED:", ", ".join([str(v.name) for v in explored]))
 
             i = np.argmin([f[n] for n in frontier])  # minimum f in frontier
             x = frontier.pop(i)
@@ -1709,7 +1717,7 @@ class _BaseGraph(ABC):
         # reconstruct the path from start to goal
         x = G
         path = [x]
-        length = 0
+        length = 0.0
 
         while x is not S:
             p = parent[x]
@@ -1764,7 +1772,7 @@ class UGraph(_BaseGraph):
                 vertex.label = None
                 vertex._connectivitychange = False
 
-            lastlabel = None
+            lastlabel: int | None = None
             for label in range(self.n):
                 assignment = False
                 for v in self:
@@ -1784,7 +1792,7 @@ class UGraph(_BaseGraph):
                 if not assignment:
                     break
 
-            self._ncomponents = lastlabel + 1
+            self._ncomponents = 0 if lastlabel is None else lastlabel + 1
 
 
 class DGraph(_BaseGraph):
@@ -1835,25 +1843,34 @@ class DGraph(_BaseGraph):
                     v.label = nextlabel
                     nextlabel += 1
 
+                label = v.label
+                assert label is not None
+
                 # now look for clashes
                 for n in v.neighbours():
                     if n.label is None:
                         # neighbour has no label, give it this one
-                        n.label = v.label
-                    elif v.label != n.label:
+                        n.label = label
+                    elif label != n.label:
                         # label clash, note it for merging
-                        merge[n.label] = v.label
+                        assert n.label is not None
+                        merge[n.label] = label
 
             # merge labels and find unique labels
             unique: set[int] = set()
             for v in self:
-                while v.label in merge:
-                    v.label = merge[v.label]
-                unique.add(v.label)
+                vlabel = v.label
+                assert vlabel is not None
+                while vlabel in merge:
+                    vlabel = merge[vlabel]
+                v.label = vlabel
+                unique.add(vlabel)
 
             final = {u: i for i, u in enumerate(unique)}
             for v in self:
-                v.label = final[v.label]
+                vlabel = v.label
+                assert vlabel is not None
+                v.label = final[vlabel]
 
             return len(unique)
         else:
@@ -1934,6 +1951,7 @@ class Edge:
         self.data = data
 
         # try to compute edge cost as metric distance if not given
+        self.cost: float | None
         if cost is not None:
             self.cost = cost
         elif (
@@ -2059,8 +2077,10 @@ class Edge:
         """
 
         if self.v1 is vertex:
+            assert self.v2 is not None
             return self.v2
         elif self.v2 is vertex:
+            assert self.v1 is not None
             return self.v1
         else:
             raise ValueError("shouldnt happen")
@@ -2100,6 +2120,7 @@ class Edge:
 
         :seealso: :meth:`vertices`
         """
+        assert self.v1 is not None and self.v2 is not None
         return [self.v1, self.v2]
 
     def remove(self) -> None:
@@ -2168,7 +2189,7 @@ class BaseVertex:
         else:
             self.coord = np.r_[coord]
         self.name = name
-        self.label = None
+        self.label: int | None = None
         self._connectivitychange = True
         self._edgelist = []
         self._graph: _BaseGraph | None = None  # reference to owning graph
@@ -2208,7 +2229,7 @@ class BaseVertex:
             coord = ", ".join([f"{x:.4g}" for x in self.coord])
         return f"{self.__class__.__name__}[{self.name:s}, coord=({coord})]"
 
-    def copy(self, cls: type | None = None) -> BaseVertex:
+    def copy(self, cls: type[_BaseGraph] | None = None) -> BaseVertex:
         """
         Copy a vertex
 
@@ -2415,6 +2436,8 @@ class BaseVertex:
         """
         if self._graph is None:
             raise ValueError("vertex is not connected to a graph")
+        if self.coord is None or v2.coord is None:
+            raise ValueError("both vertices must have a coordinate")
         return self._graph.heuristic(self.coord - v2.coord)
 
     def distance(self, coord: ArrayLike | BaseVertex) -> float:
@@ -2434,9 +2457,10 @@ class BaseVertex:
         """
         if self._graph is None:
             raise ValueError("vertex is not connected to a graph")
-        if isinstance(coord, BaseVertex):
-            coord = coord.coord
-        return self._graph.metric(self.coord - coord)
+        target = coord.coord if isinstance(coord, BaseVertex) else coord
+        if self.coord is None or target is None:
+            raise ValueError("vertex, and coord if given as a vertex, must have a coordinate")
+        return self._graph.metric(self.coord - target)
 
     @property
     def degree(self) -> int:
@@ -2459,9 +2483,12 @@ class BaseVertex:
         """
         The x-coordinate of an embedded vertex
 
+        :raises ValueError: the vertex has no coordinate
         :return: The x-coordinate
         :rtype: float
         """
+        if self.coord is None:
+            raise ValueError("vertex has no coordinate")
         return self.coord[0]
 
     @property
@@ -2469,9 +2496,12 @@ class BaseVertex:
         """
         The y-coordinate of an embedded vertex
 
+        :raises ValueError: the vertex has no coordinate
         :return: The y-coordinate
         :rtype: float
         """
+        if self.coord is None:
+            raise ValueError("vertex has no coordinate")
         return self.coord[1]
 
     @property
@@ -2479,19 +2509,24 @@ class BaseVertex:
         """
         The z-coordinate of an embedded vertex
 
+        :raises ValueError: the vertex has no coordinate
         :return: The z-coordinate
         :rtype: float
         """
+        if self.coord is None:
+            raise ValueError("vertex has no coordinate")
         return self.coord[2]
 
-    def closest(self) -> tuple[BaseVertex, float]:
+    def closest(self) -> tuple[BaseVertex | None, float]:
         """
         BaseVertex closest to this vertex
 
         :return: closest vertex and its distance
-        :rtype: BaseVertex subclass, float
+        :rtype: BaseVertex subclass or None, float
 
-        Equivalent to ``self._graph.closest(self.coord)``.
+        Equivalent to ``self._graph.closest(self.coord)``. The vertex must
+        belong to a graph, since ``closest()`` searches that graph's other
+        vertices.
 
         .. runblock:: pycon
 
@@ -2505,6 +2540,10 @@ class BaseVertex:
 
         :seealso: :meth:`_BaseGraph.closest`
         """
+        if self._graph is None:
+            raise ValueError("vertex is not connected to a graph")
+        if self.coord is None:
+            raise ValueError("vertex must have a coordinate")
         return self._graph.closest(self.coord)
 
     def remove(self) -> None:
@@ -2539,15 +2578,26 @@ class UVertex(BaseVertex):
     :seealso: :class:`BaseVertex` :class:`DVertex`
     """
 
-    def connect(self, other: BaseVertex | Edge, **kwargs: Any) -> Edge:
+    def connect(
+        self,
+        dest: BaseVertex,
+        edge: Edge | None = None,
+        cost: float | None = None,
+        data: Any = None,
+    ) -> Edge:
         """
         Connect this vertex to another with an undirected edge
 
-        :param other: vertex to connect to, or an existing edge to attach
-        :type other: BaseVertex subclass or Edge
-        :param kwargs: arguments passed to :meth:`BaseVertex.connect`, ignored if
-            ``other`` is an ``Edge``
-        :raises TypeError: ``other`` is neither a ``BaseVertex`` nor an ``Edge``
+        :param dest: vertex to connect to
+        :type dest: BaseVertex subclass
+        :param edge: Use this as the edge object, otherwise a new ``Edge``
+                     object is created, defaults to None
+        :type edge: ``Edge`` subclass, optional
+        :param cost: the cost to traverse this edge, defaults to None
+        :type cost: float, optional
+        :param data: reference to arbitrary data associated with the edge,
+                     defaults to None
+        :type data: Any, optional
         :return: the edge connecting the vertices
         :rtype: Edge
 
@@ -2568,18 +2618,10 @@ class UVertex(BaseVertex):
         :seealso: :meth:`BaseVertex.connect` :meth:`DVertex.connect`
         """
 
-        if isinstance(other, BaseVertex):
-            e = super().connect(other, **kwargs)
-        elif isinstance(other, Edge):
-            e = super().connect(edge=other)
-        else:
-            raise TypeError("bad argument")
-
-        # e = super().connect(other, **kwargs)
+        e = super().connect(dest, edge=edge, cost=cost, data=data)
 
         self._edgelist.append(e)
-        other._edgelist.append(e)
-        self._graph._edgelist.add(e)
+        dest._edgelist.append(e)
 
         return e
 
@@ -2595,15 +2637,26 @@ class DVertex(BaseVertex):
     :seealso: :class:`BaseVertex` :class:`UVertex`
     """
 
-    def connect(self, other: BaseVertex | Edge, **kwargs: Any) -> Edge:
+    def connect(
+        self,
+        dest: BaseVertex,
+        edge: Edge | None = None,
+        cost: float | None = None,
+        data: Any = None,
+    ) -> Edge:
         """
         Connect this vertex to another with a directed edge
 
-        :param other: vertex to connect to, or an existing edge to attach
-        :type other: BaseVertex subclass or Edge
-        :param kwargs: arguments passed to :meth:`BaseVertex.connect`, ignored if
-            ``other`` is an ``Edge``
-        :raises TypeError: ``other`` is neither a ``BaseVertex`` nor an ``Edge``
+        :param dest: vertex to connect to
+        :type dest: BaseVertex subclass
+        :param edge: Use this as the edge object, otherwise a new ``Edge``
+                     object is created, defaults to None
+        :type edge: ``Edge`` subclass, optional
+        :param cost: the cost to traverse this edge, defaults to None
+        :type cost: float, optional
+        :param data: reference to arbitrary data associated with the edge,
+                     defaults to None
+        :type data: Any, optional
         :return: the edge connecting the vertices
         :rtype: Edge
 
@@ -2624,12 +2677,7 @@ class DVertex(BaseVertex):
 
         :seealso: :meth:`BaseVertex.connect` :meth:`UVertex.connect`
         """
-        if isinstance(other, BaseVertex):
-            e = super().connect(other, **kwargs)
-        elif isinstance(other, Edge):
-            e = super().connect(edge=other)
-        else:
-            raise TypeError("bad argument")
+        e = super().connect(dest, edge=edge, cost=cost, data=data)
 
         self._edgelist.append(e)
         return e
