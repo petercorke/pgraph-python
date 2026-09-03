@@ -47,7 +47,9 @@ class TestUGraph(unittest.TestCase):
 
         s = repr(g)
         self.assertIsInstance(s, str)
-        self.assertEqual(len(s.split('\n')), 2)
+        lines = s.split('\n')
+        self.assertEqual(len(lines), 3)  # class-name header + one line per vertex
+        self.assertEqual(lines[0], "DGraph:")
 
     def test_attr(self):
 
@@ -218,7 +220,7 @@ class TestUGraph(unittest.TestCase):
         e12 = v1.connect(v2)
         e13 = v1.connect(v3)
 
-        g.remove(v1)
+        g.remove_vertex(v1)
         self.assertEqual(g.n, 2)
         self.assertEqual(g.ne, 0)
         self.assertEqual(g.nc, 2)
@@ -238,7 +240,7 @@ class TestUGraph(unittest.TestCase):
         e12 = v1.connect(v2)
         e13 = v1.connect(v3)
 
-        g.remove(e12)
+        g.remove_edge(e12)
         self.assertEqual(g.n, 3)
         self.assertEqual(g.ne, 1)
         self.assertEqual(g.nc, 2)
@@ -461,51 +463,54 @@ class TestUGraph(unittest.TestCase):
         nt.assert_almost_equal(g['two'].coord, coords[2,:])
 
 
-    # def test_remove_edge(self):
+    def test_remove_edge_via_edge(self):
+        # Edge.remove(), as opposed to g.remove(edge) covered above
 
-    #     g = UGraph()
-    #     v1 = g.add_vertex()
-    #     v2 = g.add_vertex()
-    #     v3 = g.add_vertex()
-    #     e12 = v1.connect(v2)
-    #     e13 = v1.connect(v3)
+        g = UGraph()
+        v1 = g.add_vertex()
+        v2 = g.add_vertex()
+        v3 = g.add_vertex()
+        e12 = v1.connect(v2)
+        e13 = v1.connect(v3)
 
-    #     self.assertEqual(g.nc, 1)
-    #     e12.remove()
+        self.assertEqual(g.nc, 1)
+        e12.remove()
 
-    #     self.assertEqual(g.nc, 2)
+        self.assertEqual(g.nc, 2)
+        self.assertEqual(g.ne, 1)
+        self.assertNotIn(e12, g.edges())
 
-    #     self.assertEqual(len(v1.edges()), 1)
-    #     self.assertEqual(len(v2.edges()), 0)
-    #     self.assertEqual(len(v3.edges()), 1)
+        self.assertEqual(len(v1.edges()), 1)
+        self.assertEqual(len(v2.edges()), 0)
+        self.assertEqual(len(v3.edges()), 1)
 
-    #     self.assertEqual(len(v1.neighbours()), 1)
-    #     self.assertEqual(len(v2.neighbours()), 0)
-    #     self.assertEqual(len(v3.neighbours()), 1)
+        self.assertEqual(len(v1.neighbours()), 1)
+        self.assertEqual(len(v2.neighbours()), 0)
+        self.assertEqual(len(v3.neighbours()), 1)
 
-    # def test_remove_vertex(self):
+        with self.assertRaises(ValueError):
+            e12.remove()  # already removed, no longer connected to a graph
 
-    #     g = UGraph()
-    #     v1 = g.add_vertex()
-    #     v2 = g.add_vertex()
-    #     v3 = g.add_vertex()
-    #     e12 = v1.connect(v2)
-    #     e13 = v1.connect(v3)
+    def test_remove_deprecated(self):
+        # remove() must still work (dispatching to remove_edge()/
+        # remove_vertex()) but emit a DeprecationWarning, not a hard failure
+        g = UGraph()
+        v1 = g.add_vertex()
+        v2 = g.add_vertex()
+        v3 = g.add_vertex()
+        e12 = v1.connect(v2)
+        v1.connect(v3)
 
-    #     self.assertEqual(g.n, 3)
-    #     self.assertEqual(g.nc, 1)
-    #     g.remove(v1)
+        with self.assertWarns(DeprecationWarning):
+            g.remove(e12)
+        self.assertEqual(g.ne, 1)
 
-    #     self.assertEqual(g.n, 2)
-    #     self.assertEqual(g.nc, 2)
+        with self.assertWarns(DeprecationWarning):
+            g.remove(v1)
+        self.assertEqual(g.n, 2)
 
-    #     self.assertEqual(len(v1.edges()), 0)
-    #     self.assertEqual(len(v2.edges()), 0)
-    #     self.assertEqual(len(v3.edges()), 0)
-
-    #     self.assertEqual(len(v1.neighbours()), 0)
-    #     self.assertEqual(len(v2.neighbours()), 0)
-    #     self.assertEqual(len(v3.neighbours()), 0)
+        with self.assertRaises(TypeError):
+            g.remove(42)
 
     def test_components(self):
 
@@ -522,28 +527,61 @@ class TestUGraph(unittest.TestCase):
 
     def test_matrices(self):
         g = UGraph()
-        v1 = g.add_vertex()
-        v2 = g.add_vertex()
-        v3 = g.add_vertex()
-        v4 = g.add_vertex()
+        # coordinates are needed so edge cost auto-computes, otherwise
+        # distance() would have nothing to put in the distance matrix
+        v1 = g.add_vertex(coord=[0, 0])
+        v2 = g.add_vertex(coord=[1, 0])
+        v3 = g.add_vertex(coord=[0, 1])
+        v4 = g.add_vertex(coord=[1, 1])  # deliberately isolated
         e12 = v1.connect(v2)
         e13 = v1.connect(v3)
 
+        # vertex order is deterministic (insertion order), so adjacency,
+        # degree and Laplacian -- all indexed by vertex only -- can be
+        # checked against exact expected matrices
         A = g.adjacency()
         self.assertIsInstance(A, np.ndarray)
-        self.assertEqual(A.shape, (g.n, g.n))
+        expected_A = np.array([
+            [0, 1, 1, 0],
+            [1, 0, 0, 0],
+            [1, 0, 0, 0],
+            [0, 0, 0, 0],
+        ])
+        nt.assert_array_equal(A, expected_A)
+        self.assertTrue(np.array_equal(A, A.T))  # symmetric for UGraph
 
-        A = g.Laplacian()
-        self.assertIsInstance(A, np.ndarray)
-        self.assertEqual(A.shape, (g.n, g.n))
+        D = g.degree()
+        nt.assert_array_equal(D, np.diag([2, 1, 1, 0]))
 
-        A = g.incidence()
-        self.assertIsInstance(A, np.ndarray)
-        self.assertEqual(A.shape, (g.n, g.ne))
+        L = g.Laplacian()
+        expected_L = np.diag([2, 1, 1, 0]) - expected_A
+        nt.assert_array_equal(L, expected_L)
+
+        # edge order (columns) is not deterministic -- self.edges() is a
+        # set -- so check incidence structurally rather than by position:
+        # each column (edge) touches exactly 2 vertices, and each row
+        # (vertex)'s total matches its degree
+        I = g.incidence()
+        self.assertEqual(I.shape, (g.n, g.ne))
+        nt.assert_array_equal(I.sum(axis=0), np.full(g.ne, 2))
+        nt.assert_array_equal(I.sum(axis=1), [2, 1, 1, 0])
 
         A = g.distance()
         self.assertIsInstance(A, np.ndarray)
         self.assertEqual(A.shape, (g.n, g.n))
+        self.assertFalse(np.any(np.isnan(A)))
+        self.assertEqual(A[0, 1], 1.0)  # v1 to v2
+        self.assertTrue(np.array_equal(A, A.T))  # symmetric for UGraph
+
+    def test_distance_requires_cost(self):
+        # regression test: distance() used to silently pack None/nan into
+        # the matrix for edges with no cost, instead of raising
+        g = UGraph()
+        v1 = g.add_vertex()  # no coord -> edge cost can't auto-compute
+        v2 = g.add_vertex()
+        v1.connect(v2)
+        with self.assertRaises(ValueError):
+            g.distance()
 
     def test_metric(self):
         g = UGraph()
@@ -747,6 +785,127 @@ class TestDGraph(unittest.TestCase):
         self.assertEqual(g.n, 2)
         self.assertIsInstance(v1, DVertex)
         self.assertIsInstance(v2, DVertex)
+
+    def test_Dict(self):
+        # regression test: Dict() used to hardcode UVertex() regardless of
+        # the graph type, silently producing wrong-typed vertices in a DGraph
+        g = DGraph.Dict({'child': 'parent'})
+
+        self.assertIsInstance(g, DGraph)
+        self.assertEqual(g.n, 2)
+        for v in g:
+            self.assertIsInstance(v, DVertex)
+
+    def test_matrices(self):
+        # 3-4-5 triangle, directed 0->1, 0->2, 1->2 -- deliberately
+        # asymmetric so directed-specific behaviour (out-degree only,
+        # non-symmetric adjacency) actually gets exercised
+        g = DGraph()
+        v0 = g.add_vertex(coord=[0, 0], name='0')
+        v1 = g.add_vertex(coord=[3, 0], name='1')
+        v2 = g.add_vertex(coord=[3, 4], name='2')
+        g.add_edge(v0, v1)
+        g.add_edge(v0, v2)
+        g.add_edge(v1, v2)
+
+        A = g.adjacency()
+        expected_A = np.array([
+            [0, 1, 1],
+            [0, 0, 1],
+            [0, 0, 0],
+        ])
+        nt.assert_array_equal(A, expected_A)
+        self.assertFalse(np.array_equal(A, A.T))  # not symmetric, directed
+
+        # out-degree only: v0 has 2 outgoing, v1 has 1, v2 has 0 (even
+        # though v2 has two *incoming* edges)
+        D = g.degree()
+        nt.assert_array_equal(D, np.diag([2, 1, 0]))
+
+        L = g.Laplacian()
+        expected_L = np.diag([2, 1, 0]) - expected_A
+        nt.assert_array_equal(L, expected_L)
+
+        # incidence marks both endpoints regardless of direction, so unlike
+        # degree() every vertex here touches exactly 2 edges
+        I = g.incidence()
+        self.assertEqual(I.shape, (g.n, g.ne))
+        nt.assert_array_equal(I.sum(axis=0), np.full(g.ne, 2))
+        nt.assert_array_equal(I.sum(axis=1), [2, 2, 2])
+
+        A = g.distance()
+        expected_D = np.array([
+            [0, 3, 5],
+            [0, 0, 4],
+            [0, 0, 0],
+        ])
+        nt.assert_array_almost_equal(A, expected_D)
+        self.assertFalse(np.array_equal(A, A.T))  # not symmetric, directed
+
+    def test_remove_edge(self):
+        # regression test: removing a directed edge used to always crash,
+        # since it assumed both endpoints track the edge in their own
+        # _edgelist, but a DVertex only tracks outgoing edges
+        g = DGraph()
+        v1 = g.add_vertex(name='1')
+        v2 = g.add_vertex(name='2')
+        e = g.add_edge(v1, v2)
+
+        self.assertIn(e, v1._edgelist)  # source tracks it
+        self.assertNotIn(e, v2._edgelist)  # target does not
+
+        g.remove_edge(e)
+        self.assertEqual(g.ne, 0)
+        self.assertEqual(g.n, 2)
+        self.assertIsNone(e.v1)
+        self.assertIsNone(e.v2)
+
+        with self.assertRaises(ValueError):
+            g.remove_edge(e)  # already removed
+
+    def test_remove_vertex(self):
+        # regression test: removing a vertex used to only clean up its
+        # *outgoing* edges (via vertex._edgelist), leaving any incoming
+        # edge dangling -- referencing a removed vertex, still present in
+        # the graph's own edge set and the source vertex's edgelist
+        g = DGraph()
+        v0 = g.add_vertex(name='0')
+        v1 = g.add_vertex(name='1')
+        v2 = g.add_vertex(name='2')
+        g.add_edge(v0, v1)  # incoming to v1
+        g.add_edge(v1, v2)  # outgoing from v1
+
+        self.assertEqual(g.n, 3)
+        self.assertEqual(g.ne, 2)
+
+        g.remove_vertex(v1)
+
+        self.assertEqual(g.n, 2)
+        self.assertEqual(g.ne, 0)  # both incoming and outgoing edges gone
+        self.assertEqual(len(v0._edgelist), 0)
+        self.assertEqual(len(v2._edgelist), 0)
+
+        with self.assertRaises(ValueError):
+            g.remove_vertex(v1)  # no longer belongs to this graph
+
+    def test_remove_via_instance_methods(self):
+        # Edge.remove() / BaseVertex.remove(), the ergonomic wrappers
+        g = DGraph()
+        v0 = g.add_vertex(name='0')
+        v1 = g.add_vertex(name='1')
+        v2 = g.add_vertex(name='2')
+        g.add_edge(v0, v1)
+        e12 = g.add_edge(v1, v2)
+
+        e12.remove()
+        self.assertEqual(g.ne, 1)
+
+        v1.remove()  # cascades: removes the remaining v0->v1 edge too
+        self.assertEqual(g.n, 2)
+        self.assertEqual(g.ne, 0)
+
+        with self.assertRaises(ValueError):
+            v1.remove()  # no longer connected to a graph
 
 class TestGraph(unittest.TestCase):
 
