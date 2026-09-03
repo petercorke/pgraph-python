@@ -41,6 +41,7 @@ extensions = [
     "sphinx_copybutton",
     "sphinx_pyrunblock",
     "sphinx_codeautolink",
+    "matplotlib.sphinxext.plot_directive",
 ]
 
 autosummary_generate = True
