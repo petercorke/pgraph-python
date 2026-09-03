@@ -4,7 +4,7 @@ version = "0.6.4"
 authors = [{ name = "Peter Corke", email = "rvc@petercorke.com" }]
 description = "Mathematical graphs for Python"
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.9"
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     # Indicate who your project is intended for
@@ -32,7 +32,7 @@ keywords = [
     "optimal path",
 ]
 
-dependencies = ["spatialmath-python", "numpy>=1.18.0", "scipy", "matplotlib"]
+dependencies = ["spatialmath-python", "numpy>=2.0", "scipy", "matplotlib"]
 
 [project.urls]
 
@@ -45,14 +45,16 @@ dependencies = ["spatialmath-python", "numpy>=1.18.0", "scipy", "matplotlib"]
 
 [project.optional-dependencies]
 
-dev = ["pytest", "pytest-cov"]
+dev = ["pytest", "pytest-cov", "mypy"]
 
 docs = [
     "sphinx",
     "recommonmark",
     "sphinx-rtd-theme",
-    "sphinx-autorun",
-    "sphinx-favicon",
+    "sphinx-autodoc-typehints",
+    "sphinx-copybutton",
+    "sphinx-pyrunblock",
+    "sphinx-codeautolink",
 ]
 
 [tool.pytest.ini_options]
@@ -72,3 +74,9 @@ target-version = ['py311']
 
 [tool.coverage.run]
 omit = []
+
+[tool.mypy]
+python_version = "3.9"
+ignore_missing_imports = true
+warn_unused_ignores = true
+warn_redundant_casts = true

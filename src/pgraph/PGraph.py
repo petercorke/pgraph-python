@@ -1,24 +1,49 @@
-from abc import ABC
+from __future__ import annotations
+
+from abc import ABC, abstractmethod
 import sys
 import warnings
 import numpy as np
 import matplotlib.pyplot as plt
 import copy
-from collections.abc import Iterable
+from collections.abc import Iterable, Iterator
 import tempfile
 import subprocess
 import webbrowser
+from typing import Any, Callable
+from numpy.typing import ArrayLike, NDArray
 
 from spatialmath.base.graphics import axes_logic
 
 
 class PGraph(ABC):
 
-    def __init__(self, arg=None, metric=None, heuristic=None, verbose=False):
+    def __init__(
+        self,
+        metric: Callable[[NDArray], float] | str | None = None,
+        heuristic: Callable[[NDArray], float] | str | None = None,
+        verbose: bool = False,
+    ):
+        """
+        Abstract base class for graphs
+
+        :param metric: distance metric, defaults to "L2"
+        :type metric: callable or str, optional
+        :param heuristic: heuristic distance metric for A*, defaults to the
+            same as ``metric``
+        :type heuristic: callable or str, optional
+        :param verbose: print diagnostic information as vertices/edges are
+            added, defaults to False
+
+        This is the common base class of :class:`UGraph` and :class:`DGraph`
+        and should not be instantiated directly.
+
+        :seealso: :class:`UGraph` :class:`DGraph`
+        """
         # we use a list and a dict, the list respects the order of adding
-        self._vertexlist = []
-        self._vertexdict = {}
-        self._edgelist = set()
+        self._vertexlist: list[Vertex] = []
+        self._vertexdict: dict[str, Vertex] = {}
+        self._edgelist: set[Edge] = set()
         self._verbose = verbose
         self._ncomponents = 0
         self._connectivitychange = False
@@ -31,22 +56,43 @@ class PGraph(ABC):
         else:
             self.heuristic = heuristic
 
-    def __str__(self):
+    def __str__(self) -> str:
+        """
+        Human-readable summary of the graph
+
+        :return: one-line summary of vertex/edge/component counts
+        :rtype: str
+
+        .. runblock:: pycon
+
+            >>> from pgraph import UGraph
+            >>> g = UGraph()
+            >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+            >>> v2 = g.add_vertex(coord=[1,1], name='v2')
+            >>> v3 = g.add_vertex(coord=[2,2], name='v3')
+            >>> g.add_edge(v1, v2)
+            >>> g.add_edge(v2, v3)
+            >>> str(g)
+
+        :seealso: :meth:`show`
+        """
         s = f"{self.__class__.__name__}: {self.n} {'vertex' if self.n==1 else 'vertices'}, {self.ne} edge{'s'[:self.ne^1]}, {self.nc} component{'s'[:self.nc^1]}"
         return s
 
-    def __repr__(self):
+    def __repr__(self) -> str:
+        # NOTE: this is shadowed by the __repr__ defined further below in
+        # this class, which is the one actually used -- kept as-is here to
+        # avoid changing behaviour as part of a typing-only pass.
         return str(self)
 
     @classmethod
-    def Dict(cls, d, reverse=False):
+    def Dict(cls, d: dict, reverse: bool = False) -> UGraph | DGraph:
         """
         Create graph from parent/child dictionary
 
         :param d: dictionary that maps from ``Vertex`` subclass to ``Vertex`` subclass
         :type d: dict
         :param reverse: reverse link direction, defaults to False
-        :type reverse: bool, optional
         :return: graph
         :rtype: UGraph or DGraph
 
@@ -56,6 +102,8 @@ class PGraph(ABC):
 
         By default parent vertices are linked their children. If ``reverse`` is
         True then children are linked to their parents.
+
+        :seealso: :meth:`Adjacency`
         """
 
         g = cls()
@@ -88,7 +136,12 @@ class PGraph(ABC):
         return g
 
     @classmethod
-    def Adjacency(cls, A, coords=None, names=None):
+    def Adjacency(
+        cls,
+        A: NDArray,
+        coords: NDArray | None = None,
+        names: list[str] | None = None,
+    ) -> UGraph | DGraph:
         """
         Create graph from adjacency matrix
 
@@ -98,15 +151,16 @@ class PGraph(ABC):
         :type coords: ndarray(N,M), optional
         :param names: names of vertices, defaults to None
         :type names: list(N) of str, optional
-
-        :return: [description]
-        :rtype: [type]
+        :return: graph
+        :rtype: UGraph or DGraph
 
         Create a directed or undirected graph where non-zero elements ``A[i,j]``
         correspond to edges from vertex ``i`` to vertex ``j``.
 
         .. warning:: For undirected graph ``A`` should be symmetric but this
             is not checked.  Only the upper triangular part is used.
+
+        :seealso: :meth:`Dict` :meth:`adjacency`
         """
 
         if A.shape[0] != A.shape[1]:
@@ -144,12 +198,10 @@ class PGraph(ABC):
 
         return g
 
-    def copy(self):
+    def copy(self) -> PGraph:
         """
         Deepcopy of graph
 
-        :param g: A graph
-        :type g: PGraph
         :return: deep copy
         :rtype: PGraph
         """
@@ -261,7 +313,12 @@ class PGraph(ABC):
         else:
             raise TypeError("expecting Edge or Vertex")
 
-    def show(self):
+    def show(self) -> None:
+        """
+        Print a summary of all vertices and edges to stdout
+
+        :seealso: :meth:`__str__`
+        """
         print("vertices:")
         for v in self._vertexlist:
             print("  " + str(v))
@@ -270,7 +327,7 @@ class PGraph(ABC):
             print("  " + str(e))
 
     @property
-    def n(self):
+    def n(self) -> int:
         """
         Number of vertices
 
@@ -280,7 +337,7 @@ class PGraph(ABC):
         return len(self._vertexdict)
 
     @property
-    def ne(self):
+    def ne(self) -> int:
         """
         Number of edges
 
@@ -289,8 +346,18 @@ class PGraph(ABC):
         """
         return len(self._edgelist)
 
+    @abstractmethod
+    def _graphcolor(self) -> int | None:
+        """
+        Color the graph (subclass method)
+
+        Concrete graph coloring algorithm, provided by :meth:`UGraph._graphcolor`
+        and :meth:`DGraph._graphcolor`.
+
+        """
+
     @property
-    def nc(self):
+    def nc(self) -> int:
         """
         Number of components
 
@@ -314,7 +381,29 @@ class PGraph(ABC):
 
         return self._ncomponents
 
-    def _metricfunc(self, metric):
+    def _metricfunc(self, metric: Callable[[NDArray], float] | str) -> Callable[[NDArray], float]:
+        """
+        Resolve a metric name or callable to a callable (private method)
+
+        :param metric: distance metric, a callable or one of "L1", "L2", "SE2"
+        :raises ValueError: ``metric`` is a string other than "L1"/"L2"/"SE2",
+            or is neither callable nor a string
+        :return: the resolved distance metric callable
+        :rtype: callable
+
+        The returned callable takes a single coordinate-difference vector
+        (shape ``(n,)``) and returns a scalar distance -- never a list or
+        array of multiple vectors. That vector is always the difference
+        between one vertex's ``coord`` and either another vertex's ``coord``
+        or an arbitrary point supplied by the caller (see :meth:`closest` and
+        :meth:`Vertex.distance`).
+
+        If ``metric`` is already a callable matching this signature, it is
+        returned unchanged. Otherwise it must be one of the built-in names
+        "L1", "L2", "SE2" (see :meth:`metric` for their definitions).
+
+        :seealso: :meth:`metric` :meth:`heuristic`
+        """
 
         def L1(v):
             return np.linalg.norm(v, 1)
@@ -323,6 +412,10 @@ class PGraph(ABC):
             return np.linalg.norm(v)
 
         def SE2(v):
+            if len(v) != 3:
+                raise ValueError(
+                    f"SE2 metric requires a 3-element (x, y, theta) vector, got length {len(v)}"
+                )
             # wrap angle to range [-pi, pi)
             v[2] = (v[2] + np.pi) % (2 * np.pi) - np.pi
             return np.linalg.norm(v)
@@ -336,76 +429,88 @@ class PGraph(ABC):
                 return L2
             elif metric == "SE2":
                 return SE2
+            else:
+                raise ValueError(f"unknown metric {metric!r}")
         else:
             raise ValueError("unknown metric")
 
     @property
-    def metric(self):
+    def metric(self) -> Callable[[NDArray], float]:
         """
         Get the distance metric for graph
 
         :return: distance metric
         :rtype: callable
 
-        This is a function of a vector and returns a scalar.
+        This is a function of a single coordinate-difference vector (shape
+        ``(n,)``), returning a scalar distance.
         """
         return self._metric
 
     @metric.setter
-    def metric(self, metric):
+    def metric(self, metric: Callable[[NDArray], float] | str) -> None:
         r"""
         Set the distance metric for graph
 
         :param metric: distance metric
         :type metric: callable or str
 
-        This is a function of a vector and returns a scalar.  It can be
-        user defined function or a string:
+        This is a function that takes a single coordinate-difference vector
+        (shape ``(n,)``, not a list/array of multiple vectors) and returns a
+        scalar distance.  It can be a user defined function or a string:
 
         - 'L1' is the norm :math:`L_1 = \Sigma_i | v_i |`
         - 'L2' is the norm :math:`L_2 = \sqrt{ \Sigma_i v_i^2}`
         - 'SE2' is a mixed norm for vectors :math:`(x, y, \theta)` and
             is :math:`\sqrt{x^2 + y^2 + \bar{\theta}^2}` where :math:`\bar{\theta}`
-            is :math:`\theta` wrapped to the interval :math:`[-\pi, \pi)`
+            is :math:`\theta` wrapped to the interval :math:`[-\pi, \pi)`.
+            Requires every coordinate involved -- vertex ``coord`` and any
+            point passed to :meth:`closest`/:meth:`Vertex.distance` -- to be
+            exactly 3 elements; raises :exc:`ValueError` otherwise.
 
         The metric is used by :meth:`closest` and :meth:`distance`
         """
         self._metric = self._metricfunc(metric)
 
     @property
-    def heuristic(self):
+    def heuristic(self) -> Callable[[NDArray], float]:
         """
         Get the heuristic distance metric for graph
 
         :return: heuristic distance metric
         :rtype: callable
 
-        This is a function of a vector and returns a scalar.
+        This is a function of a single coordinate-difference vector (shape
+        ``(n,)``), returning a scalar distance.
         """
         return self._heuristic
 
     @heuristic.setter
-    def heuristic(self, heuristic):
+    def heuristic(self, heuristic: Callable[[NDArray], float] | str) -> None:
         r"""
         Set the heuristic distance metric for graph
 
         :param metric: heuristic distance metric
         :type metric: callable or str
 
-        This is a function of a vector and returns a scalar.  It can be
-        user defined function or a string:
+        This is a function that takes a single coordinate-difference vector
+        (shape ``(n,)``, not a list/array of multiple vectors) and returns a
+        scalar distance.  It can be a user defined function or a string:
 
         - 'L1' is the norm :math:`L_1 = \Sigma_i | v_i |`
         - 'L2' is the norm :math:`L_2 = \sqrt{ \Sigma_i v_i^2}`
         - 'SE2' is a mixed norm for vectors :math:`(x, y, \theta)` and
             is :math:`\sqrt{x^2 + y^2 + \bar{\theta}^2}` where :math:`\bar{\theta}`
-            is :math:`\theta` wrapped to the interval :math:`[-\pi, \pi)`
+            is :math:`\theta` wrapped to the interval :math:`[-\pi, \pi)`.
+            Requires every coordinate involved -- vertex ``coord`` and any
+            point passed to :meth:`closest`/:meth:`Vertex.distance` -- to be
+            exactly 3 elements; raises :exc:`ValueError` otherwise.
 
         The heuristic distance is only used by the A* planner :meth:`path_Astar`.
         """
         self._heuristic = self._metricfunc(heuristic)
 
-    def __repr__(self):
+    def __repr__(self):  # type: ignore[no-redef]
         s = []
         for vertex in self:
             ss = f"{vertex.name} at {vertex.coord}"
@@ -414,7 +519,7 @@ class PGraph(ABC):
             s.append(ss)
         return "\n".join(s)
 
-    def __getitem__(self, i):
+    def __getitem__(self, i: int | str | Vertex) -> Vertex:
         """
         Get vertex (superclass method)
 
@@ -444,7 +549,29 @@ class PGraph(ABC):
         elif isinstance(i, Vertex):
             return i
 
-    def __contains__(self, item):
+    def __iter__(self) -> Iterator[Vertex]:
+        """
+        Iterate over the vertices of the graph
+
+        :return: iterator over vertices, in order of addition
+        :rtype: iterator of Vertex subclass
+
+        .. runblock:: pycon
+
+
+            >>> from pgraph import UGraph
+            >>> g = UGraph()
+            >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+            >>> v2 = g.add_vertex(coord=[1,1], name='v2')
+            >>> v3 = g.add_vertex(coord=[2,2], name='v3')
+            >>> for v in g:
+            ...     print(v)
+
+        :seealso: :meth:`__getitem__`
+        """
+        return iter(self._vertexlist)
+
+    def __contains__(self, item: Vertex | str) -> bool:
         """
         Test if vertex in graph
 
@@ -464,14 +591,14 @@ class PGraph(ABC):
         elif isinstance(item, Vertex):
             return item in self._vertexdict.values()
 
-    def closest(self, coord):
+    def closest(self, coord: ArrayLike) -> tuple[Vertex, float]:
         """
         Vertex closest to point
 
         :param coord: coordinates of a point
         :type coord: ndarray(n)
-        :return: closest vertex
-        :rtype: Vertex subclass
+        :return: closest vertex and its distance
+        :rtype: Vertex subclass, float
 
         Returns the vertex closest to the given point. Distance is computed
         according to the graph's metric.
@@ -489,20 +616,21 @@ class PGraph(ABC):
 
         return min_which, min_dist
 
-    def edges(self):
+    def edges(self) -> set[Edge]:
         """
         Get all edges in graph (superclass method)
 
         :return: All edges in the graph
-        :rtype: list of Edge references
+        :rtype: set of Edge references
 
         We can iterate over all edges in the graph by::
 
             for e in g.edges():
                 print(e)
 
-        .. note:: The ``edges()`` of a Vertex is a list of all edges connected
-            to that vertex.
+        .. note:: Unlike :meth:`Vertex.edges`, which returns a ``list`` in
+            connection order, this returns a ``set`` with no defined
+            iteration order.
 
         :seealso: :meth:`Vertex.edges`
         """
@@ -510,15 +638,15 @@ class PGraph(ABC):
 
     def plot(
         self,
-        colorcomponents=True,
-        force2d=False,
-        vopt={},
-        eopt={},
-        text={},
-        block=False,
-        grid=True,
-        ax=None,
-    ):
+        colorcomponents: bool = True,
+        force2d: bool = False,
+        vopt: dict = {},
+        eopt: dict = {},
+        text: dict | bool = {},
+        block: bool = False,
+        grid: bool = True,
+        ax: Any = None,
+    ) -> None:
         """
         Plot the graph
 
@@ -541,6 +669,8 @@ class PGraph(ABC):
         If ``text`` is a dict it is used to format text labels for the vertices
         which are the vertex names.  If ``text`` is None default formatting is
         used.  If ``text`` is False no labels are added.
+
+        :seealso: :meth:`highlight_path`
         """
         vopt = {**dict(marker="o", markersize=12), **vopt}
         eopt = {**dict(linewidth=3), **eopt}
@@ -611,14 +741,15 @@ class PGraph(ABC):
         if block is not None:
             plt.show(block=block)
 
-    def highlight_path(self, path, block=False, **kwargs):
+    def highlight_path(self, path: list[Vertex], block: bool = False, **kwargs: Any) -> None:
         """
         Highlight a path through the graph
 
-        :param path: [description]
-        :type path: [type]
-        :param block: [description], defaults to True
-        :type block: bool, optional
+        :param path: sequence of vertices forming a path
+        :type path: list of Vertex subclass
+        :param block: block until figure is dismissed, defaults to False
+        :param kwargs: arguments passed to :meth:`highlight_edge` and
+            :meth:`highlight_vertex`
 
         The vertices and edges along the path are overwritten with a different
         size/width and color.
@@ -633,7 +764,9 @@ class PGraph(ABC):
         if block is not None:
             plt.show(block=block)
 
-    def highlight_edge(self, edge, scale=2, color="r", alpha=0.5):
+    def highlight_edge(
+        self, edge: Edge, scale: float = 2, color: str = "r", alpha: float = 0.5
+    ) -> None:
         """
         Highlight an edge in the graph
 
@@ -651,7 +784,13 @@ class PGraph(ABC):
             [p1.x, p2.x], [p1.y, p2.y], color=color, linewidth=3 * scale, alpha=alpha
         )
 
-    def highlight_vertex(self, vertex, scale=2, color="r", alpha=0.5):
+    def highlight_vertex(
+        self,
+        vertex: Vertex | Iterable[Vertex | str],
+        scale: float = 2,
+        color: str = "r",
+        alpha: float = 0.5,
+    ) -> None:
         """
         Highlight a vertex in the graph
 
@@ -673,7 +812,7 @@ class PGraph(ABC):
                 vertex.x, vertex.y, "o", color=color, markersize=12 * scale, alpha=alpha
             )
 
-    def dotfile(self, filename=None, direction=None):
+    def dotfile(self, filename: str | Any | None = None, direction: str | None = None) -> None:
         """
         Export graph as a GraphViz dot file
 
@@ -739,7 +878,7 @@ class PGraph(ABC):
         if filename is None or isinstance(filename, str):
             f.close()  # noqa
 
-    def showgraph(self, **kwargs):
+    def showgraph(self, **kwargs: Any) -> None:
         """
         Display graph in a browser tab
 
@@ -770,7 +909,7 @@ class PGraph(ABC):
     def iscyclic(self):
         pass
 
-    def average_degree(self):
+    def average_degree(self) -> float:
         r"""
         Average degree of the graph
 
@@ -781,6 +920,7 @@ class PGraph(ABC):
         :math:`E / N` for a directed graph where :math:`E` is the total number of
         edges and :math:`N` is the number of vertices.
 
+        :seealso: :meth:`degree`
         """
         if isinstance(self, DGraph):
             return len(self.edges()) / self.n
@@ -791,7 +931,7 @@ class PGraph(ABC):
 
     # MATRIX REPRESENTATIONS
 
-    def Laplacian(self):
+    def Laplacian(self) -> NDArray:
         """
         Laplacian matrix for the graph
 
@@ -801,21 +941,48 @@ class PGraph(ABC):
         ``g.Laplacian()`` is the Laplacian matrix (NxN) of the graph where N
         is the number of vertices.
 
+        .. runblock:: pycon
+
+            >>> from pgraph import UGraph
+            >>> import numpy as np
+            >>> g = UGraph()
+            >>> for i in range(5):
+            ...     g.add_vertex(np.random.rand(2))
+            ...
+            >>> for i, j in [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (3, 4)]:
+            ...     g.add_edge(g[i], g[j])
+            ...
+            >>> L = g.Laplacian()
+            >>> print(L)
+
         .. note::
 
-            - Laplacian is always positive-semidefinite.
-            - Laplacian has at least one zero eigenvalue.
-            - The number of zero-valued eigenvalues is the number of connected
-                components in the graph.
+            - Laplacian always has at least one zero eigenvalue (each row of
+              ``degree() - adjacency()`` sums to zero, so the all-ones
+              vector is always a right null vector).
+            - For an **undirected** graph specifically: the Laplacian is
+              symmetric and positive-semidefinite, and the number of
+              zero-valued eigenvalues equals the number of connected
+              components.
+            - For a **directed** graph, this computes the out-degree
+              Laplacian (a real, recognized construction, e.g. in directed
+              consensus/synchronization literature) -- but it is generally
+              *not* symmetric, its eigenvalues can be complex, and the
+              zero-eigenvalue/component-count relationship above does not
+              hold. For example a simple weakly-connected out-tree (one
+              component) already has two zero eigenvalues, not one.
 
         :seealso: :meth:`adjacency` :meth:`incidence` :meth:`degree`
         """
         return self.degree() - (self.adjacency() > 0)
 
-    def connectivity(self, vertices=None):
+    def connectivity(self, vertices: Iterable[Vertex] | None = None) -> list[int]:
         """
         Graph connectivity
 
+        :param vertices: vertices to report connectivity for, defaults to all
+            vertices in the graph
+        :type vertices: iterable of Vertex subclass, optional
         :return: a list with the number of edges per vertex
         :rtype: list
 
@@ -826,6 +993,23 @@ class PGraph(ABC):
         and the minimum vertex connectivity is::
 
             min(g.connectivity())
+
+        .. runblock:: pycon
+
+            >>> from pgraph import UGraph
+            >>> import numpy as np
+            >>> g = UGraph()
+            >>> for i in range(5):
+            ...     g.add_vertex(np.random.rand(2))
+            ...
+            >>> for i, j in [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (3, 4)]:
+            ...     g.add_edge(g[i], g[j])
+            ...
+            >>> c = g.connectivity()
+            >>> print(c)
+
+
+        :seealso: :meth:`degree`
         """
 
         c = []
@@ -835,7 +1019,7 @@ class PGraph(ABC):
             c.append(len(n._edgelist))
         return c
 
-    def degree(self):
+    def degree(self) -> NDArray:
         """
         Degree matrix of graph
 
@@ -845,12 +1029,29 @@ class PGraph(ABC):
         This is a diagonal matrix  where element ``[i,i]`` is the number
         of edges connected to vertex id ``i``.
 
+        .. note:: For a ``DGraph`` only outgoing edges are counted, matching
+            :attr:`Vertex.degree`.
+
+        .. runblock:: pycon
+
+            >>> from pgraph import UGraph
+            >>> import numpy as np
+            >>> g = UGraph()
+            >>> for i in range(5):
+            ...     g.add_vertex(np.random.rand(2))
+            ...
+            >>> for i, j in [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (3, 4)]:
+            ...     g.add_edge(g[i], g[j])
+            ...
+            >>> d = g.degree()
+            >>> print(d)
+
         :seealso: :meth:`adjacency` :meth:`incidence` :meth:`laplacian`
         """
 
         return np.diag(self.connectivity())
 
-    def adjacency(self):
+    def adjacency(self) -> NDArray:
         """
         Adjacency matrix of graph
 
@@ -859,6 +1060,20 @@ class PGraph(ABC):
 
         The elements of the adjacency matrix ``[i,j]`` are 1 if vertex ``i`` is
         connected to vertex ``j``, else 0.
+
+        .. runblock:: pycon
+
+            >>> from pgraph import UGraph
+            >>> import numpy as np
+            >>> g = UGraph()
+            >>> for i in range(5):
+            ...     g.add_vertex(np.random.rand(2))
+            ...
+            >>> for i, j in [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (3, 4)]:
+            ...     g.add_edge(g[i], g[j])
+            ...
+            >>> A = g.adjacency()
+            >>> print(A)
 
         .. note::
 
@@ -940,16 +1155,22 @@ class PGraph(ABC):
 
     # GRAPH COMPONENTS
 
-    def component(self, c):
+    def component(self, c: int) -> list[Vertex]:
         """
         All vertices in specified graph component
 
+        :param c: component index
+        :return: vertices belonging to component ``c``
+        :rtype: list of Vertex subclass
+
         ``graph.component(c)`` is a list of all vertices in graph component ``c``.
+
+        :seealso: :meth:`nc` :meth:`samecomponent`
         """
         self._graphcolor()  # ensure labels are uptodate
         return [v for v in self if v.label == c]
 
-    def samecomponent(self, v1, v2):
+    def samecomponent(self, v1: Vertex, v2: Vertex) -> bool:
         """
         Test if vertices belong to same graph component
 
@@ -964,6 +1185,8 @@ class PGraph(ABC):
 
         - directed graph this implies a path between them
         - undirected graph there is not necessarily a path between them
+
+        :seealso: :meth:`component`
         """
         self._graphcolor()  # ensure labels are uptodate
 
@@ -1279,6 +1502,8 @@ class UGraph(PGraph):
     Class for undirected graphs
 
     .. inheritance-diagram:: UGraph
+
+    :seealso: :class:`PGraph` :class:`DGraph`
     """
 
     def add_vertex(self, coord=None, name=None):
@@ -1308,7 +1533,7 @@ class UGraph(PGraph):
     def vertex_copy(self, vertex):
         return DVertex(coord=vertex.coord, name=vertex.name)
 
-    def _graphcolor(self):
+    def _graphcolor(self) -> None:
         """
         Color the graph
 
@@ -1358,6 +1583,8 @@ class DGraph(PGraph):
     Class for directed graphs
 
     .. inheritance-diagram:: DGraph
+
+    :seealso: :class:`PGraph` :class:`UGraph`
     """
 
     def add_vertex(self, coord=None, name=None):
@@ -1387,7 +1614,7 @@ class DGraph(PGraph):
     def vertex_copy(self, vertex):
         return DVertex(coord=vertex.coord, name=vertex.name)
 
-    def _graphcolor(self):
+    def _graphcolor(self) -> int | None:
         """
         Color the graph
 
@@ -1410,7 +1637,7 @@ class DGraph(PGraph):
                 vertex._connectivitychange = False
 
             # initial labeling pass
-            merge = {}
+            merge: dict[int, int] = {}
             nextlabel = 1
             for v in self:
                 if v.label is None:
@@ -1436,7 +1663,7 @@ class DGraph(PGraph):
                         merge[n.label] = v.label
 
             # merge labels and find unique labels
-            unique = set()
+            unique: set[int] = set()
             for v in self:
                 while v.label in merge:
                     v.label = merge[v.label]
@@ -1478,9 +1705,17 @@ class Edge:
     get references back to the Edge object.
 
     ``graph.add_edge(v1, v2)`` calls ``v1.connect(v2)``
+
+    :seealso: :class:`Vertex`
     """
 
-    def __init__(self, v1=None, v2=None, cost=None, data=None):
+    def __init__(
+        self,
+        v1: Vertex | None = None,
+        v2: Vertex | None = None,
+        cost: float | None = None,
+        data: Any = None,
+    ):
         """
         Create an edge object
 
@@ -1532,18 +1767,31 @@ class Edge:
             s += f" data={self.data}"
         return s
 
-    def connect(self, v1, v2):
+    def connect(self, v1: Vertex, v2: Vertex) -> None:
         """
-        Add edge to the graph
+        Attach this edge to a pair of vertices
 
         :param v1: start of the edge
         :type v1: Vertex subclass
         :param v2: end of the edge
         :type v2: Vertex subclass
 
-        The edge is added to the graph and connects vertices ``v1`` and ``v2``.
+        The edge connects vertices ``v1`` and ``v2``, and is added to the
+        graph that those vertices belong to.
+
+        .. runblock:: pycon
+
+            >>> from pgraph import UVertex, Edge, UGraph
+            >>> g = UGraph()
+            >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+            >>> v2 = g.add_vertex(coord=[1,1], name='v2')
+            >>> e = Edge(cost=1.414)
+            >>> e.connect(v1, v2)
+            >>> print(e)
 
         .. note:: The vertices must already be added to the graph.
+
+        :seealso: :meth:`Vertex.connect`
         """
 
         if v1._graph is None:
@@ -1561,7 +1809,7 @@ class Edge:
         # DGraph or UGraph
         v1.connect(v2, edge=self)
 
-    def next(self, vertex):
+    def next(self, vertex: Vertex) -> Vertex:
         """
         Return other end of an edge
 
@@ -1573,6 +1821,17 @@ class Edge:
 
         ``e.next(v1)`` is the vertex at the other end of edge ``e``, ie. the
         vertex that is not ``v1``.
+
+        .. runblock:: pycon
+
+            >>> from pgraph import UVertex, Edge
+            >>> v1 = UVertex(coord=[1,2], name="A")
+            >>> v2 = UVertex(coord=[3,4], name="B")
+            >>> e = Edge(v1, v2, cost=5.0, data="A to B")
+            >>> print(e)
+            >>> e.next(v1)
+            >>> e.next(v2)
+
         """
 
         if self.v1 is vertex:
@@ -1582,7 +1841,7 @@ class Edge:
         else:
             raise ValueError("shouldnt happen")
 
-    def vertices(self):
+    def vertices(self) -> list[Vertex]:
         """
         Vertices of an edge (deprecated)
 
@@ -1599,7 +1858,24 @@ class Edge:
         return self.endpoints
 
     @property
-    def endpoints(self):
+    def endpoints(self) -> list[Vertex]:
+        """
+        The two vertices of this edge
+
+        :return: start and end vertex
+        :rtype: list of Vertex subclass
+
+        .. runblock:: pycon
+
+            >>> from pgraph import UVertex, Edge
+            >>> v1 = UVertex(coord=[1,2], name="A")
+            >>> v2 = UVertex(coord=[3,4], name="B")
+            >>> e = Edge(v1, v2, cost=5.0, data="A to B")
+            >>> print(e)
+            >>> print(e.endpoints)
+
+        :seealso: :meth:`vertices`
+        """
         return [self.v1, self.v2]
 
     # def remove(self):
@@ -1629,17 +1905,38 @@ class Edge:
 
 class Vertex:
     """
-    Superclass for vertices of directed and non-directed graphs.
+    Base class for vertices of directed and non-directed graphs.
 
     Each vertex has:
         - ``name``
         - ``label`` an int indicating which graph component contains it
         - ``_edgelist`` a list of edge objects that connect this vertex to others
         - ``coord`` the coordinate in an embedded graph (optional)
+
+    :seealso: :class:`UVertex` :class:`DVertex` :class:`Edge`
     """
 
-    def __init__(self, coord=None, name=None):
-        self._edgelist = []
+    def __init__(self, coord: ArrayLike | None = None, name: str | None = None):
+        """
+        Create a vertex object
+
+        :param coord: coordinate of the vertex for an embedded graph, defaults to None
+        :type coord: array-like, optional
+        :param name: vertex name, defaults to None
+        :type name: str, optional
+
+        Creates a vertex but does not add it to a graph -- use
+        :meth:`PGraph.add_vertex` for that.
+
+        .. runblock:: pycon
+
+            >>> from pgraph import UVertex
+            >>> v1 = UVertex(coord=[0,0], name='v1')
+            >>> print(v1)
+
+        :seealso: :meth:`PGraph.add_vertex`
+        """
+        self._edgelist: list[Edge] = []
         if coord is None:
             self.coord = None
         else:
@@ -1648,46 +1945,89 @@ class Vertex:
         self.label = None
         self._connectivitychange = True
         self._edgelist = []
-        self._graph = None  # reference to owning graph
+        self._graph: PGraph | None = None  # reference to owning graph
         # print('Vertex init', type(self))
 
-    def __str__(self):
+    def __str__(self) -> str:
+        """
+        Compact representation of the vertex
+
+        :return: the vertex name in square brackets
+        :rtype: str
+
+        .. runblock:: pycon
+
+            >>> from pgraph import UVertex
+            >>> v = UVertex(coord=[1,2], name="A")
+            >>> str(v)
+        """
         return f"[{self.name:s}]"
 
-    def __repr__(self):
+    def __repr__(self) -> str:
+        """
+        Detailed representation of the vertex
+
+        :return: class name, vertex name and coordinate
+        :rtype: str
+
+        .. runblock:: pycon
+
+            >>> from pgraph import UVertex
+            >>> v = UVertex(coord=[1,2], name="A")
+            >>> repr(v)
+        """
         if self.coord is None:
             coord = "?"
         else:
             coord = ", ".join([f"{x:.4g}" for x in self.coord])
         return f"{self.__class__.__name__}[{self.name:s}, coord=({coord})]"
 
-    def copy(self, cls=None):
+    def copy(self, cls: type | None = None) -> Vertex:
+        """
+        Copy a vertex
+
+        :param cls: graph class whose ``vertex_copy`` method should be used to
+            create the copy, defaults to None
+        :type cls: UGraph or DGraph subclass, optional
+        :return: a new, unconnected vertex with the same coordinate and name
+        :rtype: Vertex subclass
+
+        If ``cls`` is given, ``cls.vertex_copy(self)`` is used to create a
+        vertex of the appropriate subclass for that graph type, otherwise a
+        vertex of the same class as ``self`` is created directly.
+
+        :seealso: :meth:`UGraph.vertex_copy` :meth:`DGraph.vertex_copy`
+        """
         if cls is not None:
             return cls.vertex_copy(self)
         else:
             return self.__class__(coord=self.coord, name=self.name)
 
-    def neighbours(self):
+    def neighbours(self) -> list[Vertex]:
         """
         Neighbours of a vertex
 
         ``v.neighbours()`` is a list of neighbours of this vertex.
 
         .. note:: For a directed graph the neighbours are those on edges leaving this vertex
+
+        :seealso: :meth:`neighbors` :meth:`incidences`
         """
         return [e.next(self) for e in self._edgelist]
 
-    def neighbors(self):
+    def neighbors(self) -> list[Vertex]:
         """
         Neighbors of a vertex
 
         ``v.neighbors()`` is a list of neighbors of this vertex.
 
         .. note:: For a directed graph the neighbours are those on edges leaving this vertex
+
+        :seealso: :meth:`neighbours`
         """
         return [e.next(self) for e in self._edgelist]
 
-    def adjacent(self):
+    def adjacent(self) -> list[Vertex]:
         """
         Neighbours of a vertex (deprecated)
 
@@ -1703,7 +2043,7 @@ class Vertex:
         )
         return self.neighbours()
 
-    def isneighbour(self, vertex):
+    def isneighbour(self, vertex: Vertex) -> bool:
         """
         Test if vertex is a neigbour
 
@@ -1714,10 +2054,12 @@ class Vertex:
 
         For a directed graph this is true only if the edge is from ``self`` to
         ``vertex``.
+
+        :seealso: :meth:`neighbours`
         """
         return vertex in [e.next(self) for e in self._edgelist]
 
-    def incidences(self):
+    def incidences(self) -> list[tuple[Vertex, Edge]]:
         """
         Neighbours and edges of a vertex
 
@@ -1725,6 +2067,8 @@ class Vertex:
         tuples of (vertex, edge) for all neighbours of the vertex ``v``.
 
         .. note:: For a directed graph the edges are those leaving this vertex
+
+        :seealso: :meth:`neighbours` :meth:`edges`
         """
         return [(e.next(self), e) for e in self._edgelist]
 
@@ -1771,7 +2115,7 @@ class Vertex:
 
         return e
 
-    def edgeto(self, dest):
+    def edgeto(self, dest: Vertex) -> Edge:
         """
         Get edge connecting vertex to specific neighbour
 
@@ -1790,7 +2134,7 @@ class Vertex:
                 return e
         raise ValueError("dest is not a neighbour")
 
-    def edges(self):
+    def edges(self) -> list[Edge]:
         """
         All outgoing edges of vertex
 
@@ -1826,7 +2170,7 @@ class Vertex:
         return self._graph.metric(self.coord - coord)
 
     @property
-    def degree(self):
+    def degree(self) -> int:
         """
         Degree of vertex
 
@@ -1842,7 +2186,7 @@ class Vertex:
         return len(self.edges())
 
     @property
-    def x(self):
+    def x(self) -> float:
         """
         The x-coordinate of an embedded vertex
 
@@ -1852,7 +2196,7 @@ class Vertex:
         return self.coord[0]
 
     @property
-    def y(self):
+    def y(self) -> float:
         """
         The y-coordinate of an embedded vertex
 
@@ -1862,7 +2206,7 @@ class Vertex:
         return self.coord[1]
 
     @property
-    def z(self):
+    def z(self) -> float:
         """
         The z-coordinate of an embedded vertex
 
@@ -1871,7 +2215,27 @@ class Vertex:
         """
         return self.coord[2]
 
-    def closest(self):
+    def closest(self) -> tuple[Vertex, float]:
+        """
+        Vertex closest to this vertex
+
+        :return: closest vertex and its distance
+        :rtype: Vertex subclass, float
+
+        Equivalent to ``self._graph.closest(self.coord)``.
+
+        .. runblock:: pycon
+
+            >>> from pgraph import UGraph
+            >>> g = UGraph()
+            >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+            >>> v2 = g.add_vertex(coord=[1,1], name='v2')
+            >>> v3 = g.add_vertex(coord=[2,3], name='v3')
+            >>> v4 = g.add_vertex(coord=[4,3], name='v4')
+            >>> print(v1.closest())
+
+        :seealso: :meth:`PGraph.closest`
+        """
         return self._graph.closest(self.coord)
 
 
@@ -1884,9 +2248,37 @@ class UVertex(Vertex):
 
     .. inheritance-diagram:: UVertex
 
+    :seealso: :class:`Vertex` :class:`DVertex`
     """
 
-    def connect(self, other, **kwargs):
+    def connect(self, other: Vertex | Edge, **kwargs: Any) -> Edge:
+        """
+        Connect this vertex to another with an undirected edge
+
+        :param other: vertex to connect to, or an existing edge to attach
+        :type other: Vertex subclass or Edge
+        :param kwargs: arguments passed to :meth:`Vertex.connect`, ignored if
+            ``other`` is an ``Edge``
+        :raises TypeError: ``other`` is neither a ``Vertex`` nor an ``Edge``
+        :return: the edge connecting the vertices
+        :rtype: Edge
+
+        Unlike the directed-graph counterpart, the new edge is added to
+        *both* vertices' edge lists, so it is discovered from either end.
+
+        .. runblock:: pycon
+
+            >>> from pgraph import UVertex, Edge, UGraph
+            >>> g = UGraph()
+            >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+            >>> v2 = g.add_vertex(coord=[1,1], name='v2')
+            >>> v1.connect(v2, cost=1.414)
+            >>> print(v1.edges())
+            >>> print(g.edges())
+            >>> print(g)
+
+        :seealso: :meth:`Vertex.connect` :meth:`DVertex.connect`
+        """
 
         if isinstance(other, Vertex):
             e = super().connect(other, **kwargs)
@@ -1912,9 +2304,38 @@ class DVertex(Vertex):
 
     .. inheritance-diagram:: DVertex
 
+    :seealso: :class:`Vertex` :class:`UVertex`
     """
 
-    def connect(self, other, **kwargs):
+    def connect(self, other: Vertex | Edge, **kwargs: Any) -> Edge:
+        """
+        Connect this vertex to another with a directed edge
+
+        :param other: vertex to connect to, or an existing edge to attach
+        :type other: Vertex subclass or Edge
+        :param kwargs: arguments passed to :meth:`Vertex.connect`, ignored if
+            ``other`` is an ``Edge``
+        :raises TypeError: ``other`` is neither a ``Vertex`` nor an ``Edge``
+        :return: the edge connecting the vertices
+        :rtype: Edge
+
+        Unlike the undirected-graph counterpart, the new edge is added only
+        to *this* vertex's edge list -- it is only discoverable from the
+        start of the directed edge.
+
+        .. runblock:: pycon
+
+            >>> from pgraph import DVertex, Edge, DGraph
+            >>> g = DGraph()
+            >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+            >>> v2 = g.add_vertex(coord=[1,1], name='v2')
+            >>> v1.connect(v2, cost=1.414)
+            >>> print(v1.edges())
+            >>> print(g.edges())
+            >>> print(g)
+
+        :seealso: :meth:`Vertex.connect` :meth:`UVertex.connect`
+        """
         if isinstance(other, Vertex):
             e = super().connect(other, **kwargs)
         elif isinstance(other, Edge):

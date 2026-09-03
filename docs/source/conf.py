@@ -30,12 +30,32 @@ author = "Peter Corke"
 # ones.
 extensions = [
     "sphinx.ext.autodoc",
+    "sphinx.ext.autosummary",
     "sphinx.ext.todo",
     "sphinx.ext.viewcode",
     "sphinx.ext.mathjax",
     "sphinx.ext.coverage",
+    "sphinx.ext.intersphinx",
     "sphinx.ext.inheritance_diagram",
+    "sphinx_autodoc_typehints",
+    "sphinx_copybutton",
+    "sphinx_pyrunblock",
+    "sphinx_codeautolink",
 ]
+
+autosummary_generate = True
+
+# copybutton configuration: strip >>> and ... prompts when copying
+copybutton_prompt_text = r">>> |\.\.\. "
+copybutton_prompt_is_regexp = True
+
+# sphinx_codeautolink: link names in code blocks to their API docs
+codeautolink_autodoc_inject = False
+
+intersphinx_mapping = {
+    "python": ("https://docs.python.org/3", None),
+    "numpy": ("https://numpy.org/doc/stable/", None),
+}
 
 html_theme_options = {
     "logo_only": False,

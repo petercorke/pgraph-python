@@ -1,7 +1,7 @@
 Directed graph vertex
 ---------------------
 
-.. autoclass:: PGraph.DVertex
+.. autoclass:: pgraph.PGraph.DVertex
    :undoc-members:
    :show-inheritance:
    :inherited-members:
