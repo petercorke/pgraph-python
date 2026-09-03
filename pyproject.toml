@@ -1,6 +1,6 @@
 [project]
 name = "pgraph-python"
-version = "0.6.4"
+version = "1.0.0"
 authors = [{ name = "Peter Corke", email = "rvc@petercorke.com" }]
 description = "Mathematical graphs for Python"
 readme = "README.md"
