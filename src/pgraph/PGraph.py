@@ -728,7 +728,7 @@ class _BaseGraph(ABC):
 
         .. runblock:: pycon
 
-
+        
             >>> from pgraph import UGraph
             >>> g = UGraph()
             >>> v1 = g.add_vertex(coord=[0,0], name='v1')
@@ -1076,8 +1076,55 @@ class _BaseGraph(ABC):
             # time.sleep(1)
             # os.remove(pdffile.name)
 
-    def iscyclic(self):
-        pass
+    def iscyclic(self) -> bool:
+        """
+        Test if graph is cyclic
+
+        :return: true if the graph contains at least one cycle
+        :rtype: bool
+
+        For an undirected graph this is a simple count: a forest (acyclic)
+        has exactly ``n - nc`` edges, one per component-connecting edge with
+        no redundancy, so any excess indicates a cycle. This is O(1) given
+        :meth:`n`, :meth:`ne` and :meth:`nc`, which are already cached.
+
+        For a directed graph this runs `Kahn's algorithm
+        <https://en.wikipedia.org/wiki/Topological_sorting#Kahn's_algorithm>`_:
+        repeatedly remove vertices with no remaining incoming edges. If every
+        vertex can eventually be removed, the graph is a DAG (acyclic); if
+        some are never freed, they form a cycle. This is O(V+E), using
+        vertices' outgoing edges via :meth:`BaseVertex.neighbours` the same
+        way :meth:`path_BFS` and friends do.
+
+        .. note:: A matrix-based test also exists in theory -- a digraph is
+            acyclic iff its adjacency matrix is nilpotent (all eigenvalues
+            zero) -- but that needs an O(N^3) eigendecomposition plus a
+            floating-point zero-tolerance judgement call, to answer a
+            question Kahn's algorithm answers exactly with integers in
+            O(V+E). Not used here for that reason.
+
+        :seealso: :meth:`adjacency`
+        """
+        if isinstance(self, UGraph):
+            return self.ne > self.n - self.nc
+
+        # DGraph: Kahn's algorithm
+        indegree = {vertex: 0 for vertex in self}
+        for e in self.edges():
+            assert e.v2 is not None
+            indegree[e.v2] += 1
+
+        frontier = [vertex for vertex in self if indegree[vertex] == 0]
+        removed = 0
+        while frontier:
+            vertex = frontier.pop()
+            removed += 1
+            for n in vertex.neighbours():
+                indegree[n] -= 1
+                if indegree[n] == 0:
+                    frontier.append(n)
+
+        return removed != self.n
 
     def average_degree(self) -> float:
         r"""
