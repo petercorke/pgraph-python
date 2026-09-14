@@ -48,6 +48,19 @@ jobs:
         continue-on-error: true
         run: mypy src/pgraph/PGraph.py
 
+  all-tests-passed:
+    name: All tests passed
+    needs: unittest
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Check test matrix result
+        run: |
+          if [ "${{ needs.unittest.result }}" != "success" ]; then
+            echo "test matrix did not succeed: ${{ needs.unittest.result }}"
+            exit 1
+          fi
+
   codecov:
     needs: unittest
     runs-on: ubuntu-latest
