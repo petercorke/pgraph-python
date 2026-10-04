@@ -2,7 +2,7 @@ Directed graph
 --------------
 
 
-.. autoclass:: PGraph.DGraph
+.. autoclass:: pgraph.PGraph.DGraph
    :undoc-members:
    :show-inheritance:
    :inherited-members:

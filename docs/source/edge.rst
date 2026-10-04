@@ -1,7 +1,7 @@
 Edge
 ----
 
-.. autoclass:: PGraph.Edge
+.. autoclass:: pgraph.PGraph.Edge
    :undoc-members:
    :show-inheritance:
    :inherited-members:

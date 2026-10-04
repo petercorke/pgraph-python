@@ -19,7 +19,7 @@ sys.path.insert(0, os.path.abspath("../../src"))
 # -- Project information -----------------------------------------------------
 
 project = "Simple graph functionality for Python"
-copyright = "2020, Peter Corke"
+copyright = "2020-present, Peter Corke"
 author = "Peter Corke"
 
 
@@ -30,12 +30,33 @@ author = "Peter Corke"
 # ones.
 extensions = [
     "sphinx.ext.autodoc",
+    "sphinx.ext.autosummary",
     "sphinx.ext.todo",
     "sphinx.ext.viewcode",
     "sphinx.ext.mathjax",
     "sphinx.ext.coverage",
+    "sphinx.ext.intersphinx",
     "sphinx.ext.inheritance_diagram",
+    "sphinx_autodoc_typehints",
+    "sphinx_copybutton",
+    "sphinx_pyrunblock",
+    "sphinx_codeautolink",
+    "matplotlib.sphinxext.plot_directive",
 ]
+
+autosummary_generate = True
+
+# copybutton configuration: strip >>> and ... prompts when copying
+copybutton_prompt_text = r">>> |\.\.\. "
+copybutton_prompt_is_regexp = True
+
+# sphinx_codeautolink: link names in code blocks to their API docs
+codeautolink_autodoc_inject = False
+
+intersphinx_mapping = {
+    "python": ("https://docs.python.org/3", None),
+    "numpy": ("https://numpy.org/doc/stable/", None),
+}
 
 html_theme_options = {
     "logo_only": False,
@@ -60,10 +81,11 @@ exclude_patterns = ["test_*"]
 #
 html_theme = "sphinx_rtd_theme"
 html_show_sourcelink = True
-html_last_updated_fmt = "%d-%b-%Y"
+html_last_updated_fmt = "%Y-%m-%d"
 show_authors = True
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
+html_css_files = ["custom.css"]

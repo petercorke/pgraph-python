@@ -1,7 +1,7 @@
 Undirected graph vertex
 -----------------------
 
-.. autoclass:: PGraph.UVertex
+.. autoclass:: pgraph.PGraph.UVertex
    :undoc-members:
    :show-inheritance:
    :inherited-members:
