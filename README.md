@@ -23,6 +23,7 @@
 [![Downloads](https://static.pepy.tech/badge/pgraph-python/month)](https://pepy.tech/projects/pgraph-python)
 ![Python Version](https://img.shields.io/pypi/pyversions/pgraph-python.svg)
 [![Coverage](https://codecov.io/gh/petercorke/pgraph-python/branch/main/graph/badge.svg)](https://codecov.io/gh/petercorke/pgraph-python)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/728d19eca33946fa8cfe5ae536c52bc0)](https://app.codacy.com/gh/petercorke/pgraph-python/dashboard)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ### Ecosystem & Dependencies
