@@ -1,23 +1,36 @@
 # PGraph: graphs for Python
 
+<div align="center">
+  <strong>Mathematical graphs for Python</strong>
+  <br><br>
+
+[![PyPI version](https://img.shields.io/pypi/v/pgraph-python?style=for-the-badge&color=blue)](https://pypi.org/project/pgraph-python/)
+  [![Documentation](https://img.shields.io/badge/Docs-View_Online-blue?style=for-the-badge)](https://petercorke.github.io/pgraph-python)
+
+  <p>
+    <a href="https://github.com/petercorke/pgraph-python">GitHub</a> •
+    <a href="https://github.com/petercorke/pgraph-python/wiki">Wiki</a> •
+    <a href="https://github.com/petercorke/pgraph-python/blob/main/CHANGELOG.md">Changelog</a>
+  </p>
+</div>
+
+---
+
+### Status & Project Health
+[![Build Status](https://github.com/petercorke/pgraph-python/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/petercorke/pgraph-python/actions/workflows/ci.yml)
+[![Downloads](https://static.pepy.tech/badge/pgraph-python/month)](https://pepy.tech/projects/pgraph-python)
+![Python Version](https://img.shields.io/pypi/pyversions/pgraph-python.svg)
+[![Coverage](https://codecov.io/gh/petercorke/pgraph-python/branch/main/graph/badge.svg)](https://codecov.io/gh/petercorke/pgraph-python)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+### Ecosystem & Dependencies
 [![A Python Robotics Package](https://raw.githubusercontent.com/petercorke/robotics-toolbox-python/main/.github/svg/py_collection.min.svg)](https://github.com/petercorke/robotics-toolbox-python)
-[![Powered by Spatial Maths](https://raw.githubusercontent.com/petercorke/spatialmath-python/master/.github/svg/sm_powered.min.svg)](https://github.com/petercorke/spatialmath-python)
 [![QUT Centre for Robotics Open Source](https://github.com/qcr/qcr.github.io/raw/master/misc/badge.svg)](https://qcr.github.io)
 
-[![PyPI version fury.io](https://badge.fury.io/py/pgraph-python.svg)](https://pypi.python.org/pypi/pgraph-python/)
-[![PyPI pyversions](https://img.shields.io/pypi/pyversions/pgraph-python)](https://pypi.python.org/pypi/pgraph-python/)
-[![GitHub license](https://img.shields.io/github/license/Naereen/StrapDown.js.svg)](https://github.com/petercorke/pgraph-python/blob/main/LICENSE)
-
-[![Build Status](https://github.com/petercorke/pgraph-python/actions/workflows/ci.yml/badge.svg)](https://github.com/petercorke/pgraph-python/actions?query=workflow%3ACI)
-[![Coverage](https://codecov.io/gh/petercorke/pgraph-python/branch/main/graph/badge.svg)](https://codecov.io/gh/petercorke/pgraph-python)
-![pypi downloads](https://img.shields.io/pypi/dw/pgraph-python)
-
-- [GitHub repository](https://github.com/petercorke/pgraph-python)
-- [Wiki (examples and details)](https://github.com/petercorke/pgraph-python/wiki)
-- [Documentation](https://petercorke.github.io/pgraph-python)
-- [Changelog](https://github.com/petercorke/pgraph-python/blob/main/CHANGELOG.md)
-- Dependencies: [`numpy`](https://numpy.org) [`spatialmath`](https://github.com/bdaiinstitute/spatialmath-python)
-
+[![powered by NumPy](https://img.shields.io/badge/powered_by-NumPy-013243?logo=numpy&logoColor=white)](https://numpy.org)
+[![powered by SciPy](https://img.shields.io/badge/powered_by-SciPy-0054a6?logo=scipy&logoColor=white)](https://scipy.org)
+[![powered by Matplotlib](https://img.shields.io/badge/powered_by-Matplotlib-11557c?logo=matplotlib&logoColor=white)](https://matplotlib.org)
+[![Powered by Spatial Maths](https://raw.githubusercontent.com/petercorke/spatialmath-python/master/.github/svg/sm_powered.min.svg)](https://github.com/petercorke/spatialmath-python)
 
 This Python package allows the manipulation of directed and non-directed graphs.  Also supports embedded graphs.  It is suitable for graphs with thousands of nodes.
 
