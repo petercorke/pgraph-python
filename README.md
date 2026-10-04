@@ -1,6 +1,8 @@
 # PGraph: graphs for Python
 
 <div align="center">
+  <img src="https://raw.githubusercontent.com/petercorke/pgraph-python/main/docs/figs/pgraph_logo.png" width="450" alt="pgraph logo">
+  <br>
   <strong>Mathematical graphs for Python</strong>
   <br><br>
 
