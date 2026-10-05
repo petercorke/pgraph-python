@@ -12,11 +12,11 @@ This package provides a set of classes for manipulating simple directed and undi
 .. toctree::
    :maxdepth: 2
 
-   directed
-   undirected
-   edge
-   planning
-   matrices
+   common
+   dgraph
+   ugraph
+   edges_vertices
+   policy
 
 
 Indices and tables

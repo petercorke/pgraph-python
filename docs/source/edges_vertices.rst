@@ -1,9 +1,9 @@
-Undirected graphs
+Edges & Vertices
 =================
-
 
 .. toctree::
    :maxdepth: 2
 
-   ugraph
+   dvertex
    uvertex
+   edge

@@ -1,8 +1,9 @@
 Undirected graph vertex
 -----------------------
 
+``UVertex`` overrides only ``connect()`` -- see :doc:`common` for the full
+method list (neighbours, edges, distance, degree, removal, ...).
+
 .. autoclass:: pgraph.PGraph.UVertex
-   :undoc-members:
+   :members: connect
    :show-inheritance:
-   :inherited-members:
-   :special-members: __init__
