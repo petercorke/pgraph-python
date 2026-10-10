@@ -1500,7 +1500,7 @@ class _BaseGraph(ABC):
 
         :seealso: :meth:`adjacency` :meth:`incidence` :meth:`degree`
         """
-        return self.degree() - (self.adjacency() > 0)
+        return self.degree() - self.adjacency()
 
     def connectivity(self, vertices: Iterable[BaseVertex] | None = None) -> list[int]:
         """
@@ -1622,7 +1622,7 @@ class _BaseGraph(ABC):
         A = np.zeros((self.n, self.n))
         for vertex in self:
             for n in vertex.neighbours():
-                A[vdict[vertex], vdict[n]] = 1
+                A[vdict[vertex], vdict[n]] += 1
         return A
 
     def incidence(self) -> NDArray:
@@ -1674,6 +1674,8 @@ class _BaseGraph(ABC):
             assert e.v1 is not None and e.v2 is not None
             I[vdict[e.v1], j] = 1
             I[vdict[e.v2], j] = 1
+            if e.v1 is e.v2 and isinstance(self, UGraph):
+                I[vdict[e.v1], j] = 2  # self-loop, counted at both ends
 
         return I
 
@@ -1709,10 +1711,12 @@ class _BaseGraph(ABC):
         for i, vert in enumerate(self):
             vdict[vert] = i
 
-        A = np.zeros((self.n, self.n))
+        A = np.full((self.n, self.n), np.inf)
         for v1 in self:
             for v2, edge in v1.incidences():
-                A[vdict[v1], vdict[v2]] = self._require_cost(edge)
+                i, j = vdict[v1], vdict[v2]
+                A[i, j] = min(A[i, j], self._require_cost(edge))
+        A[np.isinf(A)] = 0  # not connected
         return A
 
     # GRAPH COMPONENTS
@@ -1832,6 +1836,8 @@ class _BaseGraph(ABC):
 
             # expand the vertex
             for n in x.neighbours():
+                if n is x:
+                    continue  # self-loop, never part of a shortest path
                 if n is G:
                     if verbose:
                         print("     goal", n.name, "reached")
@@ -1860,7 +1866,7 @@ class _BaseGraph(ABC):
 
         while x is not S:
             p = parent[x]
-            length += self._require_cost(x.edgeto(p))
+            length += self._require_cost(p.edgeto(x))
             path.insert(0, p)
             x = p
 
@@ -1933,6 +1939,8 @@ class _BaseGraph(ABC):
                 break
             # expand the vertex
             for n, e in x.incidences():
+                if n is x:
+                    continue  # self-loop, never part of a shortest path
                 fnew = f[x] + self._require_cost(e)
                 if n not in frontier and n not in explored:
                     # add it to the frontier
@@ -2046,6 +2054,8 @@ class _BaseGraph(ABC):
                 break
             # expand the vertex
             for n, e in x.incidences():
+                if n is x:
+                    continue  # self-loop, never part of a shortest path
                 if n not in frontier and n not in explored:
                     # add it to the frontier
                     frontier.append(n)
@@ -2830,10 +2840,13 @@ class BaseVertex:
             >>> g.add_edge(v1, v2, cost=1.414)
             >>> print(v1.edgeto(v2))
         """
-        for n, e in self.incidences():
-            if n is dest:
-                return e
-        raise ValueError("dest is not a neighbour")
+        edges = [e for n, e in self.incidences() if n is dest]
+        if not edges:
+            raise ValueError("dest is not a neighbour")
+        costed = [e for e in edges if e.cost is not None]
+        if costed:
+            return min(costed, key=lambda e: e.cost)  # type: ignore[arg-type,return-value]
+        return edges[0]
 
     def edges(self) -> list[Edge]:
         """
