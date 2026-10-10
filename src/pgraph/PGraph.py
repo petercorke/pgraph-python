@@ -1498,6 +1498,13 @@ class _BaseGraph(ABC):
               hold. For example a simple weakly-connected out-tree (one
               component) already has two zero eigenvalues, not one.
 
+        .. rubric:: For graphs with parallel edges or loops
+
+        Both :meth:`degree` and :meth:`adjacency` count edges, so the
+        identity ``L = degree() - adjacency()`` and the zero row sums hold
+        unchanged. A self-loop adds the same amount to both and cancels out
+        of the Laplacian entirely.
+
         :seealso: :meth:`adjacency` :meth:`incidence` :meth:`degree`
         """
         return self.degree() - self.adjacency()
@@ -1572,6 +1579,13 @@ class _BaseGraph(ABC):
             >>> d = g.degree()
             >>> print(d)
 
+        .. rubric:: For graphs with parallel edges or loops
+
+        Every edge is counted, so ``k`` parallel edges between two vertices
+        add ``k`` to the degree of each end. A self-loop adds 2 to the degree
+        of a ``UGraph`` vertex, since it has two ends, and 1 to the
+        (out-)degree of a ``DGraph`` vertex.
+
         :seealso: :meth:`adjacency` :meth:`incidence` :meth:`laplacian`
         """
 
@@ -1607,10 +1621,19 @@ class _BaseGraph(ABC):
               can be resolved to a vertex reference by ``graph[i]``.
             - for an undirected graph the matrix is symmetric
             - Eigenvalues of ``A`` are real and are known as the spectrum of the graph.
-            - The element ``A[i,j]`` can be considered the number of walks of length one
-              edge from vertex ``i`` to vertex ``j`` (either zero or one).
+            - The element ``A[i,j]`` is the number of walks of length one
+              edge from vertex ``i`` to vertex ``j``, which is the number of
+              edges between them (zero or one for a simple graph).
             - If ``Ak = A ** k`` the element ``Ak[i,j]`` is the number of
               walks of length ``k`` from vertex ``i`` to vertex ``j``.
+
+        .. rubric:: For graphs with parallel edges or loops
+
+        The matrix holds edge *counts*, so ``k`` parallel edges from ``i`` to
+        ``j`` give ``A[i,j] = k`` and ``Ak = A ** k`` still counts walks
+        correctly. A self-loop adds to the diagonal: 2 for a ``UGraph``
+        (consistent with :meth:`degree`) and 1 for a ``DGraph``. In every case
+        each row of ``A`` sums to the degree of that vertex.
 
         :seealso: :meth:`Laplacian` :meth:`incidence` :meth:`degree`
         """
@@ -1661,6 +1684,13 @@ class _BaseGraph(ABC):
               :meth:`BaseVertex.edges` instead would silently drop such
               vertices for a directed graph.
 
+        .. rubric:: For graphs with parallel edges or loops
+
+        Parallel edges each get their own column. For a ``UGraph`` the column
+        of a self-loop holds a single 2 (it touches its vertex at both ends,
+        so row sums still equal :meth:`degree`); for a ``DGraph`` it holds a
+        single 1.
+
         :seealso: :meth:`Laplacian` :meth:`adjacency` :meth:`degree`
         """
         edges = self.edges()
@@ -1703,6 +1733,12 @@ class _BaseGraph(ABC):
             ...
             >>> d = g.distance()
             >>> print(d)
+
+        .. rubric:: For graphs with parallel edges or loops
+
+        If there are parallel edges the element is the cost of the *cheapest*
+        of them. A self-loop gives a non-zero diagonal element equal to its
+        cost.
 
         :seealso: :meth:`BaseVertex.distance`
         """
@@ -1812,6 +1848,9 @@ class _BaseGraph(ABC):
             >>> print(path)
             >>> print(length)
 
+        .. note:: Self-loops are ignored. If there are parallel edges the
+            cheapest is used for the path length.
+
         :seealso: :meth:`path_UCS` :meth:`path_Astar`
         """
         S = self._resolve_vertex(S, "start")
@@ -1912,6 +1951,9 @@ class _BaseGraph(ABC):
             >>> path, length, tree = g.path_UCS(v1, v3)
             >>> print(path)
             >>> print(length)
+
+        .. note:: Self-loops are ignored. If there are parallel edges the
+            cheapest is used for the path length.
 
         :seealso: :meth:`path_BFS` :meth:`path_Astar`
         """
@@ -2026,6 +2068,9 @@ class _BaseGraph(ABC):
             >>> path, length, tree = g.path_Astar(v1, v3)
             >>> print(path)
             >>> print(length)
+
+        .. note:: Self-loops are ignored. If there are parallel edges the
+            cheapest is used for the path length.
 
         :seealso: :meth:`heuristic` :meth:`path_BFS` :meth:`path_UCS`
         """
@@ -2830,6 +2875,8 @@ class BaseVertex:
         .. note::
 
             - For a directed graph ``dest`` must be at the arrow end of the edge
+            - If there are parallel edges to ``dest`` the cheapest is returned
+              (the first, if none of them has a cost)
 
         .. runblock:: pycon
 
