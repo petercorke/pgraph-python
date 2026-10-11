@@ -108,6 +108,7 @@
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
         <span class="n">metric</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">NDArray</span><span class="p">],</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">heuristic</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">NDArray</span><span class="p">],</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -142,6 +143,14 @@
 
 <span class="sd">        This is the common base class of :class:`UGraph` and :class:`DGraph`</span>
 <span class="sd">        and should not be instantiated directly.</span>
+
+<span class="sd">        All arguments are keyword-only, so ``UGraph(dim=6)`` is correct and</span>
+<span class="sd">        ``UGraph(6)`` raises :exc:`TypeError`.</span>
+
+<span class="sd">        .. versionchanged:: 1.0</span>
+<span class="sd">            Arguments are keyword-only.  In 0.6.5 the first positional</span>
+<span class="sd">            argument was accepted and ignored, so ``UGraph(6)`` silently did</span>
+<span class="sd">            nothing.</span>
 
 <span class="sd">        ``vertex_class`` and ``edge_class`` let user subclasses be built by the</span>
 <span class="sd">        graph, so they never need to be constructed by hand::</span>
