@@ -990,10 +990,10 @@ class _BaseGraph(ABC):
         self,
         colorcomponents: bool = True,
         force2d: bool = False,
-        vopt: dict = {},
-        eopt: dict = {},
-        text: dict | bool = {},
-        block: bool = False,
+        vopt: dict | None = None,
+        eopt: dict | None = None,
+        text: dict | bool | None = None,
+        block: bool | None = False,
         grid: bool = True,
         ax: Any = None,
     ) -> None:
@@ -1002,14 +1002,21 @@ class _BaseGraph(ABC):
 
         :param vopt: vertex format, defaults to 12pt o-marker
         :type vopt: dict, optional
-        :param eopt: edge format, defaults to None
+        :param eopt: edge format, defaults to 3pt line width
         :type eopt: dict, optional
         :param text: text label format, defaults to None
-        :type text: False or dict, optional
-        :param colorcomponents: color vertices and edges by component, defaults to None
-        :type color: bool, optional
-        :param block: block until figure is dismissed, defaults to True
-        :type block: bool, optional
+        :type text: dict, bool or None, optional
+        :param colorcomponents: color vertices and edges by component, defaults to True
+        :type colorcomponents: bool, optional
+        :param force2d: plot only the first two coordinates of each vertex
+            even if they have more, defaults to False
+        :type force2d: bool, optional
+        :param block: block until figure is dismissed, defaults to False. If
+            None the figure is not shown at all, which is useful when
+            adding to the plot or saving it.
+        :type block: bool or None, optional
+        :raises ValueError: the graph is empty, or a vertex has no coordinate
+            or fewer than two coordinate values
 
         The graph is plotted using matplotlib.
 
@@ -1017,8 +1024,12 @@ class _BaseGraph(ABC):
         color.  ``vertex`` and ``edge`` cannot include a color keyword.
 
         If ``text`` is a dict it is used to format text labels for the vertices
-        which are the vertex names.  If ``text`` is None default formatting is
-        used.  If ``text`` is False no labels are added.
+        which are the vertex names.  If ``text`` is None or True default
+        formatting is used.  If ``text`` is False no labels are added.
+
+        .. note:: Only embedded graphs can be plotted: every vertex must have
+            a coordinate of at least two values.  A coordinate of more than
+            two values is drawn in 3D, using the first three.
 
         .. runblock:: pycon
 
@@ -1040,21 +1051,37 @@ class _BaseGraph(ABC):
 
         :seealso: :meth:`highlight_path`
         """
-        vopt = {**dict(marker="o", markersize=12), **vopt}
-        eopt = {**dict(linewidth=3), **eopt}
+        if self.n == 0:
+            raise ValueError("cannot plot an empty graph")
+        ndim = 0  # number of coordinate values, taken from the first vertex
+        for i, vertex in enumerate(self):
+            if vertex.coord is None or len(vertex.coord) < 2:
+                raise ValueError(
+                    f"cannot plot: vertex {vertex.name} needs a coordinate "
+                    "of at least two values"
+                )
+            if i == 0:
+                ndim = len(vertex.coord)
+
+        vopt = {**dict(marker="o", markersize=12), **(vopt or {})}
+        eopt = {**dict(linewidth=3), **(eopt or {})}
+        # text labels: None or True is default formatting, False is no labels
+        textopt: dict | None = None
+        if text is not False:
+            textopt = text if isinstance(text, dict) else {}
 
         if colorcomponents:
             color = plt.cm.coolwarm(np.linspace(0, 1, self.nc))
 
-        if len(self[0].coord) == 2 or force2d:
+        if ndim == 2 or force2d:
             # 2D plotting
             if ax is None:
                 ax = axes_logic(ax, 2)
             for c in range(self.nc):
                 # for each component
                 for vertex in self.component(c):
-                    if text is not False:
-                        ax.text(vertex.x, vertex.y, "  " + vertex.name, **text)
+                    if textopt is not None:
+                        ax.text(vertex.x, vertex.y, f"  {vertex.name}", **textopt)
                     if colorcomponents:
                         ax.plot(vertex.x, vertex.y, color=color[c, :], **vopt)
                         for v in vertex.neighbours():
@@ -1075,9 +1102,9 @@ class _BaseGraph(ABC):
             for c in range(self.nc):
                 # for each component
                 for vertex in self.component(c):
-                    if text is not False:
+                    if textopt is not None:
                         ax.text(
-                            vertex.x, vertex.y, vertex.z, "  " + vertex.name, **text
+                            vertex.x, vertex.y, vertex.z, f"  {vertex.name}", **textopt
                         )
                     if colorcomponents:
                         ax.plot(
@@ -1094,7 +1121,7 @@ class _BaseGraph(ABC):
                                 **{**dict(color=color[c, :]), **eopt},
                             )
                     else:
-                        ax.plot(vertex.x, vertex.y, **vopt)
+                        ax.plot(vertex.x, vertex.y, vertex.z, **vopt)
                         for v in vertex.neighbours():
                             ax.plot(
                                 [vertex.x, v.x],
@@ -1109,13 +1136,17 @@ class _BaseGraph(ABC):
         if block is not None:
             plt.show(block=block)
 
-    def highlight_path(self, path: list[BaseVertex], block: bool = False, **kwargs: Any) -> None:
+    def highlight_path(
+        self, path: list[BaseVertex], block: bool | None = False, **kwargs: Any
+    ) -> None:
         """
         Highlight a path through the graph
 
         :param path: sequence of vertices forming a path
         :type path: list of BaseVertex subclass
-        :param block: block until figure is dismissed, defaults to False
+        :param block: block until figure is dismissed, defaults to False. If
+            None the figure is not shown.
+        :type block: bool or None, optional
         :param kwargs: arguments passed to :meth:`highlight_edge` and
             :meth:`highlight_vertex`
 
@@ -1171,6 +1202,8 @@ class _BaseGraph(ABC):
         :type color: str, optional
         :param alpha: Transparency of the highlight, defaults to 0.5
         :type alpha: float, optional
+        :raises ValueError: ``edge`` does not connect two vertices, for
+            example because it has been removed from the graph
         :rtype: None
 
         .. runblock:: pycon
@@ -1199,6 +1232,8 @@ class _BaseGraph(ABC):
         """
         p1 = edge.v1
         p2 = edge.v2
+        if p1 is None or p2 is None:
+            raise ValueError("edge does not connect two vertices")
         plt.plot(
             [p1.x, p2.x], [p1.y, p2.y], color=color, linewidth=3 * scale, alpha=alpha
         )
