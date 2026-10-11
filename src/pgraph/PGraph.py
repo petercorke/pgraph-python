@@ -2383,9 +2383,12 @@ class Edge:
             the vertices belong to different graphs
 
         The edge connects vertices ``v1`` and ``v2``, and is added to the
-        graph that those vertices belong to. The edge's ``v1`` and ``v2`` are
-        overwritten, so this can be used to re-point an edge object that was
-        built with other vertices.
+        graph that those vertices belong to.
+
+        .. warning:: Intended for an edge that is not yet part of a graph. The
+            edge's ``v1`` and ``v2`` are overwritten without checking, so
+            connecting an edge that is already in a graph leaves it
+            referenced from its old vertices as well.
 
         .. runblock:: pycon
 
