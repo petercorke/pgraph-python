@@ -2,7 +2,7 @@
 name = "pgraph-python"
 version = "0.6.4"
 authors = [{ name = "Peter Corke", email = "rvc@petercorke.com" }]
-description = "Mathematical graphs for Python"
+description = "Graphs for Python"
 readme = "README.md"
 requires-python = ">=3.9"
 classifiers = [

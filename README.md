@@ -3,7 +3,7 @@
 <div align="center">
   <img src="https://raw.githubusercontent.com/petercorke/pgraph-python/main/docs/figs/pgraph_logo.png" width="450" alt="pgraph logo">
   <br>
-  <strong>Mathematical graphs for Python</strong>
+  <strong>Graphs for Python</strong>
   <br><br>
 
 [![PyPI version](https://img.shields.io/pypi/v/pgraph-python?style=for-the-badge&color=blue)](https://pypi.org/project/pgraph-python/)
@@ -35,7 +35,10 @@
 [![powered by Matplotlib](https://img.shields.io/badge/powered_by-Matplotlib-11557c?logo=matplotlib&logoColor=white)](https://matplotlib.org)
 [![Powered by Spatial Maths](https://raw.githubusercontent.com/petercorke/spatialmath-python/master/.github/svg/sm_powered.min.svg)](https://github.com/petercorke/spatialmath-python)
 
-This Python package allows the manipulation of directed and non-directed graphs.  Also supports embedded graphs.  It is suitable for graphs with thousands of nodes.
+This package provides classes for directed and undirected graphs: vertices
+connected by edges, with embedded coordinates, edge costs and path planning.
+Self-loops and parallel edges are permitted. It is a graph-theory package, not
+a plotting library.
 
 ![road network](https://github.com/petercorke/pgraph-python/raw/main/examples/roads.png)
 
