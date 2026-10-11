@@ -16,6 +16,36 @@ from numpy.typing import ArrayLike, NDArray
 from spatialmath.base.graphics import axes_logic
 
 
+def _L1(v: NDArray) -> float:
+    """L1 (Manhattan) norm, the built-in ``"L1"`` metric"""
+    return float(np.linalg.norm(v, 1))
+
+
+def _L2(v: NDArray) -> float:
+    """L2 (Euclidean) norm, the built-in ``"L2"`` metric"""
+    return float(np.linalg.norm(v))
+
+
+def _SE2(v: NDArray) -> float:
+    """Mixed norm for (x, y, theta), the built-in ``"SE2"`` metric"""
+    if len(v) != 3:
+        raise ValueError(
+            f"SE2 metric requires a 3-element (x, y, theta) vector, got length {len(v)}"
+        )
+    # wrap angle to range [-pi, pi)
+    v[2] = (v[2] + np.pi) % (2 * np.pi) - np.pi
+    return float(np.linalg.norm(v))
+
+
+#: the built-in metrics by name.  They are module level, and pickled by name,
+#: so that a graph using one can be pickled.
+_METRICS: dict[str, Callable[[NDArray], float]] = {
+    "L1": _L1,
+    "L2": _L2,
+    "SE2": _SE2,
+}
+
+
 class BaseGraph(ABC):
 
     #: concrete vertex type for this graph kind, provided by :class:`UGraph`
@@ -509,6 +539,34 @@ class BaseGraph(ABC):
         :return: deep copy
         :rtype: BaseGraph
 
+        The copy has its own vertices and edges, which keep their class, name,
+        coordinate, cost and any attributes the user has added, and in the
+        same order, so it can be modified without affecting the original.
+
+        A graph can also be pickled, and copied with :func:`copy.deepcopy`,
+        which this method calls.  Both work for a graph of any size.  A
+        vertex or an edge cannot be pickled or copied on its own, since it has
+        no meaning apart from its graph: a :exc:`TypeError` is raised, and the
+        graph should be copied instead.
+
+        .. note::
+
+            - A metric or heuristic given by name (``"L1"``, ``"L2"``,
+              ``"SE2"``) is pickled by name.  A function you supply must be
+              importable at module level to be pickled; a ``lambda`` or a
+              function defined inside another function can be copied but not
+              pickled.
+            - Attributes that you add to vertices or edges must not refer to
+              other vertices or edges of the graph, since those cannot be
+              pickled on their own.
+            - A pickle is not a long-term storage format.  Use :meth:`export`
+              for that.
+
+        .. versionchanged:: 1.0
+            Pickling a graph works, and copying one no longer fails with a
+            ``RecursionError`` for a graph with a path of about a hundred
+            vertices.
+
         .. runblock:: pycon
 
             >>> from pgraph import UGraph
@@ -517,8 +575,97 @@ class BaseGraph(ABC):
             >>> g2 = g.copy()
             >>> g2 is g
             >>> g2[0] is g[0]
+
+        :seealso: :meth:`vertex_copy` :meth:`export`
         """
         return copy.deepcopy(self)
+
+    # pickling and copying
+
+    #: the graph's own containers, which are saved as a flat description
+    _STRUCTURE = ("_vertexlist", "_vertexdict", "_edges")
+
+    #: the references a vertex holds, which are rebuilt rather than saved
+    _VERTEX_LINKS = ("_edgelist", "_inlist", "_graph")
+
+    def __getstate__(self) -> dict[str, Any]:
+        """
+        State for pickling and deep copying (private method)
+
+        The vertices and edges form a web of references, and following them
+        recursively overflows the stack for a graph with a path of a hundred
+        or so vertices.  Instead the graph is described flatly: a list of
+        vertices, and a list of edges that refer to their end vertices by
+        index.  The edges are listed in the order they were added, so
+        replaying them rebuilds each vertex's edge lists in their original
+        order.  A built-in metric is saved by name.
+        """
+        state = {k: v for k, v in self.__dict__.items() if k not in self._STRUCTURE}
+        for key in ("_metric", "_heuristic"):
+            for name, func in _METRICS.items():
+                if state[key] is func:
+                    state[key] = ("builtin", name)
+        index = {id(v): i for i, v in enumerate(self._vertexlist)}
+        state["_flat"] = {
+            "version": 1,
+            "vertices": [
+                (
+                    type(v),
+                    {k: x for k, x in v.__dict__.items() if k not in self._VERTEX_LINKS},
+                )
+                for v in self._vertexlist
+            ],
+            "edges": [
+                (
+                    type(e),
+                    index[id(e.v1)],
+                    index[id(e.v2)],
+                    {k: x for k, x in e.__dict__.items() if k not in ("_v1", "_v2")},
+                )
+                for e in self._edges
+            ],
+        }
+        return state
+
+    def __setstate__(self, state: dict[str, Any]) -> None:
+        """
+        Rebuild the graph from its flat description (private method)
+
+        The vertex and edge objects are made without calling ``__init__``, so
+        subclasses with their own constructor signature are restored as they
+        were.  Each edge is attached with the vertex's own hook, exactly as
+        :meth:`BaseVertex.connect` does.
+        """
+        state = dict(state)
+        flat = state.pop("_flat")
+        if flat["version"] != 1:
+            raise ValueError(f"unknown pickled graph version {flat['version']!r}")
+        for key in ("_metric", "_heuristic"):
+            value = state[key]
+            if isinstance(value, tuple) and value[0] == "builtin":
+                state[key] = _METRICS[value[1]]
+        self.__dict__.update(state)
+
+        self._vertexlist = []
+        self._vertexdict = {}
+        for cls, attrs in flat["vertices"]:
+            v = cls.__new__(cls)
+            v.__dict__.update(attrs)
+            v._edgelist = []
+            v._inlist = []
+            v._graph = self
+            self._vertexlist.append(v)
+            if v._name is not None:
+                self._vertexdict[v._name] = v
+
+        self._edges = {}
+        for cls, i, j, attrs in flat["edges"]:
+            e = cls.__new__(cls)
+            e.__dict__.update(attrs)
+            v1, v2 = self._vertexlist[i], self._vertexlist[j]
+            e._set_endpoints(v1, v2)
+            self._edges[e] = None
+            v1._attach(e, v2)
 
     def add_vertex(
         self, coord: ArrayLike | BaseVertex | None = None, name: str | None = None
@@ -1063,30 +1210,11 @@ class BaseGraph(ABC):
         :seealso: :meth:`metric` :meth:`heuristic`
         """
 
-        def L1(v):
-            return np.linalg.norm(v, 1)
-
-        def L2(v):
-            return np.linalg.norm(v)
-
-        def SE2(v):
-            if len(v) != 3:
-                raise ValueError(
-                    f"SE2 metric requires a 3-element (x, y, theta) vector, got length {len(v)}"
-                )
-            # wrap angle to range [-pi, pi)
-            v[2] = (v[2] + np.pi) % (2 * np.pi) - np.pi
-            return np.linalg.norm(v)
-
         if callable(metric):
             return metric
         elif isinstance(metric, str):
-            if metric == "L1":
-                return L1
-            elif metric == "L2":
-                return L2
-            elif metric == "SE2":
-                return SE2
+            if metric in _METRICS:
+                return _METRICS[metric]
             else:
                 raise ValueError(f"unknown metric {metric!r}")
         else:
@@ -3030,10 +3158,22 @@ class Edge:
 
         Only the library calls this: the constructor's own assignment, then
         :meth:`connect`, :meth:`BaseVertex.connect` for an edge built without
-        vertices, and :meth:`_BaseGraph.remove_edge`, which clears them.
+        vertices, and :meth:`BaseGraph.remove_edge`, which clears them.
         """
         self._v1 = v1
         self._v2 = v2
+
+    def __reduce__(self) -> Any:
+        """
+        Refuse to pickle or copy an edge on its own
+
+        An edge is held by its vertices and its graph, so it has no meaning
+        apart from them.  Pickle or copy the graph instead.
+        """
+        raise TypeError(
+            "an Edge cannot be pickled or copied on its own, "
+            "pickle or copy its graph instead"
+        )
 
     def __repr__(self) -> str:
         """
@@ -3290,6 +3430,18 @@ class BaseVertex:
         self._inlist: list[Edge] = []
         self._graph: BaseGraph | None = None  # reference to owning graph
         # print('BaseVertex init', type(self))
+
+    def __reduce__(self) -> Any:
+        """
+        Refuse to pickle or copy a vertex on its own
+
+        A vertex is held by its graph and by its edges, so it has no meaning
+        apart from them.  Pickle or copy the graph instead.
+        """
+        raise TypeError(
+            "a vertex cannot be pickled or copied on its own, "
+            "pickle or copy its graph instead"
+        )
 
     def __str__(self) -> str:
         """
