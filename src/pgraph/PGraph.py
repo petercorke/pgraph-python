@@ -1379,6 +1379,11 @@ class _BaseGraph(ABC):
         vertices' outgoing edges via :meth:`BaseVertex.neighbours` the same
         way :meth:`path_BFS` and friends do.
 
+        .. note:: A self-loop is a cycle of length one, so it makes either kind
+            of graph cyclic. Two parallel edges between the same pair of
+            vertices are a cycle in an undirected graph, but a repeated
+            arrow in a directed graph is not.
+
         .. note:: A matrix-based test also exists in theory -- a digraph is
             acyclic iff its adjacency matrix is nilpotent (all eigenvalues
             zero) -- but that needs an O(N^3) eigendecomposition plus a
@@ -1432,6 +1437,10 @@ class _BaseGraph(ABC):
         Average degree is :math:`2 E / N` for an undirected graph and
         :math:`E / N` for a directed graph where :math:`E` is the total number of
         edges and :math:`N` is the number of vertices.
+
+        Parallel edges and self-loops are each counted as one edge in
+        :math:`E`, which is consistent with :meth:`degree`: a self-loop
+        contributes 2 to the degree sum of an undirected graph.
 
         .. runblock:: pycon
 
@@ -1541,6 +1550,10 @@ class _BaseGraph(ABC):
             >>> c = g.connectivity()
             >>> print(c)
 
+
+        .. note:: This is the diagonal of :meth:`degree`, so parallel edges are
+            counted individually and a self-loop counts twice for a
+            ``UGraph`` and once for a ``DGraph``. See the discussion there.
 
         :seealso: :meth:`degree`
         """
@@ -1829,6 +1842,9 @@ class _BaseGraph(ABC):
         :type G: BaseVertex subclass
         :param verbose: print search progress, defaults to False
         :param summary: print a one-line search summary, defaults to False
+        :raises TypeError: ``S`` or ``G`` is neither a vertex nor a string
+        :raises KeyError: ``S`` or ``G`` is a name not in the graph
+        :raises ValueError: an edge on the path has no cost
         :return: list of vertices from S to G inclusive, path length
         :rtype: list of BaseVertex subclass, float
 
@@ -1928,6 +1944,9 @@ class _BaseGraph(ABC):
         :type G: BaseVertex subclass
         :param verbose: print search progress, defaults to False
         :param summary: print a one-line search summary, defaults to False
+        :raises TypeError: ``S`` or ``G`` is neither a vertex nor a string
+        :raises KeyError: ``S`` or ``G`` is a name not in the graph
+        :raises ValueError: an edge examined during the search has no cost
         :return: list of vertices from S to G inclusive, path length, tree
         :rtype: list of BaseVertex subclass, float, dict
 
@@ -2045,6 +2064,9 @@ class _BaseGraph(ABC):
         :type G: BaseVertex subclass
         :param verbose: print search progress, defaults to False
         :param summary: print a one-line search summary, defaults to False
+        :raises TypeError: ``S`` or ``G`` is neither a vertex nor a string
+        :raises KeyError: ``S`` or ``G`` is a name not in the graph
+        :raises ValueError: an edge examined during the search has no cost
         :return: list of vertices from S to G inclusive, path length, tree
         :rtype: list of BaseVertex subclass, float, dict
 
@@ -2694,6 +2716,10 @@ class BaseVertex:
 
         .. note:: For a directed graph the neighbours are those on edges leaving this vertex
 
+        .. note:: There is one entry per edge, so a neighbour joined by ``k``
+            parallel edges appears ``k`` times. In an undirected graph a
+            self-loop lists the vertex itself twice, once for each end.
+
         .. runblock:: pycon
 
             >>> from pgraph import UGraph
@@ -3000,6 +3026,12 @@ class BaseVertex:
             >>> g.add_edge(v1, v2)
             >>> g.add_edge(v1, v3)
             >>> print(v1.degree)
+
+        .. rubric:: For graphs with parallel edges or loops
+
+        Every edge is counted, so ``k`` parallel edges to the same neighbour
+        add ``k``. A self-loop adds 2 for a ``UGraph`` vertex, since it has two
+        ends, and 1 for a ``DGraph`` vertex.
 
         :seealso: :meth:`edges`
         """
