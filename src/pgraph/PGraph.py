@@ -1123,6 +1123,9 @@ class _BaseGraph(ABC):
             for e in g.edges():
                 print(e)
 
+        The set is a new one on every call, so changing it does not change
+        the graph.
+
         .. note:: Unlike :meth:`BaseVertex.edges`, which returns a ``list`` in
             connection order, this returns a ``set`` with no defined
             iteration order.
@@ -1138,7 +1141,7 @@ class _BaseGraph(ABC):
 
         :seealso: :meth:`BaseVertex.edges`
         """
-        return self._edgelist
+        return set(self._edgelist)
 
     def plot(
         self,
@@ -3289,16 +3292,19 @@ class BaseVertex:
 
     def edges(self) -> list[Edge]:
         """
-        All outgoing edges of vertex
+        Return a list of the edges for vertex
 
-        :return: List of all edges leaving this vertex
-        :rtype: list of Edge
+        :return: the edges at this vertex
+        :rtype: list of ``Edge``
 
-        .. note::
+        For a directed graph these are the edges leaving this vertex.  For an
+        undirected graph they are the edges incident on it, whichever end it
+        is.  A self-loop in an undirected graph is listed twice, once for each
+        end.
 
-            - For a directed graph the edges are those leaving this vertex
-            - For a non-directed graph the edges are those leaving or entering
-                this vertex
+        The list is a new one on every call, in the order the edges were
+        connected, so changing it does not change the graph.  Use
+        :meth:`_BaseGraph.remove_edge` to do that.
 
         .. runblock:: pycon
 
@@ -3308,8 +3314,10 @@ class BaseVertex:
             >>> v2 = g.add_vertex(coord=[1,1], name='v2')
             >>> g.add_edge(v1, v2)
             >>> print(v1.edges())
+
+        :seealso: :meth:`_BaseGraph.edges` :meth:`degree`
         """
-        return self._edgelist
+        return list(self._edgelist)
 
     def heuristic_distance(self, v2: BaseVertex) -> float:
         """

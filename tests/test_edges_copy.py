@@ -52,7 +52,7 @@ class _EdgesCopy:
             if e in self.g.edges():
                 self.g.remove_edge(e)
         self.assertEqual(self.b.edges(), [])
-        self.assertEqual(self.g.ne, 0)
+        self.assertEqual(self.g.ne, self.expected_ne_after)
 
     def test_degree_unchanged(self):
         # degree is built on edges(); the loop counts twice only if undirected
@@ -81,6 +81,7 @@ class _EdgesCopy:
 class TestUGraphEdgesCopy(_EdgesCopy, unittest.TestCase):
     Graph = UGraph
     expected_b_degree = 4  # ab, bc, and the loop's two ends
+    expected_ne_after = 0  # all three edges are at b
 
     def test_edges_at_a_vertex_are_the_incident_ones(self):
         self.assertEqual(self.a.edges(), [self.ab])
@@ -93,6 +94,7 @@ class TestUGraphEdgesCopy(_EdgesCopy, unittest.TestCase):
 class TestDGraphEdgesCopy(_EdgesCopy, unittest.TestCase):
     Graph = DGraph
     expected_b_degree = 2  # bc and the loop; ab enters b
+    expected_ne_after = 1  # a->b enters b, so it is not one of b's edges
 
     def test_edges_at_a_vertex_are_the_outgoing_ones(self):
         self.assertEqual(self.a.edges(), [self.ab])
