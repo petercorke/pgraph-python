@@ -40,12 +40,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install .[dev]
       - name: Run mypy
-        # Informational only for now: the type-hinting pass surfaced a
-        # baseline of pre-existing design tensions (Liskov-incompatible
-        # overrides, embedded-graph invariants not visible to the type
-        # checker) that are tracked separately, not fixed here. Don't fail
-        # the build on them yet.
-        continue-on-error: true
         run: mypy src/pgraph/PGraph.py
 
   all-tests-passed:
