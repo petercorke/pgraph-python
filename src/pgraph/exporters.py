@@ -75,6 +75,23 @@ def register_exporter(
     return decorator
 
 
+def get_exporter(name: str) -> TextExporter:
+    """
+    Look up a text exporter by format name
+
+    :param name: format name, eg. ``"dot"``
+    :return: the function ``f(graph, **options) -> str``
+    :raises ValueError: no text exporter has that name; the message lists those
+        that do
+    """
+    try:
+        return _TEXT[name]
+    except KeyError:
+        raise ValueError(
+            f"unknown export format {name!r}, expected one of {formats()}"
+        ) from None
+
+
 def formats() -> list[str]:
     """
     Names of all supported export formats
@@ -126,8 +143,8 @@ def _ordered_edges(graph: BaseGraph) -> list[tuple[Edge, BaseVertex, BaseVertex]
 
     ``graph.edges()`` is a set, so its order changes from run to run and the
     exported text would not be stable (useless for diffs and golden files).
-    Instead walk the vertices in creation order and each vertex's own edge
-    list, keeping the first sight of every edge.  Identity is by object, not by
+    Instead walk the vertices in creation order and each vertex's own
+    outgoing edges, keeping the first sight of every edge.  Identity is by object, not by
     endpoints, so parallel edges are all kept, and an undirected edge (held by
     both ends, twice for a self-loop) is listed once.
 
@@ -136,7 +153,7 @@ def _ordered_edges(graph: BaseGraph) -> list[tuple[Edge, BaseVertex, BaseVertex]
     seen: set[int] = set()
     edges: list[tuple[Edge, BaseVertex, BaseVertex]] = []
     for vertex in graph:
-        for e in vertex._edgelist:
+        for e in vertex.out_edges():
             if id(e) in seen or e.v1 is None or e.v2 is None:
                 continue
             seen.add(id(e))

@@ -1736,14 +1736,7 @@ class BaseGraph(ABC):
                     filename.write(image.decode("utf-8"))
             return None
 
-        try:
-            func = exporters._TEXT[format]
-        except KeyError:
-            raise ValueError(
-                f"unknown export format {format!r}, expected one of "
-                f"{exporters.formats()}"
-            ) from None
-        text = func(self, **options)
+        text = exporters.get_exporter(format)(self, **options)
 
         if filename is None:
             return text
@@ -2712,7 +2705,7 @@ class UGraph(BaseGraph):
 
             # clear all the labels
             for vertex in self:
-                vertex.label = None
+                vertex._label = None
                 vertex._connectivitychange = False
 
             lastlabel: int | None = None
@@ -2725,7 +2718,7 @@ class UGraph(BaseGraph):
                         q = [v]  # initialize frontier
                         while len(q) > 0:
                             v = q.pop()  # expand v
-                            v.label = label
+                            v._label = label
                             for n in v.adjacent():
                                 if n.label is None:
                                     q.append(n)
@@ -2771,7 +2764,7 @@ class DGraph(BaseGraph):
 
             # clear all the labels
             for vertex in self:
-                vertex.label = None
+                vertex._label = None
                 vertex._connectivitychange = False
 
             # initial labeling pass
@@ -2783,12 +2776,12 @@ class DGraph(BaseGraph):
                     for n in v.adjacent():
                         if n.label is not None:
                             # neighbour has a label
-                            v.label = n.label
+                            v._label = n.label
                             break
 
                 if v.label is None:
                     # still not labeled, assign a new label
-                    v.label = nextlabel
+                    v._label = nextlabel
                     nextlabel += 1
 
                 label = v.label
@@ -2798,7 +2791,7 @@ class DGraph(BaseGraph):
                 for n in v.adjacent():
                     if n.label is None:
                         # neighbour has no label, give it this one
-                        n.label = label
+                        n._label = label
                     elif label != n.label:
                         # label clash, note it for merging
                         assert n.label is not None
@@ -2811,14 +2804,14 @@ class DGraph(BaseGraph):
                 assert vlabel is not None
                 while vlabel in merge:
                     vlabel = merge[vlabel]
-                v.label = vlabel
+                v._label = vlabel
                 unique.add(vlabel)
 
             final = {u: i for i, u in enumerate(unique)}
             for v in self:
                 vlabel = v.label
                 assert vlabel is not None
-                v.label = final[vlabel]
+                v._label = final[vlabel]
 
             return len(unique)
         else:
@@ -3184,10 +3177,14 @@ class BaseVertex:
     Base class for vertices of directed and non-directed graphs.
 
     Each vertex has:
-        - ``name``
-        - ``label`` an int indicating which graph component contains it
-        - ``_edgelist`` a list of edge objects that connect this vertex to others
+        - ``name`` which is its key in the graph, so renaming a vertex that is
+          in a graph updates the graph
+        - ``label`` an int indicating which graph component contains it,
+          read-only: the graph assigns it
         - ``coord`` the coordinate in an embedded graph (optional)
+
+    and its edges are available from :meth:`edges`, :meth:`out_edges` and
+    :meth:`in_edges`.
 
     :seealso: :class:`UVertex` :class:`DVertex` :class:`Edge`
     """
@@ -3217,8 +3214,8 @@ class BaseVertex:
             self.coord = None
         else:
             self.coord = np.r_[coord]
-        self.name = name
-        self.label: int | None = None
+        self._name = name
+        self._label: int | None = None
         self._connectivitychange = True
         self._edgelist = []
         #: edges ending at this vertex.  Only a directed vertex fills it: an
@@ -3844,6 +3841,74 @@ class BaseVertex:
         for e in (*self._edgelist, *self._incoming()):
             seen.setdefault(id(e), e)
         return list(seen.values())
+
+    @property
+    def name(self) -> str | None:
+        """
+        Name of the vertex
+
+        :return: the name
+        :rtype: str or None
+
+        The name is the vertex's key in its graph: ``g[name]`` and ``name in
+        g`` look it up.  A vertex that is not in a graph can be given any name,
+        or none.  For one that is in a graph:
+
+        - assigning a new name updates the graph's name table, so the vertex
+          is then found under the new name and not the old
+        - a name already used by another vertex in the graph raises
+          ``ValueError`` and changes nothing
+        - the name cannot be cleared
+
+        .. versionchanged:: 1.0
+            Renaming a vertex in a graph used to leave the graph's name table
+            stale, so lookups by the new name failed.
+
+        :seealso: :meth:`BaseGraph.add_vertex`
+        """
+        return self._name
+
+    @name.setter
+    def name(self, value: str | None) -> None:
+        graph = self._graph
+        old = self._name
+        if (
+            graph is not None
+            and old is not None
+            and graph._vertexdict.get(old) is self
+        ):
+            if value is None:
+                raise ValueError("a vertex in a graph must have a name")
+            if value != old:
+                if value in graph._vertexdict:
+                    raise ValueError(
+                        f"the graph already has a vertex named {value!r}"
+                    )
+                del graph._vertexdict[old]
+                graph._vertexdict[value] = self
+        self._name = value
+
+    @property
+    def label(self) -> int | None:
+        """
+        Number of the graph component that contains the vertex
+
+        :return: component number, counted from 0, or None if the components
+            have not been found yet
+        :rtype: int or None
+
+        Assigned by the graph when its components are found, which happens when
+        :attr:`BaseGraph.nc`, :meth:`BaseGraph.component` or
+        :meth:`BaseGraph.samecomponent` is used after the graph has changed.
+        It is read-only.
+
+        .. versionchanged:: 1.0
+            Read-only.  It was a plain attribute, but it is computed from the
+            graph's structure and meaningless to assign.
+
+        :seealso: :attr:`BaseGraph.nc` :meth:`BaseGraph.component`
+        """
+        return self._label
 
     @property
     def x(self) -> float:
