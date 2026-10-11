@@ -7,19 +7,19 @@ These methods convert the graph to a number of different matrix representations.
 .. autosummary::
    :nosignatures:
 
-   ~pgraph.PGraph.BaseGraph.distance
-   ~pgraph.PGraph.BaseGraph.adjacency
-   ~pgraph.PGraph.BaseGraph.degree
-   ~pgraph.PGraph.BaseGraph.incidence
-   ~pgraph.PGraph.BaseGraph.laplacian
+   ~pgraph.PGraph.Graph.distance
+   ~pgraph.PGraph.Graph.adjacency
+   ~pgraph.PGraph.Graph.degree
+   ~pgraph.PGraph.Graph.incidence
+   ~pgraph.PGraph.Graph.laplacian
 
 Details
 -------
 
-.. automethod:: pgraph.PGraph.BaseGraph.distance
-.. automethod:: pgraph.PGraph.BaseGraph.adjacency
-.. automethod:: pgraph.PGraph.BaseGraph.degree
-.. automethod:: pgraph.PGraph.BaseGraph.incidence
-.. automethod:: pgraph.PGraph.BaseGraph.laplacian
+.. automethod:: pgraph.PGraph.Graph.distance
+.. automethod:: pgraph.PGraph.Graph.adjacency
+.. automethod:: pgraph.PGraph.Graph.degree
+.. automethod:: pgraph.PGraph.Graph.incidence
+.. automethod:: pgraph.PGraph.Graph.laplacian
 
 

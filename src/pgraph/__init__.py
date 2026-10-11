@@ -1,6 +1,6 @@
 from pgraph.PGraph import (
-    BaseGraph,
-    BaseVertex,
+    Graph,
+    Vertex,
     UGraph,
     DGraph,
     UVertex,
@@ -9,8 +9,8 @@ from pgraph.PGraph import (
 )
 
 __all__ = [
-    "BaseGraph",
-    "BaseVertex",
+    "Graph",
+    "Vertex",
     "UGraph",
     "DGraph",
     "UVertex",

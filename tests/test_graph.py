@@ -970,7 +970,7 @@ class TestDGraph(unittest.TestCase):
             g.remove_vertex(v1)  # no longer belongs to this graph
 
     def test_remove_via_instance_methods(self):
-        # Edge.remove() / BaseVertex.remove(), the ergonomic wrappers
+        # Edge.remove() / Vertex.remove(), the ergonomic wrappers
         g = DGraph()
         v0 = g.add_vertex(name='0')
         v1 = g.add_vertex(name='1')

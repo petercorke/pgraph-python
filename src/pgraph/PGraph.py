@@ -46,12 +46,12 @@ _METRICS: dict[str, Callable[[NDArray], float]] = {
 }
 
 
-class BaseGraph(ABC):
+class Graph(ABC):
 
     #: concrete vertex type for this graph kind, provided by :class:`UGraph`
     #: and :class:`DGraph` -- lets :meth:`add_vertex` and :meth:`vertex_copy`
     #: be defined once here rather than duplicated per subclass.
-    _vertex_cls: ClassVar[type[BaseVertex]]
+    _vertex_cls: ClassVar[type[Vertex]]
 
     def __init__(
         self,
@@ -60,7 +60,7 @@ class BaseGraph(ABC):
         heuristic: Callable[[NDArray], float] | str | None = None,
         verbose: bool = False,
         dim: int | None = None,
-        vertex_class: type[BaseVertex] | None = None,
+        vertex_class: type[Vertex] | None = None,
         edge_class: type[Edge] | None = None,
     ):
         """
@@ -130,11 +130,11 @@ class BaseGraph(ABC):
             edge_class = Edge
         elif not (isinstance(edge_class, type) and issubclass(edge_class, Edge)):
             raise TypeError(f"edge_class must be a subclass of Edge, got {edge_class!r}")
-        self._vertex_class: type[BaseVertex] = vertex_class
+        self._vertex_class: type[Vertex] = vertex_class
         self._edge_class: type[Edge] = edge_class
         # we use a list and a dict, the list respects the order of adding
-        self._vertexlist: list[BaseVertex] = []
-        self._vertexdict: dict[str, BaseVertex] = {}
+        self._vertexlist: list[Vertex] = []
+        self._vertexdict: dict[str, Vertex] = {}
         # an insertion-ordered set: the keys are the edges, hashed by identity
         # (Edge defines no __eq__), the values are unused.  This gives O(1)
         # removal and a defined order.
@@ -182,17 +182,17 @@ class BaseGraph(ABC):
         return str(self)
 
     @classmethod
-    def Dict(cls, d: dict, reverse: bool = False, **kwargs: Any) -> BaseGraph:
+    def Dict(cls, d: dict, reverse: bool = False, **kwargs: Any) -> Graph:
         """
         Create graph from parent/child dictionary
 
-        :param d: dictionary that maps from ``BaseVertex`` subclass to ``BaseVertex`` subclass
+        :param d: dictionary that maps from ``Vertex`` subclass to ``Vertex`` subclass
         :type d: dict
         :param reverse: reverse link direction, defaults to False
         :param kwargs: optional arguments passed to the graph constructor, for
             example ``vertex_class`` or ``edge_class``
         :raises TypeError: ``vertex_class`` or ``edge_class`` is not a
-            suitable class, see :meth:`BaseGraph.__init__`
+            suitable class, see :meth:`Graph.__init__`
         :return: graph
         :rtype: UGraph or DGraph
 
@@ -249,7 +249,7 @@ class BaseGraph(ABC):
         coords: NDArray | None = None,
         names: list[str] | None = None,
         **kwargs: Any,
-    ) -> BaseGraph:
+    ) -> Graph:
         """
         Create graph from adjacency matrix
 
@@ -264,7 +264,7 @@ class BaseGraph(ABC):
         :raises ValueError: ``A`` is not square, or the length of ``names`` or
             the number of rows of ``coords`` does not match ``A``
         :raises TypeError: ``vertex_class`` or ``edge_class`` is not a
-            suitable class, see :meth:`BaseGraph.__init__`
+            suitable class, see :meth:`Graph.__init__`
         :return: graph
         :rtype: UGraph or DGraph
 
@@ -326,7 +326,7 @@ class BaseGraph(ABC):
         return g
 
     @property
-    def vertex_class(self) -> type[BaseVertex]:
+    def vertex_class(self) -> type[Vertex]:
         """
         Class of the vertices this graph creates
 
@@ -428,9 +428,9 @@ class BaseGraph(ABC):
 
         # ---- the containers themselves must hold the right kind of thing; a
         # stray object is reported and set aside so the checks below can run
-        vertices: list[BaseVertex] = []
+        vertices: list[Vertex] = []
         for entry in self._vertexlist:
-            if isinstance(entry, BaseVertex):
+            if isinstance(entry, Vertex):
                 vertices.append(entry)
             else:
                 problems.append(f"the vertex list holds {entry!r}, which is not a vertex")
@@ -448,7 +448,7 @@ class BaseGraph(ABC):
                 v = next(x for x in vertices if id(x) == vid)
                 problems.append(f"vertex {v.name!r} is listed {n} times in the vertex list")
         for key, v in self._vertexdict.items():
-            if not isinstance(v, BaseVertex) or id(v) not in members:
+            if not isinstance(v, Vertex) or id(v) not in members:
                 problems.append(
                     f"name table entry {key!r} refers to a vertex that is not in the graph"
                 )
@@ -557,12 +557,12 @@ class BaseGraph(ABC):
 
         return problems
 
-    def copy(self) -> BaseGraph:
+    def copy(self) -> Graph:
         """
         Deepcopy of graph
 
         :return: deep copy
-        :rtype: BaseGraph
+        :rtype: Graph
 
         The copy has its own vertices and edges, which keep their class, name,
         coordinate, cost and any attributes the user has added, and in the
@@ -663,7 +663,7 @@ class BaseGraph(ABC):
         The vertex and edge objects are made without calling ``__init__``, so
         subclasses with their own constructor signature are restored as they
         were.  Each edge is attached with the vertex's own hook, exactly as
-        :meth:`BaseVertex.connect` does.
+        :meth:`Vertex.connect` does.
         """
         state = dict(state)
         flat = state.pop("_flat")
@@ -697,25 +697,25 @@ class BaseGraph(ABC):
             v1._attach(e, v2)
 
     def add_vertex(
-        self, coord: ArrayLike | BaseVertex | None = None, name: str | None = None
-    ) -> BaseVertex:
+        self, coord: ArrayLike | Vertex | None = None, name: str | None = None
+    ) -> Vertex:
         """
         Add a vertex to the graph
 
         :param coord: coordinate for an embedded graph, or an existing vertex
             of this graph's own kind (``UVertex`` for :class:`UGraph`,
             ``DVertex`` for :class:`DGraph`) to add as-is, defaults to None
-        :type coord: array-like or BaseVertex subclass, optional
+        :type coord: array-like or Vertex subclass, optional
         :param name: name of vertex, defaults to "#i"
         :type name: str, optional
-        :raises TypeError: ``coord`` is a ``BaseVertex`` that is not an
+        :raises TypeError: ``coord`` is a ``Vertex`` that is not an
             instance of this graph's :attr:`vertex_class`
         :raises ValueError: the name is already used by another vertex in the
             graph, or ``coord`` is a vertex that already belongs to a graph
         :raises ValueError: the graph was constructed with ``dim``, and
             ``coord`` is given but its length doesn't match
         :return: the added vertex
-        :rtype: BaseVertex subclass
+        :rtype: Vertex subclass
 
         This is a graph-centric way of creating a vertex.
 
@@ -754,7 +754,7 @@ class BaseGraph(ABC):
             >>> g['v2']
 
         If the graph was constructed with a required ``dim`` (see
-        :meth:`BaseGraph.__init__`), every embedded vertex must have a
+        :meth:`Graph.__init__`), every embedded vertex must have a
         coordinate of exactly that length -- adding one of the wrong length
         raises ``ValueError``:
 
@@ -779,7 +779,7 @@ class BaseGraph(ABC):
                     f"vertex {vertex.name!r} already belongs to a graph; "
                     "remove it from that graph first"
                 )
-        elif isinstance(coord, BaseVertex):
+        elif isinstance(coord, Vertex):
             raise TypeError(
                 f"expecting {self._vertex_class.__name__} or coordinate data, "
                 f"got {type(coord).__name__}"
@@ -817,14 +817,14 @@ class BaseGraph(ABC):
         return vertex
 
     @classmethod
-    def vertex_copy(cls, vertex: BaseVertex) -> BaseVertex:
+    def vertex_copy(cls, vertex: Vertex) -> Vertex:
         """
         Copy a vertex for use in a new graph of this kind
 
         :param vertex: vertex to copy
-        :type vertex: BaseVertex subclass
+        :type vertex: Vertex subclass
         :return: new, unconnected vertex with the same coordinate and name
-        :rtype: BaseVertex subclass
+        :rtype: Vertex subclass
 
         A vertex can only belong to a single graph, so this method is used to
         create a new vertex with the same name and coordinates for inclusion
@@ -838,20 +838,20 @@ class BaseGraph(ABC):
             >>> newv = DGraph.vertex_copy(v)
             >>> print(newv)
 
-        :seealso: :meth:`BaseVertex.copy`
+        :seealso: :meth:`Vertex.copy`
         """
         return cls._vertex_cls(coord=vertex.coord, name=vertex.name)
 
-    def _resolve_vertex(self, v: BaseVertex | str, label: str) -> BaseVertex:
+    def _resolve_vertex(self, v: Vertex | str, label: str) -> Vertex:
         """
         Resolve a vertex given by reference or name (private method)
 
         :param v: vertex, or the name of a vertex in this graph
-        :type v: BaseVertex subclass or str
+        :type v: Vertex subclass or str
         :param label: parameter name to use in the error message, e.g. "start"
-        :raises TypeError: ``v`` is neither a ``BaseVertex`` nor a string
+        :raises TypeError: ``v`` is neither a ``Vertex`` nor a string
         :return: the resolved vertex
-        :rtype: BaseVertex subclass
+        :rtype: Vertex subclass
 
         Used by :meth:`add_edge`, :meth:`path_BFS`, :meth:`path_UCS` and
         :meth:`path_Astar` for their vertex-or-name parameters -- previously
@@ -862,10 +862,10 @@ class BaseGraph(ABC):
         """
         if isinstance(v, str):
             return self[v]
-        elif isinstance(v, BaseVertex):
+        elif isinstance(v, Vertex):
             return v
         else:
-            raise TypeError(f"{label} must be BaseVertex subclass or string name")
+            raise TypeError(f"{label} must be Vertex subclass or string name")
 
     def _require_cost(self, edge: Edge) -> float:
         """
@@ -903,13 +903,13 @@ class BaseGraph(ABC):
 
     @overload
     def add_edge(
-        self, v1: BaseVertex | str, v2: BaseVertex | str, **kwargs: Any
+        self, v1: Vertex | str, v2: Vertex | str, **kwargs: Any
     ) -> Edge: ...
 
     def add_edge(
         self,
-        v1: Edge | BaseVertex | str,
-        v2: BaseVertex | str | None = None,
+        v1: Edge | Vertex | str,
+        v2: Vertex | str | None = None,
         **kwargs: Any,
     ) -> Edge:
         """
@@ -917,11 +917,11 @@ class BaseGraph(ABC):
 
         :param v1: first vertex (start if a directed graph), or an existing edge that
             already carries its two vertices
-        :type v1: BaseVertex subclass, str or Edge
+        :type v1: Vertex subclass, str or Edge
         :param v2: second vertex (end if a directed graph), must be omitted if ``v1`` is
             an edge
-        :type v2: BaseVertex subclass or str, optional
-        :param kwargs: optional arguments to pass to ``BaseVertex.connect``, not allowed
+        :type v2: Vertex subclass or str, optional
+        :param kwargs: optional arguments to pass to ``Vertex.connect``, not allowed
             if ``v1`` is an edge
         :raises TypeError: ``v1`` or ``v2`` is of the wrong type, or ``v2``, ``cost`` or
             ``data`` is given along with an edge
@@ -973,7 +973,7 @@ class BaseGraph(ABC):
         .. note:: To supply an edge that does not yet have vertices use
             ``g.add_edge(v1, v2, edge=e)`` or ``e.connect(v1, v2)``.
 
-        :seealso: :meth:`add_vertex` :meth:`Edge.connect` :meth:`BaseVertex.connect`
+        :seealso: :meth:`add_vertex` :meth:`Edge.connect` :meth:`Vertex.connect`
         """
         if isinstance(v1, Edge):
             if v2 is not None:
@@ -1029,7 +1029,7 @@ class BaseGraph(ABC):
             >>> print(g)
 
         .. note:: A directed edge is tracked only by its source vertex's
-            edge list, not its target's (see :attr:`BaseVertex.edges`), so
+            edge list, not its target's (see :attr:`Vertex.edges`), so
             membership is checked per endpoint rather than assumed for both
             -- removing a directed edge from an undirected-only
             implementation would otherwise raise ``ValueError`` on the
@@ -1055,7 +1055,7 @@ class BaseGraph(ABC):
 
         del self._edges[edge]
 
-    def remove_vertex(self, vertex: BaseVertex) -> None:
+    def remove_vertex(self, vertex: Vertex) -> None:
         """
         Remove a vertex, and all its edges, from the graph
 
@@ -1080,10 +1080,10 @@ class BaseGraph(ABC):
         .. note:: This scans the graph's own edge set for edges touching
             ``vertex``, rather than iterating ``vertex.edges()`` --
             for a ``DGraph`` vertex that only ever reports outgoing edges
-            (see :attr:`BaseVertex.edges`), so incoming edges would
+            (see :attr:`Vertex.edges`), so incoming edges would
             otherwise be missed and left dangling.
 
-        :seealso: :meth:`remove_edge` :meth:`BaseVertex.remove`
+        :seealso: :meth:`remove_edge` :meth:`Vertex.remove`
         """
         if vertex._graph is not self:
             raise ValueError("vertex does not belong to this graph")
@@ -1098,12 +1098,12 @@ class BaseGraph(ABC):
         vertex._graph = None  # it is not in any graph now
         self._connectivitychange = True
 
-    def remove(self, x: Edge | BaseVertex) -> None:
+    def remove(self, x: Edge | Vertex) -> None:
         """
         Remove element from graph (deprecated)
 
         :param x: element to remove from graph
-        :type x: Edge or BaseVertex subclass
+        :type x: Edge or Vertex subclass
         :raises TypeError: unknown type
 
         .. deprecated:: use :meth:`remove_edge` or :meth:`remove_vertex`
@@ -1120,10 +1120,10 @@ class BaseGraph(ABC):
         )
         if isinstance(x, Edge):
             self.remove_edge(x)
-        elif isinstance(x, BaseVertex):
+        elif isinstance(x, Vertex):
             self.remove_vertex(x)
         else:
-            raise TypeError("expecting Edge or BaseVertex")
+            raise TypeError("expecting Edge or Vertex")
 
     def show(self) -> None:
         """
@@ -1242,7 +1242,7 @@ class BaseGraph(ABC):
         array of multiple vectors. That vector is always the difference
         between one vertex's ``coord`` and either another vertex's ``coord``
         or an arbitrary point supplied by the caller (see :meth:`closest` and
-        :meth:`BaseVertex.distance`).
+        :meth:`Vertex.distance`).
 
         If ``metric`` is already a callable matching this signature, it is
         returned unchanged. Otherwise it must be one of the built-in names
@@ -1292,7 +1292,7 @@ class BaseGraph(ABC):
             is :math:`\sqrt{x^2 + y^2 + \bar{\theta}^2}` where :math:`\bar{\theta}`
             is :math:`\theta` wrapped to the interval :math:`[-\pi, \pi)`.
             Requires every coordinate involved -- vertex ``coord`` and any
-            point passed to :meth:`closest`/:meth:`BaseVertex.distance` -- to be
+            point passed to :meth:`closest`/:meth:`Vertex.distance` -- to be
             exactly 3 elements; raises :exc:`ValueError` otherwise.
 
         The metric is used by :meth:`closest` and :meth:`distance`
@@ -1338,7 +1338,7 @@ class BaseGraph(ABC):
             is :math:`\sqrt{x^2 + y^2 + \bar{\theta}^2}` where :math:`\bar{\theta}`
             is :math:`\theta` wrapped to the interval :math:`[-\pi, \pi)`.
             Requires every coordinate involved -- vertex ``coord`` and any
-            point passed to :meth:`closest`/:meth:`BaseVertex.distance` -- to be
+            point passed to :meth:`closest`/:meth:`Vertex.distance` -- to be
             exactly 3 elements; raises :exc:`ValueError` otherwise.
 
         The heuristic distance is only used by the A* planner :meth:`path_Astar`.
@@ -1380,17 +1380,17 @@ class BaseGraph(ABC):
             s.append(ss)
         return "\n".join(s)
 
-    def __getitem__(self, i: int | str | BaseVertex) -> BaseVertex:
+    def __getitem__(self, i: int | str | Vertex) -> Vertex:
         """
         Get vertex (base class method)
 
         :param i: vertex description
-        :type i: int, str or BaseVertex subclass
+        :type i: int, str or Vertex subclass
         :raises IndexError: ``i`` is an integer outside the range of vertices
         :raises KeyError: ``i`` is a name that is not in the graph
         :raises TypeError: ``i`` is none of the types above
         :return: the referenced vertex
-        :rtype: BaseVertex subclass
+        :rtype: Vertex subclass
 
         Retrieve a vertex by index or name:
 
@@ -1399,7 +1399,7 @@ class BaseGraph(ABC):
           integer such as the result of ``np.argmin()``, and a negative
           ``i`` counts from the last vertex.
         - ``g[s]`` is vertex named ``s``
-        - ``g[v]`` is ``v`` where ``v`` is a ``BaseVertex`` subclass
+        - ``g[v]`` is ``v`` where ``v`` is a ``Vertex`` subclass
 
         This method also supports iteration over the vertices in a graph::
 
@@ -1412,19 +1412,19 @@ class BaseGraph(ABC):
             return self._vertexlist[int(i)]
         elif isinstance(i, str):
             return self._vertexdict[i]
-        elif isinstance(i, BaseVertex):
+        elif isinstance(i, Vertex):
             return i
         else:
             raise TypeError(
-                f"vertex must be an int, str or BaseVertex, got {type(i).__name__}"
+                f"vertex must be an int, str or Vertex, got {type(i).__name__}"
             )
 
-    def __iter__(self) -> Iterator[BaseVertex]:
+    def __iter__(self) -> Iterator[Vertex]:
         """
         Iterate over the vertices of the graph
 
         :return: iterator over vertices, in order of addition
-        :rtype: iterator of BaseVertex subclass
+        :rtype: iterator of Vertex subclass
 
         .. runblock:: pycon
 
@@ -1441,12 +1441,12 @@ class BaseGraph(ABC):
         """
         return iter(self._vertexlist)
 
-    def __contains__(self, item: BaseVertex | str) -> bool:
+    def __contains__(self, item: Vertex | str) -> bool:
         """
         Test if vertex in graph
 
         :param item: vertex or name of vertex
-        :type item: BaseVertex subclass or str
+        :type item: Vertex subclass or str
         :return: true if vertex exists in the graph
         :rtype: bool
 
@@ -1458,18 +1458,18 @@ class BaseGraph(ABC):
         """
         if isinstance(item, str):
             return item in self._vertexdict
-        elif isinstance(item, BaseVertex):
+        elif isinstance(item, Vertex):
             return item in self._vertexdict.values()
 
-    def closest(self, coord: ArrayLike) -> tuple[BaseVertex | None, float]:
+    def closest(self, coord: ArrayLike) -> tuple[Vertex | None, float]:
         """
-        BaseVertex closest to point
+        Vertex closest to point
 
         :param coord: coordinates of a point
         :type coord: ndarray(n)
         :return: closest vertex and its distance, or ``(None, inf)`` if no
             vertex in the graph has a coordinate
-        :rtype: BaseVertex subclass or None, float
+        :rtype: Vertex subclass or None, float
 
         Returns the vertex closest to the given point. Distance is computed
         according to the graph's metric. Vertices without a coordinate
@@ -1487,7 +1487,7 @@ class BaseGraph(ABC):
         :seealso: :meth:`metric`
         """
         min_dist = np.inf
-        min_which: BaseVertex | None = None
+        min_which: Vertex | None = None
 
         for vertex in self:
             if vertex.coord is None:
@@ -1518,10 +1518,10 @@ class BaseGraph(ABC):
         and select one by index, for example the second edge added is
         ``g.edges()[1]``.
 
-        .. note:: Like :meth:`BaseVertex.edges` this is a ``list``, but where
+        .. note:: Like :meth:`Vertex.edges` this is a ``list``, but where
             that lists the edges attached to one vertex, this lists every edge
             in the graph once.  A self-loop is one edge here, but appears
-            twice in the :meth:`BaseVertex.edges` of an undirected vertex
+            twice in the :meth:`Vertex.edges` of an undirected vertex
             because it has two ends there.
 
         .. versionchanged:: 1.0
@@ -1538,7 +1538,7 @@ class BaseGraph(ABC):
             >>> g.add_edge(v1, v2)
             >>> print(g.edges())
 
-        :seealso: :meth:`BaseVertex.edges` :attr:`ne`
+        :seealso: :meth:`Vertex.edges` :attr:`ne`
         """
         return list(self._edges)
 
@@ -1706,13 +1706,13 @@ class BaseGraph(ABC):
             plt.show(block=block)
 
     def highlight_path(
-        self, path: list[BaseVertex], block: bool | None = False, **kwargs: Any
+        self, path: list[Vertex], block: bool | None = False, **kwargs: Any
     ) -> None:
         """
         Highlight a path through the graph
 
         :param path: sequence of vertices forming a path
-        :type path: list of BaseVertex subclass
+        :type path: list of Vertex subclass
         :param block: block until figure is dismissed, defaults to False. If
             None the figure is not shown.
         :type block: bool or None, optional
@@ -1820,7 +1820,7 @@ class BaseGraph(ABC):
 
     def highlight_vertex(
         self,
-        vertex: BaseVertex | Iterable[BaseVertex | str],
+        vertex: Vertex | Iterable[Vertex | str],
         scale: float = 2,
         color: str = "r",
         alpha: float = 0.5,
@@ -1829,7 +1829,7 @@ class BaseGraph(ABC):
         Highlight a vertex in the graph
 
         :param vertex: The vertex (or vertices, or vertex names) to highlight
-        :type vertex: BaseVertex subclass, or iterable of BaseVertex subclass or str
+        :type vertex: Vertex subclass, or iterable of Vertex subclass or str
         :param scale: Overwrite with a marker that is larger than the original,
                       defaults to 1.5
         :type scale: float, optional
@@ -2099,7 +2099,7 @@ class BaseGraph(ABC):
         repeatedly remove vertices with no remaining incoming edges. If every
         vertex can eventually be removed, the graph is a DAG (acyclic); if
         some are never freed, they form a cycle. This is O(V+E), using
-        vertices' outgoing edges via :meth:`BaseVertex.adjacent` the same
+        vertices' outgoing edges via :meth:`Vertex.adjacent` the same
         way :meth:`path_BFS` and friends do.
 
         .. runblock:: pycon
@@ -2156,7 +2156,7 @@ class BaseGraph(ABC):
 
         Average degree is :math:`2 E / N` where :math:`E` is the total number
         of edges and :math:`N` is the number of vertices, for an undirected or a
-        directed graph.  It is the mean of :attr:`BaseVertex.degree`, and every
+        directed graph.  It is the mean of :attr:`Vertex.degree`, and every
         edge has two ends, so the degrees sum to :math:`2 E`.
 
         Parallel edges and self-loops are each counted as one edge in
@@ -2179,7 +2179,7 @@ class BaseGraph(ABC):
             >>> g.add_edge(v2, v3);
             >>> print(g.average_degree())
 
-        :seealso: :meth:`degree` :meth:`connectivity` :attr:`BaseVertex.degree`
+        :seealso: :meth:`degree` :meth:`connectivity` :attr:`Vertex.degree`
         """
         return 2 * self.ne / self.n
 
@@ -2233,7 +2233,7 @@ class BaseGraph(ABC):
         of the Laplacian entirely.
 
         .. note:: ``D_out`` is the diagonal matrix of
-            :attr:`BaseVertex.out_degree`.  For an undirected graph that is
+            :attr:`Vertex.out_degree`.  For an undirected graph that is
             :meth:`degree`, but for a directed graph :meth:`degree` is in plus
             out, so the Laplacian does *not* use it.
 
@@ -2259,17 +2259,17 @@ class BaseGraph(ABC):
         )
         return self.laplacian()
 
-    def connectivity(self, vertices: Iterable[BaseVertex] | None = None) -> list[int]:
+    def connectivity(self, vertices: Iterable[Vertex] | None = None) -> list[int]:
         """
         Graph connectivity
 
         :param vertices: vertices to report connectivity for, defaults to all
             vertices in the graph
-        :type vertices: iterable of BaseVertex subclass, optional
+        :type vertices: iterable of Vertex subclass, optional
         :return: a list with the number of edges per vertex
         :rtype: list
 
-        This is the :attr:`BaseVertex.degree` of each vertex: the number of
+        This is the :attr:`Vertex.degree` of each vertex: the number of
         edge *ends* at it, which is the number of edges connected to it except
         that a self-loop has two ends and so counts twice.  For a directed
         graph it counts the edges entering the vertex as well as those leaving.
@@ -2302,7 +2302,7 @@ class BaseGraph(ABC):
         .. note:: This is the diagonal of :meth:`degree`.  Parallel edges are
             counted individually.
 
-        :seealso: :meth:`degree` :meth:`average_degree` :attr:`BaseVertex.degree`
+        :seealso: :meth:`degree` :meth:`average_degree` :attr:`Vertex.degree`
         """
 
         c = []
@@ -2320,7 +2320,7 @@ class BaseGraph(ABC):
         :rtype: ndarray(N,N)
 
         This is a diagonal matrix where element ``[i,i]`` is the
-        :attr:`BaseVertex.degree` of vertex ``i``: the number of edge ends at
+        :attr:`Vertex.degree` of vertex ``i``: the number of edge ends at
         it, so a self-loop counts twice.  For a directed graph that is the
         edges entering plus the edges leaving.
 
@@ -2349,7 +2349,7 @@ class BaseGraph(ABC):
         kinds of graph, since it has two ends.
 
         :seealso: :meth:`adjacency` :meth:`incidence` :meth:`laplacian`
-            :meth:`connectivity` :meth:`average_degree` :attr:`BaseVertex.degree`
+            :meth:`connectivity` :meth:`average_degree` :attr:`Vertex.degree`
         """
 
         return np.diag(self.connectivity())
@@ -2439,7 +2439,7 @@ class BaseGraph(ABC):
             - Both endpoints of every edge are marked, regardless of
               direction -- for a ``DGraph`` this means a vertex that is only
               ever a target (never a source) still appears here.  Iterating
-              each vertex's own :meth:`BaseVertex.edges`, which are its
+              each vertex's own :meth:`Vertex.edges`, which are its
               outgoing edges, would silently drop such vertices for a
               directed graph.
 
@@ -2497,7 +2497,7 @@ class BaseGraph(ABC):
         of them. A self-loop gives a non-zero diagonal element equal to its
         cost.
 
-        :seealso: :meth:`BaseVertex.distance`
+        :seealso: :meth:`Vertex.distance`
         """
         # create a dict mapping vertex to an id
         vdict = {}
@@ -2514,13 +2514,13 @@ class BaseGraph(ABC):
 
     # GRAPH COMPONENTS
 
-    def component(self, c: int) -> list[BaseVertex]:
+    def component(self, c: int) -> list[Vertex]:
         """
         All vertices in specified graph component
 
         :param c: component index
         :return: vertices belonging to component ``c``
-        :rtype: list of BaseVertex subclass
+        :rtype: list of Vertex subclass
 
         ``graph.component(c)`` is a list of all vertices in graph component ``c``.
 
@@ -2540,14 +2540,14 @@ class BaseGraph(ABC):
         self._graphcolor()  # ensure labels are uptodate
         return [v for v in self if v.label == c]
 
-    def samecomponent(self, v1: BaseVertex, v2: BaseVertex) -> bool:
+    def samecomponent(self, v1: Vertex, v2: Vertex) -> bool:
         """
         Test if vertices belong to same graph component
 
         :param v1: vertex
-        :type v1: BaseVertex subclass
+        :type v1: Vertex subclass
         :param v2: vertex
-        :type v2: BaseVertex subclass
+        :type v2: Vertex subclass
         :return: true if vertices belong to same graph component
         :rtype: bool
 
@@ -2576,15 +2576,15 @@ class BaseGraph(ABC):
     # --------------------------------------------------------------------------- #
 
     def path_BFS(
-        self, S: BaseVertex | str, G: BaseVertex | str, verbose: bool = False, summary: bool = False
-    ) -> tuple[list[BaseVertex], float] | None:
+        self, S: Vertex | str, G: Vertex | str, verbose: bool = False, summary: bool = False
+    ) -> tuple[list[Vertex], float] | None:
         """
         Breadth-first search for path
 
         :param S: start vertex
-        :type S: BaseVertex subclass
+        :type S: Vertex subclass
         :param G: goal vertex
-        :type G: BaseVertex subclass
+        :type G: Vertex subclass
         :param verbose: print search progress, defaults to False
         :param summary: print a one-line search summary, defaults to False
         :raises TypeError: ``S`` or ``G`` is neither a vertex nor a string
@@ -2592,7 +2592,7 @@ class BaseGraph(ABC):
         :raises ValueError: an edge on the path has no cost
         :return: list of vertices from S to G inclusive and path length, or
             None if there is no path
-        :rtype: (list of BaseVertex subclass, float) or None
+        :rtype: (list of Vertex subclass, float) or None
 
         Compute a path from vertex ``S`` to vertex ``G`` using breadth-first search.  The
         path is guaranteed to be the shortest in terms of number of edges, but not
@@ -2626,9 +2626,9 @@ class BaseGraph(ABC):
 
         # we use lists not sets since the order is instructive in verbose
         # mode, really need ordered sets...
-        frontier: list[BaseVertex] = [S]
-        explored: list[BaseVertex] = []
-        parent: dict[BaseVertex, BaseVertex] = {}
+        frontier: list[Vertex] = [S]
+        explored: list[Vertex] = []
+        parent: dict[Vertex, Vertex] = {}
         done = False
 
         while frontier:
@@ -2685,15 +2685,15 @@ class BaseGraph(ABC):
         return path, length
 
     def path_UCS(
-        self, S: BaseVertex | str, G: BaseVertex | str, verbose: bool = False, summary: bool = False
-    ) -> tuple[list[BaseVertex], float, dict[str, str]] | None:
+        self, S: Vertex | str, G: Vertex | str, verbose: bool = False, summary: bool = False
+    ) -> tuple[list[Vertex], float, dict[str, str]] | None:
         """
         Uniform cost search for path
 
         :param S: start vertex
-        :type S: BaseVertex subclass
+        :type S: Vertex subclass
         :param G: goal vertex
-        :type G: BaseVertex subclass
+        :type G: Vertex subclass
         :param verbose: print search progress, defaults to False
         :param summary: print a one-line search summary, defaults to False
         :raises TypeError: ``S`` or ``G`` is neither a vertex nor a string
@@ -2701,7 +2701,7 @@ class BaseGraph(ABC):
         :raises ValueError: an edge examined during the search has no cost
         :return: list of vertices from S to G inclusive, path length and
             search tree, or None if there is no path
-        :rtype: (list of BaseVertex subclass, float, dict) or None
+        :rtype: (list of Vertex subclass, float, dict) or None
 
         Compute the lowest-cost path from vertex ``S`` to vertex ``G`` using uniform cost search.  The
         path is guaranteed to be the shortest in terms of traversed edge cost, but is inefficient in that it explores all vertices.
@@ -2736,10 +2736,10 @@ class BaseGraph(ABC):
         S = self._resolve_vertex(S, "start")
         G = self._resolve_vertex(G, "goal")
 
-        frontier: list[BaseVertex] = [S]
-        explored: list[BaseVertex] = []
-        parent: dict[BaseVertex, BaseVertex] = {}
-        f: dict[BaseVertex, float] = {S: 0}  # evaluation function
+        frontier: list[Vertex] = [S]
+        explored: list[Vertex] = []
+        parent: dict[Vertex, Vertex] = {}
+        f: dict[Vertex, float] = {S: 0}  # evaluation function
 
         while frontier:
             if verbose:
@@ -2810,15 +2810,15 @@ class BaseGraph(ABC):
         return path, length, parent_names
 
     def path_Astar(
-        self, S: BaseVertex | str, G: BaseVertex | str, verbose: bool = False, summary: bool = False
-    ) -> tuple[list[BaseVertex], float, dict[str, str]] | None:
+        self, S: Vertex | str, G: Vertex | str, verbose: bool = False, summary: bool = False
+    ) -> tuple[list[Vertex], float, dict[str, str]] | None:
         """
         A* search for path
 
         :param S: start vertex
-        :type S: BaseVertex subclass
+        :type S: Vertex subclass
         :param G: goal vertex
-        :type G: BaseVertex subclass
+        :type G: Vertex subclass
         :param verbose: print search progress, defaults to False
         :param summary: print a one-line search summary, defaults to False
         :raises TypeError: ``S`` or ``G`` is neither a vertex nor a string
@@ -2826,7 +2826,7 @@ class BaseGraph(ABC):
         :raises ValueError: an edge examined during the search has no cost
         :return: list of vertices from S to G inclusive, path length and
             search tree, or None if there is no path
-        :rtype: (list of BaseVertex subclass, float, dict) or None
+        :rtype: (list of Vertex subclass, float, dict) or None
 
         Compute the lowest-cost path from vertex ``S`` to vertex ``G`` using A*t search.  The
         path is guaranteed to be the shortest in terms of traversed edge cost, and the search is efficient in
@@ -2862,11 +2862,11 @@ class BaseGraph(ABC):
         S = self._resolve_vertex(S, "start")
         G = self._resolve_vertex(G, "goal")
 
-        frontier: list[BaseVertex] = [S]
-        explored: list[BaseVertex] = []
-        parent: dict[BaseVertex, BaseVertex] = {}
-        g: dict[BaseVertex, float] = {S: 0}  # cost to come
-        f: dict[BaseVertex, float] = {S: 0}  # evaluation function
+        frontier: list[Vertex] = [S]
+        explored: list[Vertex] = []
+        parent: dict[Vertex, Vertex] = {}
+        g: dict[Vertex, float] = {S: 0}  # cost to come
+        f: dict[Vertex, float] = {S: 0}  # evaluation function
 
         while frontier:
             if verbose:
@@ -2943,18 +2943,18 @@ class BaseGraph(ABC):
 # -------------------------------------------------------------------------- #
 
 
-class UGraph(BaseGraph):
+class UGraph(Graph):
     """
     Class for undirected graphs
 
     Vertices are :class:`UVertex` objects, or instances of the subclass given
     as ``vertex_class``. Edges are :class:`Edge` objects, or instances of the
-    subclass given as ``edge_class``; see :class:`BaseGraph` for the
+    subclass given as ``edge_class``; see :class:`Graph` for the
     constructor arguments and the exceptions they raise.
 
     .. inheritance-diagram:: UGraph
 
-    :seealso: :class:`BaseGraph` :class:`DGraph`
+    :seealso: :class:`Graph` :class:`DGraph`
     """
 
     def _graphcolor(self) -> None:
@@ -3002,18 +3002,18 @@ class UGraph(BaseGraph):
             self._ncomponents = 0 if lastlabel is None else lastlabel + 1
 
 
-class DGraph(BaseGraph):
+class DGraph(Graph):
     """
     Class for directed graphs
 
     Vertices are :class:`DVertex` objects, or instances of the subclass given
     as ``vertex_class``. Edges are :class:`Edge` objects, or instances of the
-    subclass given as ``edge_class``; see :class:`BaseGraph` for the
+    subclass given as ``edge_class``; see :class:`Graph` for the
     constructor arguments and the exceptions they raise.
 
     .. inheritance-diagram:: DGraph
 
-    :seealso: :class:`BaseGraph` :class:`UGraph`
+    :seealso: :class:`Graph` :class:`UGraph`
     """
 
     def _graphcolor(self) -> int | None:
@@ -3119,20 +3119,20 @@ class Edge:
         - Inheritance is an alternative to providing arbitrary user data.
         - Pass the subclass as ``edge_class`` when constructing the graph and
           the graph will create instances of it itself, see
-          :class:`BaseGraph`.
+          :class:`Graph`.
 
     An Edge points to a pair of vertices.  At ``connect`` time the vertices
     get references back to the Edge object.
 
     ``graph.add_edge(v1, v2)`` calls ``v1.connect(v2)``
 
-    :seealso: :class:`BaseVertex`
+    :seealso: :class:`Vertex`
     """
 
     def __init__(
         self,
-        v1: BaseVertex | None = None,
-        v2: BaseVertex | None = None,
+        v1: Vertex | None = None,
+        v2: Vertex | None = None,
         cost: float | None = None,
         data: Any = None,
     ):
@@ -3140,9 +3140,9 @@ class Edge:
         Create an edge object
 
         :param v1: start of the edge, defaults to None
-        :type v1: BaseVertex subclass, optional
+        :type v1: Vertex subclass, optional
         :param v2: end of the edge, defaults to None
-        :type v2: BaseVertex subclass, optional
+        :type v2: Vertex subclass, optional
         :param cost: edge cost, defaults to None
         :type cost: any, optional
         :param data: edge data, defaults to None
@@ -3164,7 +3164,7 @@ class Edge:
             is left as None rather than raising, since this constructor is
             also used standalone, independent of any graph.
 
-        :seealso: :meth:`Edge.connect` :meth:`BaseVertex.connect`
+        :seealso: :meth:`Edge.connect` :meth:`Vertex.connect`
         """
         self._v1 = v1
         self._v2 = v2
@@ -3188,35 +3188,35 @@ class Edge:
             self.cost = None
 
     @property
-    def v1(self) -> BaseVertex | None:
+    def v1(self) -> Vertex | None:
         """
         First vertex of the edge, the start vertex for a directed edge
 
         :return: the vertex, or None if the edge is not connected
-        :rtype: BaseVertex subclass or None
+        :rtype: Vertex subclass or None
 
         .. versionchanged:: 1.0
             Read-only.  It was a plain attribute, so assigning to it on an edge
             that was in a graph left the graph inconsistent: the vertices'
             edge lists no longer agreed with the edge, and the edge could not
             be removed.  Give the vertices to the constructor, ``Edge(v1,
-            v2)``, or to :meth:`connect` or :meth:`BaseVertex.connect`.
+            v2)``, or to :meth:`connect` or :meth:`Vertex.connect`.
 
         :seealso: :attr:`v2` :meth:`connect`
         """
         return self._v1
 
     @v1.setter
-    def v1(self, value: BaseVertex | None) -> None:
+    def v1(self, value: Vertex | None) -> None:
         raise AttributeError(_ENDPOINT_MESSAGE.format("v1"))
 
     @property
-    def v2(self) -> BaseVertex | None:
+    def v2(self) -> Vertex | None:
         """
         Second vertex of the edge, the end vertex for a directed edge
 
         :return: the vertex, or None if the edge is not connected
-        :rtype: BaseVertex subclass or None
+        :rtype: Vertex subclass or None
 
         Read-only, see :attr:`v1`.
 
@@ -3225,16 +3225,16 @@ class Edge:
         return self._v2
 
     @v2.setter
-    def v2(self, value: BaseVertex | None) -> None:
+    def v2(self, value: Vertex | None) -> None:
         raise AttributeError(_ENDPOINT_MESSAGE.format("v2"))
 
-    def _set_endpoints(self, v1: BaseVertex | None, v2: BaseVertex | None) -> None:
+    def _set_endpoints(self, v1: Vertex | None, v2: Vertex | None) -> None:
         """
         Bind the edge to its vertices, or unbind it (private method)
 
         Only the library calls this: the constructor's own assignment, then
-        :meth:`connect`, :meth:`BaseVertex.connect` for an edge built without
-        vertices, and :meth:`BaseGraph.remove_edge`, which clears them.
+        :meth:`connect`, :meth:`Vertex.connect` for an edge built without
+        vertices, and :meth:`Graph.remove_edge`, which clears them.
         """
         self._v1 = v1
         self._v2 = v2
@@ -3294,18 +3294,18 @@ class Edge:
             s += f" data={self.data}"
         return s
 
-    def connect(self, v1: BaseVertex, v2: BaseVertex) -> None:
+    def connect(self, v1: Vertex, v2: Vertex) -> None:
         """
         Attach this edge to a pair of vertices
 
         :param v1: start of the edge
-        :type v1: BaseVertex subclass
+        :type v1: Vertex subclass
         :param v2: end of the edge
-        :type v2: BaseVertex subclass
+        :type v2: Vertex subclass
         :raises ValueError: either vertex has not been added to a graph, or
             the vertices belong to different graphs
         :raises TypeError: this edge is not an instance of the graph's
-            :attr:`BaseGraph.edge_class`
+            :attr:`Graph.edge_class`
 
         The edge connects vertices ``v1`` and ``v2``, and is added to the
         graph that those vertices belong to.
@@ -3327,7 +3327,7 @@ class Edge:
 
         .. note:: The vertices must already be added to the graph.
 
-        :seealso: :meth:`BaseVertex.connect`
+        :seealso: :meth:`Vertex.connect`
         """
 
         if v1._graph is None:
@@ -3344,15 +3344,15 @@ class Edge:
         # DGraph or UGraph
         v1.connect(v2, edge=self)
 
-    def next(self, vertex: BaseVertex) -> BaseVertex:
+    def next(self, vertex: Vertex) -> Vertex:
         """
         Return other end of an edge
 
         :param vertex: one vertex on the edge
-        :type vertex: BaseVertex subclass
+        :type vertex: Vertex subclass
         :raises ValueError: ``vertex`` is not on the edge
         :return: the other vertex on the edge
-        :rtype: BaseVertex subclass
+        :rtype: Vertex subclass
 
         ``e.next(v1)`` is the vertex at the other end of edge ``e``, ie. the
         vertex that is not ``v1``.
@@ -3378,12 +3378,12 @@ class Edge:
         else:
             raise ValueError("shouldnt happen")
 
-    def vertices(self) -> list[BaseVertex]:
+    def vertices(self) -> list[Vertex]:
         """
         Vertices of an edge (deprecated)
 
         :return: the two vertices of this edge
-        :rtype: list of BaseVertex subclass
+        :rtype: list of Vertex subclass
 
         .. deprecated:: use :attr:`endpoints` instead
         """
@@ -3395,12 +3395,12 @@ class Edge:
         return self.endpoints
 
     @property
-    def endpoints(self) -> list[BaseVertex]:
+    def endpoints(self) -> list[Vertex]:
         """
         The two vertices of this edge
 
         :return: start and end vertex
-        :rtype: list of BaseVertex subclass
+        :rtype: list of Vertex subclass
 
         .. runblock:: pycon
 
@@ -3425,13 +3425,13 @@ class Edge:
         ``e.remove()`` removes ``e`` from its graph's own edge collection and
         from its connected vertices' edge lists (both, for an undirected
         edge; the source only, for a directed one -- see
-        :meth:`BaseGraph.remove_edge`), and clears ``e.v1``/``e.v2`` to
+        :meth:`Graph.remove_edge`), and clears ``e.v1``/``e.v2`` to
         ``None``. The ``Edge`` object itself is not deleted -- it becomes an
         orphaned, disconnected shell, and calling ``remove()`` on it again
         raises ``ValueError``.
 
         .. note:: This is a thin convenience wrapper around
-            :meth:`BaseGraph.remove_edge`.
+            :meth:`Graph.remove_edge`.
 
         :rtype: None
 
@@ -3445,7 +3445,7 @@ class Edge:
             >>> e.remove()
             >>> print(g)
 
-        :seealso: :meth:`BaseGraph.remove_edge` :meth:`BaseVertex.remove`
+        :seealso: :meth:`Graph.remove_edge` :meth:`Vertex.remove`
         """
         if self.v1 is None or self.v1._graph is None:
             raise ValueError("edge is not connected to a graph")
@@ -3455,7 +3455,7 @@ class Edge:
 # ========================================================================== #
 
 
-class BaseVertex:
+class Vertex:
     """
     Base class for vertices of directed and non-directed graphs.
 
@@ -3482,7 +3482,7 @@ class BaseVertex:
         :type name: str, optional
 
         Creates a vertex but does not add it to a graph -- use
-        :meth:`BaseGraph.add_vertex` for that.
+        :meth:`Graph.add_vertex` for that.
 
         .. runblock:: pycon
 
@@ -3490,7 +3490,7 @@ class BaseVertex:
             >>> v1 = UVertex(coord=[0,0], name='v1')
             >>> print(v1)
 
-        :seealso: :meth:`BaseGraph.add_vertex`
+        :seealso: :meth:`Graph.add_vertex`
         """
         self._edgelist: list[Edge] = []
         if coord is None:
@@ -3504,8 +3504,8 @@ class BaseVertex:
         #: edges ending at this vertex.  Only a directed vertex fills it: an
         #: undirected edge is already in ``_edgelist`` at both of its ends.
         self._inlist: list[Edge] = []
-        self._graph: BaseGraph | None = None  # reference to owning graph
-        # print('BaseVertex init', type(self))
+        self._graph: Graph | None = None  # reference to owning graph
+        # print('Vertex init', type(self))
 
     def __reduce__(self) -> Any:
         """
@@ -3553,7 +3553,7 @@ class BaseVertex:
             coord = ", ".join([f"{x:.4g}" for x in self.coord])
         return f"{self.__class__.__name__}[{self.name:s}, coord=({coord})]"
 
-    def copy(self, cls: type[BaseGraph] | None = None) -> BaseVertex:
+    def copy(self, cls: type[Graph] | None = None) -> Vertex:
         """
         Copy a vertex
 
@@ -3561,7 +3561,7 @@ class BaseVertex:
             create the copy, defaults to None
         :type cls: UGraph or DGraph subclass, optional
         :return: a new, unconnected vertex with the same coordinate and name
-        :rtype: BaseVertex subclass
+        :rtype: Vertex subclass
 
         If ``cls`` is given, ``cls.vertex_copy(self)`` is used to create a
         vertex of the appropriate subclass for that graph type, otherwise a
@@ -3581,16 +3581,16 @@ class BaseVertex:
         else:
             return self.__class__(coord=self.coord, name=self.name)
 
-    def adjacent(self) -> list[BaseVertex]:
+    def adjacent(self) -> list[Vertex]:
         """
         Vertices adjacent to this vertex
 
         :return: the vertices at the far end of this vertex's edges
-        :rtype: list of BaseVertex subclass
+        :rtype: list of Vertex subclass
 
         ``v.adjacent()`` is a list of the vertices that this vertex is joined
         to by an edge.  "Adjacent" is the graph-theory term, and it is the
-        relation that :meth:`BaseGraph.adjacency` tabulates: row ``i`` of the
+        relation that :meth:`Graph.adjacency` tabulates: row ``i`` of the
         adjacency matrix is non-zero exactly at the columns of the vertices
         returned by ``g[i].adjacent()``.
 
@@ -3617,7 +3617,7 @@ class BaseVertex:
 
         :seealso: :meth:`isadjacent` :meth:`successors` :meth:`predecessors`
             :meth:`incidences` :meth:`out_edges` :meth:`edges`
-            :meth:`BaseGraph.adjacency`
+            :meth:`Graph.adjacency`
         """
         return [e.next(self) for e in self._edgelist]
 
@@ -3626,12 +3626,12 @@ class BaseVertex:
     #: alias of :meth:`adjacent`
     neighbors = adjacent
 
-    def isadjacent(self, vertex: BaseVertex) -> bool:
+    def isadjacent(self, vertex: Vertex) -> bool:
         """
         Test if a vertex is adjacent to this vertex
 
         :param vertex: vertex reference
-        :type vertex: BaseVertex subclass
+        :type vertex: Vertex subclass
         :return: true if ``vertex`` is adjacent
         :rtype: bool
 
@@ -3660,13 +3660,13 @@ class BaseVertex:
     #: alias of :meth:`isadjacent`
     isneighbor = isadjacent
 
-    def incidences(self) -> list[tuple[BaseVertex, Edge]]:
+    def incidences(self) -> list[tuple[Vertex, Edge]]:
         """
         Adjacent vertices paired with the edges that lead to them
 
         :return: a ``(vertex, edge)`` pair for each edge leaving this vertex,
             in the order the edges were connected
-        :rtype: list of (BaseVertex subclass, Edge)
+        :rtype: list of (Vertex subclass, Edge)
 
         ``v.incidences()`` is :meth:`adjacent` and :meth:`out_edges` taken
         together: the first element of each pair is the vertex at the far end
@@ -3705,13 +3705,13 @@ class BaseVertex:
         :seealso: :meth:`adjacent` :meth:`isadjacent` :meth:`successors`
             :meth:`out_edges` :meth:`in_edges` :meth:`predecessors`
             :meth:`edges` :meth:`edgeto` :attr:`degree`
-            :meth:`BaseGraph.adjacency`
+            :meth:`Graph.adjacency`
         """
         return [(e.next(self), e) for e in self._edgelist]
 
     def connect(
         self,
-        dest: BaseVertex,
+        dest: Vertex,
         edge: Edge | None = None,
         cost: float | None = None,
         data: Any = None,
@@ -3720,9 +3720,9 @@ class BaseVertex:
         Connect two vertices with an edge
 
         :param dest: The vertex to connect to
-        :type dest: ``BaseVertex`` subclass
+        :type dest: ``Vertex`` subclass
         :param edge: Use this as the edge object, otherwise a new object of the
-                     graph's :attr:`BaseGraph.edge_class` is created from the
+                     graph's :attr:`Graph.edge_class` is created from the
                      vertices being connected, and the ``cost`` and ``data``
                      parameters, defaults to None
         :type edge: ``Edge`` subclass, optional
@@ -3735,7 +3735,7 @@ class BaseVertex:
             vertices belong to different graphs, or ``edge`` already connects
             other vertices
         :raises TypeError: ``edge`` is not an instance of the graph's
-            :attr:`BaseGraph.edge_class`
+            :attr:`Graph.edge_class`
         :return: the edge connecting the vertices
         :rtype: Edge
 
@@ -3752,7 +3752,7 @@ class BaseVertex:
               vertices must agree with them: in either order if undirected,
               exactly ``self`` then ``dest`` if directed.
             - Both vertices must already have been added to the same graph,
-              e.g. via :meth:`BaseGraph.add_vertex` -- since a graph only ever
+              e.g. via :meth:`Graph.add_vertex` -- since a graph only ever
               accepts its own vertex subclass (see :meth:`UGraph.add_vertex`,
               :meth:`DGraph.add_vertex`), this also rules out connecting a
               ``UVertex`` to a ``DVertex``.
@@ -3795,7 +3795,7 @@ class BaseVertex:
 
         return e
 
-    def _attach(self, edge: Edge, dest: BaseVertex) -> None:
+    def _attach(self, edge: Edge, dest: Vertex) -> None:
         """
         Record a new edge in the vertices' edge lists (private method)
 
@@ -3816,7 +3816,7 @@ class BaseVertex:
             "subclass UVertex or DVertex"
         )
 
-    def _detach(self, edge: Edge, dest: BaseVertex) -> None:
+    def _detach(self, edge: Edge, dest: Vertex) -> None:
         """
         Remove an edge from the vertices' edge lists (private method)
 
@@ -3826,7 +3826,7 @@ class BaseVertex:
         :raises NotImplementedError: not provided by this vertex kind
 
         The twin of :meth:`_attach`: it undoes exactly what that recorded.
-        Called by :meth:`BaseGraph.remove_edge` before the edge's endpoints
+        Called by :meth:`Graph.remove_edge` before the edge's endpoints
         are cleared.  An edge that is absent from a list is skipped rather
         than treated as an error.
         """
@@ -3835,7 +3835,7 @@ class BaseVertex:
             "subclass UVertex or DVertex"
         )
 
-    def _endpoints_match(self, edge: Edge, dest: BaseVertex) -> bool:
+    def _endpoints_match(self, edge: Edge, dest: Vertex) -> bool:
         """
         Test if an edge already connects this vertex to ``dest`` (private method)
 
@@ -3844,7 +3844,7 @@ class BaseVertex:
         """
         return edge.v1 is self and edge.v2 is dest
 
-    def _bind_edge(self, edge: Edge, dest: BaseVertex) -> None:
+    def _bind_edge(self, edge: Edge, dest: Vertex) -> None:
         """
         Make a caller-supplied edge connect this vertex to ``dest`` (private method)
 
@@ -3866,12 +3866,12 @@ class BaseVertex:
                 f"not {self} and {dest}"
             )
 
-    def edgeto(self, dest: BaseVertex) -> Edge:
+    def edgeto(self, dest: Vertex) -> Edge:
         """
         Get edge connecting vertex to specific neighbour
 
         :param dest: a neigbouring vertex
-        :type dest: ``BaseVertex`` subclass
+        :type dest: ``Vertex`` subclass
         :raises ValueError: ``dest`` is not a neighbour
         :return: the edge from this vertex to ``dest``
         :rtype: Edge
@@ -3914,7 +3914,7 @@ class BaseVertex:
         The list is a new one on every call, in the order the edges were
         connected, so changing it does not change the graph, and edges can be
         removed from the graph while iterating over it.  Use
-        :meth:`BaseGraph.remove_edge` to remove one.
+        :meth:`Graph.remove_edge` to remove one.
 
         .. runblock:: pycon
 
@@ -3926,21 +3926,21 @@ class BaseVertex:
             >>> print(v1.edges())
 
         :seealso: :meth:`out_edges` :meth:`in_edges` :meth:`adjacent`
-            :meth:`incidences` :attr:`degree` :meth:`BaseGraph.edges`
+            :meth:`incidences` :attr:`degree` :meth:`Graph.edges`
         """
         return list(self._edgelist)
 
-    def heuristic_distance(self, v2: BaseVertex) -> float:
+    def heuristic_distance(self, v2: Vertex) -> float:
         """
         Heuristic distance to another vertex
 
         :param v2: the other vertex
-        :type v2: BaseVertex subclass
+        :type v2: Vertex subclass
         :return: heuristic distance between this vertex and ``v2``
         :rtype: float
 
         Distance is computed according to the graph's heuristic, see
-        :meth:`BaseGraph.heuristic`. The vertex must belong to a graph,
+        :meth:`Graph.heuristic`. The vertex must belong to a graph,
         since the heuristic is a property of the graph, not the vertex.
 
         .. runblock:: pycon
@@ -3951,7 +3951,7 @@ class BaseVertex:
             >>> v2 = g.add_vertex(coord=[4, 3], name='v2')
             >>> print(v1.heuristic_distance(v2))
 
-        :seealso: :meth:`distance` :meth:`BaseGraph.heuristic`
+        :seealso: :meth:`distance` :meth:`Graph.heuristic`
         """
         if self._graph is None:
             raise ValueError("vertex is not connected to a graph")
@@ -3959,12 +3959,12 @@ class BaseVertex:
             raise ValueError("both vertices must have a coordinate")
         return self._graph.heuristic(self.coord - v2.coord)
 
-    def distance(self, coord: ArrayLike | BaseVertex) -> float:
+    def distance(self, coord: ArrayLike | Vertex) -> float:
         """
         Distance from vertex to point
 
         :param coord: coordinates of the point
-        :type coord: ndarray(n) or BaseVertex
+        :type coord: ndarray(n) or Vertex
         :return: distance
         :rtype: float
 
@@ -3984,7 +3984,7 @@ class BaseVertex:
         """
         if self._graph is None:
             raise ValueError("vertex is not connected to a graph")
-        target = coord.coord if isinstance(coord, BaseVertex) else coord
+        target = coord.coord if isinstance(coord, Vertex) else coord
         if self.coord is None or target is None:
             raise ValueError("vertex, and coord if given as a vertex, must have a coordinate")
         return self._graph.metric(self.coord - target)
@@ -4027,7 +4027,7 @@ class BaseVertex:
         ``k``.  A self-loop adds 2, for both kinds of graph: it has two ends.
 
         :seealso: :attr:`in_degree` :attr:`out_degree` :meth:`edges`
-            :meth:`BaseGraph.degree` :meth:`BaseGraph.connectivity`
+            :meth:`Graph.degree` :meth:`Graph.connectivity`
         """
         return len(self._edgelist) + len(self._inlist)
 
@@ -4094,12 +4094,12 @@ class BaseVertex:
         """
         return list(self._incoming())
 
-    def successors(self) -> list[BaseVertex]:
+    def successors(self) -> list[Vertex]:
         """
         Vertices that this vertex has an edge to
 
         :return: the vertices at the head of the outgoing edges
-        :rtype: list of BaseVertex subclass
+        :rtype: list of Vertex subclass
 
         This is :meth:`adjacent`, under its directed-graph name.
 
@@ -4108,12 +4108,12 @@ class BaseVertex:
         """
         return self.adjacent()
 
-    def predecessors(self) -> list[BaseVertex]:
+    def predecessors(self) -> list[Vertex]:
         """
         Vertices that have an edge to this vertex
 
         :return: the vertices at the tail of the incoming edges
-        :rtype: list of BaseVertex subclass
+        :rtype: list of Vertex subclass
 
         There is one entry per edge, so a vertex joined by ``k`` parallel edges
         appears ``k`` times.  For an undirected graph this is :meth:`adjacent`.
@@ -4163,7 +4163,7 @@ class BaseVertex:
             Renaming a vertex in a graph used to leave the graph's name table
             stale, so lookups by the new name failed.
 
-        :seealso: :meth:`BaseGraph.add_vertex`
+        :seealso: :meth:`Graph.add_vertex`
         """
         return self._name
 
@@ -4197,15 +4197,15 @@ class BaseVertex:
         :rtype: int or None
 
         Assigned by the graph when its components are found, which happens when
-        :attr:`BaseGraph.nc`, :meth:`BaseGraph.component` or
-        :meth:`BaseGraph.samecomponent` is used after the graph has changed.
+        :attr:`Graph.nc`, :meth:`Graph.component` or
+        :meth:`Graph.samecomponent` is used after the graph has changed.
         It is read-only.
 
         .. versionchanged:: 1.0
             Read-only.  It was a plain attribute, but it is computed from the
             graph's structure and meaningless to assign.
 
-        :seealso: :attr:`BaseGraph.nc` :meth:`BaseGraph.component`
+        :seealso: :attr:`Graph.nc` :meth:`Graph.component`
         """
         return self._label
 
@@ -4266,12 +4266,12 @@ class BaseVertex:
             raise ValueError("vertex has no coordinate")
         return self.coord[2]
 
-    def closest(self) -> tuple[BaseVertex | None, float]:
+    def closest(self) -> tuple[Vertex | None, float]:
         """
         Return the closest vertex to this vertex
 
         :return: closest vertex and its distance
-        :rtype: BaseVertex subclass or None, float
+        :rtype: Vertex subclass or None, float
 
         Equivalent to ``self._graph.closest(self.coord)``. The vertex must
         belong to a graph, since ``closest()`` searches that graph's other
@@ -4287,7 +4287,7 @@ class BaseVertex:
             >>> v4 = g.add_vertex(coord=[4,3], name='v4')
             >>> print(v1.closest())
 
-        :seealso: :meth:`BaseGraph.closest`
+        :seealso: :meth:`Graph.closest`
         """
         if self._graph is None:
             raise ValueError("vertex is not connected to a graph")
@@ -4302,11 +4302,11 @@ class BaseVertex:
         :raises ValueError: the vertex is not connected to a graph
 
         ``v.remove()`` removes ``v``, and every edge touching it (incoming
-        or outgoing), from its graph. The ``BaseVertex`` object itself is
+        or outgoing), from its graph. The ``Vertex`` object itself is
         not deleted.
 
         .. note:: This is a thin convenience wrapper around
-            :meth:`BaseGraph.remove_vertex`.
+            :meth:`Graph.remove_vertex`.
 
         :rtype: None
 
@@ -4320,20 +4320,20 @@ class BaseVertex:
             >>> v2.remove()
             >>> print(g)
 
-        :seealso: :meth:`BaseGraph.remove_vertex` :meth:`Edge.remove`
+        :seealso: :meth:`Graph.remove_vertex` :meth:`Edge.remove`
         """
         if self._graph is None:
             raise ValueError("vertex is not connected to a graph")
         self._graph.remove_vertex(self)
 
 
-class UVertex(BaseVertex):
+class UVertex(Vertex):
     """
-    BaseVertex subclass for undirected graphs
+    Vertex subclass for undirected graphs
 
     This class can be inherited to provide user objects with graph capability.
 
-    :meth:`~BaseVertex.connect` adds the new edge to *both* vertices' edge
+    :meth:`~Vertex.connect` adds the new edge to *both* vertices' edge
     lists, so it is discovered from either end, and accepts a supplied edge
     whose endpoints are the two vertices in either order.
 
@@ -4349,10 +4349,10 @@ class UVertex(BaseVertex):
 
     .. inheritance-diagram:: UVertex
 
-    :seealso: :class:`BaseVertex` :class:`DVertex`
+    :seealso: :class:`Vertex` :class:`DVertex`
     """
 
-    def _attach(self, edge: Edge, dest: BaseVertex) -> None:
+    def _attach(self, edge: Edge, dest: Vertex) -> None:
         """
         Record an undirected edge at both ends (private method)
 
@@ -4367,7 +4367,7 @@ class UVertex(BaseVertex):
         """The edges that end here: for an undirected vertex, all of them"""
         return self._edgelist
 
-    def _detach(self, edge: Edge, dest: BaseVertex) -> None:
+    def _detach(self, edge: Edge, dest: Vertex) -> None:
         """
         Remove an undirected edge from both ends (private method)
 
@@ -4378,7 +4378,7 @@ class UVertex(BaseVertex):
             if edge in vertex._edgelist:
                 vertex._edgelist.remove(edge)
 
-    def _endpoints_match(self, edge: Edge, dest: BaseVertex) -> bool:
+    def _endpoints_match(self, edge: Edge, dest: Vertex) -> bool:
         """
         Test if an edge already connects this vertex and ``dest`` (private method)
 
@@ -4389,13 +4389,13 @@ class UVertex(BaseVertex):
         )
 
 
-class DVertex(BaseVertex):
+class DVertex(Vertex):
     """
-    BaseVertex subclass for directed graphs
+    Vertex subclass for directed graphs
 
     This class can be inherited to provide user objects with graph capability.
 
-    :meth:`~BaseVertex.connect` adds the new edge only to *this* vertex's edge
+    :meth:`~Vertex.connect` adds the new edge only to *this* vertex's edge
     list, so it is discoverable only from the start of the directed edge, and a
     supplied edge must run exactly from this vertex to the other.
 
@@ -4411,10 +4411,10 @@ class DVertex(BaseVertex):
 
     .. inheritance-diagram:: DVertex
 
-    :seealso: :class:`BaseVertex` :class:`UVertex`
+    :seealso: :class:`Vertex` :class:`UVertex`
     """
 
-    def _attach(self, edge: Edge, dest: BaseVertex) -> None:
+    def _attach(self, edge: Edge, dest: Vertex) -> None:
         """
         Record a directed edge at both ends (private method)
 
@@ -4424,7 +4424,7 @@ class DVertex(BaseVertex):
         self._edgelist.append(edge)
         dest._inlist.append(edge)
 
-    def _detach(self, edge: Edge, dest: BaseVertex) -> None:
+    def _detach(self, edge: Edge, dest: Vertex) -> None:
         """
         Remove a directed edge from its source and from where it ends
         (private method)
