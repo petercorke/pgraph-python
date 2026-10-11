@@ -588,7 +588,7 @@ class TestUGraph(unittest.TestCase):
         D = g.degree()
         nt.assert_array_equal(D, np.diag([2, 1, 1, 0]))
 
-        L = g.Laplacian()
+        L = g.laplacian()
         expected_L = np.diag([2, 1, 1, 0]) - expected_A
         nt.assert_array_equal(L, expected_L)
 
@@ -902,7 +902,7 @@ class TestDGraph(unittest.TestCase):
 
         # the directed Laplacian uses the OUT-degree, D_out - A, whose rows
         # sum to zero; it is not degree() - A for a directed graph
-        L = g.Laplacian()
+        L = g.laplacian()
         expected_L = np.diag([2, 1, 0]) - expected_A
         nt.assert_array_equal(L, expected_L)
         nt.assert_array_equal(L.sum(axis=1), np.zeros(3))

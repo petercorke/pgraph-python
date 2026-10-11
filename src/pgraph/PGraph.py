@@ -1966,14 +1966,14 @@ class BaseGraph(ABC):
 
     # MATRIX REPRESENTATIONS
 
-    def Laplacian(self) -> NDArray:
+    def laplacian(self) -> NDArray:
         """
         Laplacian matrix for the graph
 
         :return: Laplacian matrix
         :rtype: NumPy ndarray
 
-        ``g.Laplacian()`` is the Laplacian matrix (NxN) of the graph where N
+        ``g.laplacian()`` is the Laplacian matrix (NxN) of the graph where N
         is the number of vertices.
 
         .. runblock:: pycon
@@ -1987,7 +1987,7 @@ class BaseGraph(ABC):
             >>> for i, j in [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (3, 4)]:
             ...     g.add_edge(g[i], g[j])
             ...
-            >>> L = g.Laplacian()
+            >>> L = g.laplacian()
             >>> print(L)
 
         .. note::
@@ -2022,6 +2022,24 @@ class BaseGraph(ABC):
         :seealso: :meth:`adjacency` :meth:`incidence` :meth:`degree`
         """
         return np.diag([v.out_degree for v in self]) - self.adjacency()
+
+    def Laplacian(self) -> NDArray:
+        """
+        Laplacian matrix for the graph (deprecated)
+
+        .. deprecated:: 1.0
+            Use :meth:`laplacian` instead.  A capitalized name denotes a class
+            method that constructs a graph, like :meth:`Adjacency` and
+            :meth:`Dict`; this is an instance method that returns a matrix.
+
+        :seealso: :meth:`laplacian`
+        """
+        warnings.warn(
+            "Laplacian() is deprecated, use laplacian() instead",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.laplacian()
 
     def connectivity(self, vertices: Iterable[BaseVertex] | None = None) -> list[int]:
         """
@@ -2094,7 +2112,7 @@ class BaseGraph(ABC):
             For a ``DGraph`` this was the out-degree matrix, counting only the
             edges leaving each vertex.  It is now the total, in plus out.  The
             old matrix is ``np.diag([v.out_degree for v in g])``, which is what
-            :meth:`Laplacian` uses.
+            :meth:`laplacian` uses.
 
         .. runblock:: pycon
 
@@ -2116,7 +2134,7 @@ class BaseGraph(ABC):
         add ``k`` to the degree of each end.  A self-loop adds 2, for both
         kinds of graph, since it has two ends.
 
-        :seealso: :meth:`adjacency` :meth:`incidence` :meth:`Laplacian`
+        :seealso: :meth:`adjacency` :meth:`incidence` :meth:`laplacian`
             :meth:`connectivity` :meth:`average_degree` :attr:`BaseVertex.degree`
         """
 
@@ -2166,7 +2184,7 @@ class BaseGraph(ABC):
         (consistent with :meth:`degree`) and 1 for a ``DGraph``. In every case
         each row of ``A`` sums to the degree of that vertex.
 
-        :seealso: :meth:`Laplacian` :meth:`incidence` :meth:`degree`
+        :seealso: :meth:`laplacian` :meth:`incidence` :meth:`degree`
         """
         # create a dict mapping vertex to an id
         vdict = {}
@@ -2222,7 +2240,7 @@ class BaseGraph(ABC):
         so row sums still equal :meth:`degree`); for a ``DGraph`` it holds a
         single 1.
 
-        :seealso: :meth:`Laplacian` :meth:`adjacency` :meth:`degree`
+        :seealso: :meth:`laplacian` :meth:`adjacency` :meth:`degree`
         """
         edges = self.edges()
         I = np.zeros((self.n, len(edges)))

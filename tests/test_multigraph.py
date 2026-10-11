@@ -19,7 +19,7 @@ Conventions being tested (see the matrix methods' docstrings):
   towards the (out-)degree of a ``DGraph`` vertex
 - ``adjacency()`` counts edges, so ``A[i, j]`` is the number of edges
   from ``i`` to ``j`` and each row of ``A`` sums to the degree of the vertex
-- ``Laplacian()`` is therefore ``degree() - adjacency()``, rows sum to zero
+- ``laplacian()`` is therefore ``degree() - adjacency()``, rows sum to zero
 - ``distance()`` and path lengths use the cheapest of any parallel edges
 """
 
@@ -118,7 +118,7 @@ class _Multigraph:
             np.testing.assert_array_equal(out, deg)
 
         # the Laplacian is D_out - A, so each row sums to zero for any graph
-        L = g.Laplacian()
+        L = g.laplacian()
         np.testing.assert_array_equal(L, np.diag(out) - A)
         np.testing.assert_allclose(L.sum(axis=1), 0)
         # and degrees sum to twice the edges (every edge has two ends)
