@@ -695,12 +695,9 @@
 
 <span class="sd">        .. warning:: The connectivity of the network may be changed.</span>
 
-<span class="sd">        .. note:: A directed edge is tracked only by its source vertex's</span>
-<span class="sd">            edge list, not its target's (see :attr:`BaseVertex.edges`), so</span>
-<span class="sd">            membership is checked per endpoint rather than assumed for both</span>
-<span class="sd">            -- removing a directed edge from an undirected-only</span>
-<span class="sd">            implementation would otherwise raise ``ValueError`` on the</span>
-<span class="sd">            target side.</span>
+<span class="sd">        .. note:: An undirected edge is held by both of its vertices and a</span>
+<span class="sd">            directed edge only by its source (see :meth:`BaseVertex.edges`).</span>
+<span class="sd">            Each vertex kind knows which, so this method does not.</span>
 
 <span class="sd">        .. runblock:: pycon</span>
 
@@ -716,15 +713,16 @@
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="n">edge</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edgelist</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"edge does not belong to this graph"</span><span class="p">)</span>
-        <span class="k">assert</span> <span class="n">edge</span><span class="o">.</span><span class="n">v1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">edge</span><span class="o">.</span><span class="n">v2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="n">v1</span><span class="p">,</span> <span class="n">v2</span> <span class="o">=</span> <span class="n">edge</span><span class="o">.</span><span class="n">v1</span><span class="p">,</span> <span class="n">edge</span><span class="o">.</span><span class="n">v2</span>
+        <span class="k">if</span> <span class="n">v1</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">v2</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"edge does not connect two vertices"</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">edge</span> <span class="ow">in</span> <span class="n">edge</span><span class="o">.</span><span class="n">v1</span><span class="o">.</span><span class="n">_edgelist</span><span class="p">:</span>
-            <span class="n">edge</span><span class="o">.</span><span class="n">v1</span><span class="o">.</span><span class="n">_edgelist</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">edge</span> <span class="ow">in</span> <span class="n">edge</span><span class="o">.</span><span class="n">v2</span><span class="o">.</span><span class="n">_edgelist</span><span class="p">:</span>
-            <span class="n">edge</span><span class="o">.</span><span class="n">v2</span><span class="o">.</span><span class="n">_edgelist</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span>
+        <span class="c1"># how the edge is held differs between undirected and directed</span>
+        <span class="c1"># vertices, so the vertex kind undoes what its _attach did</span>
+        <span class="n">v1</span><span class="o">.</span><span class="n">_detach</span><span class="p">(</span><span class="n">edge</span><span class="p">,</span> <span class="n">v2</span><span class="p">)</span>
 
-        <span class="n">edge</span><span class="o">.</span><span class="n">v1</span><span class="o">.</span><span class="n">_connectivitychange</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="n">edge</span><span class="o">.</span><span class="n">v2</span><span class="o">.</span><span class="n">_connectivitychange</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">v1</span><span class="o">.</span><span class="n">_connectivitychange</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">v2</span><span class="o">.</span><span class="n">_connectivitychange</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_connectivitychange</span> <span class="o">=</span> <span class="kc">True</span>
 
         <span class="n">edge</span><span class="o">.</span><span class="n">v1</span> <span class="o">=</span> <span class="kc">None</span>
@@ -771,6 +769,8 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_vertexlist</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">vertex</span><span class="p">)</span>
         <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vertexdict</span><span class="p">[</span><span class="n">vertex</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+        <span class="n">vertex</span><span class="o">.</span><span class="n">_graph</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># it is not in any graph now</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_connectivitychange</span> <span class="o">=</span> <span class="kc">True</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">Edge</span> <span class="o">|</span> <span class="n">BaseVertex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
@@ -3385,6 +3385,25 @@
             <span class="s2">"subclass UVertex or DVertex"</span>
         <span class="p">)</span>
 
+    <span class="k">def</span><span class="w"> </span><span class="nf">_detach</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">edge</span><span class="p">:</span> <span class="n">Edge</span><span class="p">,</span> <span class="n">dest</span><span class="p">:</span> <span class="n">BaseVertex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Remove an edge from the vertices' edge lists (private method)</span>
+
+<span class="sd">        :param edge: the edge being removed, with ``edge.v1`` and ``edge.v2``</span>
+<span class="sd">            still set</span>
+<span class="sd">        :param dest: the vertex at the other end, ``edge.v2``</span>
+<span class="sd">        :raises NotImplementedError: not provided by this vertex kind</span>
+
+<span class="sd">        The twin of :meth:`_attach`: it undoes exactly what that recorded.</span>
+<span class="sd">        Called by :meth:`_BaseGraph.remove_edge` before the edge's endpoints</span>
+<span class="sd">        are cleared.  An edge that is absent from a list is skipped rather</span>
+<span class="sd">        than treated as an error.</span>
+<span class="sd">        """</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> does not define how an edge is detached; "</span>
+            <span class="s2">"subclass UVertex or DVertex"</span>
+        <span class="p">)</span>
+
     <span class="k">def</span><span class="w"> </span><span class="nf">_endpoints_match</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">edge</span><span class="p">:</span> <span class="n">Edge</span><span class="p">,</span> <span class="n">dest</span><span class="p">:</span> <span class="n">BaseVertex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Test if an edge already connects this vertex to ``dest`` (private method)</span>
@@ -3741,6 +3760,17 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_edgelist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span>
         <span class="n">dest</span><span class="o">.</span><span class="n">_edgelist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span>
 
+    <span class="k">def</span><span class="w"> </span><span class="nf">_detach</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">edge</span><span class="p">:</span> <span class="n">Edge</span><span class="p">,</span> <span class="n">dest</span><span class="p">:</span> <span class="n">BaseVertex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Remove an undirected edge from both ends (private method)</span>
+
+<span class="sd">        A self-loop was recorded twice by :meth:`_attach`, so it is removed</span>
+<span class="sd">        twice.</span>
+<span class="sd">        """</span>
+        <span class="k">for</span> <span class="n">vertex</span> <span class="ow">in</span> <span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dest</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">edge</span> <span class="ow">in</span> <span class="n">vertex</span><span class="o">.</span><span class="n">_edgelist</span><span class="p">:</span>
+                <span class="n">vertex</span><span class="o">.</span><span class="n">_edgelist</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span>
+
     <span class="k">def</span><span class="w"> </span><span class="nf">_endpoints_match</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">edge</span><span class="p">:</span> <span class="n">Edge</span><span class="p">,</span> <span class="n">dest</span><span class="p">:</span> <span class="n">BaseVertex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Test if an edge already connects this vertex and ``dest`` (private method)</span>
@@ -3787,7 +3817,16 @@
 <span class="sd">        The edge is added only to *this* vertex's edge list, so it is</span>
 <span class="sd">        discoverable only from the start of the directed edge.</span>
 <span class="sd">        """</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_edgelist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_edgelist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_detach</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">edge</span><span class="p">:</span> <span class="n">Edge</span><span class="p">,</span> <span class="n">dest</span><span class="p">:</span> <span class="n">BaseVertex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Remove a directed edge from its source (private method)</span>
+
+<span class="sd">        ``dest`` never held it.</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="n">edge</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edgelist</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_edgelist</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span></div>
 
 
 
