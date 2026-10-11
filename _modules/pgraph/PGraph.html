@@ -1321,7 +1321,7 @@
                         <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">vertex</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">vertex</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"  </span><span class="si">{</span><span class="n">vertex</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="o">**</span><span class="n">textopt</span><span class="p">)</span>
                     <span class="k">if</span> <span class="n">colorcomponents</span><span class="p">:</span>
                         <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">vertex</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">vertex</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">[</span><span class="n">c</span><span class="p">,</span> <span class="p">:],</span> <span class="o">**</span><span class="n">vopt</span><span class="p">)</span>
-                        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">vertex</span><span class="o">.</span><span class="n">neighbours</span><span class="p">():</span>
+                        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">vertex</span><span class="o">.</span><span class="n">adjacent</span><span class="p">():</span>
                             <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
                                 <span class="p">[</span><span class="n">vertex</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">v</span><span class="o">.</span><span class="n">x</span><span class="p">],</span>
                                 <span class="p">[</span><span class="n">vertex</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">v</span><span class="o">.</span><span class="n">y</span><span class="p">],</span>
@@ -1330,7 +1330,7 @@
                             <span class="p">)</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">vertex</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">vertex</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="o">**</span><span class="n">vopt</span><span class="p">)</span>
-                        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">vertex</span><span class="o">.</span><span class="n">neighbours</span><span class="p">():</span>
+                        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">vertex</span><span class="o">.</span><span class="n">adjacent</span><span class="p">():</span>
                             <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">vertex</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">v</span><span class="o">.</span><span class="n">x</span><span class="p">],</span> <span class="p">[</span><span class="n">vertex</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">v</span><span class="o">.</span><span class="n">y</span><span class="p">],</span> <span class="o">**</span><span class="n">eopt</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># 3D or higher plotting, just do (x, y, z)</span>
@@ -1350,7 +1350,7 @@
                             <span class="n">vertex</span><span class="o">.</span><span class="n">z</span><span class="p">,</span>
                             <span class="o">**</span><span class="p">{</span><span class="o">**</span><span class="nb">dict</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">[</span><span class="n">c</span><span class="p">,</span> <span class="p">:]),</span> <span class="o">**</span><span class="n">vopt</span><span class="p">},</span>
                         <span class="p">)</span>
-                        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">vertex</span><span class="o">.</span><span class="n">neighbours</span><span class="p">():</span>
+                        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">vertex</span><span class="o">.</span><span class="n">adjacent</span><span class="p">():</span>
                             <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
                                 <span class="p">[</span><span class="n">vertex</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">v</span><span class="o">.</span><span class="n">x</span><span class="p">],</span>
                                 <span class="p">[</span><span class="n">vertex</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">v</span><span class="o">.</span><span class="n">y</span><span class="p">],</span>
@@ -1359,7 +1359,7 @@
                             <span class="p">)</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">vertex</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">vertex</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">vertex</span><span class="o">.</span><span class="n">z</span><span class="p">,</span> <span class="o">**</span><span class="n">vopt</span><span class="p">)</span>
-                        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">vertex</span><span class="o">.</span><span class="n">neighbours</span><span class="p">():</span>
+                        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">vertex</span><span class="o">.</span><span class="n">adjacent</span><span class="p">():</span>
                             <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
                                 <span class="p">[</span><span class="n">vertex</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">v</span><span class="o">.</span><span class="n">x</span><span class="p">],</span>
                                 <span class="p">[</span><span class="n">vertex</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">v</span><span class="o">.</span><span class="n">y</span><span class="p">],</span>
@@ -1752,7 +1752,7 @@
 <span class="sd">        repeatedly remove vertices with no remaining incoming edges. If every</span>
 <span class="sd">        vertex can eventually be removed, the graph is a DAG (acyclic); if</span>
 <span class="sd">        some are never freed, they form a cycle. This is O(V+E), using</span>
-<span class="sd">        vertices' outgoing edges via :meth:`BaseVertex.neighbours` the same</span>
+<span class="sd">        vertices' outgoing edges via :meth:`BaseVertex.adjacent` the same</span>
 <span class="sd">        way :meth:`path_BFS` and friends do.</span>
 
 <span class="sd">        .. note:: A self-loop is a cycle of length one, so it makes either kind</span>
@@ -1796,7 +1796,7 @@
         <span class="k">while</span> <span class="n">frontier</span><span class="p">:</span>
             <span class="n">vertex</span> <span class="o">=</span> <span class="n">frontier</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
             <span class="n">removed</span> <span class="o">+=</span> <span class="mi">1</span>
-            <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">vertex</span><span class="o">.</span><span class="n">neighbours</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">vertex</span><span class="o">.</span><span class="n">adjacent</span><span class="p">():</span>
                 <span class="n">indegree</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">-=</span> <span class="mi">1</span>
                 <span class="k">if</span> <span class="n">indegree</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                     <span class="n">frontier</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
@@ -2041,7 +2041,7 @@
 
         <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">))</span>
         <span class="k">for</span> <span class="n">vertex</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">vertex</span><span class="o">.</span><span class="n">neighbours</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">vertex</span><span class="o">.</span><span class="n">adjacent</span><span class="p">():</span>
                 <span class="n">A</span><span class="p">[</span><span class="n">vdict</span><span class="p">[</span><span class="n">vertex</span><span class="p">],</span> <span class="n">vdict</span><span class="p">[</span><span class="n">n</span><span class="p">]]</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="k">return</span> <span class="n">A</span></div>
 
@@ -2285,7 +2285,7 @@
                 <span class="nb">print</span><span class="p">(</span><span class="s2">"   expand"</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 
             <span class="c1"># expand the vertex</span>
-            <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">x</span><span class="o">.</span><span class="n">neighbours</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">x</span><span class="o">.</span><span class="n">adjacent</span><span class="p">():</span>
                 <span class="k">if</span> <span class="n">n</span> <span class="ow">is</span> <span class="n">x</span><span class="p">:</span>
                     <span class="k">continue</span>  <span class="c1"># self-loop, never part of a shortest path</span>
                 <span class="k">if</span> <span class="n">n</span> <span class="ow">is</span> <span class="n">G</span><span class="p">:</span>
@@ -2636,7 +2636,7 @@
                         <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">q</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                             <span class="n">v</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>  <span class="c1"># expand v</span>
                             <span class="n">v</span><span class="o">.</span><span class="n">label</span> <span class="o">=</span> <span class="n">label</span>
-                            <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">v</span><span class="o">.</span><span class="n">neighbours</span><span class="p">():</span>
+                            <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">v</span><span class="o">.</span><span class="n">adjacent</span><span class="p">():</span>
                                 <span class="k">if</span> <span class="n">n</span><span class="o">.</span><span class="n">label</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                                     <span class="n">q</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
                         <span class="n">lastlabel</span> <span class="o">=</span> <span class="n">label</span>
@@ -2693,7 +2693,7 @@
             <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">label</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="c1"># no label, try to inherit one from a neighbour</span>
-                    <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">v</span><span class="o">.</span><span class="n">neighbours</span><span class="p">():</span>
+                    <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">v</span><span class="o">.</span><span class="n">adjacent</span><span class="p">():</span>
                         <span class="k">if</span> <span class="n">n</span><span class="o">.</span><span class="n">label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                             <span class="c1"># neighbour has a label</span>
                             <span class="n">v</span><span class="o">.</span><span class="n">label</span> <span class="o">=</span> <span class="n">n</span><span class="o">.</span><span class="n">label</span>
@@ -2708,7 +2708,7 @@
                 <span class="k">assert</span> <span class="n">label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
 
                 <span class="c1"># now look for clashes</span>
-                <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">v</span><span class="o">.</span><span class="n">neighbours</span><span class="p">():</span>
+                <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">v</span><span class="o">.</span><span class="n">adjacent</span><span class="p">():</span>
                     <span class="k">if</span> <span class="n">n</span><span class="o">.</span><span class="n">label</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                         <span class="c1"># neighbour has no label, give it this one</span>
                         <span class="n">n</span><span class="o">.</span><span class="n">label</span> <span class="o">=</span> <span class="n">label</span>
@@ -3166,19 +3166,30 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">coord</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">coord</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="BaseVertex.neighbours">
-<a class="viewcode-back" href="../../PGraph.html#pgraph.PGraph.BaseVertex.neighbours">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">neighbours</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">BaseVertex</span><span class="p">]:</span>
+<div class="viewcode-block" id="BaseVertex.adjacent">
+<a class="viewcode-back" href="../../PGraph.html#pgraph.PGraph.BaseVertex.adjacent">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">adjacent</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">BaseVertex</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Neighbours of a vertex</span>
+<span class="sd">        Vertices adjacent to this vertex</span>
 
-<span class="sd">        ``v.neighbours()`` is a list of neighbours of this vertex.</span>
+<span class="sd">        :return: the vertices at the far end of this vertex's edges</span>
+<span class="sd">        :rtype: list of BaseVertex subclass</span>
 
-<span class="sd">        .. note:: For a directed graph the neighbours are those on edges leaving this vertex</span>
+<span class="sd">        ``v.adjacent()`` is a list of the vertices that this vertex is joined</span>
+<span class="sd">        to by an edge.  "Adjacent" is the graph-theory term, and it is the</span>
+<span class="sd">        relation that :meth:`_BaseGraph.adjacency` tabulates: row ``i`` of the</span>
+<span class="sd">        adjacency matrix is non-zero exactly at the columns of the vertices</span>
+<span class="sd">        returned by ``g[i].adjacent()``.</span>
 
-<span class="sd">        .. note:: There is one entry per edge, so a neighbour joined by ``k``</span>
-<span class="sd">            parallel edges appears ``k`` times. In an undirected graph a</span>
-<span class="sd">            self-loop lists the vertex itself twice, once for each end.</span>
+<span class="sd">        .. note::</span>
+
+<span class="sd">            - For a directed graph these are the vertices at the head of the</span>
+<span class="sd">              edges leaving this vertex, the *successors*.</span>
+<span class="sd">            - There is one entry per edge, so a vertex joined by ``k`` parallel</span>
+<span class="sd">              edges appears ``k`` times.  In an undirected graph a self-loop</span>
+<span class="sd">              lists the vertex itself twice, once for each end.</span>
+<span class="sd">            - ``neighbours`` and ``neighbors`` are aliases, the same method</span>
+<span class="sd">              under the British and American spellings, and are not deprecated.</span>
 
 <span class="sd">        .. runblock:: pycon</span>
 
@@ -3189,69 +3200,34 @@
 <span class="sd">            &gt;&gt;&gt; v3 = g.add_vertex(coord=[2,2], name='v3')</span>
 <span class="sd">            &gt;&gt;&gt; g.add_edge(v1, v2)</span>
 <span class="sd">            &gt;&gt;&gt; g.add_edge(v1, v3)</span>
-<span class="sd">            &gt;&gt;&gt; print(v1.neighbours())</span>
+<span class="sd">            &gt;&gt;&gt; print(v1.adjacent())</span>
 
-<span class="sd">        :seealso: :meth:`neighbors` :meth:`incidences`</span>
+<span class="sd">        :seealso: :meth:`isadjacent` :meth:`incidences` :meth:`edges`</span>
+<span class="sd">            :meth:`_BaseGraph.adjacency`</span>
 <span class="sd">        """</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">next</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edgelist</span><span class="p">]</span></div>
 
 
-<div class="viewcode-block" id="BaseVertex.neighbors">
-<a class="viewcode-back" href="../../PGraph.html#pgraph.PGraph.BaseVertex.neighbors">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">neighbors</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">BaseVertex</span><span class="p">]:</span>
+    <span class="c1">#: alias of :meth:`adjacent`</span>
+    <span class="n">neighbours</span> <span class="o">=</span> <span class="n">adjacent</span>
+    <span class="c1">#: alias of :meth:`adjacent`</span>
+    <span class="n">neighbors</span> <span class="o">=</span> <span class="n">adjacent</span>
+
+<div class="viewcode-block" id="BaseVertex.isadjacent">
+<a class="viewcode-back" href="../../PGraph.html#pgraph.PGraph.BaseVertex.isadjacent">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">isadjacent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vertex</span><span class="p">:</span> <span class="n">BaseVertex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Neighbors of a vertex</span>
-
-<span class="sd">        ``v.neighbors()`` is a list of neighbors of this vertex.</span>
-
-<span class="sd">        .. note:: For a directed graph the neighbours are those on edges leaving this vertex</span>
-
-<span class="sd">        .. runblock:: pycon</span>
-
-<span class="sd">            &gt;&gt;&gt; from pgraph import UGraph</span>
-<span class="sd">            &gt;&gt;&gt; g = UGraph()</span>
-<span class="sd">            &gt;&gt;&gt; v1 = g.add_vertex(coord=[0,0], name='v1')</span>
-<span class="sd">            &gt;&gt;&gt; v2 = g.add_vertex(coord=[1,1], name='v2')</span>
-<span class="sd">            &gt;&gt;&gt; g.add_edge(v1, v2)</span>
-<span class="sd">            &gt;&gt;&gt; print(v1.neighbors())</span>
-
-<span class="sd">        :seealso: :meth:`neighbours`</span>
-<span class="sd">        """</span>
-        <span class="k">return</span> <span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">next</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edgelist</span><span class="p">]</span></div>
-
-
-<div class="viewcode-block" id="BaseVertex.adjacent">
-<a class="viewcode-back" href="../../PGraph.html#pgraph.PGraph.BaseVertex.adjacent">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">adjacent</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">BaseVertex</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Neighbours of a vertex (deprecated)</span>
-
-<span class="sd">        :return: a list of neighbours of this vertex</span>
-<span class="sd">        :rtype: list of BaseVertex subclass</span>
-
-<span class="sd">        .. deprecated:: use :meth:`neighbours` instead</span>
-<span class="sd">        """</span>
-        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-            <span class="s2">"adjacent() is deprecated, use neighbours() instead"</span><span class="p">,</span>
-            <span class="ne">DeprecationWarning</span><span class="p">,</span>
-            <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">neighbours</span><span class="p">()</span></div>
-
-
-<div class="viewcode-block" id="BaseVertex.isneighbour">
-<a class="viewcode-back" href="../../PGraph.html#pgraph.PGraph.BaseVertex.isneighbour">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">isneighbour</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vertex</span><span class="p">:</span> <span class="n">BaseVertex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Test if vertex is a neigbour</span>
+<span class="sd">        Test if a vertex is adjacent to this vertex</span>
 
 <span class="sd">        :param vertex: vertex reference</span>
 <span class="sd">        :type vertex: BaseVertex subclass</span>
-<span class="sd">        :return: true if a neighbour</span>
+<span class="sd">        :return: true if ``vertex`` is adjacent</span>
 <span class="sd">        :rtype: bool</span>
 
-<span class="sd">        For a directed graph this is true only if the edge is from ``self`` to</span>
-<span class="sd">        ``vertex``.</span>
+<span class="sd">        For a directed graph this is true only if there is an edge from</span>
+<span class="sd">        ``self`` to ``vertex``.</span>
+
+<span class="sd">        ``isneighbour`` and ``isneighbor`` are aliases.</span>
 
 <span class="sd">        .. runblock:: pycon</span>
 
@@ -3261,13 +3237,18 @@
 <span class="sd">            &gt;&gt;&gt; v2 = g.add_vertex(coord=[1,1], name='v2')</span>
 <span class="sd">            &gt;&gt;&gt; v3 = g.add_vertex(coord=[2,2], name='v3')</span>
 <span class="sd">            &gt;&gt;&gt; g.add_edge(v1, v2)</span>
-<span class="sd">            &gt;&gt;&gt; print(v1.isneighbour(v2))</span>
-<span class="sd">            &gt;&gt;&gt; print(v1.isneighbour(v3))</span>
+<span class="sd">            &gt;&gt;&gt; print(v1.isadjacent(v2))</span>
+<span class="sd">            &gt;&gt;&gt; print(v1.isadjacent(v3))</span>
 
-<span class="sd">        :seealso: :meth:`neighbours`</span>
+<span class="sd">        :seealso: :meth:`adjacent`</span>
 <span class="sd">        """</span>
         <span class="k">return</span> <span class="n">vertex</span> <span class="ow">in</span> <span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">next</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edgelist</span><span class="p">]</span></div>
 
+
+    <span class="c1">#: alias of :meth:`isadjacent`</span>
+    <span class="n">isneighbour</span> <span class="o">=</span> <span class="n">isadjacent</span>
+    <span class="c1">#: alias of :meth:`isadjacent`</span>
+    <span class="n">isneighbor</span> <span class="o">=</span> <span class="n">isadjacent</span>
 
 <div class="viewcode-block" id="BaseVertex.incidences">
 <a class="viewcode-back" href="../../PGraph.html#pgraph.PGraph.BaseVertex.incidences">[docs]</a>
@@ -3276,7 +3257,7 @@
 <span class="sd">        Neighbours and edges of a vertex</span>
 
 <span class="sd">        ``v.incidences()`` is a generator that returns a list of incidences,</span>
-<span class="sd">        tuples of (vertex, edge) for all neighbours of the vertex ``v``.</span>
+<span class="sd">        tuples of (vertex, edge) for all vertices adjacent to the vertex ``v``.</span>
 
 <span class="sd">        .. note:: For a directed graph the edges are those leaving this vertex</span>
 
@@ -3289,7 +3270,7 @@
 <span class="sd">            &gt;&gt;&gt; g.add_edge(v1, v2)</span>
 <span class="sd">            &gt;&gt;&gt; print(v1.incidences())</span>
 
-<span class="sd">        :seealso: :meth:`neighbours` :meth:`edges`</span>
+<span class="sd">        :seealso: :meth:`adjacent` :meth:`edges`</span>
 <span class="sd">        """</span>
         <span class="k">return</span> <span class="p">[(</span><span class="n">e</span><span class="o">.</span><span class="n">next</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="n">e</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edgelist</span><span class="p">]</span></div>
 
