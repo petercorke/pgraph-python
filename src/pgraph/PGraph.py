@@ -2379,9 +2379,13 @@ class Edge:
         :type v1: BaseVertex subclass
         :param v2: end of the edge
         :type v2: BaseVertex subclass
+        :raises ValueError: either vertex has not been added to a graph, or
+            the vertices belong to different graphs
 
         The edge connects vertices ``v1`` and ``v2``, and is added to the
-        graph that those vertices belong to.
+        graph that those vertices belong to. The edge's ``v1`` and ``v2`` are
+        overwritten, so this can be used to re-point an edge object that was
+        built with other vertices.
 
         .. runblock:: pycon
 
@@ -3132,11 +3136,18 @@ class UVertex(BaseVertex):
         :param data: reference to arbitrary data associated with the edge,
                      defaults to None
         :type data: Any, optional
+        :raises ValueError: either vertex has not been added to a graph, the
+            vertices belong to different graphs, or ``edge`` already connects
+            other vertices
         :return: the edge connecting the vertices
         :rtype: Edge
 
         Unlike the directed-graph counterpart, the new edge is added to
         *both* vertices' edge lists, so it is discovered from either end.
+
+        If ``edge`` was built without vertices its ``v1`` and ``v2`` are set
+        to ``self`` and ``dest``. If it was built with vertices they must be
+        these two, in either order since an undirected edge has no direction.
 
         .. runblock:: pycon
 
@@ -3201,12 +3212,19 @@ class DVertex(BaseVertex):
         :param data: reference to arbitrary data associated with the edge,
                      defaults to None
         :type data: Any, optional
+        :raises ValueError: either vertex has not been added to a graph, the
+            vertices belong to different graphs, or ``edge`` already connects
+            other vertices
         :return: the edge connecting the vertices
         :rtype: Edge
 
         Unlike the undirected-graph counterpart, the new edge is added only
         to *this* vertex's edge list -- it is only discoverable from the
         start of the directed edge.
+
+        If ``edge`` was built without vertices its ``v1`` and ``v2`` are set
+        to ``self`` and ``dest``. If it was built with vertices they must be
+        exactly these two, in this order, since the edge has a direction.
 
         .. runblock:: pycon
 
