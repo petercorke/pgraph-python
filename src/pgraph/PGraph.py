@@ -10,7 +10,7 @@ from collections.abc import Iterable, Iterator
 import tempfile
 import subprocess
 import webbrowser
-from typing import Any, Callable, ClassVar
+from typing import Any, Callable, ClassVar, overload
 from numpy.typing import ArrayLike, NDArray
 
 from spatialmath.base.graphics import axes_logic
@@ -416,19 +416,43 @@ class _BaseGraph(ABC):
             )
         return edge.cost
 
-    def add_edge(self, v1: BaseVertex | str, v2: BaseVertex | str, **kwargs: Any) -> Edge:
+    @overload
+    def add_edge(self, v1: Edge, **kwargs: Any) -> Edge: ...
+
+    @overload
+    def add_edge(
+        self, v1: BaseVertex | str, v2: BaseVertex | str, **kwargs: Any
+    ) -> Edge: ...
+
+    def add_edge(
+        self,
+        v1: Edge | BaseVertex | str,
+        v2: BaseVertex | str | None = None,
+        **kwargs: Any,
+    ) -> Edge:
         """
         Add an edge to the graph (base class method)
 
-        :param v1: first vertex (start if a directed graph)
-        :type v1: BaseVertex subclass or str
-        :param v2: second vertex (end if a directed graph)
-        :type v2: BaseVertex subclass or str
-        :param kwargs: optional arguments to pass to ``BaseVertex.connect``
+        :param v1: first vertex (start if a directed graph), or an existing
+            edge that already carries its two vertices
+        :type v1: BaseVertex subclass, str or Edge
+        :param v2: second vertex (end if a directed graph), must be omitted
+            if ``v1`` is an edge
+        :type v2: BaseVertex subclass or str, optional
+        :param kwargs: optional arguments to pass to ``BaseVertex.connect``,
+            not allowed if ``v1`` is an edge
+        :raises TypeError: ``v1`` or ``v2`` is of the wrong type, or ``v2``,
+            ``cost`` or ``data`` is given along with an edge
+        :raises ValueError: the edge has no vertices, or the vertices do not
+            belong to this graph
         :return: edge
         :rtype: Edge
 
-        Create an edge between a vertex pair and adds it to the graph.
+        - ``g.add_edge(v1, v2)`` creates an edge between a vertex pair and
+          adds it to the graph.
+        - ``g.add_edge(e)`` takes an edge, or an instance of an ``Edge``
+          subclass, that was constructed with its two vertices and adds it to
+          the graph, just as ``g.add_vertex(v)`` takes an existing vertex.
 
         This is a graph centric way of creating an edge.  The
         alternative is the ``connect`` method of a vertex.
@@ -445,14 +469,53 @@ class _BaseGraph(ABC):
             >>> e2 = g.add_edge('v2', 'v3', cost=99)
             >>> print(e2)
 
-        :seealso: :meth:`Edge.connect` :meth:`BaseVertex.connect`
+        Adding an instance of a user-defined ``Edge`` subclass:
+
+        .. runblock:: pycon
+
+            >>> from pgraph import UGraph, Edge
+            >>> class MyEdge(Edge):
+            ...     pass
+            >>> g = UGraph()
+            >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+            >>> v2 = g.add_vertex(coord=[1,1], name='v2')
+            >>> e = g.add_edge(MyEdge(v1, v2, data="a road"))
+            >>> print(type(e).__name__, e.data)
+
+        .. note:: To supply an edge that does not yet have vertices use
+            ``g.add_edge(v1, v2, edge=e)`` or ``e.connect(v1, v2)``.
+
+        :seealso: :meth:`add_vertex` :meth:`Edge.connect` :meth:`BaseVertex.connect`
         """
-        v1 = self._resolve_vertex(v1, "v1")
-        v2 = self._resolve_vertex(v2, "v2")
+        if isinstance(v1, Edge):
+            if v2 is not None:
+                raise TypeError("v2 must not be given when adding an Edge")
+            if kwargs:
+                raise TypeError(
+                    "add_edge(edge) takes no other arguments, got "
+                    + ", ".join(kwargs)
+                    + " -- set them on the edge itself"
+                )
+            edge = v1
+            if edge.v1 is None or edge.v2 is None:
+                raise ValueError(
+                    "edge does not have both vertices; use "
+                    "add_edge(v1, v2, edge=e) or e.connect(v1, v2)"
+                )
+            start, end = edge.v1, edge.v2
+            kwargs = {"edge": edge}
+        else:
+            if v2 is None:
+                raise TypeError("add_edge() requires two vertices, or an Edge")
+            start = self._resolve_vertex(v1, "v1")
+            end = self._resolve_vertex(v2, "v2")
+
+        if start._graph is not self or end._graph is not self:
+            raise ValueError("vertices must belong to this graph")
 
         if self._verbose:
-            print(f"New edge from {v1.name} to {v2.name}")
-        return v1.connect(v2, **kwargs)
+            print(f"New edge from {start.name} to {end.name}")
+        return start.connect(end, **kwargs)
 
     def remove_edge(self, edge: Edge) -> None:
         """
