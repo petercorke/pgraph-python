@@ -138,12 +138,6 @@ for f in f1.neighbours():
     # say hi to the neighbours
 ```
 
-## Under the hood
-
-The key objects and their interactions are shown below.
-
-![data structures](https://github.com/petercorke/pgraph-python/raw/main/docs/source/datastructures.png)
-
 ## MATLAB version
 
 This is a re-engineered version of [PGraph.m](https://github.com/petercorke/spatialmath-matlab/blob/main/PGraph.m) which ships as part of the [Spatial Math Toolbox for MATLAB](https://github.com/petercorke/spatialmath-matlab).  This class is used to support bundle adjustment, pose-graph SLAM and various planners such as PRM, RRT and Lattice.

@@ -1,6 +1,19 @@
 Edges & Vertices
 =================
 
+Underlying data structures
+----------------------------
+
+.. image:: ../figs/datastructures.svg
+
+The graph class maintains a list of vertices and a list of edges. Each vertex maintains
+a list of edges that connect to it, and each edge maintains a reference to the two
+vertices it connects. The graph class provides methods for adding and removing vertices
+and edges, as well as for querying the graph's structure.
+
+Working with vertices and edges directly
+-----------------------------------------
+
 In the earlier examples we did not explicitly create vertices or edges, but we
 can do so if we want to. The graph classes provide methods to create vertices and edges,
 and to add them to the graph.
@@ -55,7 +68,7 @@ and then add it to the graph
 The ``Edge`` constuctor line above is equivalent to 
 
 .. code-block:: python
-   
+
    >>> e = Edge()
    >>> e.connect(v1, v2)
 

@@ -1,0 +1,551 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with EazyDraw for Mac ( https://www.eazydraw.com/ ) -->
+
+<svg
+    version="1.1"
+    xmlns:dc="http://purl.org/dc/elements/1.1/"
+    xmlns:cc="http://creativecommons.org/ns#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:svg="http://www.w3.org/2000/svg"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    xmlns="http://www.w3.org/2000/svg"
+    width="670.03646415"
+    height="738.504140001"
+    viewBox="0, 0, 670.03646415, 738.504140001"
+    preserveAspectRatio="none"
+    id="svg2">
+   <defs
+       id="defs_3CF93602">
+      <marker
+          orient="auto"
+          refX="0.0"
+          refY="0.0"
+          id="C2545D73_end_arrow"
+          style="overflow:visible"
+          markerUnits="userSpaceOnUse">
+         <path
+             id="C2545D73_end_arrow_path"
+             style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1;fill-rule:nonzero;stroke-linecap:square;stroke-linejoin:miter;stroke-width:0.633422851562;stroke-miterlimit:10"
+             d="M0,0 L-10.0914256899,3.72692380527 L-10.0914256899,-3.72692380527 z"/>
+      </marker>
+      <marker
+          orient="auto"
+          refX="0.0"
+          refY="0.0"
+          id="2BF2D183_end_arrow"
+          style="overflow:visible"
+          markerUnits="userSpaceOnUse">
+         <path
+             id="2BF2D183_end_arrow_path"
+             style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1;fill-rule:nonzero;stroke-linecap:square;stroke-linejoin:miter;stroke-width:0.625;stroke-miterlimit:10"
+             d="M0,0 L-9.986249681268,3.634697635932 L-9.986249681268,-3.634697635932 z"/>
+      </marker>
+      <marker
+          orient="auto"
+          refX="0.0"
+          refY="0.0"
+          id="8943FD83_end_arrow"
+          style="overflow:visible"
+          markerUnits="userSpaceOnUse">
+         <path
+             id="8943FD83_end_arrow_path"
+             style="fill:#FF2600;fill-opacity:0.79602;stroke:#FF2600;stroke-opacity:0.79602;fill-rule:nonzero;stroke-linecap:square;stroke-linejoin:miter;stroke-width:1.586303710938;stroke-miterlimit:10"
+             d="M0,0 L-35.280714203,12.8411298135 L-35.280714203,-12.8411298135 z"/>
+      </marker>
+      <marker
+          orient="auto"
+          refX="0.0"
+          refY="0.0"
+          id="AA5AC793_end_arrow"
+          style="overflow:visible"
+          markerUnits="userSpaceOnUse">
+         <path
+             id="AA5AC793_end_arrow_path"
+             style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1;fill-rule:nonzero;stroke-linecap:square;stroke-linejoin:miter;stroke-width:0.625;stroke-miterlimit:10"
+             d="M0,0 L-7.517540966287,2.736161146605 L-7.517540966287,-2.736161146605 z"/>
+      </marker>
+      <marker
+          orient="auto"
+          refX="0.0"
+          refY="0.0"
+          id="2710EBC1_end_arrow"
+          style="overflow:visible"
+          markerUnits="userSpaceOnUse">
+         <path
+             id="2710EBC1_end_arrow_path"
+             style="fill:#73FA79;fill-opacity:1;stroke:#73FA79;stroke-opacity:1;fill-rule:nonzero;stroke-linecap:square;stroke-linejoin:miter;stroke-width:0.657214164734;stroke-miterlimit:10"
+             d="M0,0 L-7.517540966287,2.736161146605 L-7.517540966287,-2.736161146605 z"/>
+      </marker>
+      <marker
+          orient="auto"
+          refX="0.0"
+          refY="0.0"
+          id="F9215BD1_end_arrow"
+          style="overflow:visible"
+          markerUnits="userSpaceOnUse">
+         <path
+             id="F9215BD1_end_arrow_path"
+             style="fill:#00FDFF;fill-opacity:1;stroke:#00FDFF;stroke-opacity:1;fill-rule:nonzero;stroke-linecap:square;stroke-linejoin:miter;stroke-width:0.657214164734;stroke-miterlimit:10"
+             d="M0,0 L-7.517540966287,2.736161146605 L-7.517540966287,-2.736161146605 z"/>
+      </marker>
+   </defs>
+   <metadata
+       id="metadata7">
+      <rdf:RDF>
+         <cc:Work
+             rdf:about="">
+            <dc:format>image/svg+xml</dc:format>
+            <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+            <dc:title></dc:title>
+         </cc:Work>
+      </rdf:RDF>
+   </metadata>
+   <g
+       id="layer_Paper"
+       style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-opacity:1;fill-rule:nonzero;stroke-linecap:square;stroke-linejoin:miter;stroke-width:1;stroke-miterlimit:10">
+      <circle
+          style="fill:none"
+          id="C0B95773"
+          cx="292.739490054"
+          cy="299.750533512"
+          r="54.1453712955"/>
+      <circle
+          style="fill:none"
+          id="6F7E8773"
+          cx="502.029651768"
+          cy="150.791627791"
+          r="54.1453712955"/>
+      <rect
+          style="fill:none"
+          id="17CBE773"
+          x="273.205049155"
+          y="98.0138041178"
+          width="78.4881890125"
+          height="78.4881890125"/>
+      <line
+          style="fill:none;stroke:#FF2600;stroke-opacity:0.79602;stroke-width:6.34521484375"
+          id="73CA6873"
+          x1="331.769313387"
+          y1="279.55147342"
+          x2="473.811935496"
+          y2="174.690816247"/>
+      <rect
+          style="fill:none"
+          id="614BBC73"
+          x="250.350638628"
+          y="291.927384811"
+          width="87.782600853"
+          height="16.648764451"/>
+      <path
+          style="fill:none;stroke-width:2.53369140625;marker-end:url(#C2545D73_end_arrow)"
+          id="C2545D73"
+          d="M272.778009924,300.462675689 C272.778009924,300.462675689 272.778009924,300.462675689 272.778009924,300.462675689 C274.571029022,264.161788134 231.439982183,238.675168781 225.553720382,209.121002724 C220.579388799,184.145521415 222.777097417,149.720273381 269.81217039,148.853204478"/>
+      <text
+          id="35D9CF73"
+          style="stroke:none"
+          font-family="Courier"
+          font-size="12"
+          font-weight="normal"
+          font-style="normal">
+<tspan x="273.606565733" y="319.266295811">_edges</tspan>      </text>
+      <path
+          style="fill:none;stroke-width:2.5;marker-end:url(#2BF2D183_end_arrow)"
+          id="2BF2D183"
+          d="M333.388937785,121.984483745 C333.388937785,121.984483745 333.388937786,121.984483745 333.388937786,121.984483745 C354.672810264,121.941966552 385.106834041,133.006375802 390.919454612,152.915148886 C399.738193533,183.12016054 342.224830808,229.687634067 320.872001315,253.742503568"/>
+      <path
+          style="fill:none;stroke-width:2.5;marker-end:url(#2BF2D183_end_arrow)"
+          id="AC19D283"
+          d="M333.021788203,142.005182816 C333.021788203,142.005182816 333.021788203,142.005182816 333.021788203,142.005182816 C376.79712755,142.480743005 381.909746349,118.74821728 407.089659622,113.647082467 C422.763659282,110.4717266 438.54214051,111.480712116 455.449248582,121.351757789"/>
+      <g id="38F37683_textGroup">
+         <path
+             style="fill:none"
+             id="38F37683_textRect"
+             d="M302.612746699,112.824164726 L333.643396152,112.824164726 L333.643396152,133.847330847 L302.612746699,133.847330847 z"/>
+         <text
+             id="38F37683"
+             style="stroke:none"
+             font-family="Courier"
+             font-size="12"
+             font-weight="normal"
+             font-style="normal">
+<tspan x="308.112746699" y="124.324164726">v1</tspan>         </text>
+      </g>
+      <g id="19EDA683_textGroup">
+         <path
+             style="fill:none"
+             id="19EDA683_textRect"
+             d="M302.606815291,133.663968608 L333.517848249,133.663968608 L333.517848249,155.855713191 L302.606815291,155.855713191 z"/>
+         <text
+             id="19EDA683"
+             style="stroke:none"
+             font-family="Courier"
+             font-size="12"
+             font-weight="normal"
+             font-style="normal">
+<tspan x="308.106815291" y="145.163968608">v2</tspan>         </text>
+      </g>
+      <text
+          id="09BB7C83"
+          style="fill:#0000FF;stroke:none"
+          font-family="Courier"
+          font-size="12"
+          font-weight="normal"
+          font-style="normal">
+<tspan x="535.9894789" y="203.266446768">BaseVertex</tspan><tspan font-family="Avenir">&#x20;subclass</tspan>      </text>
+      <text
+          id="18ED7C83"
+          style="fill:#0000FF;stroke:none"
+          font-family="Courier"
+          font-size="12"
+          font-weight="normal"
+          font-style="normal">
+<tspan x="279.361612814" y="190.132712899">Edge</tspan><tspan font-family="Avenir">&#x20;subclass</tspan>      </text>
+      <circle
+          style="fill:none"
+          id="5943FD83"
+          cx="311.697997545"
+          cy="659.183744629"
+          r="54.1453712955"/>
+      <circle
+          style="fill:none"
+          id="6943FD83"
+          cx="520.98815926"
+          cy="510.224838908"
+          r="54.1453712955"/>
+      <rect
+          style="fill:none"
+          id="7943FD83"
+          x="292.163556647"
+          y="457.447015235"
+          width="78.4881890125"
+          height="78.4881890125"/>
+      <line
+          style="fill:none;stroke:#FF2600;stroke-opacity:0.79602;stroke-width:6.34521484375;marker-end:url(#8943FD83_end_arrow)"
+          id="8943FD83"
+          x1="350.727820879"
+          y1="638.984684537"
+          x2="492.770442987"
+          y2="534.124027364"/>
+      <rect
+          style="fill:none"
+          id="9943FD83"
+          x="269.30914612"
+          y="651.360595929"
+          width="87.782600853"
+          height="16.648764451"/>
+      <path
+          style="fill:none;stroke-width:2.53369140625;marker-end:url(#C2545D73_end_arrow)"
+          id="A943FD83"
+          d="M291.736517416,659.895886806 C291.736517416,659.895886806 291.736517416,659.895886806 291.736517416,659.895886806 C293.529536514,623.594999251 250.398489675,598.108379898 244.512227873,568.554213841 C239.537896292,543.578732532 251.414292835,510.42154022 288.770677882,508.286415595"/>
+      <text
+          id="B943FD83"
+          style="stroke:none"
+          font-family="Courier"
+          font-size="12"
+          font-weight="normal"
+          font-style="normal">
+<tspan x="292.565073225" y="678.699506928">_edges</tspan>      </text>
+      <path
+          style="fill:none;stroke-width:2.5;marker-end:url(#2BF2D183_end_arrow)"
+          id="C943FD83"
+          d="M352.347445277,481.417694862 C352.347445277,481.417694862 352.347445277,481.417694862 352.347445277,481.417694862 C373.631317756,481.375177669 404.065341533,492.439586919 409.877962104,512.348360003 C418.696701025,542.553371657 361.183338299,589.120845184 339.830508807,613.175714685"/>
+      <path
+          style="fill:none;stroke-width:2.5;marker-end:url(#2BF2D183_end_arrow)"
+          id="D943FD83"
+          d="M351.980295695,501.438393933 C351.980295695,501.438393933 351.980295695,501.438393933 351.980295695,501.438393933 C395.755635042,501.913954122 400.86825384,478.181428397 426.048167113,473.080293584 C441.722166774,469.904937717 457.500648002,470.913923233 474.407756074,480.784968906"/>
+      <g id="E943FD83_textGroup">
+         <path
+             style="fill:none"
+             id="E943FD83_textRect"
+             d="M321.57125419,472.257375842 L352.601903643,472.257375842 L352.601903643,493.280541963 L321.57125419,493.280541963 z"/>
+         <text
+             id="E943FD83"
+             style="stroke:none"
+             font-family="Courier"
+             font-size="12"
+             font-weight="normal"
+             font-style="normal">
+<tspan x="327.07125419" y="483.757375842">v1</tspan>         </text>
+      </g>
+      <g id="F943FD83_textGroup">
+         <path
+             style="fill:none"
+             id="F943FD83_textRect"
+             d="M321.565322782,493.097179725 L352.564925974,493.097179725 L352.564925974,514.120345846 L321.565322782,514.120345846 z"/>
+         <text
+             id="F943FD83"
+             style="stroke:none"
+             font-family="Courier"
+             font-size="12"
+             font-weight="normal"
+             font-style="normal">
+<tspan x="327.065322782" y="504.597179725">v2</tspan>         </text>
+      </g>
+      <text
+          id="2A43FD83"
+          style="fill:#0000FF;stroke:none"
+          font-family="Courier"
+          font-size="12"
+          font-weight="normal"
+          font-style="normal">
+<tspan x="298.320120306" y="549.565924016">Edge</tspan><tspan font-family="Avenir">&#x20;subclass</tspan>      </text>
+      <rect
+          style="fill:none"
+          id="43C31293"
+          x="460.202304706"
+          y="141.831908646"
+          width="87.782600853"
+          height="16.648764451"/>
+      <text
+          id="53C31293"
+          style="stroke:none"
+          font-family="Courier"
+          font-size="12"
+          font-weight="normal"
+          font-style="normal">
+<tspan x="483.458231811" y="169.170819645">_edges</tspan>      </text>
+      <rect
+          style="fill:none"
+          id="895D5293"
+          x="479.302167803"
+          y="500.246841905"
+          width="87.782600853"
+          height="16.648764451"/>
+      <text
+          id="995D5293"
+          style="stroke:none"
+          font-family="Courier"
+          font-size="12"
+          font-weight="normal"
+          font-style="normal">
+<tspan x="502.558094908" y="527.585752904">_edges</tspan>      </text>
+      <path
+          style="fill:none;stroke-width:2.5;marker-end:url(#AA5AC793_end_arrow)"
+          id="AA5AC793"
+          d="M508.862643856,149.915438398 C508.862643856,149.915438398 508.862643856,149.915438398 508.862643856,149.915438398 C505.353305389,44.5413923765 431.314967489,25.4848637085 368.720867103,26.7942580635 C191.139672802,35.9994889233 211.402044877,122.151006847 272.35061148,121.367259881"/>
+      <text
+          id="14DEC993"
+          style="fill:#FF5500;stroke:none"
+          font-family="Avenir"
+          font-size="22"
+          font-weight="bold"
+          font-style="normal">
+<tspan x="400.015026554" y="253.964090782">Undirected graph</tspan>      </text>
+      <text
+          id="55CF0C93"
+          style="fill:#FF5500;stroke:none"
+          font-family="Avenir"
+          font-size="22"
+          font-weight="bold"
+          font-style="normal">
+<tspan x="416.359242221" y="617.461548554">Directed graph</tspan>      </text>
+      <g id="0DE69F93_textGroup">
+         <path
+             style="fill:none;stroke:#919191"
+             id="0DE69F93_textRect"
+             d="M379.034094332,413.802912654 L466.78679307,413.802912654 L466.78679307,449.355341464 L379.034094332,449.355341464 z"/>
+         <text
+             id="0DE69F93"
+             style="fill:#919191;stroke:none"
+             font-family="Bradley Hand"
+             font-size="12"
+             font-weight="bold"
+             font-style="normal">
+<tspan x="384.534094332" y="424.302912654">v1 is always </tspan><tspan x="384.534094332" y="439.302912654">the start vertex</tspan>         </text>
+      </g>
+      <line
+          style="fill:none;stroke:#919191"
+          id="810832A3"
+          x1="377.950359286"
+          y1="433.834539259"
+          x2="342.997845208"
+          y2="472.30023471"/>
+      <g id="172903A3_textGroup">
+         <path
+             style="fill:none;stroke:#919191"
+             id="172903A3_textRect"
+             d="M358.290129334,57.227421268 L444.187508218,57.227421268 L444.187508218,92.7798500783 L358.290129334,92.7798500783 z"/>
+         <text
+             id="172903A3"
+             style="fill:#919191;stroke:none"
+             font-family="Bradley Hand"
+             font-size="12"
+             font-weight="bold"
+             font-style="normal">
+<tspan x="363.790129334" y="67.727421268">order doesn&apos;t&#x20;</tspan><tspan x="363.790129334" y="82.727421268">matter</tspan>         </text>
+      </g>
+      <line
+          style="fill:none;stroke:#919191"
+          id="5E2CF3A3"
+          x1="324.274212844"
+          y1="113.269274709"
+          x2="357.435899769"
+          y2="75.7398357008"/>
+      <g id="8BCA09A3_textGroup">
+         <path
+             style="fill:none;stroke:#919191"
+             id="8BCA09A3_textRect"
+             d="M377.879263675,286.11407582 L463.776642559,286.11407582 L463.776642559,305.031568006 L377.879263675,305.031568006 z"/>
+         <text
+             id="8BCA09A3"
+             style="fill:#919191;stroke:none"
+             font-family="Bradley Hand"
+             font-size="12"
+             font-weight="bold"
+             font-style="normal">
+<tspan x="383.379263675" y="296.61407582">list of Edges</tspan>         </text>
+      </g>
+      <line
+          style="fill:none;stroke:#919191"
+          id="7462B9A3"
+          x1="337.562914347"
+          y1="301.695140138"
+          x2="377.003089877"
+          y2="296.62357879"/>
+      <text
+          id="4D9685B1"
+          style="fill:#0000FF;stroke:none"
+          font-family="Courier"
+          font-size="12"
+          font-weight="normal"
+          font-style="normal">
+<tspan x="342.875991663" y="718.35594234">BaseVertex</tspan><tspan font-family="Avenir">&#x20;subclass</tspan>      </text>
+      <text
+          id="766E85B1"
+          style="fill:#0000FF;stroke:none"
+          font-family="Courier"
+          font-size="12"
+          font-weight="normal"
+          font-style="normal">
+<tspan x="539.626280919" y="571.105758146">BaseVertex</tspan><tspan font-family="Avenir">&#x20;subclass</tspan>      </text>
+      <text
+          id="E2F295B1"
+          style="fill:#0000FF;stroke:none"
+          font-family="Courier"
+          font-size="12"
+          font-weight="normal"
+          font-style="normal">
+<tspan x="329.813300551" y="352.295109997">BaseVertex</tspan><tspan font-family="Avenir">&#x20;subclass</tspan>      </text>
+      <g
+          id="A1C73EB1">
+         <text
+             id="D962B6B1"
+             style="fill:#0000FF;stroke:none"
+             font-family="Courier"
+             font-size="12"
+             font-weight="normal"
+             font-style="normal">
+<tspan x="17.3989957949" y="205.547434486">_BaseGraph</tspan><tspan font-family="Avenir">&#x20;class</tspan>         </text>
+         <rect
+             style="fill:none"
+             id="818AC7B1"
+             x="83.8534166968"
+             y="102.414415281"
+             width="87.782600853"
+             height="16.648764451"/>
+         <text
+             id="E917E8B1"
+             style="stroke:none"
+             font-family="Courier"
+             font-size="11"
+             font-weight="normal"
+             font-style="normal">
+<tspan x="6.5709319599" y="145.022499127">_edgelist</tspan>         </text>
+         <rect
+             style="fill:none"
+             id="9CCE8AB1"
+             x="0.5"
+             y="86.8965896268"
+             width="179.748202765"
+             height="102.160261623"/>
+         <text
+             id="C73E6BB1"
+             style="stroke:none"
+             font-family="Courier"
+             font-size="11"
+             font-weight="normal"
+             font-style="normal">
+<tspan x="6.5149996163" y="112.466082016">_vertexlist</tspan>         </text>
+         <rect
+             style="fill:none"
+             id="C8CA8BB1"
+             x="83.6438304808"
+             y="131.740352558"
+             width="87.782600853"
+             height="16.648764451"/>
+      </g>
+      <path
+          style="fill:none;stroke:#73FA79;stroke-width:2.628856658936;stroke-dasharray:4,5;marker-end:url(#2710EBC1_end_arrow)"
+          id="2710EBC1"
+          d="M119.223225745,110.383501026 C119.223225745,110.383501026 119.223225745,110.383501026 119.223225745,110.383501026 C118.752479959,150.019228042 148.456114857,198.810843192 165.894979882,223.460592209 C179.569992744,242.790154906 189.25616852,252.285324773 240.685392747,276.086684589"/>
+      <path
+          style="fill:none;stroke:#73FA79;stroke-width:2.628856658936;stroke-dasharray:4,5;marker-end:url(#2710EBC1_end_arrow)"
+          id="2D4A7EC1"
+          d="M142.512926271,109.899690395 C142.512926271,109.899690395 144.083610305,104.140130104 144.083610305,104.140130104 C158.524607035,28.2505870491 263.972453028,-1.400504269722 326.234179176,1.467799191778
+C407.821816717,5.226418132278 451.511786611,59.7365158854 482.746501838,99.1145357948"/>
+      <path
+          style="fill:none;stroke:#00FDFF;stroke-width:2.628856658936;stroke-dasharray:4,5;marker-end:url(#F9215BD1_end_arrow)"
+          id="F9215BD1"
+          d="M155.214979759,140.655547275 C155.214979759,140.655547275 155.214979759,140.655547275 155.214979759,140.655547275 C158.122180225,169.006242527 195.158474882,167.692780099 202.967188906,163.306078834 C210.951635226,158.820656438 211.016647169,133.562276839 270.404166428,136.746751701"/>
+      <g
+          id="835D7ED1">
+         <text
+             id="235D7ED1"
+             style="fill:#0000FF;stroke:none"
+             font-family="Courier"
+             font-size="12"
+             font-weight="normal"
+             font-style="normal">
+<tspan x="36.961980167" y="567.489197782">_BaseGraph</tspan><tspan font-family="Avenir">&#x20;class</tspan>         </text>
+         <rect
+             style="fill:none"
+             id="335D7ED1"
+             x="103.416401069"
+             y="464.356178577"
+             width="87.782600853"
+             height="16.648764451"/>
+         <text
+             id="435D7ED1"
+             style="stroke:none"
+             font-family="Courier"
+             font-size="11"
+             font-weight="normal"
+             font-style="normal">
+<tspan x="26.133916332" y="506.964262423">_edgelist</tspan>         </text>
+         <rect
+             style="fill:none"
+             id="535D7ED1"
+             x="20.0629843721"
+             y="448.838352923"
+             width="179.748202765"
+             height="102.160261623"/>
+         <text
+             id="635D7ED1"
+             style="stroke:none"
+             font-family="Courier"
+             font-size="11"
+             font-weight="normal"
+             font-style="normal">
+<tspan x="26.0779839884" y="474.407845312">_vertexlist</tspan>         </text>
+         <rect
+             style="fill:none"
+             id="735D7ED1"
+             x="103.206814853"
+             y="493.682115854"
+             width="87.782600853"
+             height="16.648764451"/>
+      </g>
+      <path
+          style="fill:none;stroke:#73FA79;stroke-width:2.628856658936;stroke-dasharray:4,5;marker-end:url(#2710EBC1_end_arrow)"
+          id="935D7ED1"
+          d="M138.786210117,472.325264322 C138.786210117,472.325264322 138.786210117,472.325264322 138.786210117,472.325264322 C138.315464331,511.960991338 168.019099229,560.752606488 185.457964254,585.402355505 C199.132977116,604.731918202 208.819152892,614.227088069 260.248377119,638.028447885"/>
+      <path
+          style="fill:none;stroke:#73FA79;stroke-width:2.628856658936;stroke-dasharray:4,5;marker-end:url(#2710EBC1_end_arrow)"
+          id="A35D7ED1"
+          d="M162.075910643,471.841453691 C162.075910643,471.841453691 163.646594677,466.0818934 163.646594677,466.0818934 C178.087591407,390.192350345 283.5354374,360.541259026 345.797163548,363.409562488 C427.384801089,367.168181428 471.074770983,421.678279181 502.30948621,461.056299091"/>
+      <path
+          style="fill:none;stroke:#00FDFF;stroke-width:2.628856658936;stroke-dasharray:4,5;marker-end:url(#F9215BD1_end_arrow)"
+          id="B35D7ED1"
+          d="M174.777964131,502.597310571 C174.777964131,502.597310571 174.777964131,502.597310571 174.777964131,502.597310571 C177.685164597,530.948005823 214.721459254,529.634543395 222.530173278,525.24784213 C230.514619598,520.762419734 230.579631541,495.504040135 289.9671508,498.688514997"/>
+   </g>
+</svg>
