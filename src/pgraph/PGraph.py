@@ -3176,11 +3176,14 @@ class BaseVertex:
 
         .. note::
 
-            - If the vertices subclass ``UVertex`` the edge is undirected, and if
-              they subclass ``DVertex`` the edge is directed.
+            - If the vertices subclass ``UVertex`` the edge is undirected: it is
+              recorded in the edge list of *both* vertices, so it is found from
+              either end. If they subclass ``DVertex`` the edge is directed: it
+              is recorded only in the edge list of this, the source, vertex.
             - A supplied ``edge`` built without vertices has its ``v1`` and
               ``v2`` set to the vertices being connected. One built with
-              vertices must agree with them (in either order if undirected).
+              vertices must agree with them: in either order if undirected,
+              exactly ``self`` then ``dest`` if directed.
             - Both vertices must already have been added to the same graph,
               e.g. via :meth:`PGraph.add_vertex` -- since a graph only ever
               accepts its own vertex subclass (see :meth:`UGraph.add_vertex`,
@@ -3220,7 +3223,31 @@ class BaseVertex:
         self._graph._connectivitychange = True
         self._connectivitychange = True
 
+        # the one thing that differs between undirected and directed vertices
+        self._attach(e, dest)
+
         return e
+
+    def _attach(self, edge: Edge, dest: BaseVertex) -> None:
+        """
+        Record a new edge in the vertices' edge lists (private method)
+
+        :param edge: the edge just created or supplied by :meth:`connect`, with
+            ``edge.v1`` and ``edge.v2`` set and already part of the graph
+        :param dest: the vertex ``connect`` was called with
+        :raises NotImplementedError: not provided by this vertex kind
+
+        This is the hook that :meth:`connect` calls once the connection has
+        been validated and the edge registered with the graph, so it is never
+        called for a connection that is refused.  :class:`UVertex` records the
+        edge at both ends and :class:`DVertex` at the source only.  A vertex
+        kind of your own supplies this, not :meth:`connect`, which is defined
+        once.
+        """
+        raise NotImplementedError(
+            f"{type(self).__name__} does not define how an edge is attached; "
+            "subclass UVertex or DVertex"
+        )
 
     def _endpoints_match(self, edge: Edge, dest: BaseVertex) -> bool:
         """
@@ -3527,68 +3554,35 @@ class UVertex(BaseVertex):
 
     This class can be inherited to provide user objects with graph capability.
 
+    :meth:`~BaseVertex.connect` adds the new edge to *both* vertices' edge
+    lists, so it is discovered from either end, and accepts a supplied edge
+    whose endpoints are the two vertices in either order.
+
+    .. runblock:: pycon
+
+        >>> from pgraph import UGraph
+        >>> g = UGraph()
+        >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+        >>> v2 = g.add_vertex(coord=[1,1], name='v2')
+        >>> v1.connect(v2, cost=1.414)
+        >>> print(v1.edges())
+        >>> print(v2.edges())
 
     .. inheritance-diagram:: UVertex
 
     :seealso: :class:`BaseVertex` :class:`DVertex`
     """
 
-    def connect(
-        self,
-        dest: BaseVertex,
-        edge: Edge | None = None,
-        cost: float | None = None,
-        data: Any = None,
-    ) -> Edge:
+    def _attach(self, edge: Edge, dest: BaseVertex) -> None:
         """
-        Connect this vertex to another with an undirected edge
+        Record an undirected edge at both ends (private method)
 
-        :param dest: vertex to connect to
-        :type dest: BaseVertex subclass
-        :param edge: Use this as the edge object, otherwise a new object of the
-                     graph's :attr:`_BaseGraph.edge_class` is created,
-                     defaults to None
-        :type edge: ``Edge`` subclass, optional
-        :param cost: the cost to traverse this edge, defaults to None
-        :type cost: float, optional
-        :param data: reference to arbitrary data associated with the edge,
-                     defaults to None
-        :type data: Any, optional
-        :raises ValueError: either vertex has not been added to a graph, the
-            vertices belong to different graphs, or ``edge`` already connects
-            other vertices
-        :raises TypeError: ``edge`` is not an instance of the graph's
-            :attr:`_BaseGraph.edge_class`
-        :return: the edge connecting the vertices
-        :rtype: Edge
-
-        Unlike the directed-graph counterpart, the new edge is added to
-        *both* vertices' edge lists, so it is discovered from either end.
-
-        If ``edge`` was built without vertices its ``v1`` and ``v2`` are set
-        to ``self`` and ``dest``. If it was built with vertices they must be
-        these two, in either order since an undirected edge has no direction.
-
-        .. runblock:: pycon
-
-            >>> from pgraph import UVertex, Edge, UGraph
-            >>> g = UGraph()
-            >>> v1 = g.add_vertex(coord=[0,0], name='v1')
-            >>> v2 = g.add_vertex(coord=[1,1], name='v2')
-            >>> v1.connect(v2, cost=1.414)
-            >>> print(v1.edges())
-            >>> print(g.edges())
-            >>> print(g)
-
-        :seealso: :meth:`BaseVertex.connect` :meth:`DVertex.connect`
+        The edge is added to *both* vertices' edge lists, so it is discovered
+        from either end.  A self-loop is therefore held twice by its vertex,
+        which is why it counts 2 towards the degree.
         """
-
-        e = super().connect(dest, edge=edge, cost=cost, data=data)
-
-        self._edgelist.append(e)
-        dest._edgelist.append(e)
-
-        return e
+        self._edgelist.append(edge)
+        dest._edgelist.append(edge)
 
     def _endpoints_match(self, edge: Edge, dest: BaseVertex) -> bool:
         """
@@ -3607,65 +3601,33 @@ class DVertex(BaseVertex):
 
     This class can be inherited to provide user objects with graph capability.
 
+    :meth:`~BaseVertex.connect` adds the new edge only to *this* vertex's edge
+    list, so it is discoverable only from the start of the directed edge, and a
+    supplied edge must run exactly from this vertex to the other.
+
+    .. runblock:: pycon
+
+        >>> from pgraph import DGraph
+        >>> g = DGraph()
+        >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+        >>> v2 = g.add_vertex(coord=[1,1], name='v2')
+        >>> v1.connect(v2, cost=1.414)
+        >>> print(v1.edges())
+        >>> print(v2.edges())
+
     .. inheritance-diagram:: DVertex
 
     :seealso: :class:`BaseVertex` :class:`UVertex`
     """
 
-    def connect(
-        self,
-        dest: BaseVertex,
-        edge: Edge | None = None,
-        cost: float | None = None,
-        data: Any = None,
-    ) -> Edge:
+    def _attach(self, edge: Edge, dest: BaseVertex) -> None:
         """
-        Connect this vertex to another with a directed edge
+        Record a directed edge at its source only (private method)
 
-        :param dest: vertex to connect to
-        :type dest: BaseVertex subclass
-        :param edge: Use this as the edge object, otherwise a new object of the
-                     graph's :attr:`_BaseGraph.edge_class` is created,
-                     defaults to None
-        :type edge: ``Edge`` subclass, optional
-        :param cost: the cost to traverse this edge, defaults to None
-        :type cost: float, optional
-        :param data: reference to arbitrary data associated with the edge,
-                     defaults to None
-        :type data: Any, optional
-        :raises ValueError: either vertex has not been added to a graph, the
-            vertices belong to different graphs, or ``edge`` already connects
-            other vertices
-        :raises TypeError: ``edge`` is not an instance of the graph's
-            :attr:`_BaseGraph.edge_class`
-        :return: the edge connecting the vertices
-        :rtype: Edge
-
-        Unlike the undirected-graph counterpart, the new edge is added only
-        to *this* vertex's edge list -- it is only discoverable from the
-        start of the directed edge.
-
-        If ``edge`` was built without vertices its ``v1`` and ``v2`` are set
-        to ``self`` and ``dest``. If it was built with vertices they must be
-        exactly these two, in this order, since the edge has a direction.
-
-        .. runblock:: pycon
-
-            >>> from pgraph import DVertex, Edge, DGraph
-            >>> g = DGraph()
-            >>> v1 = g.add_vertex(coord=[0,0], name='v1')
-            >>> v2 = g.add_vertex(coord=[1,1], name='v2')
-            >>> v1.connect(v2, cost=1.414)
-            >>> print(v1.edges())
-            >>> print(g.edges())
-            >>> print(g)
-
-        :seealso: :meth:`BaseVertex.connect` :meth:`UVertex.connect`
+        The edge is added only to *this* vertex's edge list, so it is
+        discoverable only from the start of the directed edge.
         """
-        e = super().connect(dest, edge=edge, cost=cost, data=data)
-
-        self._edgelist.append(e)
-        return e
+        self._edgelist.append(edge)
 
 
 # UGraph/DGraph declare their _vertex_cls here, rather than in their own
