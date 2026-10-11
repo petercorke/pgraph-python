@@ -18,12 +18,12 @@ from spatialmath.base.graphics import axes_logic
 
 def _L1(v: NDArray) -> float:
     """L1 (Manhattan) norm, the built-in ``"L1"`` metric"""
-    return np.linalg.norm(v, 1)
+    return float(np.linalg.norm(v, 1))
 
 
 def _L2(v: NDArray) -> float:
     """L2 (Euclidean) norm, the built-in ``"L2"`` metric"""
-    return np.linalg.norm(v)
+    return float(np.linalg.norm(v))
 
 
 def _SE2(v: NDArray) -> float:
@@ -34,7 +34,7 @@ def _SE2(v: NDArray) -> float:
         )
     # wrap angle to range [-pi, pi)
     v[2] = (v[2] + np.pi) % (2 * np.pi) - np.pi
-    return np.linalg.norm(v)
+    return float(np.linalg.norm(v))
 
 
 #: the built-in metrics by name.  They are module level, and pickled by name,

@@ -7,12 +7,20 @@ could not be pickled at all because the metric was a local function.
 """
 
 import copy
-import pickle
+import pickle  # nosec B403 nosemgrep - the tests pickle their own graphs
 import unittest
 
 import numpy as np
 
 from pgraph import DGraph, DVertex, Edge, UGraph, UVertex
+
+
+def dumps(obj, protocol=None):
+    return pickle.dumps(obj, protocol)  # nosec nosemgrep
+
+
+def loads(data):
+    return pickle.loads(data)  # nosec B301 nosemgrep
 
 
 def manhattan(v):
@@ -92,13 +100,13 @@ class _RoundTrip:
 
     def test_pickle(self):
         g = self.make()
-        self.check(g, pickle.loads(pickle.dumps(g)))
+        self.check(g, loads(dumps(g)))
 
     def test_pickle_every_protocol(self):
         g = self.make()
         for protocol in range(2, pickle.HIGHEST_PROTOCOL + 1):
             with self.subTest(protocol=protocol):
-                self.check(g, pickle.loads(pickle.dumps(g, protocol)))
+                self.check(g, loads(dumps(g, protocol)))
 
     def test_copy(self):
         g = self.make()
@@ -119,7 +127,7 @@ class _RoundTrip:
         self.assertEqual(h.validate(), [])
 
     def test_restored_graph_is_usable(self):
-        h = pickle.loads(pickle.dumps(self.make()))
+        h = loads(dumps(self.make()))
         e = h.add_edge(h["d"], h["c"])
         self.assertEqual(h.ne, self.make().ne + 1)
         h.remove_edge(e)
@@ -131,7 +139,7 @@ class _RoundTrip:
 
     def test_settings_survive(self):
         g = self.cls(metric="L1", heuristic="SE2", dim=3, verbose=False)
-        h = pickle.loads(pickle.dumps(g))
+        h = loads(dumps(g))
         self.assertEqual(h.metric([3, -4, 0]), 7)
         with self.assertRaises(ValueError):
             h.add_vertex([1, 2])  # dim is still 3
@@ -141,54 +149,54 @@ class _RoundTrip:
         for name, value in (("L1", 7.0), ("L2", 5.0)):
             with self.subTest(metric=name):
                 g = self.cls(metric=name, heuristic=name)
-                h = pickle.loads(pickle.dumps(g))
+                h = loads(dumps(g))
                 self.assertEqual(h.metric(np.r_[3.0, -4.0]), value)
                 self.assertIs(h.metric, g.metric)
                 self.assertIs(h.heuristic, g.heuristic)
 
     def test_default_metric_pickles(self):
         g = self.cls()
-        h = pickle.loads(pickle.dumps(g))
+        h = loads(dumps(g))
         self.assertAlmostEqual(h.metric(np.r_[3.0, 4.0]), 5.0)
 
     def test_se2_metric_pickles(self):
         g = self.cls(metric="SE2")
-        h = pickle.loads(pickle.dumps(g))
+        h = loads(dumps(g))
         self.assertIs(h.metric, g.metric)
 
     def test_user_module_level_metric(self):
         g = self.cls(metric=manhattan)
-        h = pickle.loads(pickle.dumps(g))
+        h = loads(dumps(g))
         self.assertIs(h.metric, manhattan)
 
     def test_lambda_metric_cannot_be_pickled_but_can_be_copied(self):
         g = self.cls(metric=lambda v: 1.0)
         with self.assertRaises((pickle.PicklingError, AttributeError)):
-            pickle.dumps(g)
+            dumps(g)
         self.assertEqual(g.copy().metric(np.r_[1.0]), 1.0)
 
     def test_empty_graph(self):
         g = self.cls()
-        h = pickle.loads(pickle.dumps(g))
+        h = loads(dumps(g))
         self.assertEqual((h.n, h.ne), (0, 0))
 
     def test_long_chain_pickles_and_copies(self):
         g = chain(5000, self.cls)
-        for h in (pickle.loads(pickle.dumps(g)), g.copy(), copy.deepcopy(g)):
+        for h in (loads(dumps(g)), g.copy(), copy.deepcopy(g)):
             self.assertEqual((h.n, h.ne), (5000, 4999))
             self.assertEqual(h[2500].adjacent()[0].name, g[2500].adjacent()[0].name)
         self.assertEqual(h.validate(), [])
 
     def test_vertex_alone_is_refused(self):
         g = self.make()
-        for f in (pickle.dumps, copy.deepcopy, copy.copy):
+        for f in (dumps, copy.deepcopy, copy.copy):
             with self.subTest(f=f.__name__):
                 with self.assertRaises(TypeError):
                     f(g["a"])
 
     def test_edge_alone_is_refused(self):
         g = self.make()
-        for f in (pickle.dumps, copy.deepcopy, copy.copy):
+        for f in (dumps, copy.deepcopy, copy.copy):
             with self.subTest(f=f.__name__):
                 with self.assertRaises(TypeError):
                     f(g.edges()[0])
@@ -204,14 +212,14 @@ class _RoundTrip:
         g = self.make()
         g["a"].data = g["b"]
         with self.assertRaises(TypeError):
-            pickle.dumps(g)
+            dumps(g)
 
 
 class TestUGraphPickle(_RoundTrip, unittest.TestCase):
     cls = UGraph
 
     def test_loop_listed_twice_at_vertex(self):
-        h = pickle.loads(pickle.dumps(self.make()))
+        h = loads(dumps(self.make()))
         loop = [e for e in h.edges() if e.v1 is e.v2][0]
         self.assertEqual(h["c"].edges().count(loop), 2)
 
@@ -221,7 +229,7 @@ class TestDGraphPickle(_RoundTrip, unittest.TestCase):
 
     def test_in_edge_order_survives(self):
         g = self.make()
-        h = pickle.loads(pickle.dumps(g))
+        h = loads(dumps(g))
         for v in g:
             self.assertEqual(
                 [(e.v1.name, e.v2.name, e.cost) for e in v.in_edges()],
@@ -239,7 +247,7 @@ class TestSubclasses(unittest.TestCase):
                 a.tag, b.tag = "first", "second"
                 e = g.add_edge(a, b)
                 e.weight = 11
-                for h in (pickle.loads(pickle.dumps(g)), g.copy()):
+                for h in (loads(dumps(g)), g.copy()):
                     self.assertIsInstance(h["a"], vcls)
                     self.assertEqual((h["a"].tag, h["b"].tag), ("first", "second"))
                     self.assertIsInstance(h.edges()[0], WeightedEdge)
