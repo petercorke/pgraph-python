@@ -219,9 +219,8 @@ class _BaseGraph(ABC):
         :type names: list(N) of str, optional
         :param kwargs: optional arguments passed to the graph constructor, for
             example ``vertex_class`` or ``edge_class``
-        :raises ValueError: ``A`` is not square, the length of ``names`` or
-            the number of rows of ``coords`` does not match ``A``, or ``A``
-            has a non-zero diagonal element and the graph is a ``DGraph``
+        :raises ValueError: ``A`` is not square, or the length of ``names`` or
+            the number of rows of ``coords`` does not match ``A``
         :raises TypeError: ``vertex_class`` or ``edge_class`` is not a
             suitable class, see :meth:`_BaseGraph.__init__`
         :return: graph
@@ -230,12 +229,14 @@ class _BaseGraph(ABC):
         Create a directed or undirected graph where non-zero elements ``A[i,j]``
         correspond to edges from vertex ``i`` to vertex ``j``.
 
+        A non-zero diagonal element ``A[i,i]`` is a self-loop on vertex ``i``,
+        for both kinds of graph.
+
         .. warning:: For undirected graph ``A`` should be symmetric but this
-            is not checked.  Only the strictly upper triangular part is used,
-            so the diagonal is ignored and no self-loops are created. A
-            directed graph rejects a non-zero diagonal with ``ValueError``.
-            Edge counts greater than one are not turned into parallel edges;
-            a non-zero element is a single edge with that element as its cost.
+            is not checked.  Only the upper triangular part, including the
+            diagonal, is used. Elements are costs, not edge counts: a non-zero
+            element is a single edge with that element as its cost, so
+            parallel edges cannot be created this way.
 
         .. runblock:: pycon
 
@@ -267,18 +268,16 @@ class _BaseGraph(ABC):
             g.add_vertex(name=name, coord=coord)
 
         if isinstance(g, UGraph):
-            # undirected graph
+            # undirected graph: upper triangle including the diagonal
             for i in range(A.shape[0]):
-                for j in range(i + 1, A.shape[1]):
+                for j in range(i, A.shape[1]):
                     if A[i, j] > 0:
                         g[i].connect(g[j], cost=A[i, j])
         else:
-            # directed graph
+            # directed graph: whole matrix, a diagonal element is a self-loop
             for i in range(A.shape[0]):
                 for j in range(A.shape[1]):
                     if A[i, j] > 0:
-                        if i == j:
-                            raise ValueError("loops in graph not supported")
                         g[i].connect(g[j], cost=A[i, j])
 
         return g

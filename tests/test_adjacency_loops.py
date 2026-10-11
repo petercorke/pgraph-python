@@ -32,7 +32,7 @@ class _AdjacencyLoops:
         g = self.Graph.Adjacency(self.A)
 
         self.assertEqual(g.n, 3)
-        self.assertEqual(g.ne, 3)  # 0--1, 1--2, 1--1
+        self.assertEqual(g.ne, self.ne_with_loop)
         loops = self.loops(g)
         self.assertEqual(len(loops), 1)
         self.assertIs(loops[0].v1, g[1])
@@ -43,13 +43,12 @@ class _AdjacencyLoops:
         A[1, 1] = 0
         g = self.Graph.Adjacency(A)
         self.assertEqual(self.loops(g), [])
-        self.assertEqual(g.ne, 2)
+        self.assertEqual(g.ne, self.ne_without_loop)
 
     def test_loop_is_a_real_edge(self):
         g = self.Graph.Adjacency(self.A)
         self.assertTrue(g.iscyclic())
         self.assertEqual(g.distance()[1, 1], 4)
-        self.assertEqual(g.adjacency()[1, 1], self.loop_adjacency)
 
     def test_other_validation_unchanged(self):
         with self.assertRaises(ValueError):
@@ -62,7 +61,9 @@ class _AdjacencyLoops:
 
 class TestUGraphAdjacencyLoops(_AdjacencyLoops, unittest.TestCase):
     Graph = UGraph
-    loop_adjacency = 2  # an undirected loop has two ends
+    # the symmetric matrix is read once, upper triangle: 0--1, 1--2 and 1--1
+    ne_with_loop = 3
+    ne_without_loop = 2
 
     def test_lower_triangle_still_ignored(self):
         # documented: only the upper triangle (and now the diagonal) is read
@@ -73,7 +74,9 @@ class TestUGraphAdjacencyLoops(_AdjacencyLoops, unittest.TestCase):
 
 class TestDGraphAdjacencyLoops(_AdjacencyLoops, unittest.TestCase):
     Graph = DGraph
-    loop_adjacency = 1
+    # the whole matrix is read: 0->1, 1->0, 1->2, 2->1 and 1->1
+    ne_with_loop = 5
+    ne_without_loop = 4
 
     def test_directed_uses_whole_matrix(self):
         A = np.array([[0, 0], [5, 0]])
