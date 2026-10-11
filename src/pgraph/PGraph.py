@@ -198,7 +198,7 @@ class BaseGraph(ABC):
 
         Behaves like a constructor for a ``DGraph`` or ``UGraph`` from a
         dictionary that maps vertices to parents.  From this information it
-        can create a tree graph.
+        can create a graph that is a tree or forest.
 
         By default parent vertices are linked their children. If ``reverse`` is
         True then children are linked to their parents.
@@ -268,13 +268,14 @@ class BaseGraph(ABC):
         :return: graph
         :rtype: UGraph or DGraph
 
-        Create a directed or undirected graph where non-zero elements ``A[i,j]``
+        Behaves like a constructor for a ``DGraph`` or ``UGraph`` creating the graph from an adjacency matrix ``A``.
+        Here non-zero elements ``A[i,j]``
         correspond to edges from vertex ``i`` to vertex ``j``.
 
         A non-zero diagonal element ``A[i,i]`` is a self-loop on vertex ``i``,
         for both kinds of graph.
 
-        .. warning:: For undirected graph ``A`` should be symmetric but this
+        .. warning:: For an undirected graph ``A`` should be symmetric but this
             is not checked.  Only the upper triangular part, including the
             diagonal, is used. Elements are costs, not edge counts: a non-zero
             element is a single edge with that element as its cost, so
@@ -332,6 +333,18 @@ class BaseGraph(ABC):
         :return: vertex class
         :rtype: subclass of ``UVertex`` or ``DVertex``
 
+        This is read-only.  It is set by the ``vertex_class`` argument of the
+        graph constructor, see :meth:`__init__`, and is ``UVertex`` for a
+        :class:`UGraph` and ``DVertex`` for a :class:`DGraph` if not given.
+
+        .. runblock:: pycon
+
+            >>> from pgraph import UGraph, UVertex
+            >>> class MyVertex(UVertex):
+            ...     pass
+            >>> g = UGraph(vertex_class=MyVertex)
+            >>> print(g.vertex_class.__name__)
+
         :seealso: :meth:`add_vertex` :attr:`edge_class`
         """
         return self._vertex_class
@@ -343,6 +356,18 @@ class BaseGraph(ABC):
 
         :return: edge class
         :rtype: subclass of ``Edge``
+
+        This is read-only.  It is set by the ``edge_class`` argument of the
+        graph constructor, see :meth:`__init__`, and is :class:`Edge` if not
+        given.
+
+        .. runblock:: pycon
+
+            >>> from pgraph import UGraph, Edge
+            >>> class MyEdge(Edge):
+            ...     pass
+            >>> g = UGraph(edge_class=MyEdge)
+            >>> print(g.edge_class.__name__)
 
         :seealso: :meth:`add_edge` :attr:`vertex_class`
         """
@@ -567,6 +592,10 @@ class BaseGraph(ABC):
             ``RecursionError`` for a graph with a path of about a hundred
             vertices.
 
+        Copies the graph, its vertices and edges, but not any external data that may be
+        attached to them.  The copy is a new graph of the same kind, with the same
+        vertices and edges, but the vertices and edges are new objects.
+
         .. runblock:: pycon
 
             >>> from pgraph import UGraph
@@ -688,6 +717,8 @@ class BaseGraph(ABC):
         :return: the added vertex
         :rtype: BaseVertex subclass
 
+        This is a graph-centric way of creating a vertex.
+
         - ``g.add_vertex()`` creates a new vertex with optional ``coord`` and
           ``name``.
         - ``g.add_vertex(v)`` takes an instance of this graph's
@@ -708,21 +739,19 @@ class BaseGraph(ABC):
             in the graph but unreachable by name.  A default name could also
             clash with an existing one after a vertex had been removed.
 
-        The vertex is placed into a dictionary with a key equal to its name.
-
-        This single implementation, shared by :class:`UGraph` and
-        :class:`DGraph`, is parameterized by the graph's :attr:`vertex_class`
-        rather than duplicated per subclass -- see :doc:`policy` for why that
-        matters.
+        The vertex is placed into the graph's vertex dictionary with a key equal to its name.
 
         .. runblock:: pycon
 
             >>> from pgraph import UGraph, UVertex
             >>> g = UGraph()
             >>> v1 = g.add_vertex(coord=[0,0])
+            >>> repr(v1)
+            >>> print(v1)
             >>> print(v1.name)
             >>> v2 = g.add_vertex(UVertex(coord=[1,1], name='v2'))
             >>> print(v2.name)
+            >>> g['v2']
 
         If the graph was constructed with a required ``dim`` (see
         :meth:`BaseGraph.__init__`), every embedded vertex must have a
@@ -735,6 +764,11 @@ class BaseGraph(ABC):
             >>> g = UGraph(dim=6)
             >>> v1 = g.add_vertex(coord=[0, 0, 0, 0, 0, 0], name='pose1')
             >>> print(v1)
+
+        .. note:: This single implementation, shared by :class:`UGraph` and
+            :class:`DGraph`, is parameterized by the graph's :attr:`vertex_class`
+            rather than duplicated per subclass -- see :doc:`policy` for why that
+            matters.
 
         :seealso: :meth:`vertex_copy`
         """
@@ -881,31 +915,32 @@ class BaseGraph(ABC):
         """
         Add an edge to the graph (base class method)
 
-        :param v1: first vertex (start if a directed graph), or an existing
-            edge that already carries its two vertices
+        :param v1: first vertex (start if a directed graph), or an existing edge that
+            already carries its two vertices
         :type v1: BaseVertex subclass, str or Edge
-        :param v2: second vertex (end if a directed graph), must be omitted
-            if ``v1`` is an edge
+        :param v2: second vertex (end if a directed graph), must be omitted if ``v1`` is
+            an edge
         :type v2: BaseVertex subclass or str, optional
-        :param kwargs: optional arguments to pass to ``BaseVertex.connect``,
-            not allowed if ``v1`` is an edge
-        :raises TypeError: ``v1`` or ``v2`` is of the wrong type, or ``v2``,
-            ``cost`` or ``data`` is given along with an edge
-        :raises ValueError: the edge has no vertices, or the vertices do not
-            belong to this graph
+        :param kwargs: optional arguments to pass to ``BaseVertex.connect``, not allowed
+            if ``v1`` is an edge
+        :raises TypeError: ``v1`` or ``v2`` is of the wrong type, or ``v2``, ``cost`` or
+            ``data`` is given along with an edge
+        :raises ValueError: the edge has no vertices, or the vertices do not belong to
+            this graph
         :return: edge
         :rtype: Edge
 
-        - ``g.add_edge(v1, v2)`` creates an edge between a vertex pair and
-          adds it to the graph.
-        - ``g.add_edge(e)`` takes an edge, or an instance of an ``Edge``
-          subclass, that was constructed with its two vertices and adds it to
-          the graph, just as ``g.add_vertex(v)`` takes an existing vertex.
+        This is a graph-centric way of creating an edge.  The alternative is the
+        ``connect`` method of a vertex.
 
-        This is a graph centric way of creating an edge.  The
-        alternative is the ``connect`` method of a vertex.
+        - ``g.add_edge(v1, v2)`` creates an edge between a vertex pair and adds it to
+          the graph.
+        - ``g.add_edge(e)`` takes an edge, or an instance of an ``Edge`` subclass, that
+          was constructed with its two vertices and adds it to the graph, just as
+          ``g.add_vertex(v)`` takes an existing vertex.
 
         .. runblock:: pycon
+            :linenos:
 
             >>> from pgraph import UGraph
             >>> g = UGraph()
@@ -917,9 +952,12 @@ class BaseGraph(ABC):
             >>> e2 = g.add_edge('v2', 'v3', cost=99)
             >>> print(e2)
 
+        Note that at line 9 the vertices are specified by their string names.
+
         Adding an instance of a user-defined ``Edge`` subclass:
 
         .. runblock:: pycon
+            :linenos:
 
             >>> from pgraph import UGraph, Edge
             >>> class MyEdge(Edge):
@@ -930,6 +968,8 @@ class BaseGraph(ABC):
             >>> e = g.add_edge(MyEdge(v1, v2, data="a road"))
             >>> print(type(e).__name__, e.data)
 
+        .. note:: Vertices have coordinates and the edge ``cost`` defaults to the distance between them, but if the vertices have no coordinates the edge cost must be set explicitly, otherwise it will be ``None`` and path planning will fail with a ``ValueError``.  See :meth:`_require_cost` for details.
+      
         .. note:: To supply an edge that does not yet have vertices use
             ``g.add_edge(v1, v2, edge=e)`` or ``e.connect(v1, v2)``.
 
@@ -978,10 +1018,6 @@ class BaseGraph(ABC):
 
         .. warning:: The connectivity of the network may be changed.
 
-        .. note:: An undirected edge is held by both of its vertices and a
-            directed edge only by its source (see :meth:`BaseVertex.edges`).
-            Each vertex kind knows which, so this method does not.
-
         .. runblock:: pycon
 
             >>> from pgraph import UGraph
@@ -991,6 +1027,13 @@ class BaseGraph(ABC):
             >>> e = g.add_edge(v1, v2)
             >>> g.remove_edge(e)
             >>> print(g)
+
+        .. note:: A directed edge is tracked only by its source vertex's
+            edge list, not its target's (see :attr:`BaseVertex.edges`), so
+            membership is checked per endpoint rather than assumed for both
+            -- removing a directed edge from an undirected-only
+            implementation would otherwise raise ``ValueError`` on the
+            target side.
 
         :seealso: :meth:`remove_vertex` :meth:`Edge.remove`
         """
@@ -1024,12 +1067,6 @@ class BaseGraph(ABC):
 
         .. warning:: The connectivity of the network may be changed.
 
-        .. note:: This scans the graph's own edge set for edges touching
-            ``vertex``, rather than iterating ``vertex.edges()`` --
-            for a ``DGraph`` vertex that only ever reports outgoing edges
-            (see :attr:`BaseVertex.edges`), so incoming edges would
-            otherwise be missed and left dangling.
-
         .. runblock:: pycon
 
             >>> from pgraph import UGraph
@@ -1039,6 +1076,12 @@ class BaseGraph(ABC):
             >>> g.add_edge(v1, v2)
             >>> g.remove_vertex(v2)
             >>> print(g)
+
+        .. note:: This scans the graph's own edge set for edges touching
+            ``vertex``, rather than iterating ``vertex.edges()`` --
+            for a ``DGraph`` vertex that only ever reports outgoing edges
+            (see :attr:`BaseVertex.edges`), so incoming edges would
+            otherwise be missed and left dangling.
 
         :seealso: :meth:`remove_edge` :meth:`BaseVertex.remove`
         """
@@ -1159,16 +1202,7 @@ class BaseGraph(ABC):
         :return: Number of components
         :rtype: int
 
-        .. note::
-
-            - Components are labeled from 0 to ``g.nc-1``.
-            - A graph coloring algorithm is run if the graph connectivity
-              has changed.
-
-        .. note:: A lazy approach is used, and if a connectivity changing
-            operation has been performed since the last call, the graph
-            coloring algorithm is run which is potentially expensive for
-            a large graph.
+        Number of components in the graph. Components are labeled from 0 to ``g.nc-1``.
 
         .. runblock:: pycon
 
@@ -1179,6 +1213,13 @@ class BaseGraph(ABC):
             >>> v3 = g.add_vertex(name='v3')
             >>> g.add_edge(v1, v2)
             >>> print(g.nc)
+
+        .. note:: A lazy approach is used, and if a connectivity changing
+            operation has been performed since the last call, the graph
+            coloring algorithm is run which is potentially expensive for
+            a large graph.
+
+        :seealso: :meth:`component` :meth:`samecomponent`
         """
         n = self._graphcolor()
         if n is not None:
@@ -1460,7 +1501,7 @@ class BaseGraph(ABC):
 
     def edges(self) -> list[Edge]:
         """
-        Get all edges in graph (base class method)
+        Return a set of all edges in graph (base class method)
 
         :return: All edges in the graph
         :rtype: list of Edge references
@@ -1513,7 +1554,7 @@ class BaseGraph(ABC):
         ax: Any = None,
     ) -> None:
         """
-        Plot the graph
+        Plot graph as a vertex/edge diagram using Matplotlib
 
         :param vopt: vertex format, defaults to 12pt o-marker
         :type vopt: dict, optional
@@ -1533,10 +1574,17 @@ class BaseGraph(ABC):
         :raises ValueError: the graph is empty, or a vertex has no coordinate
             or fewer than two coordinate values
 
-        The graph is plotted using matplotlib.
+        The graph is plotted using Matplotlib according to the dimensionality of the vertex
+        coordinates (set by the `dim` parameter to graph constructor).  If the dimensionality is
+         
+        - 2, then a 2D plot is generated.
+        - 3, then a 3D plot is generated.
+        - 4 or more, then a 3D plot is generated using the first three coordinates.
 
-        If ``colorcomponents`` is True then each component is assigned a unique
-        color.  ``vertex`` and ``edge`` cannot include a color keyword.
+        If a vertex has no coordinate or fewer than two values, a ValueError is raised.
+
+        If ``colorcomponents`` is True then all edges and vertices within a component are assigned a unique
+        color.
 
         If ``text`` is a dict it is used to format text labels for the vertices
         which are the vertex names.  If ``text`` is None or True default
@@ -1549,20 +1597,26 @@ class BaseGraph(ABC):
         .. runblock:: pycon
 
             >>> from pgraph import UGraph
+            >>> import numpy as np
+            >>> np.random.seed(0)
             >>> g = UGraph()
-            >>> v1 = g.add_vertex(coord=[0,0], name='v1')
-            >>> v2 = g.add_vertex(coord=[1,1], name='v2')
-            >>> g.add_edge(v1, v2)
+            >>> for i in range(5):
+            ...     g.add_vertex(np.random.rand(2));
+            >>> for i, j in [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (3, 4)]:
+            ...     g.add_edge(g[i], g[j]);
             >>> g.plot(block=None)
 
         .. plot::
 
-            from pgraph import UGraph
-            g = UGraph()
-            v1 = g.add_vertex(coord=[0,0], name='v1')
-            v2 = g.add_vertex(coord=[1,1], name='v2')
-            g.add_edge(v1, v2)
-            g.plot(block=None)
+            >>> from pgraph import UGraph
+            >>> import numpy as np
+            >>> np.random.seed(0)
+            >>> g = UGraph()
+            >>> for i in range(5):
+            ...     g.add_vertex(np.random.rand(2));
+            >>> for i, j in [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (3, 4)]:
+            ...     g.add_edge(g[i], g[j]);
+            >>> g.plot(block=None)
 
         :seealso: :meth:`highlight_path`
         """
@@ -1671,26 +1725,30 @@ class BaseGraph(ABC):
         .. runblock:: pycon
 
             >>> from pgraph import UGraph
+            >>> import numpy as np
+            >>> np.random.seed(0)
             >>> g = UGraph()
-            >>> v1 = g.add_vertex(coord=[0,0], name='v1')
-            >>> v2 = g.add_vertex(coord=[1,1], name='v2')
-            >>> v3 = g.add_vertex(coord=[2,2], name='v3')
-            >>> g.add_edge(v1, v2)
-            >>> g.add_edge(v2, v3)
+            >>> for i in range(5):
+            ...     g.add_vertex(np.random.rand(2));
+            >>> for i, j in [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (3, 4)]:
+            ...     g.add_edge(g[i], g[j]);
             >>> g.plot(block=None)
-            >>> g.highlight_path([v1, v2, v3], block=None)
+            >>> path, length, _ = g.path_Astar(g[2], g[4])
+            >>> g.highlight_path(path, block=None)
 
         .. plot::
 
-            from pgraph import UGraph
-            g = UGraph()
-            v1 = g.add_vertex(coord=[0,0], name='v1')
-            v2 = g.add_vertex(coord=[1,1], name='v2')
-            v3 = g.add_vertex(coord=[2,2], name='v3')
-            g.add_edge(v1, v2)
-            g.add_edge(v2, v3)
-            g.plot(block=None)
-            g.highlight_path([v1, v2, v3], block=None)
+            >>> from pgraph import UGraph
+            >>> import numpy as np
+            >>> np.random.seed(0)
+            >>> g = UGraph()
+            >>> for i in range(5):
+            ...     g.add_vertex(np.random.rand(2));
+            >>> for i, j in [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (3, 4)]:
+            ...     g.add_edge(g[i], g[j]);
+            >>> g.plot(block=None)
+            >>> path, length, _ = g.path_Astar(g[2], g[4])
+            >>> g.highlight_path(path, block=None)
 
         :seealso: :meth:`highlight_vertex` :meth:`highlight_edge`
         """
@@ -1706,11 +1764,11 @@ class BaseGraph(ABC):
         self, edge: Edge, scale: float = 2, color: str = "r", alpha: float = 0.5
     ) -> None:
         """
-        Highlight an edge in the graph
+        Highlight an edge in a plot of the graph
 
         :param edge: The edge to highlight
         :type edge: Edge subclass
-        :param scale: Overwrite with a line this much bigger than the original,
+        :param scale: Overwrite with a line that is thicker than the original,
                       defaults to 1.5
         :type scale: float, optional
         :param color: Overwrite with a line in this color, defaults to 'r'
@@ -1724,26 +1782,33 @@ class BaseGraph(ABC):
         .. runblock:: pycon
 
             >>> from pgraph import UGraph
-            >>> g = UGraph()
-            >>> v1 = g.add_vertex(coord=[0,0], name='v1')
-            >>> v2 = g.add_vertex(coord=[1,1], name='v2')
-            >>> e = g.add_edge(v1, v2)
-            >>> g.plot(block=None)
-            >>> g.highlight_edge(e)
+            >>> import numpy as np
+            >>> np.random.seed(0)
 
-        The plot produced looks like:
+            >>> g = UGraph()
+            >>> for i in range(5):
+            ...     g.add_vertex(np.random.rand(2));
+            >>> edges = []
+            >>> for i, j in [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (3, 4)]:
+            ...     edges.append(g.add_edge(g[i], g[j]));
+            >>> g.plot(block=None)
+            >>> g.highlight_edge(edges[2])
 
         .. plot::
 
-            from pgraph import UGraph
-            g = UGraph()
-            v1 = g.add_vertex(coord=[0,0], name='v1')
-            v2 = g.add_vertex(coord=[1,1], name='v2')
-            e = g.add_edge(v1, v2)
-            g.plot(block=None)
-            g.highlight_edge(e)
+            >>> from pgraph import UGraph
+            >>> import numpy as np
+            >>> np.random.seed(0)
+            >>> g = UGraph()
+            >>> for i in range(5):
+            ...     g.add_vertex(np.random.rand(2));
+            >>> edges = []
+            >>> for i, j in [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (3, 4)]:
+            ...     edges.append(g.add_edge(g[i], g[j]));
+            >>> g.plot(block=None)
+            >>> g.highlight_edge(edges[2])
 
-        :seealso: :meth:`highlight_vertex` :meth:`highlight_path`
+        :seealso: :meth:`plot` :meth:`highlight_vertex` :meth:`highlight_path`
         """
         p1 = edge.v1
         p2 = edge.v2
@@ -1765,7 +1830,7 @@ class BaseGraph(ABC):
 
         :param vertex: The vertex (or vertices, or vertex names) to highlight
         :type vertex: BaseVertex subclass, or iterable of BaseVertex subclass or str
-        :param scale: Overwrite with a line this much bigger than the original,
+        :param scale: Overwrite with a marker that is larger than the original,
                       defaults to 1.5
         :type scale: float, optional
         :param color: Overwrite with a line in this color, defaults to 'r'
@@ -1777,22 +1842,28 @@ class BaseGraph(ABC):
         .. runblock:: pycon
 
             >>> from pgraph import UGraph
+            >>> import numpy as np
+            >>> np.random.seed(0)
             >>> g = UGraph()
-            >>> v1 = g.add_vertex(coord=[0,0], name='v1')
-            >>> v2 = g.add_vertex(coord=[1,1], name='v2')
-            >>> g.add_edge(v1, v2)
+            >>> for i in range(5):
+            ...     g.add_vertex(np.random.rand(2));
+            >>> for i, j in [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (3, 4)]:
+            ...     g.add_edge(g[i], g[j]);
             >>> g.plot(block=None)
-            >>> g.highlight_vertex(v1)
+            >>> g.highlight_vertex(g[2])
 
         .. plot::
 
-            from pgraph import UGraph
-            g = UGraph()
-            v1 = g.add_vertex(coord=[0,0], name='v1')
-            v2 = g.add_vertex(coord=[1,1], name='v2')
-            g.add_edge(v1, v2)
-            g.plot(block=None)
-            g.highlight_vertex(v1)
+            >>> from pgraph import UGraph
+            >>> import numpy as np
+            >>> np.random.seed(0)
+            >>> g = UGraph()
+            >>> for i in range(5):
+            ...     g.add_vertex(np.random.rand(2));
+            >>> for i, j in [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (3, 4)]:
+            ...     g.add_edge(g[i], g[j]);
+            >>> g.plot(block=None)
+            >>> g.highlight_vertex(g[2])
 
         """
         if isinstance(vertex, Iterable):
@@ -1812,7 +1883,7 @@ class BaseGraph(ABC):
         **options: Any,
     ) -> str | None:
         """
-        Export the graph as text or as a rendered image
+        Convert and save the graph in a graph export or image format
 
         :param filename: destination path or open file, defaults to None
         :type filename: str, path-like or file object, optional
@@ -1950,13 +2021,10 @@ class BaseGraph(ABC):
             - The graph is undirected if it is a subclass of ``UGraph``
             - The graph is directed if it is a subclass of ``DGraph``
 
-        The ``graphviz`` formatters ``dot`` and ``neato`` can be used to render the
-        graph in various formats including PDF, PNG, JPG, GIF, SVG, etc.  The formmatters are
-        similar, but ``dot`` is better suited for directed graphs while ``neato`` is better
-        suited for undirected graphs.
-
-        .. note:: If ``filename`` is a file object then the file will *not*
-            be closed after the GraphViz model is written.
+        .. note:: The ``graphviz`` formatters ``dot`` and ``neato`` can be used to render the
+            graph in various formats including PDF, PNG, JPG, GIF, SVG, etc.  The formmatters are
+            similar, but ``dot`` is better suited for directed graphs while ``neato`` is better
+            suited for undirected graphs.
 
         .. runblock:: pycon
 
@@ -1966,6 +2034,12 @@ class BaseGraph(ABC):
             >>> v2 = g.add_vertex(coord=[1,1], name='v2')
             >>> g.add_edge(v1, v2)
             >>> g.dotfile()
+
+        .. note:: Edge costs are not included in the output.  Use :meth:`export` with
+            ``costs=True`` to include them.
+
+        .. note:: If ``filename`` is a file object then the file will *not*
+            be closed after the GraphViz model is written. Safe for use with ``sys.stdout`` or ``sys.stderr``.
 
         :seealso: :meth:`export` :meth:`showgraph`
         """
@@ -1982,7 +2056,7 @@ class BaseGraph(ABC):
 
     def showgraph(self, display: bool = True, **options: Any) -> str | None:
         """
-        Display graph in a browser tab
+        Display graph as a vertex/edge diagram in a browser tab
 
         :param display: open the rendered PDF in a browser tab, defaults to True
         :param options: ``engine``, ``direction``, ``colorcomponents`` and
@@ -1995,6 +2069,8 @@ class BaseGraph(ABC):
         <https://graphviz.org>`_ and displays it in a browser tab.  With
         ``display=False`` the PDF is rendered but not opened and its path is
         returned, which is useful for tests and notebooks.
+
+        .. note:: Vertices do not have to have coordinates for this to work, but if they do the coordinates are used to position the vertices in the output.  If no coordinates are given, GraphViz will choose a layout.
 
         :seealso: :meth:`export` :meth:`dotfile`
         """
@@ -2026,18 +2102,6 @@ class BaseGraph(ABC):
         vertices' outgoing edges via :meth:`BaseVertex.adjacent` the same
         way :meth:`path_BFS` and friends do.
 
-        .. note:: A self-loop is a cycle of length one, so it makes either kind
-            of graph cyclic. Two parallel edges between the same pair of
-            vertices are a cycle in an undirected graph, but a repeated
-            arrow in a directed graph is not.
-
-        .. note:: A matrix-based test also exists in theory -- a digraph is
-            acyclic iff its adjacency matrix is nilpotent (all eigenvalues
-            zero) -- but that needs an O(N^3) eigendecomposition plus a
-            floating-point zero-tolerance judgement call, to answer a
-            question Kahn's algorithm answers exactly with integers in
-            O(V+E). Not used here for that reason.
-
         .. runblock:: pycon
 
             >>> from pgraph import UGraph
@@ -2051,6 +2115,18 @@ class BaseGraph(ABC):
             >>> g.add_edge(v3, v1)
             >>> print(g.iscyclic())
 
+        .. note:: A self-loop is a cycle of length one, so it makes either kind
+            of graph cyclic. Two parallel edges between the same pair of
+            vertices are a cycle in an undirected graph, but a repeated
+            arrow in a directed graph is not.
+
+        .. note:: A matrix-based test also exists in theory -- a digraph is
+            acyclic iff its adjacency matrix is nilpotent (all eigenvalues
+            zero) -- but that needs an O(N^3) eigendecomposition plus a
+            floating-point zero-tolerance judgement call, to answer a
+            question Kahn's algorithm answers exactly with integers in
+            O(V+E). Not used here for that reason.
+            
         :seealso: :meth:`adjacency`
         """
         if isinstance(self, UGraph):
@@ -2099,11 +2175,11 @@ class BaseGraph(ABC):
             >>> v1 = g.add_vertex(name='v1')
             >>> v2 = g.add_vertex(name='v2')
             >>> v3 = g.add_vertex(name='v3')
-            >>> g.add_edge(v1, v2)
-            >>> g.add_edge(v2, v3)
+            >>> g.add_edge(v1, v2);
+            >>> g.add_edge(v2, v3);
             >>> print(g.average_degree())
 
-        :seealso: :meth:`degree`
+        :seealso: :meth:`degree` :meth:`connectivity` :attr:`BaseVertex.degree`
         """
         return 2 * self.ne / self.n
 
@@ -2113,7 +2189,7 @@ class BaseGraph(ABC):
 
     def laplacian(self) -> NDArray:
         """
-        Laplacian matrix for the graph
+        Convert the graph to a Laplacian matrix
 
         :return: Laplacian matrix
         :rtype: NumPy ndarray
@@ -2127,11 +2203,9 @@ class BaseGraph(ABC):
             >>> import numpy as np
             >>> g = UGraph()
             >>> for i in range(5):
-            ...     g.add_vertex(np.random.rand(2))
-            ...
+            ...     g.add_vertex(np.random.rand(2));
             >>> for i, j in [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (3, 4)]:
-            ...     g.add_edge(g[i], g[j])
-            ...
+            ...     g.add_edge(g[i], g[j]);
             >>> L = g.laplacian()
             >>> print(L)
 
@@ -2145,12 +2219,11 @@ class BaseGraph(ABC):
               zero-valued eigenvalues equals the number of connected
               components.
             - For a **directed** graph, this computes the out-degree
-              Laplacian (a real, recognized construction, e.g. in directed
+              Laplacian (used in directed
               consensus/synchronization literature) -- but it is generally
               *not* symmetric, its eigenvalues can be complex, and the
               zero-eigenvalue/component-count relationship above does not
-              hold. For example a simple weakly-connected out-tree (one
-              component) already has two zero eigenvalues, not one.
+              hold.
 
         .. rubric:: For graphs with parallel edges or loops
 
@@ -2219,11 +2292,9 @@ class BaseGraph(ABC):
             >>> import numpy as np
             >>> g = UGraph()
             >>> for i in range(5):
-            ...     g.add_vertex(np.random.rand(2))
-            ...
+            ...     g.add_vertex(np.random.rand(2));
             >>> for i, j in [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (3, 4)]:
-            ...     g.add_edge(g[i], g[j])
-            ...
+            ...     g.add_edge(g[i], g[j]);
             >>> c = g.connectivity()
             >>> print(c)
 
@@ -2231,7 +2302,7 @@ class BaseGraph(ABC):
         .. note:: This is the diagonal of :meth:`degree`.  Parallel edges are
             counted individually.
 
-        :seealso: :meth:`degree`
+        :seealso: :meth:`degree` :meth:`average_degree` :attr:`BaseVertex.degree`
         """
 
         c = []
@@ -2243,7 +2314,7 @@ class BaseGraph(ABC):
 
     def degree(self) -> NDArray:
         """
-        Degree matrix of graph
+        Convert graph to a degree matrix
 
         :return: degree matrix
         :rtype: ndarray(N,N)
@@ -2265,11 +2336,9 @@ class BaseGraph(ABC):
             >>> import numpy as np
             >>> g = UGraph()
             >>> for i in range(5):
-            ...     g.add_vertex(np.random.rand(2))
-            ...
+            ...     g.add_vertex(np.random.rand(2));
             >>> for i, j in [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (3, 4)]:
-            ...     g.add_edge(g[i], g[j])
-            ...
+            ...     g.add_edge(g[i], g[j]);
             >>> d = g.degree()
             >>> print(d)
 
@@ -2287,7 +2356,7 @@ class BaseGraph(ABC):
 
     def adjacency(self) -> NDArray:
         """
-        Adjacency matrix of graph
+        Convert graph to an adjacency matrix
 
         :returns: adjacency matrix
         :rtype: ndarray(N,N)
@@ -2301,11 +2370,9 @@ class BaseGraph(ABC):
             >>> import numpy as np
             >>> g = UGraph()
             >>> for i in range(5):
-            ...     g.add_vertex(np.random.rand(2))
-            ...
+            ...     g.add_vertex(np.random.rand(2));
             >>> for i, j in [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (3, 4)]:
-            ...     g.add_edge(g[i], g[j])
-            ...
+            ...     g.add_edge(g[i], g[j]);
             >>> A = g.adjacency()
             >>> print(A)
 
@@ -2316,7 +2383,7 @@ class BaseGraph(ABC):
             - for an undirected graph the matrix is symmetric
             - Eigenvalues of ``A`` are real and are known as the spectrum of the graph.
             - The element ``A[i,j]`` is the number of walks of length one
-              edge from vertex ``i`` to vertex ``j``, which is the number of
+              from vertex ``i`` to vertex ``j``, which is the number of
               edges between them (zero or one for a simple graph).
             - If ``Ak = A ** k`` the element ``Ak[i,j]`` is the number of
               walks of length ``k`` from vertex ``i`` to vertex ``j``.
@@ -2344,7 +2411,7 @@ class BaseGraph(ABC):
 
     def incidence(self) -> NDArray:
         """
-        Incidence matrix of graph
+        Convert graph to an incidence matrix
 
         :returns: incidence matrix
         :rtype: ndarray(n,ne)
@@ -2358,18 +2425,16 @@ class BaseGraph(ABC):
             >>> import numpy as np
             >>> g = UGraph()
             >>> for i in range(5):
-            ...     g.add_vertex(np.random.rand(2))
-            ...
+            ...     g.add_vertex(np.random.rand(2));
             >>> for i, j in [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (3, 4)]:
-            ...     g.add_edge(g[i], g[j])
-            ...
+            ...     g.add_edge(g[i], g[j]);
             >>> I = g.incidence()
             >>> print(I)
 
         .. note::
-            - vertices are numbered in their order of creation. A vertex index
+            - Vertices are numbered in their order of creation. A vertex index
               can be resolved to a vertex reference by ``graph[i]``.
-            - edges are numbered in the order they appear in :meth:`edges`, which
+            - Edges are numbered in the order they appear in :meth:`edges`, which
               is the order they were added.
             - Both endpoints of every edge are marked, regardless of
               direction -- for a ``DGraph`` this means a vertex that is only
@@ -2405,7 +2470,7 @@ class BaseGraph(ABC):
 
     def distance(self) -> NDArray:
         """
-        Distance matrix of graph
+        Convert graph to a distance matrix
 
         :return: distance matrix
         :rtype: ndarray(n,n)
@@ -2420,11 +2485,9 @@ class BaseGraph(ABC):
             >>> import numpy as np
             >>> g = UGraph()
             >>> for i in range(5):
-            ...     g.add_vertex(np.random.rand(2))
-            ...
+            ...     g.add_vertex(np.random.rand(2));
             >>> for i, j in [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (3, 4)]:
-            ...     g.add_edge(g[i], g[j])
-            ...
+            ...     g.add_edge(g[i], g[j]);
             >>> d = g.distance()
             >>> print(d)
 
@@ -2468,10 +2531,11 @@ class BaseGraph(ABC):
             >>> v1 = g.add_vertex(name='v1')
             >>> v2 = g.add_vertex(name='v2')
             >>> v3 = g.add_vertex(name='v3')
-            >>> g.add_edge(v1, v2)
+            >>> g.add_edge(v1, v2);
+            >>> print(g)
             >>> print(g.component(0))
 
-        :seealso: :meth:`nc` :meth:`samecomponent`
+        :seealso: :attr:`nc` :meth:`samecomponent`
         """
         self._graphcolor()  # ensure labels are uptodate
         return [v for v in self if v.label == c]
@@ -2503,7 +2567,7 @@ class BaseGraph(ABC):
             >>> print(g.samecomponent(v1, v2))
             >>> print(g.samecomponent(v1, v3))
 
-        :seealso: :meth:`component`
+        :seealso: :meth:`component` :attr:`nc`
         """
         self._graphcolor()  # ensure labels are uptodate
 
@@ -2530,7 +2594,12 @@ class BaseGraph(ABC):
             None if there is no path
         :rtype: (list of BaseVertex subclass, float) or None
 
-        Returns a list of vertices that form a path from vertex ``S`` to
+        Compute a path from vertex ``S`` to vertex ``G`` using breadth-first search.  The
+        path is guaranteed to be the shortest in terms of number of edges, but not
+        necessarily the cheapest in terms of edge costs.  This search is not suited
+        to graphs with edge weights, and is inefficient in that it explores all vertices.
+
+        Returns a list of vertices that starts with vertex ``S`` and ends with
         vertex ``G`` if possible, otherwise returns None -- so check the
         result before unpacking it.
 
@@ -2634,7 +2703,10 @@ class BaseGraph(ABC):
             search tree, or None if there is no path
         :rtype: (list of BaseVertex subclass, float, dict) or None
 
-        Returns a list of vertices that form a path from vertex ``S`` to
+        Compute the lowest-cost path from vertex ``S`` to vertex ``G`` using uniform cost search.  The
+        path is guaranteed to be the shortest in terms of traversed edge cost, but is inefficient in that it explores all vertices.
+
+        Returns a list of vertices that starts with vertex ``S`` and ends with
         vertex ``G`` if possible, otherwise returns None -- so check the
         result before unpacking it.
 
@@ -2756,7 +2828,11 @@ class BaseGraph(ABC):
             search tree, or None if there is no path
         :rtype: (list of BaseVertex subclass, float, dict) or None
 
-        Returns a list of vertices that form a path from vertex ``S`` to
+        Compute the lowest-cost path from vertex ``S`` to vertex ``G`` using A*t search.  The
+        path is guaranteed to be the shortest in terms of traversed edge cost, and the search is efficient in
+        terms of the number of vertices explored.
+
+        Returns a list of vertices that starts with vertex ``S`` and ends with
         vertex ``G`` if possible, otherwise returns None -- so check the
         result before unpacking it.
 
@@ -3676,7 +3752,7 @@ class BaseVertex:
               vertices must agree with them: in either order if undirected,
               exactly ``self`` then ``dest`` if directed.
             - Both vertices must already have been added to the same graph,
-              e.g. via :meth:`PGraph.add_vertex` -- since a graph only ever
+              e.g. via :meth:`_BaseGraph.add_vertex` -- since a graph only ever
               accepts its own vertex subclass (see :meth:`UGraph.add_vertex`,
               :meth:`DGraph.add_vertex`), this also rules out connecting a
               ``UVertex`` to a ``DVertex``.
@@ -3825,21 +3901,20 @@ class BaseVertex:
 
     def edges(self) -> list[Edge]:
         """
-        All outgoing edges of vertex
+        Return a list of the edges for vertex
 
-        :return: List of all edges leaving this vertex
-        :rtype: list of Edge
+        :return: the edges at this vertex
+        :rtype: list of ``Edge``
 
-        The edges are in the order they were connected.  This is a new list,
-        so it can be modified, and edges can be removed from the graph while
-        iterating over it.
+        For a directed graph these are the edges leaving this vertex.  For an
+        undirected graph they are the edges incident on it, whichever end it
+        is.  A self-loop in an undirected graph is listed twice, once for each
+        end.
 
-        .. note::
-
-            - For a directed graph the edges are those leaving this vertex
-            - For a non-directed graph the edges are those leaving or entering
-                this vertex, and a self-loop is listed twice, once for each of
-                its ends
+        The list is a new one on every call, in the order the edges were
+        connected, so changing it does not change the graph, and edges can be
+        removed from the graph while iterating over it.  Use
+        :meth:`BaseGraph.remove_edge` to remove one.
 
         .. runblock:: pycon
 
@@ -4193,7 +4268,7 @@ class BaseVertex:
 
     def closest(self) -> tuple[BaseVertex | None, float]:
         """
-        BaseVertex closest to this vertex
+        Return the closest vertex to this vertex
 
         :return: closest vertex and its distance
         :rtype: BaseVertex subclass or None, float
