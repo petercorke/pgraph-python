@@ -175,7 +175,7 @@ class TestInEdgeListStaysConsistent(unittest.TestCase):
         self.assertEqual(c.out_degree, 0)
 
     def test_random_sequences(self):
-        rng = random.Random(7)
+        rng = random.Random(7)  # nosec B311 - seeded test fuzzing, not security
         for trial in range(25):
             g = DGraph()
             vs = [g.add_vertex([i, 0]) for i in range(8)]

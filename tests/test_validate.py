@@ -63,7 +63,7 @@ class TestValidGraphs(unittest.TestCase):
             self.assertEqual(g.validate(), [])
 
     def test_random_edit_sequences(self):
-        rng = random.Random(3)
+        rng = random.Random(3)  # nosec B311 - seeded test fuzzing, not security
         for Graph in (UGraph, DGraph):
             g = Graph()
             vs = [g.add_vertex([i, 0]) for i in range(7)]
