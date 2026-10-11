@@ -104,6 +104,9 @@
 edgelist of _each_ vertex.</p></li>
 <li><p>This class can be inherited to provide user objects with graph capability.</p></li>
 <li><p>Inheritance is an alternative to providing arbitrary user data.</p></li>
+<li><p>Pass the subclass as <code class="docutils literal notranslate"><span class="pre">edge_class</span></code> when constructing the graph and
+the graph will create instances of it itself, see
+<a class="reference internal" href="planning.html#pgraph.PGraph._BaseGraph" title="pgraph.PGraph._BaseGraph"><code class="xref py py-class docutils literal notranslate"><span class="pre">_BaseGraph</span></code></a>.</p></li>
 </ul>
 </div>
 <p>An Edge points to a pair of vertices.  At <code class="docutils literal notranslate"><span class="pre">connect</span></code> time the vertices
@@ -161,8 +164,12 @@ also used standalone, independent of any graph.</p>
 </ul>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.15)"><strong>ValueError</strong></a> – either vertex has not been added to a graph, or
-the vertices belong to different graphs</p>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.15)"><strong>ValueError</strong></a> – either vertex has not been added to a graph, or
+the vertices belong to different graphs</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#TypeError" title="(in Python v3.15)"><strong>TypeError</strong></a> – this edge is not an instance of the graph’s
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">_BaseGraph.edge_class</span></code></p></li>
+</ul>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span></p>

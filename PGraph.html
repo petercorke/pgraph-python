@@ -144,18 +144,23 @@ vertices.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>dest</strong> (<code class="docutils literal notranslate"><span class="pre">BaseVertex</span></code> subclass) – The vertex to connect to</p></li>
-<li><p><strong>edge</strong> (<code class="docutils literal notranslate"><span class="pre">Edge</span></code> subclass, optional) – Use this as the edge object, otherwise a new <code class="docutils literal notranslate"><span class="pre">Edge</span></code>
-object is created from the vertices being connected,
-and the <code class="docutils literal notranslate"><span class="pre">cost</span></code> and <code class="docutils literal notranslate"><span class="pre">edge</span></code> parameters, defaults to None</p></li>
+<li><p><strong>edge</strong> (<code class="docutils literal notranslate"><span class="pre">Edge</span></code> subclass, optional) – Use this as the edge object, otherwise a new object of the
+graph’s <code class="xref py py-attr docutils literal notranslate"><span class="pre">_BaseGraph.edge_class</span></code> is created from the
+vertices being connected, and the <code class="docutils literal notranslate"><span class="pre">cost</span></code> and <code class="docutils literal notranslate"><span class="pre">data</span></code>
+parameters, defaults to None</p></li>
 <li><p><strong>cost</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a><em>, </em><em>optional</em>) – the cost to traverse this edge, defaults to None</p></li>
 <li><p><strong>data</strong> (<em>Any</em><em>, </em><em>optional</em>) – reference to arbitrary data associated with the edge,
 defaults to None</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.15)"><strong>ValueError</strong></a> – either vertex has not been added to a graph, the
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.15)"><strong>ValueError</strong></a> – either vertex has not been added to a graph, the
 vertices belong to different graphs, or <code class="docutils literal notranslate"><span class="pre">edge</span></code> already connects
-other vertices</p>
+other vertices</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#TypeError" title="(in Python v3.15)"><strong>TypeError</strong></a> – <code class="docutils literal notranslate"><span class="pre">edge</span></code> is not an instance of the graph’s
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">_BaseGraph.edge_class</span></code></p></li>
+</ul>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>the edge connecting the vertices</p>
@@ -640,9 +645,13 @@ not deleted.</p>
 </dd></dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="pgraph.PGraph.DGraph">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pgraph.PGraph.</span></span><span class="sig-name descname"><span class="pre">DGraph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">heuristic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pgraph/PGraph.html#DGraph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pgraph.PGraph.DGraph" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pgraph.PGraph.</span></span><span class="sig-name descname"><span class="pre">DGraph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">heuristic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vertex_class</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_class</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pgraph/PGraph.html#DGraph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pgraph.PGraph.DGraph" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="planning.html#pgraph.PGraph._BaseGraph" title="pgraph.PGraph._BaseGraph"><code class="xref py py-class docutils literal notranslate"><span class="pre">_BaseGraph</span></code></a></p>
 <p>Class for directed graphs</p>
+<p>Vertices are <a class="reference internal" href="dvertex.html#pgraph.PGraph.DVertex" title="pgraph.PGraph.DVertex"><code class="xref py py-class docutils literal notranslate"><span class="pre">DVertex</span></code></a> objects, or instances of the subclass given
+as <code class="docutils literal notranslate"><span class="pre">vertex_class</span></code>. Edges are <a class="reference internal" href="edge.html#pgraph.PGraph.Edge" title="pgraph.PGraph.Edge"><code class="xref py py-class docutils literal notranslate"><span class="pre">Edge</span></code></a> objects, or instances of the
+subclass given as <code class="docutils literal notranslate"><span class="pre">edge_class</span></code>; see <a class="reference internal" href="planning.html#pgraph.PGraph._BaseGraph" title="pgraph.PGraph._BaseGraph"><code class="xref py py-class docutils literal notranslate"><span class="pre">_BaseGraph</span></code></a> for the
+constructor arguments and the exceptions they raise.</p>
 <div class="graphviz"><img alt="Inheritance diagram of DGraph" class="inheritance graphviz" src="_images/inheritance-ea57395caa9f40a559e8531277a8606fbd023c71.png" usemap="#inheritance55b8aa88e1"/></div>
 <map id="inheritance55b8aa88e1" name="inheritance55b8aa88e1">
 <area alt="" coords="5,5,176,31" href="dgraph.html#pgraph.PGraph.DGraph" id="node1" shape="rect" target="_top" title="Class for directed graphs"/>
@@ -675,17 +684,22 @@ not deleted.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>dest</strong> (<em>BaseVertex subclass</em>) – vertex to connect to</p></li>
-<li><p><strong>edge</strong> (<code class="docutils literal notranslate"><span class="pre">Edge</span></code> subclass, optional) – Use this as the edge object, otherwise a new <code class="docutils literal notranslate"><span class="pre">Edge</span></code>
-object is created, defaults to None</p></li>
+<li><p><strong>edge</strong> (<code class="docutils literal notranslate"><span class="pre">Edge</span></code> subclass, optional) – Use this as the edge object, otherwise a new object of the
+graph’s <code class="xref py py-attr docutils literal notranslate"><span class="pre">_BaseGraph.edge_class</span></code> is created,
+defaults to None</p></li>
 <li><p><strong>cost</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a><em>, </em><em>optional</em>) – the cost to traverse this edge, defaults to None</p></li>
 <li><p><strong>data</strong> (<em>Any</em><em>, </em><em>optional</em>) – reference to arbitrary data associated with the edge,
 defaults to None</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.15)"><strong>ValueError</strong></a> – either vertex has not been added to a graph, the
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.15)"><strong>ValueError</strong></a> – either vertex has not been added to a graph, the
 vertices belong to different graphs, or <code class="docutils literal notranslate"><span class="pre">edge</span></code> already connects
-other vertices</p>
+other vertices</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#TypeError" title="(in Python v3.15)"><strong>TypeError</strong></a> – <code class="docutils literal notranslate"><span class="pre">edge</span></code> is not an instance of the graph’s
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">_BaseGraph.edge_class</span></code></p></li>
+</ul>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>the edge connecting the vertices</p>
@@ -739,6 +753,9 @@ exactly these two, in this order, since the edge has a direction.</p>
 edgelist of _each_ vertex.</p></li>
 <li><p>This class can be inherited to provide user objects with graph capability.</p></li>
 <li><p>Inheritance is an alternative to providing arbitrary user data.</p></li>
+<li><p>Pass the subclass as <code class="docutils literal notranslate"><span class="pre">edge_class</span></code> when constructing the graph and
+the graph will create instances of it itself, see
+<a class="reference internal" href="planning.html#pgraph.PGraph._BaseGraph" title="pgraph.PGraph._BaseGraph"><code class="xref py py-class docutils literal notranslate"><span class="pre">_BaseGraph</span></code></a>.</p></li>
 </ul>
 </div>
 <p>An Edge points to a pair of vertices.  At <code class="docutils literal notranslate"><span class="pre">connect</span></code> time the vertices
@@ -761,8 +778,12 @@ get references back to the Edge object.</p>
 </ul>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.15)"><strong>ValueError</strong></a> – either vertex has not been added to a graph, or
-the vertices belong to different graphs</p>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.15)"><strong>ValueError</strong></a> – either vertex has not been added to a graph, or
+the vertices belong to different graphs</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#TypeError" title="(in Python v3.15)"><strong>TypeError</strong></a> – this edge is not an instance of the graph’s
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">_BaseGraph.edge_class</span></code></p></li>
+</ul>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span></p>
@@ -919,9 +940,13 @@ raises <code class="docutils literal notranslate"><span class="pre">ValueError</
 </dd></dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="pgraph.PGraph.UGraph">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pgraph.PGraph.</span></span><span class="sig-name descname"><span class="pre">UGraph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">heuristic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pgraph/PGraph.html#UGraph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pgraph.PGraph.UGraph" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">pgraph.PGraph.</span></span><span class="sig-name descname"><span class="pre">UGraph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">heuristic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vertex_class</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_class</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pgraph/PGraph.html#UGraph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pgraph.PGraph.UGraph" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="planning.html#pgraph.PGraph._BaseGraph" title="pgraph.PGraph._BaseGraph"><code class="xref py py-class docutils literal notranslate"><span class="pre">_BaseGraph</span></code></a></p>
 <p>Class for undirected graphs</p>
+<p>Vertices are <a class="reference internal" href="uvertex.html#pgraph.PGraph.UVertex" title="pgraph.PGraph.UVertex"><code class="xref py py-class docutils literal notranslate"><span class="pre">UVertex</span></code></a> objects, or instances of the subclass given
+as <code class="docutils literal notranslate"><span class="pre">vertex_class</span></code>. Edges are <a class="reference internal" href="edge.html#pgraph.PGraph.Edge" title="pgraph.PGraph.Edge"><code class="xref py py-class docutils literal notranslate"><span class="pre">Edge</span></code></a> objects, or instances of the
+subclass given as <code class="docutils literal notranslate"><span class="pre">edge_class</span></code>; see <a class="reference internal" href="planning.html#pgraph.PGraph._BaseGraph" title="pgraph.PGraph._BaseGraph"><code class="xref py py-class docutils literal notranslate"><span class="pre">_BaseGraph</span></code></a> for the
+constructor arguments and the exceptions they raise.</p>
 <div class="graphviz"><img alt="Inheritance diagram of UGraph" class="inheritance graphviz" src="_images/inheritance-27dbe0429054df23f9af4ec4593e8e966ec83798.png" usemap="#inheritance633a8a5863"/></div>
 <map id="inheritance633a8a5863" name="inheritance633a8a5863">
 <area alt="" coords="5,5,176,31" href="ugraph.html#pgraph.PGraph.UGraph" id="node1" shape="rect" target="_top" title="Class for undirected graphs"/>
@@ -954,17 +979,22 @@ raises <code class="docutils literal notranslate"><span class="pre">ValueError</
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>dest</strong> (<em>BaseVertex subclass</em>) – vertex to connect to</p></li>
-<li><p><strong>edge</strong> (<code class="docutils literal notranslate"><span class="pre">Edge</span></code> subclass, optional) – Use this as the edge object, otherwise a new <code class="docutils literal notranslate"><span class="pre">Edge</span></code>
-object is created, defaults to None</p></li>
+<li><p><strong>edge</strong> (<code class="docutils literal notranslate"><span class="pre">Edge</span></code> subclass, optional) – Use this as the edge object, otherwise a new object of the
+graph’s <code class="xref py py-attr docutils literal notranslate"><span class="pre">_BaseGraph.edge_class</span></code> is created,
+defaults to None</p></li>
 <li><p><strong>cost</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a><em>, </em><em>optional</em>) – the cost to traverse this edge, defaults to None</p></li>
 <li><p><strong>data</strong> (<em>Any</em><em>, </em><em>optional</em>) – reference to arbitrary data associated with the edge,
 defaults to None</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.15)"><strong>ValueError</strong></a> – either vertex has not been added to a graph, the
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.15)"><strong>ValueError</strong></a> – either vertex has not been added to a graph, the
 vertices belong to different graphs, or <code class="docutils literal notranslate"><span class="pre">edge</span></code> already connects
-other vertices</p>
+other vertices</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#TypeError" title="(in Python v3.15)"><strong>TypeError</strong></a> – <code class="docutils literal notranslate"><span class="pre">edge</span></code> is not an instance of the graph’s
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">_BaseGraph.edge_class</span></code></p></li>
+</ul>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>the edge connecting the vertices</p>

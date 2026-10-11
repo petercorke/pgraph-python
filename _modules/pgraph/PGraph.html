@@ -112,6 +112,8 @@
         <span class="n">heuristic</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">NDArray</span><span class="p">],</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">dim</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">vertex_class</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">BaseVertex</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">edge_class</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">Edge</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Abstract base class for graphs</span>
@@ -127,15 +129,53 @@
 <span class="sd">            None (unconstrained -- vertices may have coordinates of any</span>
 <span class="sd">            length, or none at all)</span>
 <span class="sd">        :type dim: int, optional</span>
+<span class="sd">        :param vertex_class: class of the vertices this graph creates, defaults</span>
+<span class="sd">            to ``UVertex`` for a :class:`UGraph` and ``DVertex`` for a</span>
+<span class="sd">            :class:`DGraph`</span>
+<span class="sd">        :type vertex_class: subclass of ``UVertex`` or ``DVertex``, optional</span>
+<span class="sd">        :param edge_class: class of the edges this graph creates, defaults to</span>
+<span class="sd">            :class:`Edge`</span>
+<span class="sd">        :type edge_class: subclass of ``Edge``, optional</span>
 <span class="sd">        :raises ValueError: ``dim`` is given but is not a positive integer</span>
+<span class="sd">        :raises TypeError: ``vertex_class`` is not a subclass of this graph's</span>
+<span class="sd">            own vertex kind, or ``edge_class`` is not a subclass of ``Edge``</span>
 
 <span class="sd">        This is the common base class of :class:`UGraph` and :class:`DGraph`</span>
 <span class="sd">        and should not be instantiated directly.</span>
 
+<span class="sd">        ``vertex_class`` and ``edge_class`` let user subclasses be built by the</span>
+<span class="sd">        graph, so they never need to be constructed by hand::</span>
+
+<span class="sd">            g = UGraph(vertex_class=MyVertex, edge_class=MyEdge)</span>
+<span class="sd">            v = g.add_vertex([0, 0])  # a MyVertex</span>
+<span class="sd">            e = g.add_edge(v, w)      # a MyEdge</span>
+
+<span class="sd">        The classes are called as ``vertex_class(coord, name=name)`` and</span>
+<span class="sd">        ``edge_class(v1, v2, cost=cost, data=data)``, so a subclass that</span>
+<span class="sd">        overrides ``__init__`` must accept and pass on those arguments.</span>
+<span class="sd">        A graph given a ``vertex_class`` only accepts vertices of that class</span>
+<span class="sd">        in :meth:`add_vertex`, and one given an ``edge_class`` only accepts</span>
+<span class="sd">        edges of that class.</span>
+
 <span class="sd">        :seealso: :class:`UGraph` :class:`DGraph` :meth:`add_vertex`</span>
+<span class="sd">            :meth:`add_edge` :attr:`vertex_class` :attr:`edge_class`</span>
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="n">dim</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">dim</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"dim must be a positive integer, got </span><span class="si">{</span><span class="n">dim</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="n">kind</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">_vertex_cls</span>
+        <span class="k">if</span> <span class="n">vertex_class</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">vertex_class</span> <span class="o">=</span> <span class="n">kind</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">vertex_class</span><span class="p">,</span> <span class="nb">type</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">vertex_class</span><span class="p">,</span> <span class="n">kind</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"vertex_class must be a subclass of </span><span class="si">{</span><span class="n">kind</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> for a "</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">, got </span><span class="si">{</span><span class="n">vertex_class</span><span class="si">!r}</span><span class="s2">"</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">edge_class</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">edge_class</span> <span class="o">=</span> <span class="n">Edge</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">edge_class</span><span class="p">,</span> <span class="nb">type</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">edge_class</span><span class="p">,</span> <span class="n">Edge</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"edge_class must be a subclass of Edge, got </span><span class="si">{</span><span class="n">edge_class</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_vertex_class</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">BaseVertex</span><span class="p">]</span> <span class="o">=</span> <span class="n">vertex_class</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_edge_class</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">Edge</span><span class="p">]</span> <span class="o">=</span> <span class="n">edge_class</span>
         <span class="c1"># we use a list and a dict, the list respects the order of adding</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_vertexlist</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">BaseVertex</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_vertexdict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">BaseVertex</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
@@ -183,13 +223,17 @@
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">Dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">reverse</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_BaseGraph</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">Dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">reverse</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_BaseGraph</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create graph from parent/child dictionary</span>
 
 <span class="sd">        :param d: dictionary that maps from ``BaseVertex`` subclass to ``BaseVertex`` subclass</span>
 <span class="sd">        :type d: dict</span>
 <span class="sd">        :param reverse: reverse link direction, defaults to False</span>
+<span class="sd">        :param kwargs: optional arguments passed to the graph constructor, for</span>
+<span class="sd">            example ``vertex_class`` or ``edge_class``</span>
+<span class="sd">        :raises TypeError: ``vertex_class`` or ``edge_class`` is not a</span>
+<span class="sd">            suitable class, see :meth:`_BaseGraph.__init__`</span>
 <span class="sd">        :return: graph</span>
 <span class="sd">        :rtype: UGraph or DGraph</span>
 
@@ -210,7 +254,7 @@
 <span class="sd">        :seealso: :meth:`Adjacency`</span>
 <span class="sd">        """</span>
 
-        <span class="n">g</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">()</span>
+        <span class="n">g</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">vertex</span><span class="p">,</span> <span class="n">parent</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">vertex</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
@@ -245,6 +289,7 @@
         <span class="n">A</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">,</span>
         <span class="n">coords</span><span class="p">:</span> <span class="n">NDArray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">names</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_BaseGraph</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create graph from adjacency matrix</span>
@@ -255,6 +300,13 @@
 <span class="sd">        :type coords: ndarray(N,M), optional</span>
 <span class="sd">        :param names: names of vertices, defaults to None</span>
 <span class="sd">        :type names: list(N) of str, optional</span>
+<span class="sd">        :param kwargs: optional arguments passed to the graph constructor, for</span>
+<span class="sd">            example ``vertex_class`` or ``edge_class``</span>
+<span class="sd">        :raises ValueError: ``A`` is not square, the length of ``names`` or</span>
+<span class="sd">            the number of rows of ``coords`` does not match ``A``, or ``A``</span>
+<span class="sd">            has a non-zero diagonal element and the graph is a ``DGraph``</span>
+<span class="sd">        :raises TypeError: ``vertex_class`` or ``edge_class`` is not a</span>
+<span class="sd">            suitable class, see :meth:`_BaseGraph.__init__`</span>
 <span class="sd">        :return: graph</span>
 <span class="sd">        :rtype: UGraph or DGraph</span>
 
@@ -262,7 +314,11 @@
 <span class="sd">        correspond to edges from vertex ``i`` to vertex ``j``.</span>
 
 <span class="sd">        .. warning:: For undirected graph ``A`` should be symmetric but this</span>
-<span class="sd">            is not checked.  Only the upper triangular part is used.</span>
+<span class="sd">            is not checked.  Only the strictly upper triangular part is used,</span>
+<span class="sd">            so the diagonal is ignored and no self-loops are created. A</span>
+<span class="sd">            directed graph rejects a non-zero diagonal with ``ValueError``.</span>
+<span class="sd">            Edge counts greater than one are not turned into parallel edges;</span>
+<span class="sd">            a non-zero element is a single edge with that element as its cost.</span>
 
 <span class="sd">        .. runblock:: pycon</span>
 
@@ -282,7 +338,7 @@
         <span class="k">if</span> <span class="n">coords</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">coords</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">A</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"coords must have same number of rows as adjacency matrix"</span><span class="p">)</span>
 
-        <span class="n">g</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">()</span>
+        <span class="n">g</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="n">name</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">coord</span> <span class="o">=</span> <span class="kc">None</span>
@@ -309,6 +365,30 @@
                         <span class="n">g</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">g</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">cost</span><span class="o">=</span><span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">])</span>
 
         <span class="k">return</span> <span class="n">g</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">vertex_class</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="n">BaseVertex</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Class of the vertices this graph creates</span>
+
+<span class="sd">        :return: vertex class</span>
+<span class="sd">        :rtype: subclass of ``UVertex`` or ``DVertex``</span>
+
+<span class="sd">        :seealso: :meth:`add_vertex` :attr:`edge_class`</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vertex_class</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">edge_class</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="n">Edge</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Class of the edges this graph creates</span>
+
+<span class="sd">        :return: edge class</span>
+<span class="sd">        :rtype: subclass of ``Edge``</span>
+
+<span class="sd">        :seealso: :meth:`add_edge` :attr:`vertex_class`</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edge_class</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_BaseGraph</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
@@ -340,7 +420,8 @@
 <span class="sd">        :type coord: array-like or BaseVertex subclass, optional</span>
 <span class="sd">        :param name: name of vertex, defaults to "#i"</span>
 <span class="sd">        :type name: str, optional</span>
-<span class="sd">        :raises TypeError: ``coord`` is a ``BaseVertex`` of the wrong kind</span>
+<span class="sd">        :raises TypeError: ``coord`` is a ``BaseVertex`` that is not an</span>
+<span class="sd">            instance of this graph's :attr:`vertex_class`</span>
 <span class="sd">        :raises ValueError: the graph was constructed with ``dim``, and</span>
 <span class="sd">            ``coord`` is given but its length doesn't match</span>
 <span class="sd">        :return: the added vertex</span>
@@ -348,8 +429,10 @@
 
 <span class="sd">        - ``g.add_vertex()`` creates a new vertex with optional ``coord`` and</span>
 <span class="sd">          ``name``.</span>
-<span class="sd">        - ``g.add_vertex(v)`` takes an instance or subclass of this graph's</span>
-<span class="sd">          own vertex kind and adds it to the graph.</span>
+<span class="sd">        - ``g.add_vertex(v)`` takes an instance of this graph's</span>
+<span class="sd">          :attr:`vertex_class` (by default any ``UVertex`` for a</span>
+<span class="sd">          :class:`UGraph`, any ``DVertex`` for a :class:`DGraph`) and adds it</span>
+<span class="sd">          to the graph.</span>
 
 <span class="sd">        If the vertex has no name and ``name`` is None give it a default name</span>
 <span class="sd">        ``#N`` where ``N`` is a consecutive integer.</span>
@@ -357,9 +440,9 @@
 <span class="sd">        The vertex is placed into a dictionary with a key equal to its name.</span>
 
 <span class="sd">        This single implementation, shared by :class:`UGraph` and</span>
-<span class="sd">        :class:`DGraph`, is parameterized by each subclass's</span>
-<span class="sd">        :attr:`_vertex_cls` rather than duplicated per subclass -- see</span>
-<span class="sd">        :doc:`policy` for why that matters.</span>
+<span class="sd">        :class:`DGraph`, is parameterized by the graph's :attr:`vertex_class`</span>
+<span class="sd">        rather than duplicated per subclass -- see :doc:`policy` for why that</span>
+<span class="sd">        matters.</span>
 
 <span class="sd">        .. runblock:: pycon</span>
 
@@ -384,15 +467,15 @@
 
 <span class="sd">        :seealso: :meth:`vertex_copy`</span>
 <span class="sd">        """</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">coord</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vertex_cls</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">coord</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vertex_class</span><span class="p">):</span>
             <span class="n">vertex</span> <span class="o">=</span> <span class="n">coord</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">coord</span><span class="p">,</span> <span class="n">BaseVertex</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">"expecting </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_vertex_cls</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> or coordinate data, "</span>
+                <span class="sa">f</span><span class="s2">"expecting </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_vertex_class</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> or coordinate data, "</span>
                 <span class="sa">f</span><span class="s2">"got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">coord</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">"</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">vertex</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vertex_cls</span><span class="p">(</span><span class="n">coord</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+            <span class="n">vertex</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vertex_class</span><span class="p">(</span><span class="n">coord</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_dim</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
@@ -2407,6 +2490,11 @@
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Class for undirected graphs</span>
 
+<span class="sd">    Vertices are :class:`UVertex` objects, or instances of the subclass given</span>
+<span class="sd">    as ``vertex_class``. Edges are :class:`Edge` objects, or instances of the</span>
+<span class="sd">    subclass given as ``edge_class``; see :class:`_BaseGraph` for the</span>
+<span class="sd">    constructor arguments and the exceptions they raise.</span>
+
 <span class="sd">    .. inheritance-diagram:: UGraph</span>
 
 <span class="sd">    :seealso: :class:`_BaseGraph` :class:`DGraph`</span>
@@ -2463,6 +2551,11 @@
 <span class="k">class</span><span class="w"> </span><span class="nc">DGraph</span><span class="p">(</span><span class="n">_BaseGraph</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Class for directed graphs</span>
+
+<span class="sd">    Vertices are :class:`DVertex` objects, or instances of the subclass given</span>
+<span class="sd">    as ``vertex_class``. Edges are :class:`Edge` objects, or instances of the</span>
+<span class="sd">    subclass given as ``edge_class``; see :class:`_BaseGraph` for the</span>
+<span class="sd">    constructor arguments and the exceptions they raise.</span>
 
 <span class="sd">    .. inheritance-diagram:: DGraph</span>
 
@@ -2567,6 +2660,9 @@
 <span class="sd">          edgelist of _each_ vertex.</span>
 <span class="sd">        - This class can be inherited to provide user objects with graph capability.</span>
 <span class="sd">        - Inheritance is an alternative to providing arbitrary user data.</span>
+<span class="sd">        - Pass the subclass as ``edge_class`` when constructing the graph and</span>
+<span class="sd">          the graph will create instances of it itself, see</span>
+<span class="sd">          :class:`_BaseGraph`.</span>
 
 <span class="sd">    An Edge points to a pair of vertices.  At ``connect`` time the vertices</span>
 <span class="sd">    get references back to the Edge object.</span>
@@ -2692,6 +2788,8 @@
 <span class="sd">        :type v2: BaseVertex subclass</span>
 <span class="sd">        :raises ValueError: either vertex has not been added to a graph, or</span>
 <span class="sd">            the vertices belong to different graphs</span>
+<span class="sd">        :raises TypeError: this edge is not an instance of the graph's</span>
+<span class="sd">            :attr:`_BaseGraph.edge_class`</span>
 
 <span class="sd">        The edge connects vertices ``v1`` and ``v2``, and is added to the</span>
 <span class="sd">        graph that those vertices belong to.</span>
@@ -3107,9 +3205,10 @@
 
 <span class="sd">        :param dest: The vertex to connect to</span>
 <span class="sd">        :type dest: ``BaseVertex`` subclass</span>
-<span class="sd">        :param edge: Use this as the edge object, otherwise a new ``Edge``</span>
-<span class="sd">                     object is created from the vertices being connected,</span>
-<span class="sd">                     and the ``cost`` and ``edge`` parameters, defaults to None</span>
+<span class="sd">        :param edge: Use this as the edge object, otherwise a new object of the</span>
+<span class="sd">                     graph's :attr:`_BaseGraph.edge_class` is created from the</span>
+<span class="sd">                     vertices being connected, and the ``cost`` and ``data``</span>
+<span class="sd">                     parameters, defaults to None</span>
 <span class="sd">        :type edge: ``Edge`` subclass, optional</span>
 <span class="sd">        :param cost: the cost to traverse this edge, defaults to None</span>
 <span class="sd">        :type cost: float, optional</span>
@@ -3119,6 +3218,8 @@
 <span class="sd">        :raises ValueError: either vertex has not been added to a graph, the</span>
 <span class="sd">            vertices belong to different graphs, or ``edge`` already connects</span>
 <span class="sd">            other vertices</span>
+<span class="sd">        :raises TypeError: ``edge`` is not an instance of the graph's</span>
+<span class="sd">            :attr:`_BaseGraph.edge_class`</span>
 <span class="sd">        :return: the edge connecting the vertices</span>
 <span class="sd">        :rtype: Edge</span>
 
@@ -3156,10 +3257,15 @@
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_graph</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">dest</span><span class="o">.</span><span class="n">_graph</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"vertices must belong to the same graph"</span><span class="p">)</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">edge</span><span class="p">,</span> <span class="n">Edge</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">edge</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_graph</span><span class="o">.</span><span class="n">_edge_class</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"expecting an edge of class </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_graph</span><span class="o">.</span><span class="n">_edge_class</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">, "</span>
+                    <span class="sa">f</span><span class="s2">"got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">"</span>
+                <span class="p">)</span>
             <span class="n">e</span> <span class="o">=</span> <span class="n">edge</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_bind_edge</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">dest</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">e</span> <span class="o">=</span> <span class="n">Edge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dest</span><span class="p">,</span> <span class="n">cost</span><span class="o">=</span><span class="n">cost</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">e</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_graph</span><span class="o">.</span><span class="n">_edge_class</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dest</span><span class="p">,</span> <span class="n">cost</span><span class="o">=</span><span class="n">cost</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_graph</span><span class="o">.</span><span class="n">_edgelist</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_graph</span><span class="o">.</span><span class="n">_connectivitychange</span> <span class="o">=</span> <span class="kc">True</span>
@@ -3514,8 +3620,9 @@
 
 <span class="sd">        :param dest: vertex to connect to</span>
 <span class="sd">        :type dest: BaseVertex subclass</span>
-<span class="sd">        :param edge: Use this as the edge object, otherwise a new ``Edge``</span>
-<span class="sd">                     object is created, defaults to None</span>
+<span class="sd">        :param edge: Use this as the edge object, otherwise a new object of the</span>
+<span class="sd">                     graph's :attr:`_BaseGraph.edge_class` is created,</span>
+<span class="sd">                     defaults to None</span>
 <span class="sd">        :type edge: ``Edge`` subclass, optional</span>
 <span class="sd">        :param cost: the cost to traverse this edge, defaults to None</span>
 <span class="sd">        :type cost: float, optional</span>
@@ -3525,6 +3632,8 @@
 <span class="sd">        :raises ValueError: either vertex has not been added to a graph, the</span>
 <span class="sd">            vertices belong to different graphs, or ``edge`` already connects</span>
 <span class="sd">            other vertices</span>
+<span class="sd">        :raises TypeError: ``edge`` is not an instance of the graph's</span>
+<span class="sd">            :attr:`_BaseGraph.edge_class`</span>
 <span class="sd">        :return: the edge connecting the vertices</span>
 <span class="sd">        :rtype: Edge</span>
 
@@ -3596,8 +3705,9 @@
 
 <span class="sd">        :param dest: vertex to connect to</span>
 <span class="sd">        :type dest: BaseVertex subclass</span>
-<span class="sd">        :param edge: Use this as the edge object, otherwise a new ``Edge``</span>
-<span class="sd">                     object is created, defaults to None</span>
+<span class="sd">        :param edge: Use this as the edge object, otherwise a new object of the</span>
+<span class="sd">                     graph's :attr:`_BaseGraph.edge_class` is created,</span>
+<span class="sd">                     defaults to None</span>
 <span class="sd">        :type edge: ``Edge`` subclass, optional</span>
 <span class="sd">        :param cost: the cost to traverse this edge, defaults to None</span>
 <span class="sd">        :type cost: float, optional</span>
@@ -3607,6 +3717,8 @@
 <span class="sd">        :raises ValueError: either vertex has not been added to a graph, the</span>
 <span class="sd">            vertices belong to different graphs, or ``edge`` already connects</span>
 <span class="sd">            other vertices</span>
+<span class="sd">        :raises TypeError: ``edge`` is not an instance of the graph's</span>
+<span class="sd">            :attr:`_BaseGraph.edge_class`</span>
 <span class="sd">        :return: the edge connecting the vertices</span>
 <span class="sd">        :rtype: Edge</span>
 
