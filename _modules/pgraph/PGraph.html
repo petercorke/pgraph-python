@@ -302,9 +302,8 @@
 <span class="sd">        :type names: list(N) of str, optional</span>
 <span class="sd">        :param kwargs: optional arguments passed to the graph constructor, for</span>
 <span class="sd">            example ``vertex_class`` or ``edge_class``</span>
-<span class="sd">        :raises ValueError: ``A`` is not square, the length of ``names`` or</span>
-<span class="sd">            the number of rows of ``coords`` does not match ``A``, or ``A``</span>
-<span class="sd">            has a non-zero diagonal element and the graph is a ``DGraph``</span>
+<span class="sd">        :raises ValueError: ``A`` is not square, or the length of ``names`` or</span>
+<span class="sd">            the number of rows of ``coords`` does not match ``A``</span>
 <span class="sd">        :raises TypeError: ``vertex_class`` or ``edge_class`` is not a</span>
 <span class="sd">            suitable class, see :meth:`_BaseGraph.__init__`</span>
 <span class="sd">        :return: graph</span>
@@ -313,12 +312,14 @@
 <span class="sd">        Create a directed or undirected graph where non-zero elements ``A[i,j]``</span>
 <span class="sd">        correspond to edges from vertex ``i`` to vertex ``j``.</span>
 
+<span class="sd">        A non-zero diagonal element ``A[i,i]`` is a self-loop on vertex ``i``,</span>
+<span class="sd">        for both kinds of graph.</span>
+
 <span class="sd">        .. warning:: For undirected graph ``A`` should be symmetric but this</span>
-<span class="sd">            is not checked.  Only the strictly upper triangular part is used,</span>
-<span class="sd">            so the diagonal is ignored and no self-loops are created. A</span>
-<span class="sd">            directed graph rejects a non-zero diagonal with ``ValueError``.</span>
-<span class="sd">            Edge counts greater than one are not turned into parallel edges;</span>
-<span class="sd">            a non-zero element is a single edge with that element as its cost.</span>
+<span class="sd">            is not checked.  Only the upper triangular part, including the</span>
+<span class="sd">            diagonal, is used. Elements are costs, not edge counts: a non-zero</span>
+<span class="sd">            element is a single edge with that element as its cost, so</span>
+<span class="sd">            parallel edges cannot be created this way.</span>
 
 <span class="sd">        .. runblock:: pycon</span>
 
@@ -350,18 +351,16 @@
             <span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">coord</span><span class="o">=</span><span class="n">coord</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">UGraph</span><span class="p">):</span>
-            <span class="c1"># undirected graph</span>
+            <span class="c1"># undirected graph: upper triangle including the diagonal</span>
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">A</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
-                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">A</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">A</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
                     <span class="k">if</span> <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                         <span class="n">g</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">g</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">cost</span><span class="o">=</span><span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">])</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># directed graph</span>
+            <span class="c1"># directed graph: whole matrix, a diagonal element is a self-loop</span>
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">A</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
                 <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">A</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
                     <span class="k">if</span> <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                        <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="n">j</span><span class="p">:</span>
-                            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"loops in graph not supported"</span><span class="p">)</span>
                         <span class="n">g</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">g</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">cost</span><span class="o">=</span><span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">])</span>
 
         <span class="k">return</span> <span class="n">g</span>
