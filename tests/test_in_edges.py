@@ -65,7 +65,7 @@ class TestDirectedDegrees(unittest.TestCase):
 
     def test_laplacian_still_has_zero_row_sums(self):
         # a directed Laplacian uses the OUT-degree: D_out - A
-        L = self.g.Laplacian()
+        L = self.g.laplacian()
         np.testing.assert_allclose(L.sum(axis=1), 0)
         np.testing.assert_array_equal(
             L, np.diag([v.out_degree for v in self.g]) - self.g.adjacency()

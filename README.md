@@ -85,7 +85,7 @@ Graphs belong to the class `UGraph` or `DGraph` for undirected or directed graph
 
     ***
 - `g.adjacency()` adjacency matrix
-- `g.Laplacian()` Laplacian matrix
+- `g.laplacian()` Laplacian matrix
 - `g.incidence()` incidence matrix
 
 ### Properties and methods of a vertex
