@@ -1379,6 +1379,11 @@ class _BaseGraph(ABC):
         vertices' outgoing edges via :meth:`BaseVertex.neighbours` the same
         way :meth:`path_BFS` and friends do.
 
+        .. note:: A self-loop is a cycle of length one, so it makes either kind
+            of graph cyclic. Two parallel edges between the same pair of
+            vertices are a cycle in an undirected graph, but a repeated
+            arrow in a directed graph is not.
+
         .. note:: A matrix-based test also exists in theory -- a digraph is
             acyclic iff its adjacency matrix is nilpotent (all eigenvalues
             zero) -- but that needs an O(N^3) eigendecomposition plus a
@@ -1432,6 +1437,10 @@ class _BaseGraph(ABC):
         Average degree is :math:`2 E / N` for an undirected graph and
         :math:`E / N` for a directed graph where :math:`E` is the total number of
         edges and :math:`N` is the number of vertices.
+
+        Parallel edges and self-loops are each counted as one edge in
+        :math:`E`, which is consistent with :meth:`degree`: a self-loop
+        contributes 2 to the degree sum of an undirected graph.
 
         .. runblock:: pycon
 
@@ -1498,9 +1507,16 @@ class _BaseGraph(ABC):
               hold. For example a simple weakly-connected out-tree (one
               component) already has two zero eigenvalues, not one.
 
+        .. rubric:: For graphs with parallel edges or loops
+
+        Both :meth:`degree` and :meth:`adjacency` count edges, so the
+        identity ``L = degree() - adjacency()`` and the zero row sums hold
+        unchanged. A self-loop adds the same amount to both and cancels out
+        of the Laplacian entirely.
+
         :seealso: :meth:`adjacency` :meth:`incidence` :meth:`degree`
         """
-        return self.degree() - (self.adjacency() > 0)
+        return self.degree() - self.adjacency()
 
     def connectivity(self, vertices: Iterable[BaseVertex] | None = None) -> list[int]:
         """
@@ -1534,6 +1550,10 @@ class _BaseGraph(ABC):
             >>> c = g.connectivity()
             >>> print(c)
 
+
+        .. note:: This is the diagonal of :meth:`degree`, so parallel edges are
+            counted individually and a self-loop counts twice for a
+            ``UGraph`` and once for a ``DGraph``. See the discussion there.
 
         :seealso: :meth:`degree`
         """
@@ -1572,6 +1592,13 @@ class _BaseGraph(ABC):
             >>> d = g.degree()
             >>> print(d)
 
+        .. rubric:: For graphs with parallel edges or loops
+
+        Every edge is counted, so ``k`` parallel edges between two vertices
+        add ``k`` to the degree of each end. A self-loop adds 2 to the degree
+        of a ``UGraph`` vertex, since it has two ends, and 1 to the
+        (out-)degree of a ``DGraph`` vertex.
+
         :seealso: :meth:`adjacency` :meth:`incidence` :meth:`laplacian`
         """
 
@@ -1607,10 +1634,19 @@ class _BaseGraph(ABC):
               can be resolved to a vertex reference by ``graph[i]``.
             - for an undirected graph the matrix is symmetric
             - Eigenvalues of ``A`` are real and are known as the spectrum of the graph.
-            - The element ``A[i,j]`` can be considered the number of walks of length one
-              edge from vertex ``i`` to vertex ``j`` (either zero or one).
+            - The element ``A[i,j]`` is the number of walks of length one
+              edge from vertex ``i`` to vertex ``j``, which is the number of
+              edges between them (zero or one for a simple graph).
             - If ``Ak = A ** k`` the element ``Ak[i,j]`` is the number of
               walks of length ``k`` from vertex ``i`` to vertex ``j``.
+
+        .. rubric:: For graphs with parallel edges or loops
+
+        The matrix holds edge *counts*, so ``k`` parallel edges from ``i`` to
+        ``j`` give ``A[i,j] = k`` and ``Ak = A ** k`` still counts walks
+        correctly. A self-loop adds to the diagonal: 2 for a ``UGraph``
+        (consistent with :meth:`degree`) and 1 for a ``DGraph``. In every case
+        each row of ``A`` sums to the degree of that vertex.
 
         :seealso: :meth:`Laplacian` :meth:`incidence` :meth:`degree`
         """
@@ -1622,7 +1658,7 @@ class _BaseGraph(ABC):
         A = np.zeros((self.n, self.n))
         for vertex in self:
             for n in vertex.neighbours():
-                A[vdict[vertex], vdict[n]] = 1
+                A[vdict[vertex], vdict[n]] += 1
         return A
 
     def incidence(self) -> NDArray:
@@ -1661,6 +1697,13 @@ class _BaseGraph(ABC):
               :meth:`BaseVertex.edges` instead would silently drop such
               vertices for a directed graph.
 
+        .. rubric:: For graphs with parallel edges or loops
+
+        Parallel edges each get their own column. For a ``UGraph`` the column
+        of a self-loop holds a single 2 (it touches its vertex at both ends,
+        so row sums still equal :meth:`degree`); for a ``DGraph`` it holds a
+        single 1.
+
         :seealso: :meth:`Laplacian` :meth:`adjacency` :meth:`degree`
         """
         edges = self.edges()
@@ -1674,6 +1717,8 @@ class _BaseGraph(ABC):
             assert e.v1 is not None and e.v2 is not None
             I[vdict[e.v1], j] = 1
             I[vdict[e.v2], j] = 1
+            if e.v1 is e.v2 and isinstance(self, UGraph):
+                I[vdict[e.v1], j] = 2  # self-loop, counted at both ends
 
         return I
 
@@ -1702,6 +1747,12 @@ class _BaseGraph(ABC):
             >>> d = g.distance()
             >>> print(d)
 
+        .. rubric:: For graphs with parallel edges or loops
+
+        If there are parallel edges the element is the cost of the *cheapest*
+        of them. A self-loop gives a non-zero diagonal element equal to its
+        cost.
+
         :seealso: :meth:`BaseVertex.distance`
         """
         # create a dict mapping vertex to an id
@@ -1709,10 +1760,12 @@ class _BaseGraph(ABC):
         for i, vert in enumerate(self):
             vdict[vert] = i
 
-        A = np.zeros((self.n, self.n))
+        A = np.full((self.n, self.n), np.inf)
         for v1 in self:
             for v2, edge in v1.incidences():
-                A[vdict[v1], vdict[v2]] = self._require_cost(edge)
+                i, j = vdict[v1], vdict[v2]
+                A[i, j] = min(A[i, j], self._require_cost(edge))
+        A[np.isinf(A)] = 0  # not connected
         return A
 
     # GRAPH COMPONENTS
@@ -1789,6 +1842,9 @@ class _BaseGraph(ABC):
         :type G: BaseVertex subclass
         :param verbose: print search progress, defaults to False
         :param summary: print a one-line search summary, defaults to False
+        :raises TypeError: ``S`` or ``G`` is neither a vertex nor a string
+        :raises KeyError: ``S`` or ``G`` is a name not in the graph
+        :raises ValueError: an edge on the path has no cost
         :return: list of vertices from S to G inclusive, path length
         :rtype: list of BaseVertex subclass, float
 
@@ -1807,6 +1863,9 @@ class _BaseGraph(ABC):
             >>> path, length = g.path_BFS(v1, v3)
             >>> print(path)
             >>> print(length)
+
+        .. note:: Self-loops are ignored. If there are parallel edges the
+            cheapest is used for the path length.
 
         :seealso: :meth:`path_UCS` :meth:`path_Astar`
         """
@@ -1832,6 +1891,8 @@ class _BaseGraph(ABC):
 
             # expand the vertex
             for n in x.neighbours():
+                if n is x:
+                    continue  # self-loop, never part of a shortest path
                 if n is G:
                     if verbose:
                         print("     goal", n.name, "reached")
@@ -1860,7 +1921,7 @@ class _BaseGraph(ABC):
 
         while x is not S:
             p = parent[x]
-            length += self._require_cost(x.edgeto(p))
+            length += self._require_cost(p.edgeto(x))
             path.insert(0, p)
             x = p
 
@@ -1883,6 +1944,9 @@ class _BaseGraph(ABC):
         :type G: BaseVertex subclass
         :param verbose: print search progress, defaults to False
         :param summary: print a one-line search summary, defaults to False
+        :raises TypeError: ``S`` or ``G`` is neither a vertex nor a string
+        :raises KeyError: ``S`` or ``G`` is a name not in the graph
+        :raises ValueError: an edge examined during the search has no cost
         :return: list of vertices from S to G inclusive, path length, tree
         :rtype: list of BaseVertex subclass, float, dict
 
@@ -1906,6 +1970,9 @@ class _BaseGraph(ABC):
             >>> path, length, tree = g.path_UCS(v1, v3)
             >>> print(path)
             >>> print(length)
+
+        .. note:: Self-loops are ignored. If there are parallel edges the
+            cheapest is used for the path length.
 
         :seealso: :meth:`path_BFS` :meth:`path_Astar`
         """
@@ -1933,6 +2000,8 @@ class _BaseGraph(ABC):
                 break
             # expand the vertex
             for n, e in x.incidences():
+                if n is x:
+                    continue  # self-loop, never part of a shortest path
                 fnew = f[x] + self._require_cost(e)
                 if n not in frontier and n not in explored:
                     # add it to the frontier
@@ -1995,6 +2064,9 @@ class _BaseGraph(ABC):
         :type G: BaseVertex subclass
         :param verbose: print search progress, defaults to False
         :param summary: print a one-line search summary, defaults to False
+        :raises TypeError: ``S`` or ``G`` is neither a vertex nor a string
+        :raises KeyError: ``S`` or ``G`` is a name not in the graph
+        :raises ValueError: an edge examined during the search has no cost
         :return: list of vertices from S to G inclusive, path length, tree
         :rtype: list of BaseVertex subclass, float, dict
 
@@ -2018,6 +2090,9 @@ class _BaseGraph(ABC):
             >>> path, length, tree = g.path_Astar(v1, v3)
             >>> print(path)
             >>> print(length)
+
+        .. note:: Self-loops are ignored. If there are parallel edges the
+            cheapest is used for the path length.
 
         :seealso: :meth:`heuristic` :meth:`path_BFS` :meth:`path_UCS`
         """
@@ -2046,6 +2121,8 @@ class _BaseGraph(ABC):
                 break
             # expand the vertex
             for n, e in x.incidences():
+                if n is x:
+                    continue  # self-loop, never part of a shortest path
                 if n not in frontier and n not in explored:
                     # add it to the frontier
                     frontier.append(n)
@@ -2639,6 +2716,10 @@ class BaseVertex:
 
         .. note:: For a directed graph the neighbours are those on edges leaving this vertex
 
+        .. note:: There is one entry per edge, so a neighbour joined by ``k``
+            parallel edges appears ``k`` times. In an undirected graph a
+            self-loop lists the vertex itself twice, once for each end.
+
         .. runblock:: pycon
 
             >>> from pgraph import UGraph
@@ -2820,6 +2901,8 @@ class BaseVertex:
         .. note::
 
             - For a directed graph ``dest`` must be at the arrow end of the edge
+            - If there are parallel edges to ``dest`` the cheapest is returned
+              (the first, if none of them has a cost)
 
         .. runblock:: pycon
 
@@ -2830,10 +2913,13 @@ class BaseVertex:
             >>> g.add_edge(v1, v2, cost=1.414)
             >>> print(v1.edgeto(v2))
         """
-        for n, e in self.incidences():
-            if n is dest:
-                return e
-        raise ValueError("dest is not a neighbour")
+        edges = [e for n, e in self.incidences() if n is dest]
+        if not edges:
+            raise ValueError("dest is not a neighbour")
+        costed = [e for e in edges if e.cost is not None]
+        if costed:
+            return min(costed, key=lambda e: e.cost)  # type: ignore[arg-type,return-value]
+        return edges[0]
 
     def edges(self) -> list[Edge]:
         """
@@ -2940,6 +3026,12 @@ class BaseVertex:
             >>> g.add_edge(v1, v2)
             >>> g.add_edge(v1, v3)
             >>> print(v1.degree)
+
+        .. rubric:: For graphs with parallel edges or loops
+
+        Every edge is counted, so ``k`` parallel edges to the same neighbour
+        add ``k``. A self-loop adds 2 for a ``UGraph`` vertex, since it has two
+        ends, and 1 for a ``DGraph`` vertex.
 
         :seealso: :meth:`edges`
         """
