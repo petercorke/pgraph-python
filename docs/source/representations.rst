@@ -11,7 +11,7 @@ These methods convert the graph to a number of different matrix representations.
    ~pgraph.PGraph.BaseGraph.adjacency
    ~pgraph.PGraph.BaseGraph.degree
    ~pgraph.PGraph.BaseGraph.incidence
-   ~pgraph.PGraph.BaseGraph.Laplacian
+   ~pgraph.PGraph.BaseGraph.laplacian
 
 Details
 -------
@@ -20,6 +20,6 @@ Details
 .. automethod:: pgraph.PGraph.BaseGraph.adjacency
 .. automethod:: pgraph.PGraph.BaseGraph.degree
 .. automethod:: pgraph.PGraph.BaseGraph.incidence
-.. automethod:: pgraph.PGraph.BaseGraph.Laplacian
+.. automethod:: pgraph.PGraph.BaseGraph.laplacian
 
 

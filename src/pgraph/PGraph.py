@@ -3752,7 +3752,7 @@ class BaseVertex:
               vertices must agree with them: in either order if undirected,
               exactly ``self`` then ``dest`` if directed.
             - Both vertices must already have been added to the same graph,
-              e.g. via :meth:`_BaseGraph.add_vertex` -- since a graph only ever
+              e.g. via :meth:`BaseGraph.add_vertex` -- since a graph only ever
               accepts its own vertex subclass (see :meth:`UGraph.add_vertex`,
               :meth:`DGraph.add_vertex`), this also rules out connecting a
               ``UVertex`` to a ``DVertex``.
