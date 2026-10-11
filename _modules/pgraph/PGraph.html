@@ -91,7 +91,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">webbrowser</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">ClassVar</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">ClassVar</span><span class="p">,</span> <span class="n">overload</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">numpy.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArrayLike</span><span class="p">,</span> <span class="n">NDArray</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">spatialmath.base.graphics</span><span class="w"> </span><span class="kn">import</span> <span class="n">axes_logic</span>
@@ -499,19 +499,43 @@
             <span class="p">)</span>
         <span class="k">return</span> <span class="n">edge</span><span class="o">.</span><span class="n">cost</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">add_edge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v1</span><span class="p">:</span> <span class="n">BaseVertex</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span> <span class="n">v2</span><span class="p">:</span> <span class="n">BaseVertex</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Edge</span><span class="p">:</span>
+    <span class="nd">@overload</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_edge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v1</span><span class="p">:</span> <span class="n">Edge</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Edge</span><span class="p">:</span> <span class="o">...</span>
+
+    <span class="nd">@overload</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_edge</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">v1</span><span class="p">:</span> <span class="n">BaseVertex</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span> <span class="n">v2</span><span class="p">:</span> <span class="n">BaseVertex</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Edge</span><span class="p">:</span> <span class="o">...</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_edge</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">v1</span><span class="p">:</span> <span class="n">Edge</span> <span class="o">|</span> <span class="n">BaseVertex</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">v2</span><span class="p">:</span> <span class="n">BaseVertex</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Edge</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Add an edge to the graph (base class method)</span>
 
-<span class="sd">        :param v1: first vertex (start if a directed graph)</span>
-<span class="sd">        :type v1: BaseVertex subclass or str</span>
-<span class="sd">        :param v2: second vertex (end if a directed graph)</span>
-<span class="sd">        :type v2: BaseVertex subclass or str</span>
-<span class="sd">        :param kwargs: optional arguments to pass to ``BaseVertex.connect``</span>
+<span class="sd">        :param v1: first vertex (start if a directed graph), or an existing</span>
+<span class="sd">            edge that already carries its two vertices</span>
+<span class="sd">        :type v1: BaseVertex subclass, str or Edge</span>
+<span class="sd">        :param v2: second vertex (end if a directed graph), must be omitted</span>
+<span class="sd">            if ``v1`` is an edge</span>
+<span class="sd">        :type v2: BaseVertex subclass or str, optional</span>
+<span class="sd">        :param kwargs: optional arguments to pass to ``BaseVertex.connect``,</span>
+<span class="sd">            not allowed if ``v1`` is an edge</span>
+<span class="sd">        :raises TypeError: ``v1`` or ``v2`` is of the wrong type, or ``v2``,</span>
+<span class="sd">            ``cost`` or ``data`` is given along with an edge</span>
+<span class="sd">        :raises ValueError: the edge has no vertices, or the vertices do not</span>
+<span class="sd">            belong to this graph</span>
 <span class="sd">        :return: edge</span>
 <span class="sd">        :rtype: Edge</span>
 
-<span class="sd">        Create an edge between a vertex pair and adds it to the graph.</span>
+<span class="sd">        - ``g.add_edge(v1, v2)`` creates an edge between a vertex pair and</span>
+<span class="sd">          adds it to the graph.</span>
+<span class="sd">        - ``g.add_edge(e)`` takes an edge, or an instance of an ``Edge``</span>
+<span class="sd">          subclass, that was constructed with its two vertices and adds it to</span>
+<span class="sd">          the graph, just as ``g.add_vertex(v)`` takes an existing vertex.</span>
 
 <span class="sd">        This is a graph centric way of creating an edge.  The</span>
 <span class="sd">        alternative is the ``connect`` method of a vertex.</span>
@@ -528,14 +552,53 @@
 <span class="sd">            &gt;&gt;&gt; e2 = g.add_edge('v2', 'v3', cost=99)</span>
 <span class="sd">            &gt;&gt;&gt; print(e2)</span>
 
-<span class="sd">        :seealso: :meth:`Edge.connect` :meth:`BaseVertex.connect`</span>
+<span class="sd">        Adding an instance of a user-defined ``Edge`` subclass:</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from pgraph import UGraph, Edge</span>
+<span class="sd">            &gt;&gt;&gt; class MyEdge(Edge):</span>
+<span class="sd">            ...     pass</span>
+<span class="sd">            &gt;&gt;&gt; g = UGraph()</span>
+<span class="sd">            &gt;&gt;&gt; v1 = g.add_vertex(coord=[0,0], name='v1')</span>
+<span class="sd">            &gt;&gt;&gt; v2 = g.add_vertex(coord=[1,1], name='v2')</span>
+<span class="sd">            &gt;&gt;&gt; e = g.add_edge(MyEdge(v1, v2, data="a road"))</span>
+<span class="sd">            &gt;&gt;&gt; print(type(e).__name__, e.data)</span>
+
+<span class="sd">        .. note:: To supply an edge that does not yet have vertices use</span>
+<span class="sd">            ``g.add_edge(v1, v2, edge=e)`` or ``e.connect(v1, v2)``.</span>
+
+<span class="sd">        :seealso: :meth:`add_vertex` :meth:`Edge.connect` :meth:`BaseVertex.connect`</span>
 <span class="sd">        """</span>
-        <span class="n">v1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_vertex</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="s2">"v1"</span><span class="p">)</span>
-        <span class="n">v2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_vertex</span><span class="p">(</span><span class="n">v2</span><span class="p">,</span> <span class="s2">"v2"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">Edge</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">v2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">"v2 must not be given when adding an Edge"</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">kwargs</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                    <span class="s2">"add_edge(edge) takes no other arguments, got "</span>
+                    <span class="o">+</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+                    <span class="o">+</span> <span class="s2">" -- set them on the edge itself"</span>
+                <span class="p">)</span>
+            <span class="n">edge</span> <span class="o">=</span> <span class="n">v1</span>
+            <span class="k">if</span> <span class="n">edge</span><span class="o">.</span><span class="n">v1</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">edge</span><span class="o">.</span><span class="n">v2</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">"edge does not have both vertices; use "</span>
+                    <span class="s2">"add_edge(v1, v2, edge=e) or e.connect(v1, v2)"</span>
+                <span class="p">)</span>
+            <span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="o">=</span> <span class="n">edge</span><span class="o">.</span><span class="n">v1</span><span class="p">,</span> <span class="n">edge</span><span class="o">.</span><span class="n">v2</span>
+            <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"edge"</span><span class="p">:</span> <span class="n">edge</span><span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">v2</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">"add_edge() requires two vertices, or an Edge"</span><span class="p">)</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_vertex</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="s2">"v1"</span><span class="p">)</span>
+            <span class="n">end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_vertex</span><span class="p">(</span><span class="n">v2</span><span class="p">,</span> <span class="s2">"v2"</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">start</span><span class="o">.</span><span class="n">_graph</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">self</span> <span class="ow">or</span> <span class="n">end</span><span class="o">.</span><span class="n">_graph</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"vertices must belong to this graph"</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"New edge from </span><span class="si">{</span><span class="n">v1</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">v2</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">v1</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">v2</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"New edge from </span><span class="si">{</span><span class="n">start</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">end</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">start</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">end</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">remove_edge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">edge</span><span class="p">:</span> <span class="n">Edge</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
