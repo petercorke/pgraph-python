@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Object lifecycle and graph-membership policy &mdash; Simple graph functionality for Python  documentation</title>
+  <title>Object lifecycle and graph-membership policy &mdash; Graphs for Python  documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
@@ -25,7 +25,8 @@
       <script src="_static/copybutton.js?v=ccdb6887"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" /> 
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Edge" href="edge.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -37,7 +38,7 @@
           
           
           <a href="index.html" class="icon icon-home">
-            Simple graph functionality for Python
+            Graphs for Python
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -47,12 +48,39 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="directed.html">Directed graphs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="undirected.html">Undirected graphs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="edge.html">Edge</a></li>
-<li class="toctree-l1"><a class="reference internal" href="planning.html">Path planning</a></li>
-<li class="toctree-l1"><a class="reference internal" href="matrices.html">Convert graph to matrix form</a></li>
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="intro.html#what-is-a-graph">What is a graph?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="intro.html#creating-a-graph-using-the-pgraph-package">Creating a graph using the <code class="docutils literal notranslate"><span class="pre">pgraph</span></code> package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="intro.html#history">History</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="api.html">API details</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="common.html">Common methods</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="construction.html">Construction and basic usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="modification.html">Adding and removing vertices and edges</a></li>
+<li class="toctree-l3"><a class="reference internal" href="analysis.html">Graph analysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="representations.html">Transformations to matrix representations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="visualization.html">Visualization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="export.html">Exporting a graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="planning.html">Path planning</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="edges_vertices.html">Edges &amp; Vertices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="edges_vertices.html#underlying-data-structures">Underlying data structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="edges_vertices.html#working-with-vertices-and-edges-directly">Working with vertices and edges directly</a></li>
+</ul>
+</li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Object lifecycle and graph-membership policy</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#standalone-construction">Standalone construction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#adding-a-vertex-to-a-graph">Adding a vertex to a graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#connecting-two-vertices">Connecting two vertices</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#constructing-an-edge-directly">Constructing an <code class="docutils literal notranslate"><span class="pre">Edge</span></code> directly</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#summary">Summary</a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 
         </div>
@@ -61,7 +89,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">Simple graph functionality for Python</a>
+          <a href="index.html">Graphs for Python</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -69,11 +97,14 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="api.html">API details</a></li>
       <li class="breadcrumb-item active">Object lifecycle and graph-membership policy</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/policy.rst.txt" rel="nofollow"> View page source</a>
       </li>
-  </ul>
+  </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
+        <a href="edge.html" class="btn btn-neutral float-left" title="Edge" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+  </div>
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
@@ -178,7 +209,9 @@ graphs</p></td>
 
            </div>
           </div>
-          <footer>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="edge.html" class="btn btn-neutral float-left" title="Edge" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
 
   <hr/>
 

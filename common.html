@@ -1,0 +1,229 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Common methods &mdash; Graphs for Python  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="_static/sphinx-codeautolink.css?v=b2176991" />
+      <link rel="stylesheet" type="text/css" href="_static/plot_directive.css" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=83abaecb" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="_static/copybutton.js?v=ccdb6887"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Construction and basic usage" href="construction.html" />
+    <link rel="prev" title="API details" href="api.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Graphs for Python
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="intro.html#what-is-a-graph">What is a graph?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="intro.html#creating-a-graph-using-the-pgraph-package">Creating a graph using the <code class="docutils literal notranslate"><span class="pre">pgraph</span></code> package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="intro.html#history">History</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="api.html">API details</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Common methods</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="construction.html">Construction and basic usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="modification.html">Adding and removing vertices and edges</a></li>
+<li class="toctree-l3"><a class="reference internal" href="analysis.html">Graph analysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="representations.html">Transformations to matrix representations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="visualization.html">Visualization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="export.html">Exporting a graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="planning.html">Path planning</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="edges_vertices.html">Edges &amp; Vertices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="edges_vertices.html#underlying-data-structures">Underlying data structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="edges_vertices.html#working-with-vertices-and-edges-directly">Working with vertices and edges directly</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="policy.html">Object lifecycle and graph-membership policy</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="policy.html#standalone-construction">Standalone construction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="policy.html#adding-a-vertex-to-a-graph">Adding a vertex to a graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="policy.html#connecting-two-vertices">Connecting two vertices</a></li>
+<li class="toctree-l3"><a class="reference internal" href="policy.html#constructing-an-edge-directly">Constructing an <code class="docutils literal notranslate"><span class="pre">Edge</span></code> directly</a></li>
+<li class="toctree-l3"><a class="reference internal" href="policy.html#summary">Summary</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Graphs for Python</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="api.html">API details</a></li>
+      <li class="breadcrumb-item active">Common methods</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/common.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
+        <a href="api.html" class="btn btn-neutral float-left" title="API details" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="construction.html" class="btn btn-neutral float-right" title="Construction and basic usage" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+  </div>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="common-methods">
+<h1>Common methods<a class="headerlink" href="#common-methods" title="Link to this heading"></a></h1>
+<p>The package supports both directed (prefix <code class="docutils literal notranslate"><span class="pre">D</span></code>) and undirected graphs (prefix <code class="docutils literal notranslate"><span class="pre">U</span></code>), and the classes for these
+share a common interface.</p>
+<p>The graph classes represent a single graph, either directed or undirected, and they share <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseGraph</span></code>:</p>
+<div class="graphviz"><img src="_images/inheritance-9b549a2787b6207b5a8e4462746ba50c9bab8c5c.png" alt="Inheritance diagram of pgraph.PGraph.UGraph, pgraph.PGraph.DGraph" usemap="#inheritance170d93d6ca" class="inheritance graphviz" /></div>
+<map id="inheritance170d93d6ca" name="inheritance170d93d6ca">
+<area shape="rect" id="node1" href="construction.html#pgraph.PGraph.BaseGraph" target="_top" title="BaseGraph" alt="" coords="5,31,99,56"/>
+<area shape="rect" id="node2" href="construction.html#pgraph.PGraph.DGraph" target="_top" title="Class for directed graphs" alt="" coords="147,5,219,31"/>
+<area shape="rect" id="node3" href="construction.html#pgraph.PGraph.UGraph" target="_top" title="Class for undirected graphs" alt="" coords="147,55,219,80"/>
+</map><p>The vertices in a directed graph (<code class="docutils literal notranslate"><span class="pre">DGraph</span></code>) inherit from <code class="xref py py-class docutils literal notranslate"><span class="pre">DVertex</span></code> and the
+vertices in an undirected graph (<code class="docutils literal notranslate"><span class="pre">UGraph</span></code>) inherit from <code class="xref py py-class docutils literal notranslate"><span class="pre">UVertex</span></code>.</p>
+<div class="graphviz"><img src="_images/inheritance-926e4af78c8f74171eb7d4afb5aac116c73031ef.png" alt="Inheritance diagram of pgraph.PGraph.UVertex, pgraph.PGraph.DVertex" usemap="#inheritancebe7f53667e" class="inheritance graphviz" /></div>
+<map id="inheritancebe7f53667e" name="inheritancebe7f53667e">
+<area shape="rect" id="node2" href="dvertex.html#pgraph.PGraph.DVertex" target="_top" title="BaseVertex subclass for directed graphs" alt="" coords="149,5,224,31"/>
+<area shape="rect" id="node3" href="uvertex.html#pgraph.PGraph.UVertex" target="_top" title="BaseVertex subclass for undirected graphs" alt="" coords="149,55,224,80"/>
+</map><p>The vertex classes share
+almost their entire interface, defined once on their common base classes
+(<code class="xref py py-class docutils literal notranslate"><span class="pre">BaseGraph</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseVertex</span></code>). This section documents that
+shared interface by task rather than by class; see <a class="reference internal" href="construction.html"><span class="doc">Construction and basic usage</span></a> for
+the <code class="xref py py-class docutils literal notranslate"><span class="pre">DGraph</span></code> and <code class="xref py py-class docutils literal notranslate"><span class="pre">UGraph</span></code> classes and <a class="reference internal" href="edges_vertices.html"><span class="doc">Edges &amp; Vertices</span></a> for
+what’s specific to directed vs. undirected vertices.</p>
+<p>Edges are represented by the <code class="xref py py-class docutils literal notranslate"><span class="pre">Edge</span></code> class, which is used by both directed and undirected graphs.</p>
+<div class="graphviz"><img src="_images/inheritance-c3f25db07bc9583095b14653d072f9d12106e387.png" alt="Inheritance diagram of pgraph.PGraph.Edge" usemap="#inheritance459a6ffc5b" class="inheritance graphviz" /></div>
+<map id="inheritance459a6ffc5b" name="inheritance459a6ffc5b">
+<area shape="rect" id="node1" href="edge.html#pgraph.PGraph.Edge" target="_top" title="Edge class" alt="" coords="5,5,77,31"/>
+</map><p>The following sections describe the common methods.</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="construction.html">Construction and basic usage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="construction.html#pgraph.PGraph.DGraph"><code class="docutils literal notranslate"><span class="pre">DGraph</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="construction.html#pgraph.PGraph.UGraph"><code class="docutils literal notranslate"><span class="pre">UGraph</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="construction.html#pgraph.PGraph.BaseGraph.Adjacency"><code class="docutils literal notranslate"><span class="pre">Adjacency</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="construction.html#pgraph.PGraph.BaseGraph.Dict"><code class="docutils literal notranslate"><span class="pre">Dict</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="construction.html#inherited-methods-for-all-graph-types">Inherited methods for all graph types</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="modification.html">Adding and removing vertices and edges</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="modification.html#graph">Graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modification.html#vertex">Vertex</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modification.html#details">Details</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="analysis.html">Graph analysis</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="analysis.html#graph">Graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="analysis.html#vertex">Vertex</a></li>
+<li class="toctree-l2"><a class="reference internal" href="analysis.html#details">Details</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="representations.html">Transformations to matrix representations</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="representations.html#details">Details</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="visualization.html">Visualization</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="visualization.html#details">Details</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="export.html">Exporting a graph</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="export.html#details">Details</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="planning.html">Path planning</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="planning.html#details">Details</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="api.html" class="btn btn-neutral float-left" title="API details" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="construction.html" class="btn btn-neutral float-right" title="Construction and basic usage" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+  <p>Copyright &#169; 2020-present, Peter Corke: built 2026-10-11.
+  </p>
+  <a href="https://github.com/petercorke/pgraph-python" class="footer-github-link">GitHub</a>
+
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+    <!-- Theme Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-11Q6WJM565"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-11Q6WJM565', {
+          'anonymize_ip': false,
+      });
+    </script> 
+
+</body>
+</html>

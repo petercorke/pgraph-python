@@ -1,0 +1,334 @@
+
+<!DOCTYPE html>
+
+<html class="writer-html5" data-content_root="./" lang="en">
+<head>
+<meta charset="utf-8"/><meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Exporting a graph — Graphs for Python  documentation</title>
+<link href="_static/pygments.css?v=b86133f3" rel="stylesheet" type="text/css"/>
+<link href="_static/css/theme.css?v=9edc463e" rel="stylesheet" type="text/css"/>
+<link href="_static/graphviz.css?v=4ae1632d" rel="stylesheet" type="text/css"/>
+<link href="_static/copybutton.css?v=76b2166b" rel="stylesheet" type="text/css"/>
+<link href="_static/sphinx-codeautolink.css?v=b2176991" rel="stylesheet" type="text/css"/>
+<link href="_static/plot_directive.css" rel="stylesheet" type="text/css"/>
+<link href="_static/custom.css?v=83abaecb" rel="stylesheet" type="text/css"/>
+<script src="_static/jquery.js?v=5d32c60e"></script>
+<script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+<script src="_static/documentation_options.js?v=5929fcd5"></script>
+<script src="_static/doctools.js?v=fd6eb6e6"></script>
+<script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+<script src="_static/clipboard.min.js?v=a7894cd8"></script>
+<script src="_static/copybutton.js?v=ccdb6887"></script>
+<script src="_static/js/theme.js"></script>
+<link href="genindex.html" rel="index" title="Index"/>
+<link href="search.html" rel="search" title="Search"/>
+<link href="planning.html" rel="next" title="Path planning"/>
+<link href="visualization.html" rel="prev" title="Visualization"/>
+</head>
+<body class="wy-body-for-nav">
+<div class="wy-grid-for-nav">
+<nav class="wy-nav-side" data-toggle="wy-nav-shift">
+<div class="wy-side-scroll">
+<div class="wy-side-nav-search">
+<a class="icon icon-home" href="index.html">
+            Graphs for Python
+          </a>
+<div role="search">
+<form action="search.html" class="wy-form" id="rtd-search-form" method="get">
+<input aria-label="Search docs" name="q" placeholder="Search docs" type="text"/>
+<input name="check_keywords" type="hidden" value="yes"/>
+<input name="area" type="hidden" value="default"/>
+</form>
+</div>
+</div><div aria-label="Navigation menu" class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation">
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="intro.html#what-is-a-graph">What is a graph?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="intro.html#creating-a-graph-using-the-pgraph-package">Creating a graph using the <code class="docutils literal notranslate"><span class="pre">pgraph</span></code> package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="intro.html#history">History</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="api.html">API details</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="common.html">Common methods</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="construction.html">Construction and basic usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="modification.html">Adding and removing vertices and edges</a></li>
+<li class="toctree-l3"><a class="reference internal" href="analysis.html">Graph analysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="representations.html">Transformations to matrix representations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="visualization.html">Visualization</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Exporting a graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="planning.html">Path planning</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="edges_vertices.html">Edges &amp; Vertices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="edges_vertices.html#underlying-data-structures">Underlying data structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="edges_vertices.html#working-with-vertices-and-edges-directly">Working with vertices and edges directly</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="policy.html">Object lifecycle and graph-membership policy</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="policy.html#standalone-construction">Standalone construction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="policy.html#adding-a-vertex-to-a-graph">Adding a vertex to a graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="policy.html#connecting-two-vertices">Connecting two vertices</a></li>
+<li class="toctree-l3"><a class="reference internal" href="policy.html#constructing-an-edge-directly">Constructing an <code class="docutils literal notranslate"><span class="pre">Edge</span></code> directly</a></li>
+<li class="toctree-l3"><a class="reference internal" href="policy.html#summary">Summary</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</nav>
+<section class="wy-nav-content-wrap" data-toggle="wy-nav-shift"><nav aria-label="Mobile navigation menu" class="wy-nav-top">
+<i class="fa fa-bars" data-toggle="wy-nav-top"></i>
+<a href="index.html">Graphs for Python</a>
+</nav>
+<div class="wy-nav-content">
+<div class="rst-content">
+<div aria-label="Page navigation" role="navigation">
+<ul class="wy-breadcrumbs">
+<li><a aria-label="Home" class="icon icon-home" href="index.html"></a></li>
+<li class="breadcrumb-item"><a href="api.html">API details</a></li>
+<li class="breadcrumb-item"><a href="common.html">Common methods</a></li>
+<li class="breadcrumb-item active">Exporting a graph</li>
+<li class="wy-breadcrumbs-aside">
+<a href="_sources/export.rst.txt" rel="nofollow"> View page source</a>
+</li>
+</ul><div aria-label="Sequential page navigation" class="rst-breadcrumbs-buttons" role="navigation">
+<a accesskey="p" class="btn btn-neutral float-left" href="visualization.html" title="Visualization"><span aria-hidden="true" class="fa fa-arrow-circle-left"></span> Previous</a>
+<a accesskey="n" class="btn btn-neutral float-right" href="planning.html" title="Path planning">Next <span aria-hidden="true" class="fa fa-arrow-circle-right"></span></a>
+</div>
+<hr/>
+</div>
+<div class="document" itemscope="itemscope" itemtype="http://schema.org/Article" role="main">
+<div itemprop="articleBody">
+<section id="exporting-a-graph">
+<h1>Exporting a graph<a class="headerlink" href="#exporting-a-graph" title="Link to this heading"></a></h1>
+<p>Graphs can be exported to a number of different formats, including dot (used by
+<a class="reference external" href="https://graphviz.org">GraphViz</a>) mermaid (a JavaScript-based graph
+visualization tool that can be used in MarkDown documents), GraphML (an
+XML-based format for representing graphs), ELK (a graph
+layout engine), as well as various image formats (e.g., PNG, SVG, PDF).</p>
+<p>See <a class="reference internal" href="visualization.html"><span class="doc">Visualization</span></a> for rendering the graph using Matplotlib itself rather than exporting
+it.</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pgraph.PGraph.BaseGraph.export" title="pgraph.PGraph.BaseGraph.export"><code class="xref py py-obj docutils literal notranslate"><span class="pre">export</span></code></a></p></td>
+<td><p>Convert and save the graph in a graph export or image format</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pgraph.PGraph.BaseGraph.dotfile" title="pgraph.PGraph.BaseGraph.dotfile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dotfile</span></code></a></p></td>
+<td><p>Export graph as a GraphViz dot file</p></td>
+</tr>
+</tbody>
+</table>
+<section id="details">
+<h2>Details<a class="headerlink" href="#details" title="Link to this heading"></a></h2>
+<dl class="py method">
+<dt class="sig sig-object py" id="pgraph.PGraph.BaseGraph.export">
+<span class="sig-prename descclassname"><span class="pre">BaseGraph.</span></span><span class="sig-name descname"><span class="pre">export</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pgraph/PGraph.html#BaseGraph.export"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pgraph.PGraph.BaseGraph.export" title="Link to this definition"></a></dt>
+<dd><p>Convert and save the graph in a graph export or image format</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em>, </em><em>path-like</em><em> or </em><em>file object</em><em>, </em><em>optional</em>) – destination path or open file, defaults to None</p></li>
+<li><p><strong>format</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em>, </em><em>optional</em>) – <code class="docutils literal notranslate"><span class="pre">"dot"</span></code>, <code class="docutils literal notranslate"><span class="pre">"mermaid"</span></code>, <code class="docutils literal notranslate"><span class="pre">"graphml"</span></code>, <code class="docutils literal notranslate"><span class="pre">"elk"</span></code> or an
+image format <code class="docutils literal notranslate"><span class="pre">"svg"</span></code>, <code class="docutils literal notranslate"><span class="pre">"pdf"</span></code>, <code class="docutils literal notranslate"><span class="pre">"png"</span></code> …, inferred from
+the extension of <code class="docutils literal notranslate"><span class="pre">filename</span></code> if not given</p></li>
+<li><p><strong>options</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a></span>) – format specific options, see below</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.15)"><strong>ValueError</strong></a> – the format is unknown or cannot be inferred, or an
+image format is requested without a <code class="docutils literal notranslate"><span class="pre">filename</span></code></p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#TypeError" title="(in Python v3.15)"><strong>TypeError</strong></a> – an option is not valid for the format</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#RuntimeError" title="(in Python v3.15)"><strong>RuntimeError</strong></a> – an image format is requested and GraphViz is not
+installed, or fails</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>the text if <code class="docutils literal notranslate"><span class="pre">filename</span></code> is None, otherwise None</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)">str</a> or None</p>
+</dd>
+</dl>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p><code class="docutils literal notranslate"><span class="pre">format</span></code></p></th>
+<th class="head"><p>extensions</p></th>
+<th class="head"><p>positions</p></th>
+<th class="head"><p>options</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">"dot"</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">.dot</span></code> <code class="docutils literal notranslate"><span class="pre">.gv</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">pos="x,y!"</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">direction</span></code>, <code class="docutils literal notranslate"><span class="pre">colorcomponents</span></code>, <code class="docutils literal notranslate"><span class="pre">costs</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">"mermaid"</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">.mmd</span></code> <code class="docutils literal notranslate"><span class="pre">.mermaid</span></code></p></td>
+<td><p>no</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">direction</span></code>, <code class="docutils literal notranslate"><span class="pre">colorcomponents</span></code>, <code class="docutils literal notranslate"><span class="pre">costs</span></code>, <code class="docutils literal notranslate"><span class="pre">fence</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">"graphml"</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">.graphml</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">x</span></code>, <code class="docutils literal notranslate"><span class="pre">y</span></code>, <code class="docutils literal notranslate"><span class="pre">coord</span></code></p></td>
+<td><p>none</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">"elk"</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">.elk.json</span></code> <code class="docutils literal notranslate"><span class="pre">.elk</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">x</span></code>, <code class="docutils literal notranslate"><span class="pre">y</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">size</span></code>, <code class="docutils literal notranslate"><span class="pre">layout_options</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">"svg"</span></code> <code class="docutils literal notranslate"><span class="pre">"pdf"</span></code> <code class="docutils literal notranslate"><span class="pre">"png"</span></code> …</p></td>
+<td><p>the same</p></td>
+<td><p>yes, via <code class="docutils literal notranslate"><span class="pre">neato</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">engine</span></code>, <code class="docutils literal notranslate"><span class="pre">direction</span></code>, <code class="docutils literal notranslate"><span class="pre">colorcomponents</span></code>, <code class="docutils literal notranslate"><span class="pre">costs</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<p>The text formats need nothing beyond the standard library.  The image
+formats run the GraphViz <code class="docutils literal notranslate"><span class="pre">dot</span></code> or <code class="docutils literal notranslate"><span class="pre">neato</span></code> executable.</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pgraph</span><span class="w"> </span><span class="kn">import</span> <a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">UGraph</span></a>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">g</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">UGraph</span></a><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">v1</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="modification.html#pgraph.PGraph.BaseGraph.add_vertex" title="pgraph.PGraph.BaseGraph.add_vertex"><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span></a><span class="p">(</span><span class="n">coord</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s1">'v1'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">v2</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="modification.html#pgraph.PGraph.BaseGraph.add_vertex" title="pgraph.PGraph.BaseGraph.add_vertex"><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span></a><span class="p">(</span><span class="n">coord</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s1">'v2'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="modification.html#pgraph.PGraph.BaseGraph.add_edge" title="pgraph.PGraph.BaseGraph.add_edge"><span class="n">g</span><span class="o">.</span><span class="n">add_edge</span></a><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">,</span> <span class="n">cost</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">Edge{[v1] -- [v2], cost=2}</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/builtins/functions.html#print"><span class="nb">print</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="export.html#pgraph.PGraph.BaseGraph.export" title="pgraph.PGraph.BaseGraph.export"><span class="n">g</span><span class="o">.</span><span class="n">export</span></a><span class="p">(</span><span class="nb">format</span><span class="o">=</span><span class="s2">"mermaid"</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="s2">"LR"</span><span class="p">))</span>
+<span class="go">flowchart LR</span>
+<span class="go">    n0["v1"]</span>
+<span class="go">    n1["v2"]</span>
+<span class="go">    n0 ---|"2"| n1</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>Output is reproducible: vertices are written in creation order
+and edges in the order of their vertices, not in set order.</p></li>
+<li><p>A file object passed as <code class="docutils literal notranslate"><span class="pre">filename</span></code> is written but not closed.
+A path is opened, and closed even if writing fails.</p></li>
+<li><p>Names are escaped for each format, and Mermaid, GraphML and ELK
+use generated ids so any vertex name is valid.</p></li>
+</ul>
+</div>
+<p class="rubric">For graphs with parallel edges or loops</p>
+<p>Every edge is written, each with its own cost, so parallel edges give
+repeated lines (DOT, Mermaid) or distinct <code class="docutils literal notranslate"><span class="pre">id</span></code> elements (GraphML,
+ELK).  A self-loop is written once, as an edge from a vertex to itself.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#pgraph.PGraph.BaseGraph.dotfile" title="pgraph.PGraph.BaseGraph.dotfile"><code class="xref py py-meth docutils literal notranslate"><span class="pre">dotfile()</span></code></a> <a class="reference internal" href="visualization.html#pgraph.PGraph.BaseGraph.showgraph" title="pgraph.PGraph.BaseGraph.showgraph"><code class="xref py py-meth docutils literal notranslate"><span class="pre">showgraph()</span></code></a> <code class="xref py py-mod docutils literal notranslate"><span class="pre">pgraph.exporters</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pgraph.PGraph.BaseGraph.dotfile">
+<span class="sig-prename descclassname"><span class="pre">BaseGraph.</span></span><span class="sig-name descname"><span class="pre">dotfile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">direction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pgraph/PGraph.html#BaseGraph.dotfile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pgraph.PGraph.BaseGraph.dotfile" title="Link to this definition"></a></dt>
+<dd><p>Export graph as a GraphViz dot file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em>, </em><em>path-like</em><em> or </em><em>file object</em><em>, </em><em>optional</em>) – filename to save graph to, defaults to None</p></li>
+<li><p><strong>direction</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em>, </em><em>optional</em>) – layout direction, eg. <code class="docutils literal notranslate"><span class="pre">"LR"</span></code>, defaults to None</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span></p>
+</dd>
+</dl>
+<p><code class="docutils literal notranslate"><span class="pre">g.dotfile()</span></code> creates the specified file which contains the <a class="reference external" href="https://graphviz.org">GraphViz</a> code to represent the embedded graph.  By default
+output is to the console.</p>
+<p>This is <a class="reference internal" href="#pgraph.PGraph.BaseGraph.export" title="pgraph.PGraph.BaseGraph.export"><code class="xref py py-meth docutils literal notranslate"><span class="pre">export()</span></code></a> with <code class="docutils literal notranslate"><span class="pre">format="dot"</span></code> and edge costs left
+unlabelled, as it has always been.  Use <a class="reference internal" href="#pgraph.PGraph.BaseGraph.export" title="pgraph.PGraph.BaseGraph.export"><code class="xref py py-meth docutils literal notranslate"><span class="pre">export()</span></code></a> for other
+formats or for edge labels.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>The graph is undirected if it is a subclass of <code class="docutils literal notranslate"><span class="pre">UGraph</span></code></p></li>
+<li><p>The graph is directed if it is a subclass of <code class="docutils literal notranslate"><span class="pre">DGraph</span></code></p></li>
+</ul>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">graphviz</span></code> formatters <code class="docutils literal notranslate"><span class="pre">dot</span></code> and <code class="docutils literal notranslate"><span class="pre">neato</span></code> can be used to render the
+graph in various formats including PDF, PNG, JPG, GIF, SVG, etc.  The formmatters are
+similar, but <code class="docutils literal notranslate"><span class="pre">dot</span></code> is better suited for directed graphs while <code class="docutils literal notranslate"><span class="pre">neato</span></code> is better
+suited for undirected graphs.</p>
+</div>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pgraph</span><span class="w"> </span><span class="kn">import</span> <a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">UGraph</span></a>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">g</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">UGraph</span></a><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">v1</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="modification.html#pgraph.PGraph.BaseGraph.add_vertex" title="pgraph.PGraph.BaseGraph.add_vertex"><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span></a><span class="p">(</span><span class="n">coord</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s1">'v1'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">v2</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="modification.html#pgraph.PGraph.BaseGraph.add_vertex" title="pgraph.PGraph.BaseGraph.add_vertex"><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span></a><span class="p">(</span><span class="n">coord</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s1">'v2'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="modification.html#pgraph.PGraph.BaseGraph.add_edge" title="pgraph.PGraph.BaseGraph.add_edge"><span class="n">g</span><span class="o">.</span><span class="n">add_edge</span></a><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">)</span>
+<span class="go">Edge{[v1] -- [v2], cost=1.414}</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="export.html#pgraph.PGraph.BaseGraph.dotfile" title="pgraph.PGraph.BaseGraph.dotfile"><span class="n">g</span><span class="o">.</span><span class="n">dotfile</span></a><span class="p">()</span>
+<span class="go">graph {</span>
+<span class="go">  "v1" [pos="0,0!"]</span>
+<span class="go">  "v2" [pos="1,1!"]</span>
+<span class="go">  "v1" -- "v2"</span>
+<span class="go">}</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Edge costs are not included in the output.  Use <a class="reference internal" href="#pgraph.PGraph.BaseGraph.export" title="pgraph.PGraph.BaseGraph.export"><code class="xref py py-meth docutils literal notranslate"><span class="pre">export()</span></code></a> with
+<code class="docutils literal notranslate"><span class="pre">costs=True</span></code> to include them.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">filename</span></code> is a file object then the file will <em>not</em>
+be closed after the GraphViz model is written. Safe for use with <code class="docutils literal notranslate"><span class="pre">sys.stdout</span></code> or <code class="docutils literal notranslate"><span class="pre">sys.stderr</span></code>.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#pgraph.PGraph.BaseGraph.export" title="pgraph.PGraph.BaseGraph.export"><code class="xref py py-meth docutils literal notranslate"><span class="pre">export()</span></code></a> <a class="reference internal" href="visualization.html#pgraph.PGraph.BaseGraph.showgraph" title="pgraph.PGraph.BaseGraph.showgraph"><code class="xref py py-meth docutils literal notranslate"><span class="pre">showgraph()</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+</section>
+</section>
+</div>
+</div>
+<footer><div aria-label="Footer" class="rst-footer-buttons" role="navigation">
+<a accesskey="p" class="btn btn-neutral float-left" href="visualization.html" rel="prev" title="Visualization"><span aria-hidden="true" class="fa fa-arrow-circle-left"></span> Previous</a>
+<a accesskey="n" class="btn btn-neutral float-right" href="planning.html" rel="next" title="Path planning">Next <span aria-hidden="true" class="fa fa-arrow-circle-right"></span></a>
+</div>
+<hr/>
+<div role="contentinfo">
+<p>Copyright © 2020-present, Peter Corke: built 2026-10-11.
+  </p>
+<a class="footer-github-link" href="https://github.com/petercorke/pgraph-python">GitHub</a>
+</div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+</div>
+</div>
+</section>
+</div>
+<script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+<!-- Theme Analytics -->
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-11Q6WJM565"></script>
+<script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-11Q6WJM565', {
+          'anonymize_ip': false,
+      });
+    </script>
+</body>
+</html>

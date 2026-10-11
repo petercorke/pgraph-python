@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Index &mdash; Simple graph functionality for Python  documentation</title>
+  <title>Index &mdash; Graphs for Python  documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
@@ -36,7 +36,7 @@
           
           
           <a href="index.html" class="icon icon-home">
-            Simple graph functionality for Python
+            Graphs for Python
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -47,11 +47,38 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
-<li class="toctree-l1"><a class="reference internal" href="directed.html">Directed graphs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="undirected.html">Undirected graphs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="edge.html">Edge</a></li>
-<li class="toctree-l1"><a class="reference internal" href="planning.html">Path planning</a></li>
-<li class="toctree-l1"><a class="reference internal" href="matrices.html">Convert graph to matrix form</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="intro.html#what-is-a-graph">What is a graph?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="intro.html#creating-a-graph-using-the-pgraph-package">Creating a graph using the <code class="docutils literal notranslate"><span class="pre">pgraph</span></code> package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="intro.html#history">History</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API details</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="common.html">Common methods</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="construction.html">Construction and basic usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="modification.html">Adding and removing vertices and edges</a></li>
+<li class="toctree-l3"><a class="reference internal" href="analysis.html">Graph analysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="representations.html">Transformations to matrix representations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="visualization.html">Visualization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="export.html">Exporting a graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="planning.html">Path planning</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="edges_vertices.html">Edges &amp; Vertices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="edges_vertices.html#underlying-data-structures">Underlying data structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="edges_vertices.html#working-with-vertices-and-edges-directly">Working with vertices and edges directly</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="policy.html">Object lifecycle and graph-membership policy</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="policy.html#standalone-construction">Standalone construction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="policy.html#adding-a-vertex-to-a-graph">Adding a vertex to a graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="policy.html#connecting-two-vertices">Connecting two vertices</a></li>
+<li class="toctree-l3"><a class="reference internal" href="policy.html#constructing-an-edge-directly">Constructing an <code class="docutils literal notranslate"><span class="pre">Edge</span></code> directly</a></li>
+<li class="toctree-l3"><a class="reference internal" href="policy.html#summary">Summary</a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 
         </div>
@@ -60,7 +87,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">Simple graph functionality for Python</a>
+          <a href="index.html">Graphs for Python</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -92,7 +119,6 @@
  | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
  | <a href="#N"><strong>N</strong></a>
- | <a href="#O"><strong>O</strong></a>
  | <a href="#P"><strong>P</strong></a>
  | <a href="#R"><strong>R</strong></a>
  | <a href="#S"><strong>S</strong></a>
@@ -106,81 +132,51 @@
 <h2 id="_">_</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="dgraph.html#pgraph.PGraph.DGraph.__init__">__init__() (pgraph.PGraph.DGraph method)</a>
+      <li><a href="construction.html#pgraph.PGraph.BaseGraph.__contains__">__contains__() (pgraph.PGraph.BaseGraph method)</a>
+</li>
+      <li><a href="construction.html#pgraph.PGraph.BaseGraph.__getitem__">__getitem__() (pgraph.PGraph.BaseGraph method)</a>
+</li>
+      <li><a href="construction.html#pgraph.PGraph.BaseGraph.__init__">__init__() (pgraph.PGraph.BaseGraph method)</a>
 
       <ul>
-        <li><a href="dvertex.html#pgraph.PGraph.DVertex.__init__">(pgraph.PGraph.DVertex method)</a>
-</li>
         <li><a href="edge.html#pgraph.PGraph.Edge.__init__">(pgraph.PGraph.Edge method)</a>
 </li>
-        <li><a href="ugraph.html#pgraph.PGraph.UGraph.__init__">(pgraph.PGraph.UGraph method)</a>
-</li>
-        <li><a href="uvertex.html#pgraph.PGraph.UVertex.__init__">(pgraph.PGraph.UVertex method)</a>
-</li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="construction.html#pgraph.PGraph.BaseGraph.__iter__">__iter__() (pgraph.PGraph.BaseGraph method)</a>
+</li>
+      <li><a href="construction.html#pgraph.PGraph.BaseGraph.__repr__">__repr__() (pgraph.PGraph.BaseGraph method)</a>
+</li>
+      <li><a href="construction.html#pgraph.PGraph.BaseGraph.__str__">__str__() (pgraph.PGraph.BaseGraph method)</a>
+</li>
   </ul></td>
 </tr></table>
 
 <h2 id="A">A</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="PGraph.html#pgraph.PGraph.BaseGraph.add_edge">add_edge() (pgraph.PGraph.BaseGraph method)</a>
-
-      <ul>
-        <li><a href="dgraph.html#pgraph.PGraph.DGraph.add_edge">(pgraph.PGraph.DGraph method)</a>
+      <li><a href="modification.html#pgraph.PGraph.BaseGraph.add_edge">add_edge() (pgraph.PGraph.BaseGraph method)</a>
 </li>
-        <li><a href="ugraph.html#pgraph.PGraph.UGraph.add_edge">(pgraph.PGraph.UGraph method)</a>
+      <li><a href="modification.html#pgraph.PGraph.BaseGraph.add_vertex">add_vertex() (pgraph.PGraph.BaseGraph method)</a>
 </li>
-      </ul></li>
-      <li><a href="PGraph.html#pgraph.PGraph.BaseGraph.add_vertex">add_vertex() (pgraph.PGraph.BaseGraph method)</a>
-
-      <ul>
-        <li><a href="dgraph.html#pgraph.PGraph.DGraph.add_vertex">(pgraph.PGraph.DGraph method)</a>
-</li>
-        <li><a href="ugraph.html#pgraph.PGraph.UGraph.add_vertex">(pgraph.PGraph.UGraph method)</a>
-</li>
-      </ul></li>
-      <li><a href="PGraph.html#pgraph.PGraph.BaseGraph.Adjacency">Adjacency() (pgraph.PGraph.BaseGraph class method)</a>
-</li>
-      <li><a href="PGraph.html#pgraph.PGraph.BaseGraph.adjacency">adjacency() (pgraph.PGraph.BaseGraph method)</a>
-</li>
-      <li><a href="dgraph.html#pgraph.PGraph.DGraph.Adjacency">Adjacency() (pgraph.PGraph.DGraph class method)</a>
+      <li><a href="construction.html#pgraph.PGraph.BaseGraph.Adjacency">Adjacency (class in pgraph.PGraph.BaseGraph)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="dgraph.html#pgraph.PGraph.DGraph.adjacency">adjacency() (pgraph.PGraph.DGraph method)</a>
+      <li><a href="representations.html#pgraph.PGraph.BaseGraph.adjacency">adjacency() (pgraph.PGraph.BaseGraph method)</a>
 </li>
-      <li><a href="ugraph.html#pgraph.PGraph.UGraph.Adjacency">Adjacency() (pgraph.PGraph.UGraph class method)</a>
+      <li><a href="analysis.html#pgraph.PGraph.BaseVertex.adjacent">adjacent() (pgraph.PGraph.BaseVertex method)</a>
 </li>
-      <li><a href="ugraph.html#pgraph.PGraph.UGraph.adjacency">adjacency() (pgraph.PGraph.UGraph method)</a>
+      <li><a href="analysis.html#pgraph.PGraph.BaseGraph.average_degree">average_degree() (pgraph.PGraph.BaseGraph method)</a>
 </li>
-      <li><a href="PGraph.html#pgraph.PGraph.BaseVertex.adjacent">adjacent() (pgraph.PGraph.BaseVertex method)</a>
-
-      <ul>
-        <li><a href="dvertex.html#pgraph.PGraph.DVertex.adjacent">(pgraph.PGraph.DVertex method)</a>
-</li>
-        <li><a href="uvertex.html#pgraph.PGraph.UVertex.adjacent">(pgraph.PGraph.UVertex method)</a>
-</li>
-      </ul></li>
-      <li><a href="PGraph.html#pgraph.PGraph.BaseGraph.average_degree">average_degree() (pgraph.PGraph.BaseGraph method)</a>
-
-      <ul>
-        <li><a href="dgraph.html#pgraph.PGraph.DGraph.average_degree">(pgraph.PGraph.DGraph method)</a>
-</li>
-        <li><a href="ugraph.html#pgraph.PGraph.UGraph.average_degree">(pgraph.PGraph.UGraph method)</a>
-</li>
-      </ul></li>
   </ul></td>
 </tr></table>
 
 <h2 id="B">B</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="PGraph.html#pgraph.PGraph.BaseGraph">BaseGraph (class in pgraph.PGraph)</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="PGraph.html#pgraph.PGraph.BaseVertex">BaseVertex (class in pgraph.PGraph)</a>
+      <li><a href="construction.html#pgraph.PGraph.BaseGraph">BaseGraph (class in pgraph.PGraph)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -188,119 +184,51 @@
 <h2 id="C">C</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="PGraph.html#pgraph.PGraph.BaseGraph.closest">closest() (pgraph.PGraph.BaseGraph method)</a>
-
-      <ul>
-        <li><a href="PGraph.html#pgraph.PGraph.BaseVertex.closest">(pgraph.PGraph.BaseVertex method)</a>
+      <li><a href="analysis.html#pgraph.PGraph.BaseGraph.closest">closest() (pgraph.PGraph.BaseGraph method)</a>
 </li>
-        <li><a href="dgraph.html#pgraph.PGraph.DGraph.closest">(pgraph.PGraph.DGraph method)</a>
+      <li><a href="analysis.html#pgraph.PGraph.BaseGraph.component">component() (pgraph.PGraph.BaseGraph method)</a>
 </li>
-        <li><a href="dvertex.html#pgraph.PGraph.DVertex.closest">(pgraph.PGraph.DVertex method)</a>
-</li>
-        <li><a href="ugraph.html#pgraph.PGraph.UGraph.closest">(pgraph.PGraph.UGraph method)</a>
-</li>
-        <li><a href="uvertex.html#pgraph.PGraph.UVertex.closest">(pgraph.PGraph.UVertex method)</a>
-</li>
-      </ul></li>
-      <li><a href="PGraph.html#pgraph.PGraph.BaseGraph.component">component() (pgraph.PGraph.BaseGraph method)</a>
-
-      <ul>
-        <li><a href="dgraph.html#pgraph.PGraph.DGraph.component">(pgraph.PGraph.DGraph method)</a>
-</li>
-        <li><a href="ugraph.html#pgraph.PGraph.UGraph.component">(pgraph.PGraph.UGraph method)</a>
-</li>
-      </ul></li>
-      <li><a href="PGraph.html#pgraph.PGraph.BaseVertex.connect">connect() (pgraph.PGraph.BaseVertex method)</a>
+      <li><a href="modification.html#pgraph.PGraph.BaseVertex.connect">connect() (pgraph.PGraph.BaseVertex method)</a>
 
       <ul>
         <li><a href="dvertex.html#pgraph.PGraph.DVertex.connect">(pgraph.PGraph.DVertex method)</a>
 </li>
-        <li><a href="PGraph.html#pgraph.PGraph.Edge.connect">(pgraph.PGraph.Edge method)</a>, <a href="edge.html#pgraph.PGraph.Edge.connect">[1]</a>
+        <li><a href="edge.html#pgraph.PGraph.Edge.connect">(pgraph.PGraph.Edge method)</a>
 </li>
         <li><a href="uvertex.html#pgraph.PGraph.UVertex.connect">(pgraph.PGraph.UVertex method)</a>
 </li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="PGraph.html#pgraph.PGraph.BaseGraph.connectivity">connectivity() (pgraph.PGraph.BaseGraph method)</a>
-
-      <ul>
-        <li><a href="dgraph.html#pgraph.PGraph.DGraph.connectivity">(pgraph.PGraph.DGraph method)</a>
+      <li><a href="analysis.html#pgraph.PGraph.BaseGraph.connectivity">connectivity() (pgraph.PGraph.BaseGraph method)</a>
 </li>
-        <li><a href="ugraph.html#pgraph.PGraph.UGraph.connectivity">(pgraph.PGraph.UGraph method)</a>
+      <li><a href="construction.html#pgraph.PGraph.BaseGraph.copy">copy() (pgraph.PGraph.BaseGraph method)</a>
 </li>
-      </ul></li>
-      <li><a href="PGraph.html#pgraph.PGraph.BaseGraph.copy">copy() (pgraph.PGraph.BaseGraph method)</a>
-
-      <ul>
-        <li><a href="PGraph.html#pgraph.PGraph.BaseVertex.copy">(pgraph.PGraph.BaseVertex method)</a>
-</li>
-        <li><a href="dgraph.html#pgraph.PGraph.DGraph.copy">(pgraph.PGraph.DGraph method)</a>
-</li>
-        <li><a href="dvertex.html#pgraph.PGraph.DVertex.copy">(pgraph.PGraph.DVertex method)</a>
-</li>
-        <li><a href="ugraph.html#pgraph.PGraph.UGraph.copy">(pgraph.PGraph.UGraph method)</a>
-</li>
-        <li><a href="uvertex.html#pgraph.PGraph.UVertex.copy">(pgraph.PGraph.UVertex method)</a>
-</li>
-      </ul></li>
   </ul></td>
 </tr></table>
 
 <h2 id="D">D</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="PGraph.html#pgraph.PGraph.BaseVertex.degree">degree (pgraph.PGraph.BaseVertex property)</a>
-
-      <ul>
-        <li><a href="dvertex.html#pgraph.PGraph.DVertex.degree">(pgraph.PGraph.DVertex property)</a>
+      <li><a href="analysis.html#pgraph.PGraph.BaseVertex.degree">degree (pgraph.PGraph.BaseVertex property)</a>
 </li>
-        <li><a href="uvertex.html#pgraph.PGraph.UVertex.degree">(pgraph.PGraph.UVertex property)</a>
+      <li><a href="representations.html#pgraph.PGraph.BaseGraph.degree">degree() (pgraph.PGraph.BaseGraph method)</a>
 </li>
-      </ul></li>
-      <li><a href="PGraph.html#pgraph.PGraph.BaseGraph.degree">degree() (pgraph.PGraph.BaseGraph method)</a>
-
-      <ul>
-        <li><a href="dgraph.html#pgraph.PGraph.DGraph.degree">(pgraph.PGraph.DGraph method)</a>
+      <li><a href="construction.html#pgraph.PGraph.DGraph">DGraph (class in pgraph.PGraph)</a>
 </li>
-        <li><a href="ugraph.html#pgraph.PGraph.UGraph.degree">(pgraph.PGraph.UGraph method)</a>
+      <li><a href="construction.html#pgraph.PGraph.BaseGraph.Dict">Dict (class in pgraph.PGraph.BaseGraph)</a>
 </li>
-      </ul></li>
-      <li><a href="PGraph.html#pgraph.PGraph.DGraph">DGraph (class in pgraph.PGraph)</a>, <a href="dgraph.html#pgraph.PGraph.DGraph">[1]</a>
-</li>
-      <li><a href="PGraph.html#pgraph.PGraph.BaseGraph.Dict">Dict() (pgraph.PGraph.BaseGraph class method)</a>
-
-      <ul>
-        <li><a href="dgraph.html#pgraph.PGraph.DGraph.Dict">(pgraph.PGraph.DGraph class method)</a>
-</li>
-        <li><a href="ugraph.html#pgraph.PGraph.UGraph.Dict">(pgraph.PGraph.UGraph class method)</a>
-</li>
-      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="PGraph.html#pgraph.PGraph.BaseGraph.distance">distance() (pgraph.PGraph.BaseGraph method)</a>
+      <li><a href="representations.html#pgraph.PGraph.BaseGraph.distance">distance() (pgraph.PGraph.BaseGraph method)</a>
 
       <ul>
-        <li><a href="PGraph.html#pgraph.PGraph.BaseVertex.distance">(pgraph.PGraph.BaseVertex method)</a>
-</li>
-        <li><a href="dgraph.html#pgraph.PGraph.DGraph.distance">(pgraph.PGraph.DGraph method)</a>
-</li>
-        <li><a href="dvertex.html#pgraph.PGraph.DVertex.distance">(pgraph.PGraph.DVertex method)</a>
-</li>
-        <li><a href="ugraph.html#pgraph.PGraph.UGraph.distance">(pgraph.PGraph.UGraph method)</a>
-</li>
-        <li><a href="uvertex.html#pgraph.PGraph.UVertex.distance">(pgraph.PGraph.UVertex method)</a>
+        <li><a href="analysis.html#pgraph.PGraph.BaseVertex.distance">(pgraph.PGraph.BaseVertex method)</a>
 </li>
       </ul></li>
-      <li><a href="PGraph.html#pgraph.PGraph.BaseGraph.dotfile">dotfile() (pgraph.PGraph.BaseGraph method)</a>
-
-      <ul>
-        <li><a href="dgraph.html#pgraph.PGraph.DGraph.dotfile">(pgraph.PGraph.DGraph method)</a>
+      <li><a href="export.html#pgraph.PGraph.BaseGraph.dotfile">dotfile() (pgraph.PGraph.BaseGraph method)</a>
 </li>
-        <li><a href="ugraph.html#pgraph.PGraph.UGraph.dotfile">(pgraph.PGraph.UGraph method)</a>
-</li>
-      </ul></li>
-      <li><a href="PGraph.html#pgraph.PGraph.DVertex">DVertex (class in pgraph.PGraph)</a>, <a href="dvertex.html#pgraph.PGraph.DVertex">[1]</a>
+      <li><a href="dvertex.html#pgraph.PGraph.DVertex">DVertex (class in pgraph.PGraph)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -308,197 +236,65 @@
 <h2 id="E">E</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="PGraph.html#pgraph.PGraph.Edge">Edge (class in pgraph.PGraph)</a>, <a href="edge.html#pgraph.PGraph.Edge">[1]</a>
+      <li><a href="edge.html#pgraph.PGraph.Edge">Edge (class in pgraph.PGraph)</a>
 </li>
-      <li><a href="PGraph.html#pgraph.PGraph.BaseGraph.edge_class">edge_class (pgraph.PGraph.BaseGraph property)</a>
+      <li><a href="construction.html#pgraph.PGraph.BaseGraph.edge_class">edge_class (pgraph.PGraph.BaseGraph property)</a>
+</li>
+      <li><a href="analysis.html#pgraph.PGraph.BaseGraph.edges">edges() (pgraph.PGraph.BaseGraph method)</a>
 
       <ul>
-        <li><a href="dgraph.html#pgraph.PGraph.DGraph.edge_class">(pgraph.PGraph.DGraph property)</a>
-</li>
-        <li><a href="ugraph.html#pgraph.PGraph.UGraph.edge_class">(pgraph.PGraph.UGraph property)</a>
-</li>
-      </ul></li>
-      <li><a href="PGraph.html#pgraph.PGraph.BaseGraph.edges">edges() (pgraph.PGraph.BaseGraph method)</a>
-
-      <ul>
-        <li><a href="PGraph.html#pgraph.PGraph.BaseVertex.edges">(pgraph.PGraph.BaseVertex method)</a>
-</li>
-        <li><a href="dgraph.html#pgraph.PGraph.DGraph.edges">(pgraph.PGraph.DGraph method)</a>
-</li>
-        <li><a href="dvertex.html#pgraph.PGraph.DVertex.edges">(pgraph.PGraph.DVertex method)</a>
-</li>
-        <li><a href="ugraph.html#pgraph.PGraph.UGraph.edges">(pgraph.PGraph.UGraph method)</a>
-</li>
-        <li><a href="uvertex.html#pgraph.PGraph.UVertex.edges">(pgraph.PGraph.UVertex method)</a>
+        <li><a href="analysis.html#pgraph.PGraph.BaseVertex.edges">(pgraph.PGraph.BaseVertex method)</a>
 </li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="PGraph.html#pgraph.PGraph.BaseVertex.edgeto">edgeto() (pgraph.PGraph.BaseVertex method)</a>
-
-      <ul>
-        <li><a href="dvertex.html#pgraph.PGraph.DVertex.edgeto">(pgraph.PGraph.DVertex method)</a>
+      <li><a href="modification.html#pgraph.PGraph.BaseVertex.edgeto">edgeto() (pgraph.PGraph.BaseVertex method)</a>
 </li>
-        <li><a href="uvertex.html#pgraph.PGraph.UVertex.edgeto">(pgraph.PGraph.UVertex method)</a>
+      <li><a href="edge.html#pgraph.PGraph.Edge.endpoints">endpoints (pgraph.PGraph.Edge property)</a>
 </li>
-      </ul></li>
-      <li><a href="PGraph.html#pgraph.PGraph.Edge.endpoints">endpoints (pgraph.PGraph.Edge property)</a>, <a href="edge.html#pgraph.PGraph.Edge.endpoints">[1]</a>
+      <li><a href="export.html#pgraph.PGraph.BaseGraph.export">export() (pgraph.PGraph.BaseGraph method)</a>
 </li>
-      <li><a href="PGraph.html#pgraph.PGraph.BaseGraph.export">export() (pgraph.PGraph.BaseGraph method)</a>
-
-      <ul>
-        <li><a href="dgraph.html#pgraph.PGraph.DGraph.export">(pgraph.PGraph.DGraph method)</a>
-</li>
-        <li><a href="ugraph.html#pgraph.PGraph.UGraph.export">(pgraph.PGraph.UGraph method)</a>
-</li>
-      </ul></li>
   </ul></td>
 </tr></table>
 
 <h2 id="H">H</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="PGraph.html#pgraph.PGraph.BaseGraph.heuristic">heuristic (pgraph.PGraph.BaseGraph property)</a>
-
-      <ul>
-        <li><a href="dgraph.html#pgraph.PGraph.DGraph.heuristic">(pgraph.PGraph.DGraph property)</a>
+      <li><a href="construction.html#pgraph.PGraph.BaseGraph.heuristic">heuristic (pgraph.PGraph.BaseGraph property)</a>
 </li>
-        <li><a href="ugraph.html#pgraph.PGraph.UGraph.heuristic">(pgraph.PGraph.UGraph property)</a>
+      <li><a href="analysis.html#pgraph.PGraph.BaseVertex.heuristic_distance">heuristic_distance() (pgraph.PGraph.BaseVertex method)</a>
 </li>
-      </ul></li>
-      <li><a href="PGraph.html#pgraph.PGraph.BaseVertex.heuristic_distance">heuristic_distance() (pgraph.PGraph.BaseVertex method)</a>
-
-      <ul>
-        <li><a href="dvertex.html#pgraph.PGraph.DVertex.heuristic_distance">(pgraph.PGraph.DVertex method)</a>
-</li>
-        <li><a href="uvertex.html#pgraph.PGraph.UVertex.heuristic_distance">(pgraph.PGraph.UVertex method)</a>
-</li>
-      </ul></li>
-      <li><a href="PGraph.html#pgraph.PGraph.BaseGraph.highlight_edge">highlight_edge() (pgraph.PGraph.BaseGraph method)</a>
-
-      <ul>
-        <li><a href="dgraph.html#pgraph.PGraph.DGraph.highlight_edge">(pgraph.PGraph.DGraph method)</a>
-</li>
-        <li><a href="ugraph.html#pgraph.PGraph.UGraph.highlight_edge">(pgraph.PGraph.UGraph method)</a>
-</li>
-      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="PGraph.html#pgraph.PGraph.BaseGraph.highlight_path">highlight_path() (pgraph.PGraph.BaseGraph method)</a>
-
-      <ul>
-        <li><a href="dgraph.html#pgraph.PGraph.DGraph.highlight_path">(pgraph.PGraph.DGraph method)</a>
+      <li><a href="visualization.html#pgraph.PGraph.BaseGraph.highlight_edge">highlight_edge() (pgraph.PGraph.BaseGraph method)</a>
 </li>
-        <li><a href="ugraph.html#pgraph.PGraph.UGraph.highlight_path">(pgraph.PGraph.UGraph method)</a>
+      <li><a href="visualization.html#pgraph.PGraph.BaseGraph.highlight_path">highlight_path() (pgraph.PGraph.BaseGraph method)</a>
 </li>
-      </ul></li>
-      <li><a href="PGraph.html#pgraph.PGraph.BaseGraph.highlight_vertex">highlight_vertex() (pgraph.PGraph.BaseGraph method)</a>
-
-      <ul>
-        <li><a href="dgraph.html#pgraph.PGraph.DGraph.highlight_vertex">(pgraph.PGraph.DGraph method)</a>
+      <li><a href="visualization.html#pgraph.PGraph.BaseGraph.highlight_vertex">highlight_vertex() (pgraph.PGraph.BaseGraph method)</a>
 </li>
-        <li><a href="ugraph.html#pgraph.PGraph.UGraph.highlight_vertex">(pgraph.PGraph.UGraph method)</a>
-</li>
-      </ul></li>
   </ul></td>
 </tr></table>
 
 <h2 id="I">I</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="PGraph.html#pgraph.PGraph.BaseVertex.in_degree">in_degree (pgraph.PGraph.BaseVertex property)</a>
-
-      <ul>
-        <li><a href="dvertex.html#pgraph.PGraph.DVertex.in_degree">(pgraph.PGraph.DVertex property)</a>
+      <li><a href="representations.html#pgraph.PGraph.BaseGraph.incidence">incidence() (pgraph.PGraph.BaseGraph method)</a>
 </li>
-        <li><a href="uvertex.html#pgraph.PGraph.UVertex.in_degree">(pgraph.PGraph.UVertex property)</a>
+      <li><a href="analysis.html#pgraph.PGraph.BaseVertex.incidences">incidences() (pgraph.PGraph.BaseVertex method)</a>
 </li>
-      </ul></li>
-      <li><a href="PGraph.html#pgraph.PGraph.BaseVertex.in_edges">in_edges() (pgraph.PGraph.BaseVertex method)</a>
-
-      <ul>
-        <li><a href="dvertex.html#pgraph.PGraph.DVertex.in_edges">(pgraph.PGraph.DVertex method)</a>
-</li>
-        <li><a href="uvertex.html#pgraph.PGraph.UVertex.in_edges">(pgraph.PGraph.UVertex method)</a>
-</li>
-      </ul></li>
-      <li><a href="PGraph.html#pgraph.PGraph.BaseGraph.incidence">incidence() (pgraph.PGraph.BaseGraph method)</a>
-
-      <ul>
-        <li><a href="dgraph.html#pgraph.PGraph.DGraph.incidence">(pgraph.PGraph.DGraph method)</a>
-</li>
-        <li><a href="ugraph.html#pgraph.PGraph.UGraph.incidence">(pgraph.PGraph.UGraph method)</a>
-</li>
-      </ul></li>
-      <li><a href="PGraph.html#pgraph.PGraph.BaseVertex.incidences">incidences() (pgraph.PGraph.BaseVertex method)</a>
-
-      <ul>
-        <li><a href="dvertex.html#pgraph.PGraph.DVertex.incidences">(pgraph.PGraph.DVertex method)</a>
-</li>
-        <li><a href="uvertex.html#pgraph.PGraph.UVertex.incidences">(pgraph.PGraph.UVertex method)</a>
-</li>
-      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="PGraph.html#pgraph.PGraph.BaseVertex.isadjacent">isadjacent() (pgraph.PGraph.BaseVertex method)</a>
-
-      <ul>
-        <li><a href="dvertex.html#pgraph.PGraph.DVertex.isadjacent">(pgraph.PGraph.DVertex method)</a>
+      <li><a href="analysis.html#pgraph.PGraph.BaseVertex.isadjacent">isadjacent() (pgraph.PGraph.BaseVertex method)</a>
 </li>
-        <li><a href="uvertex.html#pgraph.PGraph.UVertex.isadjacent">(pgraph.PGraph.UVertex method)</a>
+      <li><a href="analysis.html#pgraph.PGraph.BaseGraph.iscyclic">iscyclic() (pgraph.PGraph.BaseGraph method)</a>
 </li>
-      </ul></li>
-      <li><a href="PGraph.html#pgraph.PGraph.BaseGraph.iscyclic">iscyclic() (pgraph.PGraph.BaseGraph method)</a>
-
-      <ul>
-        <li><a href="dgraph.html#pgraph.PGraph.DGraph.iscyclic">(pgraph.PGraph.DGraph method)</a>
-</li>
-        <li><a href="ugraph.html#pgraph.PGraph.UGraph.iscyclic">(pgraph.PGraph.UGraph method)</a>
-</li>
-      </ul></li>
-      <li><a href="PGraph.html#pgraph.PGraph.BaseVertex.isneighbor">isneighbor() (pgraph.PGraph.BaseVertex method)</a>
-
-      <ul>
-        <li><a href="dvertex.html#pgraph.PGraph.DVertex.isneighbor">(pgraph.PGraph.DVertex method)</a>
-</li>
-        <li><a href="uvertex.html#pgraph.PGraph.UVertex.isneighbor">(pgraph.PGraph.UVertex method)</a>
-</li>
-      </ul></li>
-      <li><a href="PGraph.html#pgraph.PGraph.BaseVertex.isneighbour">isneighbour() (pgraph.PGraph.BaseVertex method)</a>
-
-      <ul>
-        <li><a href="dvertex.html#pgraph.PGraph.DVertex.isneighbour">(pgraph.PGraph.DVertex method)</a>
-</li>
-        <li><a href="uvertex.html#pgraph.PGraph.UVertex.isneighbour">(pgraph.PGraph.UVertex method)</a>
-</li>
-      </ul></li>
   </ul></td>
 </tr></table>
 
 <h2 id="L">L</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="PGraph.html#pgraph.PGraph.BaseVertex.label">label (pgraph.PGraph.BaseVertex property)</a>
-
-      <ul>
-        <li><a href="dvertex.html#pgraph.PGraph.DVertex.label">(pgraph.PGraph.DVertex property)</a>
-</li>
-        <li><a href="uvertex.html#pgraph.PGraph.UVertex.label">(pgraph.PGraph.UVertex property)</a>
-</li>
-      </ul></li>
-      <li><a href="PGraph.html#pgraph.PGraph.BaseGraph.Laplacian">Laplacian() (pgraph.PGraph.BaseGraph method)</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="PGraph.html#pgraph.PGraph.BaseGraph.laplacian">laplacian() (pgraph.PGraph.BaseGraph method)</a>
-</li>
-      <li><a href="dgraph.html#pgraph.PGraph.DGraph.Laplacian">Laplacian() (pgraph.PGraph.DGraph method)</a>
-</li>
-      <li><a href="dgraph.html#pgraph.PGraph.DGraph.laplacian">laplacian() (pgraph.PGraph.DGraph method)</a>
-</li>
-      <li><a href="ugraph.html#pgraph.PGraph.UGraph.Laplacian">Laplacian() (pgraph.PGraph.UGraph method)</a>
-</li>
-      <li><a href="ugraph.html#pgraph.PGraph.UGraph.laplacian">laplacian() (pgraph.PGraph.UGraph method)</a>
+      <li><a href="representations.html#pgraph.PGraph.BaseGraph.laplacian">laplacian() (pgraph.PGraph.BaseGraph method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -506,251 +302,85 @@
 <h2 id="M">M</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="PGraph.html#pgraph.PGraph.BaseGraph.metric">metric (pgraph.PGraph.BaseGraph property)</a>
-
-      <ul>
-        <li><a href="dgraph.html#pgraph.PGraph.DGraph.metric">(pgraph.PGraph.DGraph property)</a>
+      <li><a href="construction.html#pgraph.PGraph.BaseGraph.metric">metric (pgraph.PGraph.BaseGraph property)</a>
 </li>
-        <li><a href="ugraph.html#pgraph.PGraph.UGraph.metric">(pgraph.PGraph.UGraph property)</a>
-</li>
-      </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li>
-    module
-
-      <ul>
-        <li><a href="PGraph.html#module-pgraph.PGraph">pgraph.PGraph</a>
-</li>
-      </ul></li>
   </ul></td>
 </tr></table>
 
 <h2 id="N">N</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="PGraph.html#pgraph.PGraph.BaseGraph.n">n (pgraph.PGraph.BaseGraph property)</a>
-
-      <ul>
-        <li><a href="dgraph.html#pgraph.PGraph.DGraph.n">(pgraph.PGraph.DGraph property)</a>
+      <li><a href="analysis.html#pgraph.PGraph.BaseGraph.n">n (pgraph.PGraph.BaseGraph property)</a>
 </li>
-        <li><a href="ugraph.html#pgraph.PGraph.UGraph.n">(pgraph.PGraph.UGraph property)</a>
-</li>
-      </ul></li>
-      <li><a href="PGraph.html#pgraph.PGraph.BaseVertex.name">name (pgraph.PGraph.BaseVertex property)</a>
-
-      <ul>
-        <li><a href="dvertex.html#pgraph.PGraph.DVertex.name">(pgraph.PGraph.DVertex property)</a>
-</li>
-        <li><a href="uvertex.html#pgraph.PGraph.UVertex.name">(pgraph.PGraph.UVertex property)</a>
-</li>
-      </ul></li>
-      <li><a href="PGraph.html#pgraph.PGraph.BaseGraph.nc">nc (pgraph.PGraph.BaseGraph property)</a>
-
-      <ul>
-        <li><a href="dgraph.html#pgraph.PGraph.DGraph.nc">(pgraph.PGraph.DGraph property)</a>
-</li>
-        <li><a href="ugraph.html#pgraph.PGraph.UGraph.nc">(pgraph.PGraph.UGraph property)</a>
-</li>
-      </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="PGraph.html#pgraph.PGraph.BaseGraph.ne">ne (pgraph.PGraph.BaseGraph property)</a>
-
-      <ul>
-        <li><a href="dgraph.html#pgraph.PGraph.DGraph.ne">(pgraph.PGraph.DGraph property)</a>
-</li>
-        <li><a href="ugraph.html#pgraph.PGraph.UGraph.ne">(pgraph.PGraph.UGraph property)</a>
-</li>
-      </ul></li>
-      <li><a href="PGraph.html#pgraph.PGraph.BaseVertex.neighbors">neighbors() (pgraph.PGraph.BaseVertex method)</a>
-
-      <ul>
-        <li><a href="dvertex.html#pgraph.PGraph.DVertex.neighbors">(pgraph.PGraph.DVertex method)</a>
-</li>
-        <li><a href="uvertex.html#pgraph.PGraph.UVertex.neighbors">(pgraph.PGraph.UVertex method)</a>
-</li>
-      </ul></li>
-      <li><a href="PGraph.html#pgraph.PGraph.BaseVertex.neighbours">neighbours() (pgraph.PGraph.BaseVertex method)</a>
-
-      <ul>
-        <li><a href="dvertex.html#pgraph.PGraph.DVertex.neighbours">(pgraph.PGraph.DVertex method)</a>
-</li>
-        <li><a href="uvertex.html#pgraph.PGraph.UVertex.neighbours">(pgraph.PGraph.UVertex method)</a>
-</li>
-      </ul></li>
-      <li><a href="PGraph.html#pgraph.PGraph.Edge.next">next() (pgraph.PGraph.Edge method)</a>, <a href="edge.html#pgraph.PGraph.Edge.next">[1]</a>
+      <li><a href="analysis.html#pgraph.PGraph.BaseGraph.nc">nc (pgraph.PGraph.BaseGraph property)</a>
 </li>
   </ul></td>
-</tr></table>
-
-<h2 id="O">O</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="PGraph.html#pgraph.PGraph.BaseVertex.out_degree">out_degree (pgraph.PGraph.BaseVertex property)</a>
-
-      <ul>
-        <li><a href="dvertex.html#pgraph.PGraph.DVertex.out_degree">(pgraph.PGraph.DVertex property)</a>
+      <li><a href="analysis.html#pgraph.PGraph.BaseGraph.ne">ne (pgraph.PGraph.BaseGraph property)</a>
 </li>
-        <li><a href="uvertex.html#pgraph.PGraph.UVertex.out_degree">(pgraph.PGraph.UVertex property)</a>
+      <li><a href="edge.html#pgraph.PGraph.Edge.next">next() (pgraph.PGraph.Edge method)</a>
 </li>
-      </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="PGraph.html#pgraph.PGraph.BaseVertex.out_edges">out_edges() (pgraph.PGraph.BaseVertex method)</a>
-
-      <ul>
-        <li><a href="dvertex.html#pgraph.PGraph.DVertex.out_edges">(pgraph.PGraph.DVertex method)</a>
-</li>
-        <li><a href="uvertex.html#pgraph.PGraph.UVertex.out_edges">(pgraph.PGraph.UVertex method)</a>
-</li>
-      </ul></li>
   </ul></td>
 </tr></table>
 
 <h2 id="P">P</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="PGraph.html#pgraph.PGraph.BaseGraph.path_Astar">path_Astar() (pgraph.PGraph.BaseGraph method)</a>
-
-      <ul>
-        <li><a href="dgraph.html#pgraph.PGraph.DGraph.path_Astar">(pgraph.PGraph.DGraph method)</a>
+      <li><a href="planning.html#pgraph.PGraph.BaseGraph.path_Astar">path_Astar() (pgraph.PGraph.BaseGraph method)</a>
 </li>
-        <li><a href="ugraph.html#pgraph.PGraph.UGraph.path_Astar">(pgraph.PGraph.UGraph method)</a>
+      <li><a href="planning.html#pgraph.PGraph.BaseGraph.path_BFS">path_BFS() (pgraph.PGraph.BaseGraph method)</a>
 </li>
-      </ul></li>
-      <li><a href="PGraph.html#pgraph.PGraph.BaseGraph.path_BFS">path_BFS() (pgraph.PGraph.BaseGraph method)</a>
-
-      <ul>
-        <li><a href="dgraph.html#pgraph.PGraph.DGraph.path_BFS">(pgraph.PGraph.DGraph method)</a>
-</li>
-        <li><a href="ugraph.html#pgraph.PGraph.UGraph.path_BFS">(pgraph.PGraph.UGraph method)</a>
-</li>
-      </ul></li>
-      <li><a href="PGraph.html#pgraph.PGraph.BaseGraph.path_UCS">path_UCS() (pgraph.PGraph.BaseGraph method)</a>
-
-      <ul>
-        <li><a href="dgraph.html#pgraph.PGraph.DGraph.path_UCS">(pgraph.PGraph.DGraph method)</a>
-</li>
-        <li><a href="ugraph.html#pgraph.PGraph.UGraph.path_UCS">(pgraph.PGraph.UGraph method)</a>
-</li>
-      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li>
-    pgraph.PGraph
-
-      <ul>
-        <li><a href="PGraph.html#module-pgraph.PGraph">module</a>
+      <li><a href="planning.html#pgraph.PGraph.BaseGraph.path_UCS">path_UCS() (pgraph.PGraph.BaseGraph method)</a>
 </li>
-      </ul></li>
-      <li><a href="PGraph.html#pgraph.PGraph.BaseGraph.plot">plot() (pgraph.PGraph.BaseGraph method)</a>
-
-      <ul>
-        <li><a href="dgraph.html#pgraph.PGraph.DGraph.plot">(pgraph.PGraph.DGraph method)</a>
+      <li><a href="visualization.html#pgraph.PGraph.BaseGraph.plot">plot() (pgraph.PGraph.BaseGraph method)</a>
 </li>
-        <li><a href="ugraph.html#pgraph.PGraph.UGraph.plot">(pgraph.PGraph.UGraph method)</a>
-</li>
-      </ul></li>
-      <li><a href="PGraph.html#pgraph.PGraph.BaseVertex.predecessors">predecessors() (pgraph.PGraph.BaseVertex method)</a>
-
-      <ul>
-        <li><a href="dvertex.html#pgraph.PGraph.DVertex.predecessors">(pgraph.PGraph.DVertex method)</a>
-</li>
-        <li><a href="uvertex.html#pgraph.PGraph.UVertex.predecessors">(pgraph.PGraph.UVertex method)</a>
-</li>
-      </ul></li>
   </ul></td>
 </tr></table>
 
 <h2 id="R">R</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="PGraph.html#pgraph.PGraph.BaseGraph.remove">remove() (pgraph.PGraph.BaseGraph method)</a>
+      <li><a href="modification.html#pgraph.PGraph.BaseGraph.remove">remove() (pgraph.PGraph.BaseGraph method)</a>
 
       <ul>
-        <li><a href="PGraph.html#pgraph.PGraph.BaseVertex.remove">(pgraph.PGraph.BaseVertex method)</a>
+        <li><a href="modification.html#pgraph.PGraph.BaseVertex.remove">(pgraph.PGraph.BaseVertex method)</a>
 </li>
-        <li><a href="dgraph.html#pgraph.PGraph.DGraph.remove">(pgraph.PGraph.DGraph method)</a>
-</li>
-        <li><a href="dvertex.html#pgraph.PGraph.DVertex.remove">(pgraph.PGraph.DVertex method)</a>
-</li>
-        <li><a href="PGraph.html#pgraph.PGraph.Edge.remove">(pgraph.PGraph.Edge method)</a>, <a href="edge.html#pgraph.PGraph.Edge.remove">[1]</a>
-</li>
-        <li><a href="ugraph.html#pgraph.PGraph.UGraph.remove">(pgraph.PGraph.UGraph method)</a>
-</li>
-        <li><a href="uvertex.html#pgraph.PGraph.UVertex.remove">(pgraph.PGraph.UVertex method)</a>
+        <li><a href="edge.html#pgraph.PGraph.Edge.remove">(pgraph.PGraph.Edge method)</a>
 </li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="PGraph.html#pgraph.PGraph.BaseGraph.remove_edge">remove_edge() (pgraph.PGraph.BaseGraph method)</a>
-
-      <ul>
-        <li><a href="dgraph.html#pgraph.PGraph.DGraph.remove_edge">(pgraph.PGraph.DGraph method)</a>
+      <li><a href="modification.html#pgraph.PGraph.BaseGraph.remove_edge">remove_edge() (pgraph.PGraph.BaseGraph method)</a>
 </li>
-        <li><a href="ugraph.html#pgraph.PGraph.UGraph.remove_edge">(pgraph.PGraph.UGraph method)</a>
+      <li><a href="modification.html#pgraph.PGraph.BaseGraph.remove_vertex">remove_vertex() (pgraph.PGraph.BaseGraph method)</a>
 </li>
-      </ul></li>
-      <li><a href="PGraph.html#pgraph.PGraph.BaseGraph.remove_vertex">remove_vertex() (pgraph.PGraph.BaseGraph method)</a>
-
-      <ul>
-        <li><a href="dgraph.html#pgraph.PGraph.DGraph.remove_vertex">(pgraph.PGraph.DGraph method)</a>
-</li>
-        <li><a href="ugraph.html#pgraph.PGraph.UGraph.remove_vertex">(pgraph.PGraph.UGraph method)</a>
-</li>
-      </ul></li>
   </ul></td>
 </tr></table>
 
 <h2 id="S">S</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="PGraph.html#pgraph.PGraph.BaseGraph.samecomponent">samecomponent() (pgraph.PGraph.BaseGraph method)</a>
-
-      <ul>
-        <li><a href="dgraph.html#pgraph.PGraph.DGraph.samecomponent">(pgraph.PGraph.DGraph method)</a>
+      <li><a href="analysis.html#pgraph.PGraph.BaseGraph.samecomponent">samecomponent() (pgraph.PGraph.BaseGraph method)</a>
 </li>
-        <li><a href="ugraph.html#pgraph.PGraph.UGraph.samecomponent">(pgraph.PGraph.UGraph method)</a>
-</li>
-      </ul></li>
-      <li><a href="PGraph.html#pgraph.PGraph.BaseGraph.show">show() (pgraph.PGraph.BaseGraph method)</a>
-
-      <ul>
-        <li><a href="dgraph.html#pgraph.PGraph.DGraph.show">(pgraph.PGraph.DGraph method)</a>
-</li>
-        <li><a href="ugraph.html#pgraph.PGraph.UGraph.show">(pgraph.PGraph.UGraph method)</a>
-</li>
-      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="PGraph.html#pgraph.PGraph.BaseGraph.showgraph">showgraph() (pgraph.PGraph.BaseGraph method)</a>
-
-      <ul>
-        <li><a href="dgraph.html#pgraph.PGraph.DGraph.showgraph">(pgraph.PGraph.DGraph method)</a>
+      <li><a href="construction.html#pgraph.PGraph.BaseGraph.show">show() (pgraph.PGraph.BaseGraph method)</a>
 </li>
-        <li><a href="ugraph.html#pgraph.PGraph.UGraph.showgraph">(pgraph.PGraph.UGraph method)</a>
+      <li><a href="visualization.html#pgraph.PGraph.BaseGraph.showgraph">showgraph() (pgraph.PGraph.BaseGraph method)</a>
 </li>
-      </ul></li>
-      <li><a href="PGraph.html#pgraph.PGraph.BaseVertex.successors">successors() (pgraph.PGraph.BaseVertex method)</a>
-
-      <ul>
-        <li><a href="dvertex.html#pgraph.PGraph.DVertex.successors">(pgraph.PGraph.DVertex method)</a>
-</li>
-        <li><a href="uvertex.html#pgraph.PGraph.UVertex.successors">(pgraph.PGraph.UVertex method)</a>
-</li>
-      </ul></li>
   </ul></td>
 </tr></table>
 
 <h2 id="U">U</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="PGraph.html#pgraph.PGraph.UGraph">UGraph (class in pgraph.PGraph)</a>, <a href="ugraph.html#pgraph.PGraph.UGraph">[1]</a>
+      <li><a href="construction.html#pgraph.PGraph.UGraph">UGraph (class in pgraph.PGraph)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="PGraph.html#pgraph.PGraph.UVertex">UVertex (class in pgraph.PGraph)</a>, <a href="uvertex.html#pgraph.PGraph.UVertex">[1]</a>
+      <li><a href="uvertex.html#pgraph.PGraph.UVertex">UVertex (class in pgraph.PGraph)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -758,37 +388,17 @@
 <h2 id="V">V</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="PGraph.html#pgraph.PGraph.Edge.v1">v1 (pgraph.PGraph.Edge property)</a>, <a href="edge.html#pgraph.PGraph.Edge.v1">[1]</a>
+      <li><a href="edge.html#pgraph.PGraph.Edge.v1">v1 (pgraph.PGraph.Edge property)</a>
 </li>
-      <li><a href="PGraph.html#pgraph.PGraph.Edge.v2">v2 (pgraph.PGraph.Edge property)</a>, <a href="edge.html#pgraph.PGraph.Edge.v2">[1]</a>
+      <li><a href="edge.html#pgraph.PGraph.Edge.v2">v2 (pgraph.PGraph.Edge property)</a>
 </li>
-      <li><a href="PGraph.html#pgraph.PGraph.BaseGraph.validate">validate() (pgraph.PGraph.BaseGraph method)</a>
-
-      <ul>
-        <li><a href="dgraph.html#pgraph.PGraph.DGraph.validate">(pgraph.PGraph.DGraph method)</a>
-</li>
-        <li><a href="ugraph.html#pgraph.PGraph.UGraph.validate">(pgraph.PGraph.UGraph method)</a>
-</li>
-      </ul></li>
-      <li><a href="PGraph.html#pgraph.PGraph.BaseGraph.vertex_class">vertex_class (pgraph.PGraph.BaseGraph property)</a>
-
-      <ul>
-        <li><a href="dgraph.html#pgraph.PGraph.DGraph.vertex_class">(pgraph.PGraph.DGraph property)</a>
-</li>
-        <li><a href="ugraph.html#pgraph.PGraph.UGraph.vertex_class">(pgraph.PGraph.UGraph property)</a>
-</li>
-      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="PGraph.html#pgraph.PGraph.BaseGraph.vertex_copy">vertex_copy() (pgraph.PGraph.BaseGraph class method)</a>
-
-      <ul>
-        <li><a href="dgraph.html#pgraph.PGraph.DGraph.vertex_copy">(pgraph.PGraph.DGraph class method)</a>
+      <li><a href="construction.html#pgraph.PGraph.BaseGraph.vertex_class">vertex_class (pgraph.PGraph.BaseGraph property)</a>
 </li>
-        <li><a href="ugraph.html#pgraph.PGraph.UGraph.vertex_copy">(pgraph.PGraph.UGraph class method)</a>
+      <li><a href="construction.html#pgraph.PGraph.BaseGraph.vertex_copy">vertex_copy() (pgraph.PGraph.BaseGraph class method)</a>
 </li>
-      </ul></li>
-      <li><a href="PGraph.html#pgraph.PGraph.Edge.vertices">vertices() (pgraph.PGraph.Edge method)</a>, <a href="edge.html#pgraph.PGraph.Edge.vertices">[1]</a>
+      <li><a href="edge.html#pgraph.PGraph.Edge.vertices">vertices() (pgraph.PGraph.Edge method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -796,42 +406,24 @@
 <h2 id="X">X</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="PGraph.html#pgraph.PGraph.BaseVertex.x">x (pgraph.PGraph.BaseVertex property)</a>
-
-      <ul>
-        <li><a href="dvertex.html#pgraph.PGraph.DVertex.x">(pgraph.PGraph.DVertex property)</a>
+      <li><a href="analysis.html#pgraph.PGraph.BaseVertex.x">x (pgraph.PGraph.BaseVertex property)</a>
 </li>
-        <li><a href="uvertex.html#pgraph.PGraph.UVertex.x">(pgraph.PGraph.UVertex property)</a>
-</li>
-      </ul></li>
   </ul></td>
 </tr></table>
 
 <h2 id="Y">Y</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="PGraph.html#pgraph.PGraph.BaseVertex.y">y (pgraph.PGraph.BaseVertex property)</a>
-
-      <ul>
-        <li><a href="dvertex.html#pgraph.PGraph.DVertex.y">(pgraph.PGraph.DVertex property)</a>
+      <li><a href="analysis.html#pgraph.PGraph.BaseVertex.y">y (pgraph.PGraph.BaseVertex property)</a>
 </li>
-        <li><a href="uvertex.html#pgraph.PGraph.UVertex.y">(pgraph.PGraph.UVertex property)</a>
-</li>
-      </ul></li>
   </ul></td>
 </tr></table>
 
 <h2 id="Z">Z</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="PGraph.html#pgraph.PGraph.BaseVertex.z">z (pgraph.PGraph.BaseVertex property)</a>
-
-      <ul>
-        <li><a href="dvertex.html#pgraph.PGraph.DVertex.z">(pgraph.PGraph.DVertex property)</a>
+      <li><a href="analysis.html#pgraph.PGraph.BaseVertex.z">z (pgraph.PGraph.BaseVertex property)</a>
 </li>
-        <li><a href="uvertex.html#pgraph.PGraph.UVertex.z">(pgraph.PGraph.UVertex property)</a>
-</li>
-      </ul></li>
   </ul></td>
 </tr></table>
 
