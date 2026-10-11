@@ -13,7 +13,7 @@ import shutil
 import tempfile
 import unittest
 import unittest.mock
-import xml.etree.ElementTree as ET  # nosec B405 - parses our own generated output
+import xml.etree.ElementTree as ET  # nosec B405 nosemgrep - parses our own generated output
 
 
 from pgraph import DGraph, UGraph, exporters

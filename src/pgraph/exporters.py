@@ -473,7 +473,7 @@ def render(
         )
 
     text = dot(graph, direction=direction, colorcomponents=colorcomponents, costs=costs)
-    result = subprocess.run(  # nosec B603 - fixed program and format names, no shell
+    result = subprocess.run(  # nosec B603 nosemgrep - allow-listed program and format, no shell
         [exe, f"-T{fmt}"],
         input=text.encode("utf-8"),
         stdout=subprocess.PIPE,
