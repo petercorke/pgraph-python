@@ -306,6 +306,190 @@ class BaseGraph(ABC):
         """
         return self._edge_class
 
+    def validate(self) -> list[str]:
+        """
+        Check that the graph's records agree with each other
+
+        :return: a description of each inconsistency found, empty if the graph
+            is consistent
+        :rtype: list of str
+
+        A graph keeps the same facts in several places: its set of edges, each
+        vertex's list of outgoing edges (and, for a directed graph, of incoming
+        ones), each edge's two vertices, each vertex's pointer back to its
+        graph, and the table of vertex names.  The library keeps them in step,
+        so a graph built and edited through the public methods is always
+        valid.  This is a check for tests, for debugging, and for code that
+        reaches into the internals.
+
+        It does not change the graph, and takes time proportional to the
+        number of vertices plus edges.  It reports every inconsistency, not
+        only the first.
+
+        The checks are:
+
+        - the vertex list holds only vertices, once each, and the edge set
+          holds only edges
+        - every edge in the graph has two vertices, both in this graph, and is
+          an instance of :attr:`edge_class`
+        - every vertex points back at this graph, is an instance of
+          :attr:`vertex_class`, is in the name table under its own name, and
+          has a coordinate of the required length if ``dim`` was given
+        - every entry of the name table is a vertex of this graph and is
+          filed under its own name
+        - each edge is in the right vertex lists, the right number of times:
+          both ends for an undirected edge (twice at one vertex for a
+          self-loop), the source's outgoing and the target's incoming list for
+          a directed edge
+        - no vertex list holds an edge that is not in the graph
+
+        .. runblock:: pycon
+
+            >>> from pgraph import UGraph
+            >>> g = UGraph()
+            >>> v1 = g.add_vertex(name='v1')
+            >>> v2 = g.add_vertex(name='v2')
+            >>> g.add_edge(v1, v2)
+            >>> print(g.validate())
+
+        :seealso: :meth:`remove_edge` :meth:`remove_vertex`
+        """
+        from collections import Counter
+
+        problems: list[str] = []
+        directed = isinstance(self, DGraph)
+
+        # ---- the containers themselves must hold the right kind of thing; a
+        # stray object is reported and set aside so the checks below can run
+        vertices: list[BaseVertex] = []
+        for entry in self._vertexlist:
+            if isinstance(entry, BaseVertex):
+                vertices.append(entry)
+            else:
+                problems.append(f"the vertex list holds {entry!r}, which is not a vertex")
+        graph_edges: list[Edge] = []
+        for member in self._edgelist:
+            if isinstance(member, Edge):
+                graph_edges.append(member)
+            else:
+                problems.append(f"the edge set holds {member!r}, which is not an edge")
+
+        # ---- vertices
+        members = {id(v) for v in vertices}
+        for vid, n in Counter(id(v) for v in vertices).items():
+            if n > 1:
+                v = next(x for x in vertices if id(x) == vid)
+                problems.append(f"vertex {v.name!r} is listed {n} times in the vertex list")
+        for key, v in self._vertexdict.items():
+            if not isinstance(v, BaseVertex) or id(v) not in members:
+                problems.append(
+                    f"name table entry {key!r} refers to a vertex that is not in the graph"
+                )
+            elif v.name != key:
+                problems.append(
+                    f"name table entry {key!r} refers to vertex {v.name!r}, "
+                    "which has a different name"
+                )
+        for v in vertices:
+            if v._graph is not self:
+                problems.append(f"vertex {v.name!r} does not point back at this graph")
+            if v.name is None or self._vertexdict.get(v.name) is not v:
+                problems.append(
+                    f"vertex {v.name!r} is not in the name table under its own name"
+                )
+            if not isinstance(v, self._vertex_class):
+                problems.append(
+                    f"vertex {v.name!r} is a {type(v).__name__}, not a "
+                    f"{self._vertex_class.__name__}"
+                )
+            if (
+                self._dim is not None
+                and v.coord is not None
+                and len(v.coord) != self._dim
+            ):
+                problems.append(
+                    f"vertex {v.name!r} has a coordinate of length "
+                    f"{len(v.coord)} but the graph requires dim={self._dim}"
+                )
+            if not directed and v._inlist:
+                problems.append(
+                    f"vertex {v.name!r} has {len(v._inlist)} incoming edges "
+                    "recorded, but an undirected vertex does not use that list"
+                )
+
+        # ---- edges, and what each vertex list should then contain
+        expected_out: Counter[tuple[int, int]] = Counter()
+        expected_in: Counter[tuple[int, int]] = Counter()
+        edges: dict[int, Edge] = {}
+        in_graph = {id(e) for e in graph_edges}
+        for e in graph_edges:
+            edges[id(e)] = e
+            if e.v1 is None or e.v2 is None:
+                problems.append(f"edge {e!r} is in the graph but has no vertices")
+                continue
+            for end in (e.v1, e.v2):
+                if id(end) not in members:
+                    problems.append(
+                        f"edge {e!r} joins vertex {end.name!r}, which is not in this graph"
+                    )
+            if not isinstance(e, self._edge_class):
+                problems.append(
+                    f"edge {e!r} is a {type(e).__name__}, not a {self._edge_class.__name__}"
+                )
+            expected_out[(id(e.v1), id(e))] += 1
+            if directed:
+                expected_in[(id(e.v2), id(e))] += 1
+            else:
+                expected_out[(id(e.v2), id(e))] += 1
+
+        actual_out: Counter[tuple[int, int]] = Counter()
+        actual_in: Counter[tuple[int, int]] = Counter()
+        owner = {id(v): v for v in vertices}
+        for v in vertices:
+            for listname, held, counter in (
+                ("outgoing" if directed else "edge", v._edgelist, actual_out),
+                ("incoming", v._inlist, actual_in),
+            ):
+                for e in held:
+                    if not isinstance(e, Edge):
+                        problems.append(
+                            f"vertex {v.name!r} holds {e!r} in its {listname} list, "
+                            "which is not an edge"
+                        )
+                        continue
+                    counter[(id(v), id(e))] += 1
+                    edges.setdefault(id(e), e)
+
+        def report(expected: Counter, actual: Counter, listname: str) -> None:
+            for key in expected.keys() | actual.keys():
+                vid, eid = key
+                want, have = expected[key], actual[key]
+                if want == have:
+                    continue
+                v, e = owner.get(vid), edges[eid]
+                vname = v.name if v is not None else "?"
+                if eid not in in_graph:
+                    problems.append(
+                        f"vertex {vname!r} holds edge {e!r} in its {listname} "
+                        "list, but that edge is not in the graph"
+                    )
+                elif have < want:
+                    problems.append(
+                        f"edge {e!r} is missing from the {listname} list of "
+                        f"vertex {vname!r} (found {have}, expected {want})"
+                    )
+                else:
+                    problems.append(
+                        f"edge {e!r} appears {have} times in the {listname} list "
+                        f"of vertex {vname!r}, expected {want}"
+                    )
+
+        report(expected_out, actual_out, "outgoing" if directed else "edge")
+        if directed:
+            report(expected_in, actual_in, "incoming")
+
+        return problems
+
     def copy(self) -> BaseGraph:
         """
         Deepcopy of graph
