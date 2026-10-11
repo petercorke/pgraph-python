@@ -1,14 +1,25 @@
-Transformations to other representations
+Transformations to matrix representations
 ==========================================
 
-These methods convert the graph to another representation entirely: a
-matrix, or a `GraphViz <https://graphviz.org>`_ dot file. See
-:doc:`visualization` for rendering the graph itself rather than exporting
-it.
+These methods convert the graph to a number of different matrix representations.
+
+
+.. autosummary::
+   :nosignatures:
+
+   ~pgraph.PGraph._BaseGraph.distance
+   ~pgraph.PGraph._BaseGraph.adjacency
+   ~pgraph.PGraph._BaseGraph.degree
+   ~pgraph.PGraph._BaseGraph.incidence
+   ~pgraph.PGraph._BaseGraph.Laplacian
+
+Details
+-------
 
 .. automethod:: pgraph.PGraph._BaseGraph.distance
 .. automethod:: pgraph.PGraph._BaseGraph.adjacency
 .. automethod:: pgraph.PGraph._BaseGraph.degree
 .. automethod:: pgraph.PGraph._BaseGraph.incidence
 .. automethod:: pgraph.PGraph._BaseGraph.Laplacian
-.. automethod:: pgraph.PGraph._BaseGraph.dotfile
+
+

@@ -7,6 +7,30 @@ here in its base-class form; :doc:`DVertex <dvertex>` and
 -- see those pages for the concrete behaviour. See :class:`Edge` for
 constructing/removing an edge directly rather than via a vertex or graph.
 
+Graph
+-----
+
+.. autosummary::
+   :nosignatures:
+
+   ~pgraph.PGraph._BaseGraph.add_vertex
+   ~pgraph.PGraph._BaseGraph.add_edge
+   ~pgraph.PGraph._BaseGraph.remove_edge
+   ~pgraph.PGraph._BaseGraph.remove_vertex
+
+Vertex
+------
+
+.. autosummary::
+   :nosignatures:
+
+   ~pgraph.PGraph.BaseVertex.connect
+   ~pgraph.PGraph.BaseVertex.edgeto
+   ~pgraph.PGraph.BaseVertex.remove
+
+Details
+-------
+
 .. automethod:: pgraph.PGraph._BaseGraph.add_vertex
 .. automethod:: pgraph.PGraph._BaseGraph.add_edge
 .. automethod:: pgraph.PGraph._BaseGraph.remove_edge

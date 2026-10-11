@@ -6,21 +6,14 @@
 Graphs for Python
 =================
 
-This package provides a set of classes for manipulating simple directed and undirected graphs in Python.
-
-
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
 
-   common
-   dgraph
-   ugraph
-   edges_vertices
-   policy
-
+   intro
+   api
 
 Indices and tables
-==================
+------------------
 
 * :ref:`genindex`
 * :ref:`search`
