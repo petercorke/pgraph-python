@@ -25,6 +25,7 @@ class BaseGraph(ABC):
 
     def __init__(
         self,
+        *,
         metric: Callable[[NDArray], float] | str | None = None,
         heuristic: Callable[[NDArray], float] | str | None = None,
         verbose: bool = False,
@@ -59,6 +60,14 @@ class BaseGraph(ABC):
 
         This is the common base class of :class:`UGraph` and :class:`DGraph`
         and should not be instantiated directly.
+
+        All arguments are keyword-only, so ``UGraph(dim=6)`` is correct and
+        ``UGraph(6)`` raises :exc:`TypeError`.
+
+        .. versionchanged:: 1.0
+            Arguments are keyword-only.  In 0.6.5 the first positional
+            argument was accepted and ignored, so ``UGraph(6)`` silently did
+            nothing.
 
         ``vertex_class`` and ``edge_class`` let user subclasses be built by the
         graph, so they never need to be constructed by hand::
