@@ -612,12 +612,9 @@ class _BaseGraph(ABC):
 
         .. warning:: The connectivity of the network may be changed.
 
-        .. note:: A directed edge is tracked only by its source vertex's
-            edge list, not its target's (see :attr:`BaseVertex.edges`), so
-            membership is checked per endpoint rather than assumed for both
-            -- removing a directed edge from an undirected-only
-            implementation would otherwise raise ``ValueError`` on the
-            target side.
+        .. note:: An undirected edge is held by both of its vertices and a
+            directed edge only by its source (see :meth:`BaseVertex.edges`).
+            Each vertex kind knows which, so this method does not.
 
         .. runblock:: pycon
 
@@ -633,15 +630,16 @@ class _BaseGraph(ABC):
         """
         if edge not in self._edgelist:
             raise ValueError("edge does not belong to this graph")
-        assert edge.v1 is not None and edge.v2 is not None
+        v1, v2 = edge.v1, edge.v2
+        if v1 is None or v2 is None:
+            raise ValueError("edge does not connect two vertices")
 
-        if edge in edge.v1._edgelist:
-            edge.v1._edgelist.remove(edge)
-        if edge in edge.v2._edgelist:
-            edge.v2._edgelist.remove(edge)
+        # how the edge is held differs between undirected and directed
+        # vertices, so the vertex kind undoes what its _attach did
+        v1._detach(edge, v2)
 
-        edge.v1._connectivitychange = True
-        edge.v2._connectivitychange = True
+        v1._connectivitychange = True
+        v2._connectivitychange = True
         self._connectivitychange = True
 
         edge.v1 = None
@@ -688,6 +686,8 @@ class _BaseGraph(ABC):
 
         self._vertexlist.remove(vertex)
         del self._vertexdict[vertex.name]
+        vertex._graph = None  # it is not in any graph now
+        self._connectivitychange = True
 
     def remove(self, x: Edge | BaseVertex) -> None:
         """
@@ -3236,6 +3236,25 @@ class BaseVertex:
             "subclass UVertex or DVertex"
         )
 
+    def _detach(self, edge: Edge, dest: BaseVertex) -> None:
+        """
+        Remove an edge from the vertices' edge lists (private method)
+
+        :param edge: the edge being removed, with ``edge.v1`` and ``edge.v2``
+            still set
+        :param dest: the vertex at the other end, ``edge.v2``
+        :raises NotImplementedError: not provided by this vertex kind
+
+        The twin of :meth:`_attach`: it undoes exactly what that recorded.
+        Called by :meth:`_BaseGraph.remove_edge` before the edge's endpoints
+        are cleared.  An edge that is absent from a list is skipped rather
+        than treated as an error.
+        """
+        raise NotImplementedError(
+            f"{type(self).__name__} does not define how an edge is detached; "
+            "subclass UVertex or DVertex"
+        )
+
     def _endpoints_match(self, edge: Edge, dest: BaseVertex) -> bool:
         """
         Test if an edge already connects this vertex to ``dest`` (private method)
@@ -3571,6 +3590,17 @@ class UVertex(BaseVertex):
         self._edgelist.append(edge)
         dest._edgelist.append(edge)
 
+    def _detach(self, edge: Edge, dest: BaseVertex) -> None:
+        """
+        Remove an undirected edge from both ends (private method)
+
+        A self-loop was recorded twice by :meth:`_attach`, so it is removed
+        twice.
+        """
+        for vertex in (self, dest):
+            if edge in vertex._edgelist:
+                vertex._edgelist.remove(edge)
+
     def _endpoints_match(self, edge: Edge, dest: BaseVertex) -> bool:
         """
         Test if an edge already connects this vertex and ``dest`` (private method)
@@ -3615,6 +3645,15 @@ class DVertex(BaseVertex):
         discoverable only from the start of the directed edge.
         """
         self._edgelist.append(edge)
+
+    def _detach(self, edge: Edge, dest: BaseVertex) -> None:
+        """
+        Remove a directed edge from its source (private method)
+
+        ``dest`` never held it.
+        """
+        if edge in self._edgelist:
+            self._edgelist.remove(edge)
 
 
 # UGraph/DGraph declare their _vertex_cls here, rather than in their own
