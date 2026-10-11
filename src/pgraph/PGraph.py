@@ -149,6 +149,8 @@ class _BaseGraph(ABC):
         :param reverse: reverse link direction, defaults to False
         :param kwargs: optional arguments passed to the graph constructor, for
             example ``vertex_class`` or ``edge_class``
+        :raises TypeError: ``vertex_class`` or ``edge_class`` is not a
+            suitable class, see :meth:`_BaseGraph.__init__`
         :return: graph
         :rtype: UGraph or DGraph
 
@@ -217,6 +219,11 @@ class _BaseGraph(ABC):
         :type names: list(N) of str, optional
         :param kwargs: optional arguments passed to the graph constructor, for
             example ``vertex_class`` or ``edge_class``
+        :raises ValueError: ``A`` is not square, the length of ``names`` or
+            the number of rows of ``coords`` does not match ``A``, or ``A``
+            has a non-zero diagonal element and the graph is a ``DGraph``
+        :raises TypeError: ``vertex_class`` or ``edge_class`` is not a
+            suitable class, see :meth:`_BaseGraph.__init__`
         :return: graph
         :rtype: UGraph or DGraph
 
@@ -224,7 +231,11 @@ class _BaseGraph(ABC):
         correspond to edges from vertex ``i`` to vertex ``j``.
 
         .. warning:: For undirected graph ``A`` should be symmetric but this
-            is not checked.  Only the upper triangular part is used.
+            is not checked.  Only the strictly upper triangular part is used,
+            so the diagonal is ignored and no self-loops are created. A
+            directed graph rejects a non-zero diagonal with ``ValueError``.
+            Edge counts greater than one are not turned into parallel edges;
+            a non-zero element is a single edge with that element as its cost.
 
         .. runblock:: pycon
 
@@ -2179,6 +2190,11 @@ class UGraph(_BaseGraph):
     """
     Class for undirected graphs
 
+    Vertices are :class:`UVertex` objects, or instances of the subclass given
+    as ``vertex_class``. Edges are :class:`Edge` objects, or instances of the
+    subclass given as ``edge_class``; see :class:`_BaseGraph` for the
+    constructor arguments and the exceptions they raise.
+
     .. inheritance-diagram:: UGraph
 
     :seealso: :class:`_BaseGraph` :class:`DGraph`
@@ -2232,6 +2248,11 @@ class UGraph(_BaseGraph):
 class DGraph(_BaseGraph):
     """
     Class for directed graphs
+
+    Vertices are :class:`DVertex` objects, or instances of the subclass given
+    as ``vertex_class``. Edges are :class:`Edge` objects, or instances of the
+    subclass given as ``edge_class``; see :class:`_BaseGraph` for the
+    constructor arguments and the exceptions they raise.
 
     .. inheritance-diagram:: DGraph
 
@@ -2333,6 +2354,9 @@ class Edge:
           edgelist of _each_ vertex.
         - This class can be inherited to provide user objects with graph capability.
         - Inheritance is an alternative to providing arbitrary user data.
+        - Pass the subclass as ``edge_class`` when constructing the graph and
+          the graph will create instances of it itself, see
+          :class:`_BaseGraph`.
 
     An Edge points to a pair of vertices.  At ``connect`` time the vertices
     get references back to the Edge object.
@@ -2453,6 +2477,8 @@ class Edge:
         :type v2: BaseVertex subclass
         :raises ValueError: either vertex has not been added to a graph, or
             the vertices belong to different graphs
+        :raises TypeError: this edge is not an instance of the graph's
+            :attr:`_BaseGraph.edge_class`
 
         The edge connects vertices ``v1`` and ``v2``, and is added to the
         graph that those vertices belong to.
@@ -3211,8 +3237,9 @@ class UVertex(BaseVertex):
 
         :param dest: vertex to connect to
         :type dest: BaseVertex subclass
-        :param edge: Use this as the edge object, otherwise a new ``Edge``
-                     object is created, defaults to None
+        :param edge: Use this as the edge object, otherwise a new object of the
+                     graph's :attr:`_BaseGraph.edge_class` is created,
+                     defaults to None
         :type edge: ``Edge`` subclass, optional
         :param cost: the cost to traverse this edge, defaults to None
         :type cost: float, optional
@@ -3222,6 +3249,8 @@ class UVertex(BaseVertex):
         :raises ValueError: either vertex has not been added to a graph, the
             vertices belong to different graphs, or ``edge`` already connects
             other vertices
+        :raises TypeError: ``edge`` is not an instance of the graph's
+            :attr:`_BaseGraph.edge_class`
         :return: the edge connecting the vertices
         :rtype: Edge
 
@@ -3287,8 +3316,9 @@ class DVertex(BaseVertex):
 
         :param dest: vertex to connect to
         :type dest: BaseVertex subclass
-        :param edge: Use this as the edge object, otherwise a new ``Edge``
-                     object is created, defaults to None
+        :param edge: Use this as the edge object, otherwise a new object of the
+                     graph's :attr:`_BaseGraph.edge_class` is created,
+                     defaults to None
         :type edge: ``Edge`` subclass, optional
         :param cost: the cost to traverse this edge, defaults to None
         :type cost: float, optional
@@ -3298,6 +3328,8 @@ class DVertex(BaseVertex):
         :raises ValueError: either vertex has not been added to a graph, the
             vertices belong to different graphs, or ``edge`` already connects
             other vertices
+        :raises TypeError: ``edge`` is not an instance of the graph's
+            :attr:`_BaseGraph.edge_class`
         :return: the edge connecting the vertices
         :rtype: Edge
 
