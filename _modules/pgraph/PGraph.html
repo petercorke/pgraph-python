@@ -2500,9 +2500,16 @@
 <span class="sd">        :type v1: BaseVertex subclass</span>
 <span class="sd">        :param v2: end of the edge</span>
 <span class="sd">        :type v2: BaseVertex subclass</span>
+<span class="sd">        :raises ValueError: either vertex has not been added to a graph, or</span>
+<span class="sd">            the vertices belong to different graphs</span>
 
 <span class="sd">        The edge connects vertices ``v1`` and ``v2``, and is added to the</span>
 <span class="sd">        graph that those vertices belong to.</span>
+
+<span class="sd">        .. warning:: Intended for an edge that is not yet part of a graph. The</span>
+<span class="sd">            edge's ``v1`` and ``v2`` are overwritten without checking, so</span>
+<span class="sd">            connecting an edge that is already in a graph leaves it</span>
+<span class="sd">            referenced from its old vertices as well.</span>
 
 <span class="sd">        .. runblock:: pycon</span>
 
@@ -2915,8 +2922,9 @@
 <span class="sd">        :param data: reference to arbitrary data associated with the edge,</span>
 <span class="sd">                     defaults to None</span>
 <span class="sd">        :type data: Any, optional</span>
-<span class="sd">        :raises ValueError: either vertex has not been added to a graph, or</span>
-<span class="sd">            the vertices belong to different graphs</span>
+<span class="sd">        :raises ValueError: either vertex has not been added to a graph, the</span>
+<span class="sd">            vertices belong to different graphs, or ``edge`` already connects</span>
+<span class="sd">            other vertices</span>
 <span class="sd">        :return: the edge connecting the vertices</span>
 <span class="sd">        :rtype: Edge</span>
 
@@ -2926,6 +2934,9 @@
 
 <span class="sd">            - If the vertices subclass ``UVertex`` the edge is undirected, and if</span>
 <span class="sd">              they subclass ``DVertex`` the edge is directed.</span>
+<span class="sd">            - A supplied ``edge`` built without vertices has its ``v1`` and</span>
+<span class="sd">              ``v2`` set to the vertices being connected. One built with</span>
+<span class="sd">              vertices must agree with them (in either order if undirected).</span>
 <span class="sd">            - Both vertices must already have been added to the same graph,</span>
 <span class="sd">              e.g. via :meth:`PGraph.add_vertex` -- since a graph only ever</span>
 <span class="sd">              accepts its own vertex subclass (see :meth:`UGraph.add_vertex`,</span>
@@ -2952,6 +2963,7 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"vertices must belong to the same graph"</span><span class="p">)</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">edge</span><span class="p">,</span> <span class="n">Edge</span><span class="p">):</span>
             <span class="n">e</span> <span class="o">=</span> <span class="n">edge</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_bind_edge</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">dest</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">e</span> <span class="o">=</span> <span class="n">Edge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dest</span><span class="p">,</span> <span class="n">cost</span><span class="o">=</span><span class="n">cost</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
 
@@ -2961,6 +2973,38 @@
 
         <span class="k">return</span> <span class="n">e</span></div>
 
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_endpoints_match</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">edge</span><span class="p">:</span> <span class="n">Edge</span><span class="p">,</span> <span class="n">dest</span><span class="p">:</span> <span class="n">BaseVertex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Test if an edge already connects this vertex to ``dest`` (private method)</span>
+
+<span class="sd">        A directed edge must run from this vertex to ``dest``; see</span>
+<span class="sd">        :meth:`UVertex._endpoints_match` for the undirected relaxation.</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="n">edge</span><span class="o">.</span><span class="n">v1</span> <span class="ow">is</span> <span class="bp">self</span> <span class="ow">and</span> <span class="n">edge</span><span class="o">.</span><span class="n">v2</span> <span class="ow">is</span> <span class="n">dest</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_bind_edge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">edge</span><span class="p">:</span> <span class="n">Edge</span><span class="p">,</span> <span class="n">dest</span><span class="p">:</span> <span class="n">BaseVertex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Make a caller-supplied edge connect this vertex to ``dest`` (private method)</span>
+
+<span class="sd">        :param edge: edge passed to :meth:`connect`</span>
+<span class="sd">        :param dest: vertex being connected to</span>
+<span class="sd">        :raises ValueError: ``edge`` already connects other vertices</span>
+
+<span class="sd">        An edge built without vertices has its ``v1`` and ``v2`` set here.</span>
+<span class="sd">        One built with vertices is left alone provided they agree with the</span>
+<span class="sd">        connection being made; otherwise it is rejected before anything is</span>
+<span class="sd">        changed, rather than leaving the graph holding an edge whose</span>
+<span class="sd">        endpoints disagree with the vertices' edge lists.</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="n">edge</span><span class="o">.</span><span class="n">v1</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">edge</span><span class="o">.</span><span class="n">v2</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">edge</span><span class="o">.</span><span class="n">v1</span> <span class="o">=</span> <span class="bp">self</span>
+            <span class="n">edge</span><span class="o">.</span><span class="n">v2</span> <span class="o">=</span> <span class="n">dest</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_endpoints_match</span><span class="p">(</span><span class="n">edge</span><span class="p">,</span> <span class="n">dest</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"edge already connects </span><span class="si">{</span><span class="n">edge</span><span class="o">.</span><span class="n">v1</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="n">edge</span><span class="o">.</span><span class="n">v2</span><span class="si">}</span><span class="s2">, "</span>
+                <span class="sa">f</span><span class="s2">"not </span><span class="si">{</span><span class="bp">self</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="n">dest</span><span class="si">}</span><span class="s2">"</span>
+            <span class="p">)</span>
 
 <div class="viewcode-block" id="BaseVertex.edgeto">
 <a class="viewcode-back" href="../../PGraph.html#pgraph.PGraph.BaseVertex.edgeto">[docs]</a>
@@ -3273,11 +3317,18 @@
 <span class="sd">        :param data: reference to arbitrary data associated with the edge,</span>
 <span class="sd">                     defaults to None</span>
 <span class="sd">        :type data: Any, optional</span>
+<span class="sd">        :raises ValueError: either vertex has not been added to a graph, the</span>
+<span class="sd">            vertices belong to different graphs, or ``edge`` already connects</span>
+<span class="sd">            other vertices</span>
 <span class="sd">        :return: the edge connecting the vertices</span>
 <span class="sd">        :rtype: Edge</span>
 
 <span class="sd">        Unlike the directed-graph counterpart, the new edge is added to</span>
 <span class="sd">        *both* vertices' edge lists, so it is discovered from either end.</span>
+
+<span class="sd">        If ``edge`` was built without vertices its ``v1`` and ``v2`` are set</span>
+<span class="sd">        to ``self`` and ``dest``. If it was built with vertices they must be</span>
+<span class="sd">        these two, in either order since an undirected edge has no direction.</span>
 
 <span class="sd">        .. runblock:: pycon</span>
 
@@ -3299,7 +3350,17 @@
         <span class="n">dest</span><span class="o">.</span><span class="n">_edgelist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">e</span></div>
-</div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_endpoints_match</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">edge</span><span class="p">:</span> <span class="n">Edge</span><span class="p">,</span> <span class="n">dest</span><span class="p">:</span> <span class="n">BaseVertex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Test if an edge already connects this vertex and ``dest`` (private method)</span>
+
+<span class="sd">        An undirected edge has no direction, so either order is accepted.</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">edge</span><span class="o">.</span><span class="n">v1</span> <span class="ow">is</span> <span class="bp">self</span> <span class="ow">and</span> <span class="n">edge</span><span class="o">.</span><span class="n">v2</span> <span class="ow">is</span> <span class="n">dest</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span>
+            <span class="n">edge</span><span class="o">.</span><span class="n">v1</span> <span class="ow">is</span> <span class="n">dest</span> <span class="ow">and</span> <span class="n">edge</span><span class="o">.</span><span class="n">v2</span> <span class="ow">is</span> <span class="bp">self</span>
+        <span class="p">)</span></div>
 
 
 
@@ -3338,12 +3399,19 @@
 <span class="sd">        :param data: reference to arbitrary data associated with the edge,</span>
 <span class="sd">                     defaults to None</span>
 <span class="sd">        :type data: Any, optional</span>
+<span class="sd">        :raises ValueError: either vertex has not been added to a graph, the</span>
+<span class="sd">            vertices belong to different graphs, or ``edge`` already connects</span>
+<span class="sd">            other vertices</span>
 <span class="sd">        :return: the edge connecting the vertices</span>
 <span class="sd">        :rtype: Edge</span>
 
 <span class="sd">        Unlike the undirected-graph counterpart, the new edge is added only</span>
 <span class="sd">        to *this* vertex's edge list -- it is only discoverable from the</span>
 <span class="sd">        start of the directed edge.</span>
+
+<span class="sd">        If ``edge`` was built without vertices its ``v1`` and ``v2`` are set</span>
+<span class="sd">        to ``self`` and ``dest``. If it was built with vertices they must be</span>
+<span class="sd">        exactly these two, in this order, since the edge has a direction.</span>
 
 <span class="sd">        .. runblock:: pycon</span>
 
@@ -3394,7 +3462,7 @@
   <hr/>
 
   <div role="contentinfo">
-  <p>Copyright &#169; 2020-present, Peter Corke: built 2026-10-04.
+  <p>Copyright &#169; 2020-present, Peter Corke: built 2026-10-11.
   </p>
   <a href="https://github.com/petercorke/pgraph-python" class="footer-github-link">GitHub</a>
 
