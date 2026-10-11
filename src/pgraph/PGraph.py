@@ -642,8 +642,7 @@ class _BaseGraph(ABC):
         v2._connectivitychange = True
         self._connectivitychange = True
 
-        edge.v1 = None
-        edge.v2 = None
+        edge._set_endpoints(None, None)
 
         self._edgelist.remove(edge)
 
@@ -2629,6 +2628,12 @@ class DGraph(_BaseGraph):
 # ========================================================================== #
 
 
+_ENDPOINT_MESSAGE = (
+    "Edge.{0} is read-only. Give the vertices to the constructor, Edge(v1, v2), "
+    "or connect the edge with v1.connect(v2, edge=e) or e.connect(v1, v2)"
+)
+
+
 class Edge:
     """
     Edge class
@@ -2638,8 +2643,8 @@ class Edge:
     Each edge has:
     - ``cost`` cost of traversing this edge, required for planning methods
     - ``data`` reference to arbitrary data associated with the edge
-    - ``v1`` first vertex, start vertex for a directed edge
-    - ``v2`` second vertex, end vertex for a directed edge
+    - ``v1`` first vertex, start vertex for a directed edge (read-only)
+    - ``v2`` second vertex, end vertex for a directed edge (read-only)
 
     .. note::
 
@@ -2696,8 +2701,8 @@ class Edge:
 
         :seealso: :meth:`Edge.connect` :meth:`BaseVertex.connect`
         """
-        self.v1 = v1
-        self.v2 = v2
+        self._v1 = v1
+        self._v2 = v2
 
         self.data = data
 
@@ -2716,6 +2721,58 @@ class Edge:
             self.cost = v1._graph.metric(v1.coord - v2.coord)
         else:
             self.cost = None
+
+    @property
+    def v1(self) -> BaseVertex | None:
+        """
+        First vertex of the edge, the start vertex for a directed edge
+
+        :return: the vertex, or None if the edge is not connected
+        :rtype: BaseVertex subclass or None
+
+        .. versionchanged:: 1.0
+            Read-only.  It was a plain attribute, so assigning to it on an edge
+            that was in a graph left the graph inconsistent: the vertices'
+            edge lists no longer agreed with the edge, and the edge could not
+            be removed.  Give the vertices to the constructor, ``Edge(v1,
+            v2)``, or to :meth:`connect` or :meth:`BaseVertex.connect`.
+
+        :seealso: :attr:`v2` :meth:`connect`
+        """
+        return self._v1
+
+    @v1.setter
+    def v1(self, value: BaseVertex | None) -> None:
+        raise AttributeError(_ENDPOINT_MESSAGE.format("v1"))
+
+    @property
+    def v2(self) -> BaseVertex | None:
+        """
+        Second vertex of the edge, the end vertex for a directed edge
+
+        :return: the vertex, or None if the edge is not connected
+        :rtype: BaseVertex subclass or None
+
+        Read-only, see :attr:`v1`.
+
+        :seealso: :attr:`v1` :meth:`connect`
+        """
+        return self._v2
+
+    @v2.setter
+    def v2(self, value: BaseVertex | None) -> None:
+        raise AttributeError(_ENDPOINT_MESSAGE.format("v2"))
+
+    def _set_endpoints(self, v1: BaseVertex | None, v2: BaseVertex | None) -> None:
+        """
+        Bind the edge to its vertices, or unbind it (private method)
+
+        Only the library calls this: the constructor's own assignment, then
+        :meth:`connect`, :meth:`BaseVertex.connect` for an edge built without
+        vertices, and :meth:`_BaseGraph.remove_edge`, which clears them.
+        """
+        self._v1 = v1
+        self._v2 = v2
 
     def __repr__(self) -> str:
         """
@@ -2804,8 +2861,7 @@ class Edge:
             raise ValueError("vertices must belong to the same graph")
 
         # connect edge to its vertices
-        self.v1 = v1
-        self.v2 = v2
+        self._set_endpoints(v1, v2)
 
         # tell the vertices to add edge to their edgelists as appropriate for
         # DGraph or UGraph
@@ -3279,8 +3335,7 @@ class BaseVertex:
         endpoints disagree with the vertices' edge lists.
         """
         if edge.v1 is None and edge.v2 is None:
-            edge.v1 = self
-            edge.v2 = dest
+            edge._set_endpoints(self, dest)
         elif not self._endpoints_match(edge, dest):
             raise ValueError(
                 f"edge already connects {edge.v1} and {edge.v2}, "
