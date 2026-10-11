@@ -10,7 +10,7 @@ from collections.abc import Iterable, Iterator
 import tempfile
 import subprocess
 import webbrowser
-from typing import Any, Callable, ClassVar
+from typing import Any, Callable, ClassVar, overload
 from numpy.typing import ArrayLike, NDArray
 
 from spatialmath.base.graphics import axes_logic
@@ -499,19 +499,43 @@ class _BaseGraph(ABC):
             )
         return edge.cost
 
-    def add_edge(self, v1: BaseVertex | str, v2: BaseVertex | str, **kwargs: Any) -> Edge:
+    @overload
+    def add_edge(self, v1: Edge, **kwargs: Any) -> Edge: ...
+
+    @overload
+    def add_edge(
+        self, v1: BaseVertex | str, v2: BaseVertex | str, **kwargs: Any
+    ) -> Edge: ...
+
+    def add_edge(
+        self,
+        v1: Edge | BaseVertex | str,
+        v2: BaseVertex | str | None = None,
+        **kwargs: Any,
+    ) -> Edge:
         """
         Add an edge to the graph (base class method)
 
-        :param v1: first vertex (start if a directed graph)
-        :type v1: BaseVertex subclass or str
-        :param v2: second vertex (end if a directed graph)
-        :type v2: BaseVertex subclass or str
-        :param kwargs: optional arguments to pass to ``BaseVertex.connect``
+        :param v1: first vertex (start if a directed graph), or an existing
+            edge that already carries its two vertices
+        :type v1: BaseVertex subclass, str or Edge
+        :param v2: second vertex (end if a directed graph), must be omitted
+            if ``v1`` is an edge
+        :type v2: BaseVertex subclass or str, optional
+        :param kwargs: optional arguments to pass to ``BaseVertex.connect``,
+            not allowed if ``v1`` is an edge
+        :raises TypeError: ``v1`` or ``v2`` is of the wrong type, or ``v2``,
+            ``cost`` or ``data`` is given along with an edge
+        :raises ValueError: the edge has no vertices, or the vertices do not
+            belong to this graph
         :return: edge
         :rtype: Edge
 
-        Create an edge between a vertex pair and adds it to the graph.
+        - ``g.add_edge(v1, v2)`` creates an edge between a vertex pair and
+          adds it to the graph.
+        - ``g.add_edge(e)`` takes an edge, or an instance of an ``Edge``
+          subclass, that was constructed with its two vertices and adds it to
+          the graph, just as ``g.add_vertex(v)`` takes an existing vertex.
 
         This is a graph centric way of creating an edge.  The
         alternative is the ``connect`` method of a vertex.
@@ -528,14 +552,53 @@ class _BaseGraph(ABC):
             >>> e2 = g.add_edge('v2', 'v3', cost=99)
             >>> print(e2)
 
-        :seealso: :meth:`Edge.connect` :meth:`BaseVertex.connect`
+        Adding an instance of a user-defined ``Edge`` subclass:
+
+        .. runblock:: pycon
+
+            >>> from pgraph import UGraph, Edge
+            >>> class MyEdge(Edge):
+            ...     pass
+            >>> g = UGraph()
+            >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+            >>> v2 = g.add_vertex(coord=[1,1], name='v2')
+            >>> e = g.add_edge(MyEdge(v1, v2, data="a road"))
+            >>> print(type(e).__name__, e.data)
+
+        .. note:: To supply an edge that does not yet have vertices use
+            ``g.add_edge(v1, v2, edge=e)`` or ``e.connect(v1, v2)``.
+
+        :seealso: :meth:`add_vertex` :meth:`Edge.connect` :meth:`BaseVertex.connect`
         """
-        v1 = self._resolve_vertex(v1, "v1")
-        v2 = self._resolve_vertex(v2, "v2")
+        if isinstance(v1, Edge):
+            if v2 is not None:
+                raise TypeError("v2 must not be given when adding an Edge")
+            if kwargs:
+                raise TypeError(
+                    "add_edge(edge) takes no other arguments, got "
+                    + ", ".join(kwargs)
+                    + " -- set them on the edge itself"
+                )
+            edge = v1
+            if edge.v1 is None or edge.v2 is None:
+                raise ValueError(
+                    "edge does not have both vertices; use "
+                    "add_edge(v1, v2, edge=e) or e.connect(v1, v2)"
+                )
+            start, end = edge.v1, edge.v2
+            kwargs = {"edge": edge}
+        else:
+            if v2 is None:
+                raise TypeError("add_edge() requires two vertices, or an Edge")
+            start = self._resolve_vertex(v1, "v1")
+            end = self._resolve_vertex(v2, "v2")
+
+        if start._graph is not self or end._graph is not self:
+            raise ValueError("vertices must belong to this graph")
 
         if self._verbose:
-            print(f"New edge from {v1.name} to {v2.name}")
-        return v1.connect(v2, **kwargs)
+            print(f"New edge from {start.name} to {end.name}")
+        return start.connect(end, **kwargs)
 
     def remove_edge(self, edge: Edge) -> None:
         """
@@ -935,16 +998,21 @@ class _BaseGraph(ABC):
         Get vertex (base class method)
 
         :param i: vertex description
-        :type i: int or str
+        :type i: int, str or BaseVertex subclass
+        :raises IndexError: ``i`` is an integer outside the range of vertices
+        :raises KeyError: ``i`` is a name that is not in the graph
+        :raises TypeError: ``i`` is none of the types above
         :return: the referenced vertex
         :rtype: BaseVertex subclass
 
         Retrieve a vertex by index or name:
 
-        -``g[i]`` is the i'th vertex in the graph.  This reflects the order of
-         addition to the graph.
-        -``g[s]`` is vertex named ``s``
-        -``g[v]`` is ``v`` where ``v`` is a ``BaseVertex`` subclass
+        - ``g[i]`` is the i'th vertex in the graph.  This reflects the order of
+          addition to the graph.  ``i`` can be any integer, including a NumPy
+          integer such as the result of ``np.argmin()``, and a negative
+          ``i`` counts from the last vertex.
+        - ``g[s]`` is vertex named ``s``
+        - ``g[v]`` is ``v`` where ``v`` is a ``BaseVertex`` subclass
 
         This method also supports iteration over the vertices in a graph::
 
@@ -953,12 +1021,16 @@ class _BaseGraph(ABC):
 
         will iterate over all the vertices.
         """
-        if isinstance(i, int):
-            return self._vertexlist[i]
+        if isinstance(i, (int, np.integer)):
+            return self._vertexlist[int(i)]
         elif isinstance(i, str):
             return self._vertexdict[i]
         elif isinstance(i, BaseVertex):
             return i
+        else:
+            raise TypeError(
+                f"vertex must be an int, str or BaseVertex, got {type(i).__name__}"
+            )
 
     def __iter__(self) -> Iterator[BaseVertex]:
         """
@@ -1073,10 +1145,10 @@ class _BaseGraph(ABC):
         self,
         colorcomponents: bool = True,
         force2d: bool = False,
-        vopt: dict = {},
-        eopt: dict = {},
-        text: dict | bool = {},
-        block: bool = False,
+        vopt: dict | None = None,
+        eopt: dict | None = None,
+        text: dict | bool | None = None,
+        block: bool | None = False,
         grid: bool = True,
         ax: Any = None,
     ) -> None:
@@ -1085,14 +1157,21 @@ class _BaseGraph(ABC):
 
         :param vopt: vertex format, defaults to 12pt o-marker
         :type vopt: dict, optional
-        :param eopt: edge format, defaults to None
+        :param eopt: edge format, defaults to 3pt line width
         :type eopt: dict, optional
         :param text: text label format, defaults to None
-        :type text: False or dict, optional
-        :param colorcomponents: color vertices and edges by component, defaults to None
-        :type color: bool, optional
-        :param block: block until figure is dismissed, defaults to True
-        :type block: bool, optional
+        :type text: dict, bool or None, optional
+        :param colorcomponents: color vertices and edges by component, defaults to True
+        :type colorcomponents: bool, optional
+        :param force2d: plot only the first two coordinates of each vertex
+            even if they have more, defaults to False
+        :type force2d: bool, optional
+        :param block: block until figure is dismissed, defaults to False. If
+            None the figure is not shown at all, which is useful when
+            adding to the plot or saving it.
+        :type block: bool or None, optional
+        :raises ValueError: the graph is empty, or a vertex has no coordinate
+            or fewer than two coordinate values
 
         The graph is plotted using matplotlib.
 
@@ -1100,8 +1179,12 @@ class _BaseGraph(ABC):
         color.  ``vertex`` and ``edge`` cannot include a color keyword.
 
         If ``text`` is a dict it is used to format text labels for the vertices
-        which are the vertex names.  If ``text`` is None default formatting is
-        used.  If ``text`` is False no labels are added.
+        which are the vertex names.  If ``text`` is None or True default
+        formatting is used.  If ``text`` is False no labels are added.
+
+        .. note:: Only embedded graphs can be plotted: every vertex must have
+            a coordinate of at least two values.  A coordinate of more than
+            two values is drawn in 3D, using the first three.
 
         .. runblock:: pycon
 
@@ -1123,21 +1206,37 @@ class _BaseGraph(ABC):
 
         :seealso: :meth:`highlight_path`
         """
-        vopt = {**dict(marker="o", markersize=12), **vopt}
-        eopt = {**dict(linewidth=3), **eopt}
+        if self.n == 0:
+            raise ValueError("cannot plot an empty graph")
+        ndim = 0  # number of coordinate values, taken from the first vertex
+        for i, vertex in enumerate(self):
+            if vertex.coord is None or len(vertex.coord) < 2:
+                raise ValueError(
+                    f"cannot plot: vertex {vertex.name} needs a coordinate "
+                    "of at least two values"
+                )
+            if i == 0:
+                ndim = len(vertex.coord)
+
+        vopt = {**dict(marker="o", markersize=12), **(vopt or {})}
+        eopt = {**dict(linewidth=3), **(eopt or {})}
+        # text labels: None or True is default formatting, False is no labels
+        textopt: dict | None = None
+        if text is not False:
+            textopt = text if isinstance(text, dict) else {}
 
         if colorcomponents:
             color = plt.cm.coolwarm(np.linspace(0, 1, self.nc))
 
-        if len(self[0].coord) == 2 or force2d:
+        if ndim == 2 or force2d:
             # 2D plotting
             if ax is None:
                 ax = axes_logic(ax, 2)
             for c in range(self.nc):
                 # for each component
                 for vertex in self.component(c):
-                    if text is not False:
-                        ax.text(vertex.x, vertex.y, "  " + vertex.name, **text)
+                    if textopt is not None:
+                        ax.text(vertex.x, vertex.y, f"  {vertex.name}", **textopt)
                     if colorcomponents:
                         ax.plot(vertex.x, vertex.y, color=color[c, :], **vopt)
                         for v in vertex.neighbours():
@@ -1158,9 +1257,9 @@ class _BaseGraph(ABC):
             for c in range(self.nc):
                 # for each component
                 for vertex in self.component(c):
-                    if text is not False:
+                    if textopt is not None:
                         ax.text(
-                            vertex.x, vertex.y, vertex.z, "  " + vertex.name, **text
+                            vertex.x, vertex.y, vertex.z, f"  {vertex.name}", **textopt
                         )
                     if colorcomponents:
                         ax.plot(
@@ -1177,7 +1276,7 @@ class _BaseGraph(ABC):
                                 **{**dict(color=color[c, :]), **eopt},
                             )
                     else:
-                        ax.plot(vertex.x, vertex.y, **vopt)
+                        ax.plot(vertex.x, vertex.y, vertex.z, **vopt)
                         for v in vertex.neighbours():
                             ax.plot(
                                 [vertex.x, v.x],
@@ -1192,13 +1291,17 @@ class _BaseGraph(ABC):
         if block is not None:
             plt.show(block=block)
 
-    def highlight_path(self, path: list[BaseVertex], block: bool = False, **kwargs: Any) -> None:
+    def highlight_path(
+        self, path: list[BaseVertex], block: bool | None = False, **kwargs: Any
+    ) -> None:
         """
         Highlight a path through the graph
 
         :param path: sequence of vertices forming a path
         :type path: list of BaseVertex subclass
-        :param block: block until figure is dismissed, defaults to False
+        :param block: block until figure is dismissed, defaults to False. If
+            None the figure is not shown.
+        :type block: bool or None, optional
         :param kwargs: arguments passed to :meth:`highlight_edge` and
             :meth:`highlight_vertex`
 
@@ -1254,6 +1357,8 @@ class _BaseGraph(ABC):
         :type color: str, optional
         :param alpha: Transparency of the highlight, defaults to 0.5
         :type alpha: float, optional
+        :raises ValueError: ``edge`` does not connect two vertices, for
+            example because it has been removed from the graph
         :rtype: None
 
         .. runblock:: pycon
@@ -1282,6 +1387,8 @@ class _BaseGraph(ABC):
         """
         p1 = edge.v1
         p2 = edge.v2
+        if p1 is None or p2 is None:
+            raise ValueError("edge does not connect two vertices")
         plt.plot(
             [p1.x, p2.x], [p1.y, p2.y], color=color, linewidth=3 * scale, alpha=alpha
         )
@@ -1462,6 +1569,11 @@ class _BaseGraph(ABC):
         vertices' outgoing edges via :meth:`BaseVertex.neighbours` the same
         way :meth:`path_BFS` and friends do.
 
+        .. note:: A self-loop is a cycle of length one, so it makes either kind
+            of graph cyclic. Two parallel edges between the same pair of
+            vertices are a cycle in an undirected graph, but a repeated
+            arrow in a directed graph is not.
+
         .. note:: A matrix-based test also exists in theory -- a digraph is
             acyclic iff its adjacency matrix is nilpotent (all eigenvalues
             zero) -- but that needs an O(N^3) eigendecomposition plus a
@@ -1515,6 +1627,10 @@ class _BaseGraph(ABC):
         Average degree is :math:`2 E / N` for an undirected graph and
         :math:`E / N` for a directed graph where :math:`E` is the total number of
         edges and :math:`N` is the number of vertices.
+
+        Parallel edges and self-loops are each counted as one edge in
+        :math:`E`, which is consistent with :meth:`degree`: a self-loop
+        contributes 2 to the degree sum of an undirected graph.
 
         .. runblock:: pycon
 
@@ -1581,9 +1697,16 @@ class _BaseGraph(ABC):
               hold. For example a simple weakly-connected out-tree (one
               component) already has two zero eigenvalues, not one.
 
+        .. rubric:: For graphs with parallel edges or loops
+
+        Both :meth:`degree` and :meth:`adjacency` count edges, so the
+        identity ``L = degree() - adjacency()`` and the zero row sums hold
+        unchanged. A self-loop adds the same amount to both and cancels out
+        of the Laplacian entirely.
+
         :seealso: :meth:`adjacency` :meth:`incidence` :meth:`degree`
         """
-        return self.degree() - (self.adjacency() > 0)
+        return self.degree() - self.adjacency()
 
     def connectivity(self, vertices: Iterable[BaseVertex] | None = None) -> list[int]:
         """
@@ -1617,6 +1740,10 @@ class _BaseGraph(ABC):
             >>> c = g.connectivity()
             >>> print(c)
 
+
+        .. note:: This is the diagonal of :meth:`degree`, so parallel edges are
+            counted individually and a self-loop counts twice for a
+            ``UGraph`` and once for a ``DGraph``. See the discussion there.
 
         :seealso: :meth:`degree`
         """
@@ -1655,6 +1782,13 @@ class _BaseGraph(ABC):
             >>> d = g.degree()
             >>> print(d)
 
+        .. rubric:: For graphs with parallel edges or loops
+
+        Every edge is counted, so ``k`` parallel edges between two vertices
+        add ``k`` to the degree of each end. A self-loop adds 2 to the degree
+        of a ``UGraph`` vertex, since it has two ends, and 1 to the
+        (out-)degree of a ``DGraph`` vertex.
+
         :seealso: :meth:`adjacency` :meth:`incidence` :meth:`laplacian`
         """
 
@@ -1690,10 +1824,19 @@ class _BaseGraph(ABC):
               can be resolved to a vertex reference by ``graph[i]``.
             - for an undirected graph the matrix is symmetric
             - Eigenvalues of ``A`` are real and are known as the spectrum of the graph.
-            - The element ``A[i,j]`` can be considered the number of walks of length one
-              edge from vertex ``i`` to vertex ``j`` (either zero or one).
+            - The element ``A[i,j]`` is the number of walks of length one
+              edge from vertex ``i`` to vertex ``j``, which is the number of
+              edges between them (zero or one for a simple graph).
             - If ``Ak = A ** k`` the element ``Ak[i,j]`` is the number of
               walks of length ``k`` from vertex ``i`` to vertex ``j``.
+
+        .. rubric:: For graphs with parallel edges or loops
+
+        The matrix holds edge *counts*, so ``k`` parallel edges from ``i`` to
+        ``j`` give ``A[i,j] = k`` and ``Ak = A ** k`` still counts walks
+        correctly. A self-loop adds to the diagonal: 2 for a ``UGraph``
+        (consistent with :meth:`degree`) and 1 for a ``DGraph``. In every case
+        each row of ``A`` sums to the degree of that vertex.
 
         :seealso: :meth:`Laplacian` :meth:`incidence` :meth:`degree`
         """
@@ -1705,7 +1848,7 @@ class _BaseGraph(ABC):
         A = np.zeros((self.n, self.n))
         for vertex in self:
             for n in vertex.neighbours():
-                A[vdict[vertex], vdict[n]] = 1
+                A[vdict[vertex], vdict[n]] += 1
         return A
 
     def incidence(self) -> NDArray:
@@ -1744,6 +1887,13 @@ class _BaseGraph(ABC):
               :meth:`BaseVertex.edges` instead would silently drop such
               vertices for a directed graph.
 
+        .. rubric:: For graphs with parallel edges or loops
+
+        Parallel edges each get their own column. For a ``UGraph`` the column
+        of a self-loop holds a single 2 (it touches its vertex at both ends,
+        so row sums still equal :meth:`degree`); for a ``DGraph`` it holds a
+        single 1.
+
         :seealso: :meth:`Laplacian` :meth:`adjacency` :meth:`degree`
         """
         edges = self.edges()
@@ -1757,6 +1907,8 @@ class _BaseGraph(ABC):
             assert e.v1 is not None and e.v2 is not None
             I[vdict[e.v1], j] = 1
             I[vdict[e.v2], j] = 1
+            if e.v1 is e.v2 and isinstance(self, UGraph):
+                I[vdict[e.v1], j] = 2  # self-loop, counted at both ends
 
         return I
 
@@ -1785,6 +1937,12 @@ class _BaseGraph(ABC):
             >>> d = g.distance()
             >>> print(d)
 
+        .. rubric:: For graphs with parallel edges or loops
+
+        If there are parallel edges the element is the cost of the *cheapest*
+        of them. A self-loop gives a non-zero diagonal element equal to its
+        cost.
+
         :seealso: :meth:`BaseVertex.distance`
         """
         # create a dict mapping vertex to an id
@@ -1792,10 +1950,12 @@ class _BaseGraph(ABC):
         for i, vert in enumerate(self):
             vdict[vert] = i
 
-        A = np.zeros((self.n, self.n))
+        A = np.full((self.n, self.n), np.inf)
         for v1 in self:
             for v2, edge in v1.incidences():
-                A[vdict[v1], vdict[v2]] = self._require_cost(edge)
+                i, j = vdict[v1], vdict[v2]
+                A[i, j] = min(A[i, j], self._require_cost(edge))
+        A[np.isinf(A)] = 0  # not connected
         return A
 
     # GRAPH COMPONENTS
@@ -1872,11 +2032,16 @@ class _BaseGraph(ABC):
         :type G: BaseVertex subclass
         :param verbose: print search progress, defaults to False
         :param summary: print a one-line search summary, defaults to False
-        :return: list of vertices from S to G inclusive, path length
-        :rtype: list of BaseVertex subclass, float
+        :raises TypeError: ``S`` or ``G`` is neither a vertex nor a string
+        :raises KeyError: ``S`` or ``G`` is a name not in the graph
+        :raises ValueError: an edge on the path has no cost
+        :return: list of vertices from S to G inclusive and path length, or
+            None if there is no path
+        :rtype: (list of BaseVertex subclass, float) or None
 
         Returns a list of vertices that form a path from vertex ``S`` to
-        vertex ``G`` if possible, otherwise return None.
+        vertex ``G`` if possible, otherwise returns None -- so check the
+        result before unpacking it.
 
         .. runblock:: pycon
 
@@ -1890,6 +2055,9 @@ class _BaseGraph(ABC):
             >>> path, length = g.path_BFS(v1, v3)
             >>> print(path)
             >>> print(length)
+
+        .. note:: Self-loops are ignored. If there are parallel edges the
+            cheapest is used for the path length.
 
         :seealso: :meth:`path_UCS` :meth:`path_Astar`
         """
@@ -1915,6 +2083,8 @@ class _BaseGraph(ABC):
 
             # expand the vertex
             for n in x.neighbours():
+                if n is x:
+                    continue  # self-loop, never part of a shortest path
                 if n is G:
                     if verbose:
                         print("     goal", n.name, "reached")
@@ -1943,7 +2113,7 @@ class _BaseGraph(ABC):
 
         while x is not S:
             p = parent[x]
-            length += self._require_cost(x.edgeto(p))
+            length += self._require_cost(p.edgeto(x))
             path.insert(0, p)
             x = p
 
@@ -1966,11 +2136,16 @@ class _BaseGraph(ABC):
         :type G: BaseVertex subclass
         :param verbose: print search progress, defaults to False
         :param summary: print a one-line search summary, defaults to False
-        :return: list of vertices from S to G inclusive, path length, tree
-        :rtype: list of BaseVertex subclass, float, dict
+        :raises TypeError: ``S`` or ``G`` is neither a vertex nor a string
+        :raises KeyError: ``S`` or ``G`` is a name not in the graph
+        :raises ValueError: an edge examined during the search has no cost
+        :return: list of vertices from S to G inclusive, path length and
+            search tree, or None if there is no path
+        :rtype: (list of BaseVertex subclass, float, dict) or None
 
         Returns a list of vertices that form a path from vertex ``S`` to
-        vertex ``G`` if possible, otherwise return None.
+        vertex ``G`` if possible, otherwise returns None -- so check the
+        result before unpacking it.
 
         The search tree is returned as dict that maps a vertex to its parent.
 
@@ -1989,6 +2164,9 @@ class _BaseGraph(ABC):
             >>> path, length, tree = g.path_UCS(v1, v3)
             >>> print(path)
             >>> print(length)
+
+        .. note:: Self-loops are ignored. If there are parallel edges the
+            cheapest is used for the path length.
 
         :seealso: :meth:`path_BFS` :meth:`path_Astar`
         """
@@ -2016,6 +2194,8 @@ class _BaseGraph(ABC):
                 break
             # expand the vertex
             for n, e in x.incidences():
+                if n is x:
+                    continue  # self-loop, never part of a shortest path
                 fnew = f[x] + self._require_cost(e)
                 if n not in frontier and n not in explored:
                     # add it to the frontier
@@ -2078,11 +2258,16 @@ class _BaseGraph(ABC):
         :type G: BaseVertex subclass
         :param verbose: print search progress, defaults to False
         :param summary: print a one-line search summary, defaults to False
-        :return: list of vertices from S to G inclusive, path length, tree
-        :rtype: list of BaseVertex subclass, float, dict
+        :raises TypeError: ``S`` or ``G`` is neither a vertex nor a string
+        :raises KeyError: ``S`` or ``G`` is a name not in the graph
+        :raises ValueError: an edge examined during the search has no cost
+        :return: list of vertices from S to G inclusive, path length and
+            search tree, or None if there is no path
+        :rtype: (list of BaseVertex subclass, float, dict) or None
 
         Returns a list of vertices that form a path from vertex ``S`` to
-        vertex ``G`` if possible, otherwise return None.
+        vertex ``G`` if possible, otherwise returns None -- so check the
+        result before unpacking it.
 
         The search tree is returned as dict that maps a vertex to its parent.
 
@@ -2101,6 +2286,9 @@ class _BaseGraph(ABC):
             >>> path, length, tree = g.path_Astar(v1, v3)
             >>> print(path)
             >>> print(length)
+
+        .. note:: Self-loops are ignored. If there are parallel edges the
+            cheapest is used for the path length.
 
         :seealso: :meth:`heuristic` :meth:`path_BFS` :meth:`path_UCS`
         """
@@ -2129,6 +2317,8 @@ class _BaseGraph(ABC):
                 break
             # expand the vertex
             for n, e in x.incidences():
+                if n is x:
+                    continue  # self-loop, never part of a shortest path
                 if n not in frontier and n not in explored:
                     # add it to the frontier
                     frontier.append(n)
@@ -2744,6 +2934,10 @@ class BaseVertex:
 
         .. note:: For a directed graph the neighbours are those on edges leaving this vertex
 
+        .. note:: There is one entry per edge, so a neighbour joined by ``k``
+            parallel edges appears ``k`` times. In an undirected graph a
+            self-loop lists the vertex itself twice, once for each end.
+
         .. runblock:: pycon
 
             >>> from pgraph import UGraph
@@ -2970,6 +3164,8 @@ class BaseVertex:
         .. note::
 
             - For a directed graph ``dest`` must be at the arrow end of the edge
+            - If there are parallel edges to ``dest`` the cheapest is returned
+              (the first, if none of them has a cost)
 
         .. runblock:: pycon
 
@@ -2980,10 +3176,13 @@ class BaseVertex:
             >>> g.add_edge(v1, v2, cost=1.414)
             >>> print(v1.edgeto(v2))
         """
-        for n, e in self.incidences():
-            if n is dest:
-                return e
-        raise ValueError("dest is not a neighbour")
+        edges = [e for n, e in self.incidences() if n is dest]
+        if not edges:
+            raise ValueError("dest is not a neighbour")
+        costed = [e for e in edges if e.cost is not None]
+        if costed:
+            return min(costed, key=lambda e: e.cost)  # type: ignore[arg-type,return-value]
+        return edges[0]
 
     def edges(self) -> list[Edge]:
         """
@@ -3090,6 +3289,12 @@ class BaseVertex:
             >>> g.add_edge(v1, v2)
             >>> g.add_edge(v1, v3)
             >>> print(v1.degree)
+
+        .. rubric:: For graphs with parallel edges or loops
+
+        Every edge is counted, so ``k`` parallel edges to the same neighbour
+        add ``k``. A self-loop adds 2 for a ``UGraph`` vertex, since it has two
+        ends, and 1 for a ``DGraph`` vertex.
 
         :seealso: :meth:`edges`
         """
