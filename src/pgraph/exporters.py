@@ -23,8 +23,7 @@ from __future__ import annotations
 import json
 import os
 import shutil
-import subprocess
-import xml.etree.ElementTree as ET
+import subprocess  # nosec B404 - GraphViz is run without a shell, see render()
 from typing import IO, TYPE_CHECKING, Any, Callable
 
 if TYPE_CHECKING:
@@ -34,6 +33,9 @@ TextExporter = Callable[..., str]
 
 _TEXT: dict[str, TextExporter] = {}
 _EXTENSIONS: dict[str, str] = {}
+
+#: GraphViz layout programs that may be run to render an image
+ENGINES = ("dot", "neato", "fdp", "sfdp", "twopi", "circo", "osage", "patchwork")
 
 #: image formats produced by running the GraphViz ``dot``/``neato`` executable,
 #: mapped to whether the result is text (``True``) or binary (``False``)
@@ -118,7 +120,7 @@ def _is_directed(graph: _BaseGraph) -> bool:
     return isinstance(graph, DGraph)
 
 
-def _ordered_edges(graph: _BaseGraph) -> list[Edge]:
+def _ordered_edges(graph: _BaseGraph) -> list[tuple[Edge, BaseVertex, BaseVertex]]:
     """
     Edges in a reproducible order
 
@@ -128,14 +130,17 @@ def _ordered_edges(graph: _BaseGraph) -> list[Edge]:
     list, keeping the first sight of every edge.  Identity is by object, not by
     endpoints, so parallel edges are all kept, and an undirected edge (held by
     both ends, twice for a self-loop) is listed once.
+
+    Each item is ``(edge, start, end)``.
     """
     seen: set[int] = set()
-    edges: list[Edge] = []
+    edges: list[tuple[Edge, BaseVertex, BaseVertex]] = []
     for vertex in graph:
         for e in vertex._edgelist:
-            if id(e) not in seen:
-                seen.add(id(e))
-                edges.append(e)
+            if id(e) in seen or e.v1 is None or e.v2 is None:
+                continue
+            seen.add(id(e))
+            edges.append((e, e.v1, e.v2))
     return edges
 
 
@@ -156,6 +161,25 @@ def _component_colors(graph: _BaseGraph) -> dict[BaseVertex, str]:
                 int(r * 255), int(g * 255), int(b * 255)
             )
     return colors
+
+
+def _xml_text(value: Any) -> str:
+    """
+    Escape a value for XML element content or a double-quoted attribute
+
+    Characters that XML 1.0 cannot represent at all (most control characters)
+    are replaced with U+FFFD, since escaping cannot make them valid.
+    """
+    text = str(value)
+    text = "".join(
+        c if c in "\t\n\r" or ord(c) >= 0x20 else "\ufffd" for c in text
+    )
+    return (
+        text.replace("&", "&amp;")
+        .replace("<", "&lt;")
+        .replace(">", "&gt;")
+        .replace('"', "&quot;")
+    )
 
 
 def _dot_quote(text: str) -> str:
@@ -204,15 +228,13 @@ def dot(
         suffix = f" [{', '.join(attrs)}]" if attrs else ""
         lines.append(f"  {_dot_quote(str(vertex.name))}{suffix}")
 
-    for e in _ordered_edges(graph):
-        assert e.v1 is not None and e.v2 is not None
+    for e, v1, v2 in _ordered_edges(graph):
         attrs = []
         if costs and e.cost is not None:
             attrs.append(f'label="{e.cost:.4g}"')
         suffix = f" [{', '.join(attrs)}]" if attrs else ""
         lines.append(
-            f"  {_dot_quote(str(e.v1.name))} {link} "
-            f"{_dot_quote(str(e.v2.name))}{suffix}"
+            f"  {_dot_quote(str(v1.name))} {link} {_dot_quote(str(v2.name))}{suffix}"
         )
 
     lines.append("}")
@@ -252,12 +274,11 @@ def mermaid(
         label = str(vertex.name).replace('"', "#quot;")
         lines.append(f'    n{i}["{label}"]')
 
-    for e in _ordered_edges(graph):
-        assert e.v1 is not None and e.v2 is not None
+    for e, v1, v2 in _ordered_edges(graph):
         if costs and e.cost is not None:
-            lines.append(f'    {ids[e.v1]} {arrow}|"{e.cost:.4g}"| {ids[e.v2]}')
+            lines.append(f'    {ids[v1]} {arrow}|"{e.cost:.4g}"| {ids[v2]}')
         else:
-            lines.append(f"    {ids[e.v1]} {arrow} {ids[e.v2]}")
+            lines.append(f"    {ids[v1]} {arrow} {ids[v2]}")
 
     if colorcomponents:
         colors = _component_colors(graph)
@@ -284,64 +305,54 @@ def graphml(graph: _BaseGraph) -> str:
     graph.nc  # refresh vertex.label
     has_coords = any(v.coord is not None for v in graph)
     edges = _ordered_edges(graph)
-    has_cost = any(e.cost is not None for e in edges)
+    has_cost = any(e.cost is not None for e, _, _ in edges)
 
-    ns = "http://graphml.graphdrawing.org/xmlns"
-    ET.register_namespace("", ns)
-    root = ET.Element(f"{{{ns}}}graphml")
-
-    def key(id: str, for_: str, name: str, type_: str) -> None:
-        ET.SubElement(
-            root,
-            f"{{{ns}}}key",
-            {"id": id, "for": for_, "attr.name": name, "attr.type": type_},
+    def key(key_id: str, domain: str, name: str, type_: str) -> str:
+        return (
+            f'  <key id="{key_id}" for="{domain}" '
+            f'attr.name="{name}" attr.type="{type_}"/>'
         )
 
-    key("node_label", "node", "label", "string")
-    key("component", "node", "component", "int")
+    kind = "directed" if _is_directed(graph) else "undirected"
+    lines = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<graphml xmlns="http://graphml.graphdrawing.org/xmlns">',
+        key("node_label", "node", "label", "string"),
+        key("component", "node", "component", "int"),
+    ]
     if has_coords:
-        key("x", "node", "x", "double")
-        key("y", "node", "y", "double")
-        key("coord", "node", "coord", "string")
+        lines += [
+            key("x", "node", "x", "double"),
+            key("y", "node", "y", "double"),
+            key("coord", "node", "coord", "string"),
+        ]
     if has_cost:
-        key("edge_cost", "edge", "cost", "double")
-
-    g = ET.SubElement(
-        root,
-        f"{{{ns}}}graph",
-        {"id": "G", "edgedefault": "directed" if _is_directed(graph) else "undirected"},
-    )
-
-    def data(parent: ET.Element, key_id: str, value: Any) -> None:
-        ET.SubElement(parent, f"{{{ns}}}data", {"key": key_id}).text = str(value)
+        lines.append(key("edge_cost", "edge", "cost", "double"))
+    lines.append(f'  <graph id="G" edgedefault="{kind}">')
 
     ids: dict[BaseVertex, str] = {}
     for i, vertex in enumerate(graph):
         ids[vertex] = f"n{i}"
-        node = ET.SubElement(g, f"{{{ns}}}node", {"id": f"n{i}"})
-        data(node, "node_label", vertex.name)
+        lines.append(f'    <node id="n{i}">')
+        lines.append(f'      <data key="node_label">{_xml_text(vertex.name)}</data>')
         if vertex.label is not None:
-            data(node, "component", vertex.label)
+            lines.append(f'      <data key="component">{vertex.label}</data>')
         if vertex.coord is not None:
             if len(vertex.coord) >= 2:
-                data(node, "x", f"{vertex.coord[0]:.6g}")
-                data(node, "y", f"{vertex.coord[1]:.6g}")
-            data(node, "coord", ",".join(f"{c:.6g}" for c in vertex.coord))
+                lines.append(f'      <data key="x">{vertex.coord[0]:.6g}</data>')
+                lines.append(f'      <data key="y">{vertex.coord[1]:.6g}</data>')
+            coord = ",".join(f"{c:.6g}" for c in vertex.coord)
+            lines.append(f'      <data key="coord">{coord}</data>')
+        lines.append("    </node>")
 
-    for i, e in enumerate(edges):
-        assert e.v1 is not None and e.v2 is not None
-        edge = ET.SubElement(
-            g,
-            f"{{{ns}}}edge",
-            {"id": f"e{i}", "source": ids[e.v1], "target": ids[e.v2]},
-        )
+    for i, (e, v1, v2) in enumerate(edges):
+        lines.append(f'    <edge id="e{i}" source="{ids[v1]}" target="{ids[v2]}">')
         if e.cost is not None:
-            data(edge, "edge_cost", f"{e.cost:.6g}")
+            lines.append(f'      <data key="edge_cost">{e.cost:.6g}</data>')
+        lines.append("    </edge>")
 
-    ET.indent(root)
-    return '<?xml version="1.0" encoding="UTF-8"?>\n' + ET.tostring(
-        root, encoding="unicode"
-    ) + "\n"
+    lines += ["  </graph>", "</graphml>"]
+    return "\n".join(lines) + "\n"
 
 
 @register_exporter("elk", ".elk.json", ".elk")
@@ -387,12 +398,11 @@ def elk(
         children.append(node)
 
     edges = []
-    for i, e in enumerate(_ordered_edges(graph)):
-        assert e.v1 is not None and e.v2 is not None
+    for i, (e, v1, v2) in enumerate(_ordered_edges(graph)):
         edge: dict[str, Any] = {
             "id": f"e{i}",
-            "sources": [ids[e.v1]],
-            "targets": [ids[e.v2]],
+            "sources": [ids[v1]],
+            "targets": [ids[v2]],
         }
         if e.cost is not None:
             edge["labels"] = [{"text": f"{e.cost:.4g}"}]
@@ -424,7 +434,7 @@ def elk(
 
 def render(
     graph: _BaseGraph,
-    format: str,
+    fmt: str,
     *,
     engine: str | None = None,
     direction: str | None = None,
@@ -434,31 +444,37 @@ def render(
     """
     Render the graph to an image with the GraphViz executables
 
-    :param format: one of :data:`RENDER_FORMATS`
-    :param engine: GraphViz layout program, defaults to ``neato`` if any vertex
-        has a coordinate, since it honours pinned positions, else ``dot``
+    :param fmt: one of :data:`RENDER_FORMATS`
+    :param engine: GraphViz layout program, one of :data:`ENGINES`.  Defaults
+        to ``neato`` if any vertex has a coordinate, since it honours pinned
+        positions, else ``dot``
     :return: the image
     :rtype: bytes
+    :raises ValueError: ``fmt`` or ``engine`` is not a known name
     :raises RuntimeError: the layout program is not installed, or failed
+
+    Both names are checked against fixed lists and the program is run with an
+    argument list and no shell, so neither can carry a command.
     """
-    if format not in RENDER_FORMATS:
+    if fmt not in RENDER_FORMATS:
         raise ValueError(
-            f"unknown image format {format!r}, expected one of "
-            f"{sorted(RENDER_FORMATS)}"
+            f"unknown image format {fmt!r}, expected one of {sorted(RENDER_FORMATS)}"
         )
     if engine is None:
         engine = "neato" if any(v.coord is not None for v in graph) else "dot"
+    if engine not in ENGINES:
+        raise ValueError(f"unknown GraphViz engine {engine!r}, expected one of {ENGINES}")
     exe = shutil.which(engine)
     if exe is None:
         raise RuntimeError(
             f"GraphViz layout program {engine!r} was not found on PATH; "
             "install GraphViz (https://graphviz.org/download/) to render "
-            f"{format} output, or export the text with format='dot'"
+            f"{fmt} output, or export the text with format='dot'"
         )
 
     text = dot(graph, direction=direction, colorcomponents=colorcomponents, costs=costs)
-    result = subprocess.run(
-        [exe, f"-T{format}"],
+    result = subprocess.run(  # nosec B603 - fixed program and format names, no shell
+        [exe, f"-T{fmt}"],
         input=text.encode("utf-8"),
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,

@@ -13,7 +13,7 @@ import shutil
 import tempfile
 import unittest
 import unittest.mock
-import xml.etree.ElementTree as ET
+import xml.etree.ElementTree as ET  # nosec B405 - parses our own generated output
 
 
 from pgraph import DGraph, UGraph, exporters
@@ -234,7 +234,7 @@ class TestMermaid(unittest.TestCase):
 
 class TestGraphML(unittest.TestCase):
     def parse(self, g):
-        return ET.fromstring(g.export(format="graphml"))
+        return ET.fromstring(g.export(format="graphml"))  # nosec B314
 
     def test_structure(self):
         g, *_ = line_graph(UGraph)
@@ -268,6 +268,14 @@ class TestGraphML(unittest.TestCase):
         g.add_vertex(name="<&>\"'")
         node = self.parse(g).find("g:graph/g:node", NS)
         self.assertEqual(node.find("g:data", NS).text, "<&>\"'")
+
+    def test_unrepresentable_control_characters(self):
+        # XML 1.0 cannot hold most control characters even escaped; the output
+        # must still be well formed, with the character replaced
+        g = UGraph()
+        g.add_vertex(name="a\x00b\x1fc\td")
+        node = self.parse(g).find("g:graph/g:node", NS)
+        self.assertEqual(node.find("g:data", NS).text, "a\ufffdb\ufffdc\td")
 
     def test_no_cost_key_when_no_costs(self):
         g = UGraph()
@@ -357,7 +365,7 @@ class TestMultigraph(unittest.TestCase):
                 mm = g.export(format="mermaid")
                 self.assertEqual(sum("|" in l for l in mm.splitlines()), n)
 
-                gml = ET.fromstring(g.export(format="graphml"))
+                gml = ET.fromstring(g.export(format="graphml"))  # nosec B314
                 edges = gml.findall("g:graph/g:edge", NS)
                 self.assertEqual(len(edges), n)
                 self.assertEqual(len({e.get("id") for e in edges}), n)
@@ -423,9 +431,18 @@ class TestWrappers(unittest.TestCase):
 class TestRender(unittest.TestCase):
     def test_engine_not_installed(self):
         g, *_ = line_graph(UGraph)
-        with self.assertRaises(RuntimeError) as cm:
-            g.export(io.BytesIO(), format="png", engine="no-such-engine-xyz")
-        self.assertIn("no-such-engine-xyz", str(cm.exception))
+        with unittest.mock.patch("shutil.which", return_value=None):
+            with self.assertRaises(RuntimeError) as cm:
+                g.export(io.BytesIO(), format="png", engine="neato")
+        self.assertIn("neato", str(cm.exception))
+
+    def test_engine_must_be_a_graphviz_program(self):
+        # the name is run as a program, so it is checked against a fixed list
+        g, *_ = line_graph(UGraph)
+        for bad in ("rm", "../dot", "dot; rm -rf /", "no-such-engine"):
+            with self.subTest(engine=bad):
+                with self.assertRaises(ValueError):
+                    g.export(io.BytesIO(), format="png", engine=bad)
 
     def test_unknown_image_format(self):
         g, *_ = line_graph(UGraph)

@@ -1447,7 +1447,7 @@ class _BaseGraph(ABC):
     def export(
         self,
         filename: str | os.PathLike | IO | None = None,
-        format: str | None = None,
+        format: str | None = None,  # pylint: disable=redefined-builtin
         **options: Any,
     ) -> str | None:
         """
@@ -1615,8 +1615,9 @@ class _BaseGraph(ABC):
 
         :seealso: :meth:`export` :meth:`showgraph`
         """
-        text = self.export(format="dot", direction=direction, costs=False)
-        assert text is not None
+        from . import exporters
+
+        text = exporters.dot(self, direction=direction, costs=False)
         if filename is None:
             sys.stdout.write(text)
         elif isinstance(filename, (str, os.PathLike)):
