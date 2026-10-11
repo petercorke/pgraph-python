@@ -2761,8 +2761,9 @@ class BaseVertex:
         :param data: reference to arbitrary data associated with the edge,
                      defaults to None
         :type data: Any, optional
-        :raises ValueError: either vertex has not been added to a graph, or
-            the vertices belong to different graphs
+        :raises ValueError: either vertex has not been added to a graph, the
+            vertices belong to different graphs, or ``edge`` already connects
+            other vertices
         :return: the edge connecting the vertices
         :rtype: Edge
 
@@ -2772,6 +2773,9 @@ class BaseVertex:
 
             - If the vertices subclass ``UVertex`` the edge is undirected, and if
               they subclass ``DVertex`` the edge is directed.
+            - A supplied ``edge`` built without vertices has its ``v1`` and
+              ``v2`` set to the vertices being connected. One built with
+              vertices must agree with them (in either order if undirected).
             - Both vertices must already have been added to the same graph,
               e.g. via :meth:`PGraph.add_vertex` -- since a graph only ever
               accepts its own vertex subclass (see :meth:`UGraph.add_vertex`,
@@ -2798,6 +2802,7 @@ class BaseVertex:
             raise ValueError("vertices must belong to the same graph")
         elif isinstance(edge, Edge):
             e = edge
+            self._bind_edge(e, dest)
         else:
             e = Edge(self, dest, cost=cost, data=data)
 
@@ -2806,6 +2811,38 @@ class BaseVertex:
         self._connectivitychange = True
 
         return e
+
+    def _endpoints_match(self, edge: Edge, dest: BaseVertex) -> bool:
+        """
+        Test if an edge already connects this vertex to ``dest`` (private method)
+
+        A directed edge must run from this vertex to ``dest``; see
+        :meth:`UVertex._endpoints_match` for the undirected relaxation.
+        """
+        return edge.v1 is self and edge.v2 is dest
+
+    def _bind_edge(self, edge: Edge, dest: BaseVertex) -> None:
+        """
+        Make a caller-supplied edge connect this vertex to ``dest`` (private method)
+
+        :param edge: edge passed to :meth:`connect`
+        :param dest: vertex being connected to
+        :raises ValueError: ``edge`` already connects other vertices
+
+        An edge built without vertices has its ``v1`` and ``v2`` set here.
+        One built with vertices is left alone provided they agree with the
+        connection being made; otherwise it is rejected before anything is
+        changed, rather than leaving the graph holding an edge whose
+        endpoints disagree with the vertices' edge lists.
+        """
+        if edge.v1 is None and edge.v2 is None:
+            edge.v1 = self
+            edge.v2 = dest
+        elif not self._endpoints_match(edge, dest):
+            raise ValueError(
+                f"edge already connects {edge.v1} and {edge.v2}, "
+                f"not {self} and {dest}"
+            )
 
     def edgeto(self, dest: BaseVertex) -> Edge:
         """
@@ -3121,6 +3158,16 @@ class UVertex(BaseVertex):
         dest._edgelist.append(e)
 
         return e
+
+    def _endpoints_match(self, edge: Edge, dest: BaseVertex) -> bool:
+        """
+        Test if an edge already connects this vertex and ``dest`` (private method)
+
+        An undirected edge has no direction, so either order is accepted.
+        """
+        return (edge.v1 is self and edge.v2 is dest) or (
+            edge.v1 is dest and edge.v2 is self
+        )
 
 
 class DVertex(BaseVertex):
