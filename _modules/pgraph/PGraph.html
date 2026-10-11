@@ -998,16 +998,21 @@
 <span class="sd">        Get vertex (base class method)</span>
 
 <span class="sd">        :param i: vertex description</span>
-<span class="sd">        :type i: int or str</span>
+<span class="sd">        :type i: int, str or BaseVertex subclass</span>
+<span class="sd">        :raises IndexError: ``i`` is an integer outside the range of vertices</span>
+<span class="sd">        :raises KeyError: ``i`` is a name that is not in the graph</span>
+<span class="sd">        :raises TypeError: ``i`` is none of the types above</span>
 <span class="sd">        :return: the referenced vertex</span>
 <span class="sd">        :rtype: BaseVertex subclass</span>
 
 <span class="sd">        Retrieve a vertex by index or name:</span>
 
-<span class="sd">        -``g[i]`` is the i'th vertex in the graph.  This reflects the order of</span>
-<span class="sd">         addition to the graph.</span>
-<span class="sd">        -``g[s]`` is vertex named ``s``</span>
-<span class="sd">        -``g[v]`` is ``v`` where ``v`` is a ``BaseVertex`` subclass</span>
+<span class="sd">        - ``g[i]`` is the i'th vertex in the graph.  This reflects the order of</span>
+<span class="sd">          addition to the graph.  ``i`` can be any integer, including a NumPy</span>
+<span class="sd">          integer such as the result of ``np.argmin()``, and a negative</span>
+<span class="sd">          ``i`` counts from the last vertex.</span>
+<span class="sd">        - ``g[s]`` is vertex named ``s``</span>
+<span class="sd">        - ``g[v]`` is ``v`` where ``v`` is a ``BaseVertex`` subclass</span>
 
 <span class="sd">        This method also supports iteration over the vertices in a graph::</span>
 
@@ -1016,12 +1021,16 @@
 
 <span class="sd">        will iterate over all the vertices.</span>
 <span class="sd">        """</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vertexlist</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vertexlist</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)]</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vertexdict</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">BaseVertex</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">i</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"vertex must be an int, str or BaseVertex, got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">"</span>
+            <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">BaseVertex</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">"""</span>
