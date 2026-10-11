@@ -10,7 +10,7 @@ from pgraph import DGraph, UGraph
 
 
 class _Keywords:
-    cls = None
+    cls: type
 
     def test_positional_rejected(self):
         for arg in (6, "L2", None, True):
