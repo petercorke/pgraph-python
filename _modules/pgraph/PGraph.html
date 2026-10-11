@@ -1462,6 +1462,11 @@
 <span class="sd">        vertices' outgoing edges via :meth:`BaseVertex.neighbours` the same</span>
 <span class="sd">        way :meth:`path_BFS` and friends do.</span>
 
+<span class="sd">        .. note:: A self-loop is a cycle of length one, so it makes either kind</span>
+<span class="sd">            of graph cyclic. Two parallel edges between the same pair of</span>
+<span class="sd">            vertices are a cycle in an undirected graph, but a repeated</span>
+<span class="sd">            arrow in a directed graph is not.</span>
+
 <span class="sd">        .. note:: A matrix-based test also exists in theory -- a digraph is</span>
 <span class="sd">            acyclic iff its adjacency matrix is nilpotent (all eigenvalues</span>
 <span class="sd">            zero) -- but that needs an O(N^3) eigendecomposition plus a</span>
@@ -1515,6 +1520,10 @@
 <span class="sd">        Average degree is :math:`2 E / N` for an undirected graph and</span>
 <span class="sd">        :math:`E / N` for a directed graph where :math:`E` is the total number of</span>
 <span class="sd">        edges and :math:`N` is the number of vertices.</span>
+
+<span class="sd">        Parallel edges and self-loops are each counted as one edge in</span>
+<span class="sd">        :math:`E`, which is consistent with :meth:`degree`: a self-loop</span>
+<span class="sd">        contributes 2 to the degree sum of an undirected graph.</span>
 
 <span class="sd">        .. runblock:: pycon</span>
 
@@ -1583,9 +1592,16 @@
 <span class="sd">              hold. For example a simple weakly-connected out-tree (one</span>
 <span class="sd">              component) already has two zero eigenvalues, not one.</span>
 
+<span class="sd">        .. rubric:: For graphs with parallel edges or loops</span>
+
+<span class="sd">        Both :meth:`degree` and :meth:`adjacency` count edges, so the</span>
+<span class="sd">        identity ``L = degree() - adjacency()`` and the zero row sums hold</span>
+<span class="sd">        unchanged. A self-loop adds the same amount to both and cancels out</span>
+<span class="sd">        of the Laplacian entirely.</span>
+
 <span class="sd">        :seealso: :meth:`adjacency` :meth:`incidence` :meth:`degree`</span>
 <span class="sd">        """</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">degree</span><span class="p">()</span> <span class="o">-</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">adjacency</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">degree</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">adjacency</span><span class="p">()</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">connectivity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vertices</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">BaseVertex</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
@@ -1620,6 +1636,10 @@
 <span class="sd">            &gt;&gt;&gt; c = g.connectivity()</span>
 <span class="sd">            &gt;&gt;&gt; print(c)</span>
 
+
+<span class="sd">        .. note:: This is the diagonal of :meth:`degree`, so parallel edges are</span>
+<span class="sd">            counted individually and a self-loop counts twice for a</span>
+<span class="sd">            ``UGraph`` and once for a ``DGraph``. See the discussion there.</span>
 
 <span class="sd">        :seealso: :meth:`degree`</span>
 <span class="sd">        """</span>
@@ -1660,6 +1680,13 @@
 <span class="sd">            &gt;&gt;&gt; d = g.degree()</span>
 <span class="sd">            &gt;&gt;&gt; print(d)</span>
 
+<span class="sd">        .. rubric:: For graphs with parallel edges or loops</span>
+
+<span class="sd">        Every edge is counted, so ``k`` parallel edges between two vertices</span>
+<span class="sd">        add ``k`` to the degree of each end. A self-loop adds 2 to the degree</span>
+<span class="sd">        of a ``UGraph`` vertex, since it has two ends, and 1 to the</span>
+<span class="sd">        (out-)degree of a ``DGraph`` vertex.</span>
+
 <span class="sd">        :seealso: :meth:`adjacency` :meth:`incidence` :meth:`laplacian`</span>
 <span class="sd">        """</span>
 
@@ -1698,10 +1725,19 @@
 <span class="sd">              can be resolved to a vertex reference by ``graph[i]``.</span>
 <span class="sd">            - for an undirected graph the matrix is symmetric</span>
 <span class="sd">            - Eigenvalues of ``A`` are real and are known as the spectrum of the graph.</span>
-<span class="sd">            - The element ``A[i,j]`` can be considered the number of walks of length one</span>
-<span class="sd">              edge from vertex ``i`` to vertex ``j`` (either zero or one).</span>
+<span class="sd">            - The element ``A[i,j]`` is the number of walks of length one</span>
+<span class="sd">              edge from vertex ``i`` to vertex ``j``, which is the number of</span>
+<span class="sd">              edges between them (zero or one for a simple graph).</span>
 <span class="sd">            - If ``Ak = A ** k`` the element ``Ak[i,j]`` is the number of</span>
 <span class="sd">              walks of length ``k`` from vertex ``i`` to vertex ``j``.</span>
+
+<span class="sd">        .. rubric:: For graphs with parallel edges or loops</span>
+
+<span class="sd">        The matrix holds edge *counts*, so ``k`` parallel edges from ``i`` to</span>
+<span class="sd">        ``j`` give ``A[i,j] = k`` and ``Ak = A ** k`` still counts walks</span>
+<span class="sd">        correctly. A self-loop adds to the diagonal: 2 for a ``UGraph``</span>
+<span class="sd">        (consistent with :meth:`degree`) and 1 for a ``DGraph``. In every case</span>
+<span class="sd">        each row of ``A`` sums to the degree of that vertex.</span>
 
 <span class="sd">        :seealso: :meth:`Laplacian` :meth:`incidence` :meth:`degree`</span>
 <span class="sd">        """</span>
@@ -1713,7 +1749,7 @@
         <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">))</span>
         <span class="k">for</span> <span class="n">vertex</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">vertex</span><span class="o">.</span><span class="n">neighbours</span><span class="p">():</span>
-                <span class="n">A</span><span class="p">[</span><span class="n">vdict</span><span class="p">[</span><span class="n">vertex</span><span class="p">],</span> <span class="n">vdict</span><span class="p">[</span><span class="n">n</span><span class="p">]]</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="n">A</span><span class="p">[</span><span class="n">vdict</span><span class="p">[</span><span class="n">vertex</span><span class="p">],</span> <span class="n">vdict</span><span class="p">[</span><span class="n">n</span><span class="p">]]</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="k">return</span> <span class="n">A</span></div>
 
 
@@ -1755,6 +1791,13 @@
 <span class="sd">              :meth:`BaseVertex.edges` instead would silently drop such</span>
 <span class="sd">              vertices for a directed graph.</span>
 
+<span class="sd">        .. rubric:: For graphs with parallel edges or loops</span>
+
+<span class="sd">        Parallel edges each get their own column. For a ``UGraph`` the column</span>
+<span class="sd">        of a self-loop holds a single 2 (it touches its vertex at both ends,</span>
+<span class="sd">        so row sums still equal :meth:`degree`); for a ``DGraph`` it holds a</span>
+<span class="sd">        single 1.</span>
+
 <span class="sd">        :seealso: :meth:`Laplacian` :meth:`adjacency` :meth:`degree`</span>
 <span class="sd">        """</span>
         <span class="n">edges</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">edges</span><span class="p">()</span>
@@ -1768,6 +1811,8 @@
             <span class="k">assert</span> <span class="n">e</span><span class="o">.</span><span class="n">v1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">e</span><span class="o">.</span><span class="n">v2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
             <span class="n">I</span><span class="p">[</span><span class="n">vdict</span><span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">v1</span><span class="p">],</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
             <span class="n">I</span><span class="p">[</span><span class="n">vdict</span><span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">v2</span><span class="p">],</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">v1</span> <span class="ow">is</span> <span class="n">e</span><span class="o">.</span><span class="n">v2</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">UGraph</span><span class="p">):</span>
+                <span class="n">I</span><span class="p">[</span><span class="n">vdict</span><span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">v1</span><span class="p">],</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>  <span class="c1"># self-loop, counted at both ends</span>
 
         <span class="k">return</span> <span class="n">I</span></div>
 
@@ -1799,6 +1844,12 @@
 <span class="sd">            &gt;&gt;&gt; d = g.distance()</span>
 <span class="sd">            &gt;&gt;&gt; print(d)</span>
 
+<span class="sd">        .. rubric:: For graphs with parallel edges or loops</span>
+
+<span class="sd">        If there are parallel edges the element is the cost of the *cheapest*</span>
+<span class="sd">        of them. A self-loop gives a non-zero diagonal element equal to its</span>
+<span class="sd">        cost.</span>
+
 <span class="sd">        :seealso: :meth:`BaseVertex.distance`</span>
 <span class="sd">        """</span>
         <span class="c1"># create a dict mapping vertex to an id</span>
@@ -1806,10 +1857,12 @@
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">vert</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
             <span class="n">vdict</span><span class="p">[</span><span class="n">vert</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span>
 
-        <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">))</span>
+        <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">v1</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">v2</span><span class="p">,</span> <span class="n">edge</span> <span class="ow">in</span> <span class="n">v1</span><span class="o">.</span><span class="n">incidences</span><span class="p">():</span>
-                <span class="n">A</span><span class="p">[</span><span class="n">vdict</span><span class="p">[</span><span class="n">v1</span><span class="p">],</span> <span class="n">vdict</span><span class="p">[</span><span class="n">v2</span><span class="p">]]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_require_cost</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span>
+                <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="o">=</span> <span class="n">vdict</span><span class="p">[</span><span class="n">v1</span><span class="p">],</span> <span class="n">vdict</span><span class="p">[</span><span class="n">v2</span><span class="p">]</span>
+                <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_require_cost</span><span class="p">(</span><span class="n">edge</span><span class="p">))</span>
+        <span class="n">A</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isinf</span><span class="p">(</span><span class="n">A</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># not connected</span>
         <span class="k">return</span> <span class="n">A</span></div>
 
 
@@ -1889,6 +1942,9 @@
 <span class="sd">        :type G: BaseVertex subclass</span>
 <span class="sd">        :param verbose: print search progress, defaults to False</span>
 <span class="sd">        :param summary: print a one-line search summary, defaults to False</span>
+<span class="sd">        :raises TypeError: ``S`` or ``G`` is neither a vertex nor a string</span>
+<span class="sd">        :raises KeyError: ``S`` or ``G`` is a name not in the graph</span>
+<span class="sd">        :raises ValueError: an edge on the path has no cost</span>
 <span class="sd">        :return: list of vertices from S to G inclusive, path length</span>
 <span class="sd">        :rtype: list of BaseVertex subclass, float</span>
 
@@ -1907,6 +1963,9 @@
 <span class="sd">            &gt;&gt;&gt; path, length = g.path_BFS(v1, v3)</span>
 <span class="sd">            &gt;&gt;&gt; print(path)</span>
 <span class="sd">            &gt;&gt;&gt; print(length)</span>
+
+<span class="sd">        .. note:: Self-loops are ignored. If there are parallel edges the</span>
+<span class="sd">            cheapest is used for the path length.</span>
 
 <span class="sd">        :seealso: :meth:`path_UCS` :meth:`path_Astar`</span>
 <span class="sd">        """</span>
@@ -1932,6 +1991,8 @@
 
             <span class="c1"># expand the vertex</span>
             <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">x</span><span class="o">.</span><span class="n">neighbours</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">n</span> <span class="ow">is</span> <span class="n">x</span><span class="p">:</span>
+                    <span class="k">continue</span>  <span class="c1"># self-loop, never part of a shortest path</span>
                 <span class="k">if</span> <span class="n">n</span> <span class="ow">is</span> <span class="n">G</span><span class="p">:</span>
                     <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
                         <span class="nb">print</span><span class="p">(</span><span class="s2">"     goal"</span><span class="p">,</span> <span class="n">n</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">"reached"</span><span class="p">)</span>
@@ -1960,7 +2021,7 @@
 
         <span class="k">while</span> <span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">S</span><span class="p">:</span>
             <span class="n">p</span> <span class="o">=</span> <span class="n">parent</span><span class="p">[</span><span class="n">x</span><span class="p">]</span>
-            <span class="n">length</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_require_cost</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">edgeto</span><span class="p">(</span><span class="n">p</span><span class="p">))</span>
+            <span class="n">length</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_require_cost</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">edgeto</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
             <span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
             <span class="n">x</span> <span class="o">=</span> <span class="n">p</span>
 
@@ -1986,6 +2047,9 @@
 <span class="sd">        :type G: BaseVertex subclass</span>
 <span class="sd">        :param verbose: print search progress, defaults to False</span>
 <span class="sd">        :param summary: print a one-line search summary, defaults to False</span>
+<span class="sd">        :raises TypeError: ``S`` or ``G`` is neither a vertex nor a string</span>
+<span class="sd">        :raises KeyError: ``S`` or ``G`` is a name not in the graph</span>
+<span class="sd">        :raises ValueError: an edge examined during the search has no cost</span>
 <span class="sd">        :return: list of vertices from S to G inclusive, path length, tree</span>
 <span class="sd">        :rtype: list of BaseVertex subclass, float, dict</span>
 
@@ -2009,6 +2073,9 @@
 <span class="sd">            &gt;&gt;&gt; path, length, tree = g.path_UCS(v1, v3)</span>
 <span class="sd">            &gt;&gt;&gt; print(path)</span>
 <span class="sd">            &gt;&gt;&gt; print(length)</span>
+
+<span class="sd">        .. note:: Self-loops are ignored. If there are parallel edges the</span>
+<span class="sd">            cheapest is used for the path length.</span>
 
 <span class="sd">        :seealso: :meth:`path_BFS` :meth:`path_Astar`</span>
 <span class="sd">        """</span>
@@ -2036,6 +2103,8 @@
                 <span class="k">break</span>
             <span class="c1"># expand the vertex</span>
             <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">x</span><span class="o">.</span><span class="n">incidences</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">n</span> <span class="ow">is</span> <span class="n">x</span><span class="p">:</span>
+                    <span class="k">continue</span>  <span class="c1"># self-loop, never part of a shortest path</span>
                 <span class="n">fnew</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_require_cost</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">n</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">frontier</span> <span class="ow">and</span> <span class="n">n</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">explored</span><span class="p">:</span>
                     <span class="c1"># add it to the frontier</span>
@@ -2101,6 +2170,9 @@
 <span class="sd">        :type G: BaseVertex subclass</span>
 <span class="sd">        :param verbose: print search progress, defaults to False</span>
 <span class="sd">        :param summary: print a one-line search summary, defaults to False</span>
+<span class="sd">        :raises TypeError: ``S`` or ``G`` is neither a vertex nor a string</span>
+<span class="sd">        :raises KeyError: ``S`` or ``G`` is a name not in the graph</span>
+<span class="sd">        :raises ValueError: an edge examined during the search has no cost</span>
 <span class="sd">        :return: list of vertices from S to G inclusive, path length, tree</span>
 <span class="sd">        :rtype: list of BaseVertex subclass, float, dict</span>
 
@@ -2124,6 +2196,9 @@
 <span class="sd">            &gt;&gt;&gt; path, length, tree = g.path_Astar(v1, v3)</span>
 <span class="sd">            &gt;&gt;&gt; print(path)</span>
 <span class="sd">            &gt;&gt;&gt; print(length)</span>
+
+<span class="sd">        .. note:: Self-loops are ignored. If there are parallel edges the</span>
+<span class="sd">            cheapest is used for the path length.</span>
 
 <span class="sd">        :seealso: :meth:`heuristic` :meth:`path_BFS` :meth:`path_UCS`</span>
 <span class="sd">        """</span>
@@ -2152,6 +2227,8 @@
                 <span class="k">break</span>
             <span class="c1"># expand the vertex</span>
             <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">x</span><span class="o">.</span><span class="n">incidences</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">n</span> <span class="ow">is</span> <span class="n">x</span><span class="p">:</span>
+                    <span class="k">continue</span>  <span class="c1"># self-loop, never part of a shortest path</span>
                 <span class="k">if</span> <span class="n">n</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">frontier</span> <span class="ow">and</span> <span class="n">n</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">explored</span><span class="p">:</span>
                     <span class="c1"># add it to the frontier</span>
                     <span class="n">frontier</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
@@ -2785,6 +2862,10 @@
 
 <span class="sd">        .. note:: For a directed graph the neighbours are those on edges leaving this vertex</span>
 
+<span class="sd">        .. note:: There is one entry per edge, so a neighbour joined by ``k``</span>
+<span class="sd">            parallel edges appears ``k`` times. In an undirected graph a</span>
+<span class="sd">            self-loop lists the vertex itself twice, once for each end.</span>
+
 <span class="sd">        .. runblock:: pycon</span>
 
 <span class="sd">            &gt;&gt;&gt; from pgraph import UGraph</span>
@@ -3021,6 +3102,8 @@
 <span class="sd">        .. note::</span>
 
 <span class="sd">            - For a directed graph ``dest`` must be at the arrow end of the edge</span>
+<span class="sd">            - If there are parallel edges to ``dest`` the cheapest is returned</span>
+<span class="sd">              (the first, if none of them has a cost)</span>
 
 <span class="sd">        .. runblock:: pycon</span>
 
@@ -3031,10 +3114,13 @@
 <span class="sd">            &gt;&gt;&gt; g.add_edge(v1, v2, cost=1.414)</span>
 <span class="sd">            &gt;&gt;&gt; print(v1.edgeto(v2))</span>
 <span class="sd">        """</span>
-        <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">incidences</span><span class="p">():</span>
-            <span class="k">if</span> <span class="n">n</span> <span class="ow">is</span> <span class="n">dest</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">e</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"dest is not a neighbour"</span><span class="p">)</span></div>
+        <span class="n">edges</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">incidences</span><span class="p">()</span> <span class="k">if</span> <span class="n">n</span> <span class="ow">is</span> <span class="n">dest</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">edges</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"dest is not a neighbour"</span><span class="p">)</span>
+        <span class="n">costed</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">edges</span> <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">cost</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">costed</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="n">costed</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="n">e</span><span class="o">.</span><span class="n">cost</span><span class="p">)</span>  <span class="c1"># type: ignore[arg-type,return-value]</span>
+        <span class="k">return</span> <span class="n">edges</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
 
 
 <div class="viewcode-block" id="BaseVertex.edges">
@@ -3151,6 +3237,12 @@
 <span class="sd">            &gt;&gt;&gt; g.add_edge(v1, v2)</span>
 <span class="sd">            &gt;&gt;&gt; g.add_edge(v1, v3)</span>
 <span class="sd">            &gt;&gt;&gt; print(v1.degree)</span>
+
+<span class="sd">        .. rubric:: For graphs with parallel edges or loops</span>
+
+<span class="sd">        Every edge is counted, so ``k`` parallel edges to the same neighbour</span>
+<span class="sd">        add ``k``. A self-loop adds 2 for a ``UGraph`` vertex, since it has two</span>
+<span class="sd">        ends, and 1 for a ``DGraph`` vertex.</span>
 
 <span class="sd">        :seealso: :meth:`edges`</span>
 <span class="sd">        """</span>

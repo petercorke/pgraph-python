@@ -257,6 +257,10 @@ vertex of the same class as <code class="docutils literal notranslate"><span cla
 <span class="go">2</span>
 </pre></div>
 </div>
+<p class="rubric">For graphs with parallel edges or loops</p>
+<p>Every edge is counted, so <code class="docutils literal notranslate"><span class="pre">k</span></code> parallel edges to the same neighbour
+add <code class="docutils literal notranslate"><span class="pre">k</span></code>. A self-loop adds 2 for a <code class="docutils literal notranslate"><span class="pre">UGraph</span></code> vertex, since it has two
+ends, and 1 for a <code class="docutils literal notranslate"><span class="pre">DGraph</span></code> vertex.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Seealso<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference internal" href="#pgraph.PGraph.BaseVertex.edges" title="pgraph.PGraph.BaseVertex.edges"><code class="xref py py-meth docutils literal notranslate"><span class="pre">edges()</span></code></a></p>
@@ -351,6 +355,8 @@ graph, not the vertex.</p>
 <p class="admonition-title">Note</p>
 <ul class="simple">
 <li><p>For a directed graph <code class="docutils literal notranslate"><span class="pre">dest</span></code> must be at the arrow end of the edge</p></li>
+<li><p>If there are parallel edges to <code class="docutils literal notranslate"><span class="pre">dest</span></code> the cheapest is returned
+(the first, if none of them has a cost)</p></li>
 </ul>
 </div>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pgraph</span><span class="w"> </span><span class="kn">import</span> <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">UGraph</span></a>
@@ -497,6 +503,12 @@ tuples of (vertex, edge) for all neighbours of the vertex <code class="docutils 
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>For a directed graph the neighbours are those on edges leaving this vertex</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>There is one entry per edge, so a neighbour joined by <code class="docutils literal notranslate"><span class="pre">k</span></code>
+parallel edges appears <code class="docutils literal notranslate"><span class="pre">k</span></code> times. In an undirected graph a
+self-loop lists the vertex itself twice, once for each end.</p>
 </div>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pgraph</span><span class="w"> </span><span class="kn">import</span> <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">UGraph</span></a>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">g</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">UGraph</span></a><span class="p">()</span>
