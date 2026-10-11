@@ -97,18 +97,18 @@ Graphs belong to the class `UGraph` or `DGraph` for undirected or directed graph
 - `g.incidence()` incidence matrix
 
 ### Properties and methods of a vertex
-Vertices belong to the class `UVertex` (for undirected graphs) or `DVertex` (for directed graphs), which are each subclasses of `Vertex`.
+Vertices belong to the class `UVertex` (for undirected graphs) or `DVertex` (for directed graphs), which are each subclasses of `BaseVertex`.
 
 - `v.coord` the coordinate vector for embedded graph (optional)
 - `v.name` the name of the vertex (optional)
-- `v.neighbours()` is a list of the neighbouring vertices
+- `v.adjacent()` is a list of the adjacent vertices (`neighbours()` and `neighbors()` are the same)
 - `v1.samecomponent(v2)` predicate for vertices belonging to the same component
 
 Vertices can be named and referenced by name.
 
 ### Properties and methods of an edge
 Edges are instances of the class `Edge`.
-Edges are not referenced by the graph object, each edge references a pair of vertices, and the vertices reference the edges.  For a directed graph only the start vertex of an edge references the edge object, whereas for an undirected graph both vertices reference the edge object.
+Each edge references a pair of vertices, the graph lists all of its edges in `g.edges()`, and the vertices reference the edges.  For a directed graph only the start vertex of an edge references the edge object, whereas for an undirected graph both vertices reference the edge object.
 
 - `e.cost` cost of edge for planning methods
 - `e.next(v)` vertex on edge `e` that is not `v`
