@@ -2,9 +2,14 @@ Introduction
 =================
 
 This package provides classes for directed and undirected graphs: vertices
-connected by edges, with embedded coordinates, edge costs and path planning.
-Self-loops and parallel edges are permitted. It is a graph-theory package, not
-a plotting library.
+connected by edges, with edge costs and path planning.  Self-loops and
+parallel edges are permitted.
+
+Vertices can optionally be *embedded*: given a coordinate in a space of any
+dimension.  Edge costs are then computed from the vertex positions using a
+distance metric (Euclidean, Manhattan, SE(2), or your own), the vertex nearest
+a point can be found, ``A*`` uses the metric as its heuristic, and the graph can
+be plotted, or exported with its layout preserved.
 
 What is a graph?
 -----------------
