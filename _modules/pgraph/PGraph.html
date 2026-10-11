@@ -97,6 +97,36 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">spatialmath.base.graphics</span><span class="w"> </span><span class="kn">import</span> <span class="n">axes_logic</span>
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_L1</span><span class="p">(</span><span class="n">v</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""L1 (Manhattan) norm, the built-in ``"L1"`` metric"""</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_L2</span><span class="p">(</span><span class="n">v</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""L2 (Euclidean) norm, the built-in ``"L2"`` metric"""</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">v</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_SE2</span><span class="p">(</span><span class="n">v</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Mixed norm for (x, y, theta), the built-in ``"SE2"`` metric"""</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"SE2 metric requires a 3-element (x, y, theta) vector, got length </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
+        <span class="p">)</span>
+    <span class="c1"># wrap angle to range [-pi, pi)</span>
+    <span class="n">v</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">%</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">v</span><span class="p">))</span>
+
+
+<span class="c1">#: the built-in metrics by name.  They are module level, and pickled by name,</span>
+<span class="c1">#: so that a graph using one can be pickled.</span>
+<span class="n">_METRICS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">NDArray</span><span class="p">],</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"L1"</span><span class="p">:</span> <span class="n">_L1</span><span class="p">,</span>
+    <span class="s2">"L2"</span><span class="p">:</span> <span class="n">_L2</span><span class="p">,</span>
+    <span class="s2">"SE2"</span><span class="p">:</span> <span class="n">_SE2</span><span class="p">,</span>
+<span class="p">}</span>
+
+
 <div class="viewcode-block" id="BaseGraph">
 <a class="viewcode-back" href="../../PGraph.html#pgraph.PGraph.BaseGraph">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">BaseGraph</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
@@ -603,6 +633,34 @@
 <span class="sd">        :return: deep copy</span>
 <span class="sd">        :rtype: BaseGraph</span>
 
+<span class="sd">        The copy has its own vertices and edges, which keep their class, name,</span>
+<span class="sd">        coordinate, cost and any attributes the user has added, and in the</span>
+<span class="sd">        same order, so it can be modified without affecting the original.</span>
+
+<span class="sd">        A graph can also be pickled, and copied with :func:`copy.deepcopy`,</span>
+<span class="sd">        which this method calls.  Both work for a graph of any size.  A</span>
+<span class="sd">        vertex or an edge cannot be pickled or copied on its own, since it has</span>
+<span class="sd">        no meaning apart from its graph: a :exc:`TypeError` is raised, and the</span>
+<span class="sd">        graph should be copied instead.</span>
+
+<span class="sd">        .. note::</span>
+
+<span class="sd">            - A metric or heuristic given by name (``"L1"``, ``"L2"``,</span>
+<span class="sd">              ``"SE2"``) is pickled by name.  A function you supply must be</span>
+<span class="sd">              importable at module level to be pickled; a ``lambda`` or a</span>
+<span class="sd">              function defined inside another function can be copied but not</span>
+<span class="sd">              pickled.</span>
+<span class="sd">            - Attributes that you add to vertices or edges must not refer to</span>
+<span class="sd">              other vertices or edges of the graph, since those cannot be</span>
+<span class="sd">              pickled on their own.</span>
+<span class="sd">            - A pickle is not a long-term storage format.  Use :meth:`export`</span>
+<span class="sd">              for that.</span>
+
+<span class="sd">        .. versionchanged:: 1.0</span>
+<span class="sd">            Pickling a graph works, and copying one no longer fails with a</span>
+<span class="sd">            ``RecursionError`` for a graph with a path of about a hundred</span>
+<span class="sd">            vertices.</span>
+
 <span class="sd">        .. runblock:: pycon</span>
 
 <span class="sd">            &gt;&gt;&gt; from pgraph import UGraph</span>
@@ -611,9 +669,98 @@
 <span class="sd">            &gt;&gt;&gt; g2 = g.copy()</span>
 <span class="sd">            &gt;&gt;&gt; g2 is g</span>
 <span class="sd">            &gt;&gt;&gt; g2[0] is g[0]</span>
+
+<span class="sd">        :seealso: :meth:`vertex_copy` :meth:`export`</span>
 <span class="sd">        """</span>
         <span class="k">return</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
+
+    <span class="c1"># pickling and copying</span>
+
+    <span class="c1">#: the graph's own containers, which are saved as a flat description</span>
+    <span class="n">_STRUCTURE</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"_vertexlist"</span><span class="p">,</span> <span class="s2">"_vertexdict"</span><span class="p">,</span> <span class="s2">"_edges"</span><span class="p">)</span>
+
+    <span class="c1">#: the references a vertex holds, which are rebuilt rather than saved</span>
+    <span class="n">_VERTEX_LINKS</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"_edgelist"</span><span class="p">,</span> <span class="s2">"_inlist"</span><span class="p">,</span> <span class="s2">"_graph"</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__getstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        State for pickling and deep copying (private method)</span>
+
+<span class="sd">        The vertices and edges form a web of references, and following them</span>
+<span class="sd">        recursively overflows the stack for a graph with a path of a hundred</span>
+<span class="sd">        or so vertices.  Instead the graph is described flatly: a list of</span>
+<span class="sd">        vertices, and a list of edges that refer to their end vertices by</span>
+<span class="sd">        index.  The edges are listed in the order they were added, so</span>
+<span class="sd">        replaying them rebuilds each vertex's edge lists in their original</span>
+<span class="sd">        order.  A built-in metric is saved by name.</span>
+<span class="sd">        """</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_STRUCTURE</span><span class="p">}</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"_metric"</span><span class="p">,</span> <span class="s2">"_heuristic"</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">func</span> <span class="ow">in</span> <span class="n">_METRICS</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">state</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="ow">is</span> <span class="n">func</span><span class="p">:</span>
+                    <span class="n">state</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"builtin"</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="p">{</span><span class="nb">id</span><span class="p">(</span><span class="n">v</span><span class="p">):</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_vertexlist</span><span class="p">)}</span>
+        <span class="n">state</span><span class="p">[</span><span class="s2">"_flat"</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">"version"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="s2">"vertices"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">(</span>
+                    <span class="nb">type</span><span class="p">(</span><span class="n">v</span><span class="p">),</span>
+                    <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">x</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">v</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_VERTEX_LINKS</span><span class="p">},</span>
+                <span class="p">)</span>
+                <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vertexlist</span>
+            <span class="p">],</span>
+            <span class="s2">"edges"</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">(</span>
+                    <span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">),</span>
+                    <span class="n">index</span><span class="p">[</span><span class="nb">id</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">v1</span><span class="p">)],</span>
+                    <span class="n">index</span><span class="p">[</span><span class="nb">id</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">v2</span><span class="p">)],</span>
+                    <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">x</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">e</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"_v1"</span><span class="p">,</span> <span class="s2">"_v2"</span><span class="p">)},</span>
+                <span class="p">)</span>
+                <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edges</span>
+            <span class="p">],</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">state</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__setstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Rebuild the graph from its flat description (private method)</span>
+
+<span class="sd">        The vertex and edge objects are made without calling ``__init__``, so</span>
+<span class="sd">        subclasses with their own constructor signature are restored as they</span>
+<span class="sd">        were.  Each edge is attached with the vertex's own hook, exactly as</span>
+<span class="sd">        :meth:`BaseVertex.connect` does.</span>
+<span class="sd">        """</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+        <span class="n">flat</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">"_flat"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">flat</span><span class="p">[</span><span class="s2">"version"</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"unknown pickled graph version </span><span class="si">{</span><span class="n">flat</span><span class="p">[</span><span class="s1">'version'</span><span class="p">]</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"_metric"</span><span class="p">,</span> <span class="s2">"_heuristic"</span><span class="p">):</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">state</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span> <span class="ow">and</span> <span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"builtin"</span><span class="p">:</span>
+                <span class="n">state</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">_METRICS</span><span class="p">[</span><span class="n">value</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_vertexlist</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_vertexdict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="bp">cls</span><span class="p">,</span> <span class="n">attrs</span> <span class="ow">in</span> <span class="n">flat</span><span class="p">[</span><span class="s2">"vertices"</span><span class="p">]:</span>
+            <span class="n">v</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
+            <span class="n">v</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">attrs</span><span class="p">)</span>
+            <span class="n">v</span><span class="o">.</span><span class="n">_edgelist</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">v</span><span class="o">.</span><span class="n">_inlist</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">v</span><span class="o">.</span><span class="n">_graph</span> <span class="o">=</span> <span class="bp">self</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_vertexlist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_vertexdict</span><span class="p">[</span><span class="n">v</span><span class="o">.</span><span class="n">_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_edges</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="bp">cls</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">attrs</span> <span class="ow">in</span> <span class="n">flat</span><span class="p">[</span><span class="s2">"edges"</span><span class="p">]:</span>
+            <span class="n">e</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
+            <span class="n">e</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">attrs</span><span class="p">)</span>
+            <span class="n">v1</span><span class="p">,</span> <span class="n">v2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vertexlist</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vertexlist</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+            <span class="n">e</span><span class="o">.</span><span class="n">_set_endpoints</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_edges</span><span class="p">[</span><span class="n">e</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">v1</span><span class="o">.</span><span class="n">_attach</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">v2</span><span class="p">)</span>
 
 <div class="viewcode-block" id="BaseGraph.add_vertex">
 <a class="viewcode-back" href="../../PGraph.html#pgraph.PGraph.BaseGraph.add_vertex">[docs]</a>
@@ -1179,30 +1326,11 @@
 <span class="sd">        :seealso: :meth:`metric` :meth:`heuristic`</span>
 <span class="sd">        """</span>
 
-        <span class="k">def</span><span class="w"> </span><span class="nf">L1</span><span class="p">(</span><span class="n">v</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-
-        <span class="k">def</span><span class="w"> </span><span class="nf">L2</span><span class="p">(</span><span class="n">v</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
-
-        <span class="k">def</span><span class="w"> </span><span class="nf">SE2</span><span class="p">(</span><span class="n">v</span><span class="p">):</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">"SE2 metric requires a 3-element (x, y, theta) vector, got length </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
-                <span class="p">)</span>
-            <span class="c1"># wrap angle to range [-pi, pi)</span>
-            <span class="n">v</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">%</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
-            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
-
         <span class="k">if</span> <span class="nb">callable</span><span class="p">(</span><span class="n">metric</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">metric</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">metric</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">metric</span> <span class="o">==</span> <span class="s2">"L1"</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">L1</span>
-            <span class="k">elif</span> <span class="n">metric</span> <span class="o">==</span> <span class="s2">"L2"</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">L2</span>
-            <span class="k">elif</span> <span class="n">metric</span> <span class="o">==</span> <span class="s2">"SE2"</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">SE2</span>
+            <span class="k">if</span> <span class="n">metric</span> <span class="ow">in</span> <span class="n">_METRICS</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">_METRICS</span><span class="p">[</span><span class="n">metric</span><span class="p">]</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"unknown metric </span><span class="si">{</span><span class="n">metric</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -3227,10 +3355,22 @@
 
 <span class="sd">        Only the library calls this: the constructor's own assignment, then</span>
 <span class="sd">        :meth:`connect`, :meth:`BaseVertex.connect` for an edge built without</span>
-<span class="sd">        vertices, and :meth:`_BaseGraph.remove_edge`, which clears them.</span>
+<span class="sd">        vertices, and :meth:`BaseGraph.remove_edge`, which clears them.</span>
 <span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_v1</span> <span class="o">=</span> <span class="n">v1</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_v2</span> <span class="o">=</span> <span class="n">v2</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__reduce__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Refuse to pickle or copy an edge on its own</span>
+
+<span class="sd">        An edge is held by its vertices and its graph, so it has no meaning</span>
+<span class="sd">        apart from them.  Pickle or copy the graph instead.</span>
+<span class="sd">        """</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+            <span class="s2">"an Edge cannot be pickled or copied on its own, "</span>
+            <span class="s2">"pickle or copy its graph instead"</span>
+        <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
@@ -3502,6 +3642,18 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_inlist</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Edge</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_graph</span><span class="p">:</span> <span class="n">BaseGraph</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># reference to owning graph</span>
         <span class="c1"># print('BaseVertex init', type(self))</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__reduce__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Refuse to pickle or copy a vertex on its own</span>
+
+<span class="sd">        A vertex is held by its graph and by its edges, so it has no meaning</span>
+<span class="sd">        apart from them.  Pickle or copy the graph instead.</span>
+<span class="sd">        """</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+            <span class="s2">"a vertex cannot be pickled or copied on its own, "</span>
+            <span class="s2">"pickle or copy its graph instead"</span>
+        <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
