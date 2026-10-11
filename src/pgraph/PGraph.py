@@ -1238,7 +1238,7 @@ class _BaseGraph(ABC):
                         ax.text(vertex.x, vertex.y, f"  {vertex.name}", **textopt)
                     if colorcomponents:
                         ax.plot(vertex.x, vertex.y, color=color[c, :], **vopt)
-                        for v in vertex.neighbours():
+                        for v in vertex.adjacent():
                             ax.plot(
                                 [vertex.x, v.x],
                                 [vertex.y, v.y],
@@ -1247,7 +1247,7 @@ class _BaseGraph(ABC):
                             )
                     else:
                         ax.plot(vertex.x, vertex.y, **vopt)
-                        for v in vertex.neighbours():
+                        for v in vertex.adjacent():
                             ax.plot([vertex.x, v.x], [vertex.y, v.y], **eopt)
         else:
             # 3D or higher plotting, just do (x, y, z)
@@ -1267,7 +1267,7 @@ class _BaseGraph(ABC):
                             vertex.z,
                             **{**dict(color=color[c, :]), **vopt},
                         )
-                        for v in vertex.neighbours():
+                        for v in vertex.adjacent():
                             ax.plot(
                                 [vertex.x, v.x],
                                 [vertex.y, v.y],
@@ -1276,7 +1276,7 @@ class _BaseGraph(ABC):
                             )
                     else:
                         ax.plot(vertex.x, vertex.y, vertex.z, **vopt)
-                        for v in vertex.neighbours():
+                        for v in vertex.adjacent():
                             ax.plot(
                                 [vertex.x, v.x],
                                 [vertex.y, v.y],
@@ -1669,7 +1669,7 @@ class _BaseGraph(ABC):
         repeatedly remove vertices with no remaining incoming edges. If every
         vertex can eventually be removed, the graph is a DAG (acyclic); if
         some are never freed, they form a cycle. This is O(V+E), using
-        vertices' outgoing edges via :meth:`BaseVertex.neighbours` the same
+        vertices' outgoing edges via :meth:`BaseVertex.adjacent` the same
         way :meth:`path_BFS` and friends do.
 
         .. note:: A self-loop is a cycle of length one, so it makes either kind
@@ -1713,7 +1713,7 @@ class _BaseGraph(ABC):
         while frontier:
             vertex = frontier.pop()
             removed += 1
-            for n in vertex.neighbours():
+            for n in vertex.adjacent():
                 indegree[n] -= 1
                 if indegree[n] == 0:
                     frontier.append(n)
@@ -1950,7 +1950,7 @@ class _BaseGraph(ABC):
 
         A = np.zeros((self.n, self.n))
         for vertex in self:
-            for n in vertex.neighbours():
+            for n in vertex.adjacent():
                 A[vdict[vertex], vdict[n]] += 1
         return A
 
@@ -2185,7 +2185,7 @@ class _BaseGraph(ABC):
                 print("   expand", x.name)
 
             # expand the vertex
-            for n in x.neighbours():
+            for n in x.adjacent():
                 if n is x:
                     continue  # self-loop, never part of a shortest path
                 if n is G:
@@ -2526,7 +2526,7 @@ class UGraph(_BaseGraph):
                         while len(q) > 0:
                             v = q.pop()  # expand v
                             v.label = label
-                            for n in v.neighbours():
+                            for n in v.adjacent():
                                 if n.label is None:
                                     q.append(n)
                         lastlabel = label
@@ -2580,7 +2580,7 @@ class DGraph(_BaseGraph):
             for v in self:
                 if v.label is None:
                     # no label, try to inherit one from a neighbour
-                    for n in v.neighbours():
+                    for n in v.adjacent():
                         if n.label is not None:
                             # neighbour has a label
                             v.label = n.label
@@ -2595,7 +2595,7 @@ class DGraph(_BaseGraph):
                 assert label is not None
 
                 # now look for clashes
-                for n in v.neighbours():
+                for n in v.adjacent():
                     if n.label is None:
                         # neighbour has no label, give it this one
                         n.label = label
@@ -3029,17 +3029,28 @@ class BaseVertex:
         else:
             return self.__class__(coord=self.coord, name=self.name)
 
-    def neighbours(self) -> list[BaseVertex]:
+    def adjacent(self) -> list[BaseVertex]:
         """
-        Neighbours of a vertex
+        Vertices adjacent to this vertex
 
-        ``v.neighbours()`` is a list of neighbours of this vertex.
+        :return: the vertices at the far end of this vertex's edges
+        :rtype: list of BaseVertex subclass
 
-        .. note:: For a directed graph the neighbours are those on edges leaving this vertex
+        ``v.adjacent()`` is a list of the vertices that this vertex is joined
+        to by an edge.  "Adjacent" is the graph-theory term, and it is the
+        relation that :meth:`_BaseGraph.adjacency` tabulates: row ``i`` of the
+        adjacency matrix is non-zero exactly at the columns of the vertices
+        returned by ``g[i].adjacent()``.
 
-        .. note:: There is one entry per edge, so a neighbour joined by ``k``
-            parallel edges appears ``k`` times. In an undirected graph a
-            self-loop lists the vertex itself twice, once for each end.
+        .. note::
+
+            - For a directed graph these are the vertices at the head of the
+              edges leaving this vertex, the *successors*.
+            - There is one entry per edge, so a vertex joined by ``k`` parallel
+              edges appears ``k`` times.  In an undirected graph a self-loop
+              lists the vertex itself twice, once for each end.
+            - ``neighbours`` and ``neighbors`` are aliases, the same method
+              under the British and American spellings, and are not deprecated.
 
         .. runblock:: pycon
 
@@ -3050,60 +3061,31 @@ class BaseVertex:
             >>> v3 = g.add_vertex(coord=[2,2], name='v3')
             >>> g.add_edge(v1, v2)
             >>> g.add_edge(v1, v3)
-            >>> print(v1.neighbours())
+            >>> print(v1.adjacent())
 
-        :seealso: :meth:`neighbors` :meth:`incidences`
+        :seealso: :meth:`isadjacent` :meth:`incidences` :meth:`edges`
+            :meth:`_BaseGraph.adjacency`
         """
         return [e.next(self) for e in self._edgelist]
 
-    def neighbors(self) -> list[BaseVertex]:
+    #: alias of :meth:`adjacent`
+    neighbours = adjacent
+    #: alias of :meth:`adjacent`
+    neighbors = adjacent
+
+    def isadjacent(self, vertex: BaseVertex) -> bool:
         """
-        Neighbors of a vertex
-
-        ``v.neighbors()`` is a list of neighbors of this vertex.
-
-        .. note:: For a directed graph the neighbours are those on edges leaving this vertex
-
-        .. runblock:: pycon
-
-            >>> from pgraph import UGraph
-            >>> g = UGraph()
-            >>> v1 = g.add_vertex(coord=[0,0], name='v1')
-            >>> v2 = g.add_vertex(coord=[1,1], name='v2')
-            >>> g.add_edge(v1, v2)
-            >>> print(v1.neighbors())
-
-        :seealso: :meth:`neighbours`
-        """
-        return [e.next(self) for e in self._edgelist]
-
-    def adjacent(self) -> list[BaseVertex]:
-        """
-        Neighbours of a vertex (deprecated)
-
-        :return: a list of neighbours of this vertex
-        :rtype: list of BaseVertex subclass
-
-        .. deprecated:: use :meth:`neighbours` instead
-        """
-        warnings.warn(
-            "adjacent() is deprecated, use neighbours() instead",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return self.neighbours()
-
-    def isneighbour(self, vertex: BaseVertex) -> bool:
-        """
-        Test if vertex is a neigbour
+        Test if a vertex is adjacent to this vertex
 
         :param vertex: vertex reference
         :type vertex: BaseVertex subclass
-        :return: true if a neighbour
+        :return: true if ``vertex`` is adjacent
         :rtype: bool
 
-        For a directed graph this is true only if the edge is from ``self`` to
-        ``vertex``.
+        For a directed graph this is true only if there is an edge from
+        ``self`` to ``vertex``.
+
+        ``isneighbour`` and ``isneighbor`` are aliases.
 
         .. runblock:: pycon
 
@@ -3113,19 +3095,24 @@ class BaseVertex:
             >>> v2 = g.add_vertex(coord=[1,1], name='v2')
             >>> v3 = g.add_vertex(coord=[2,2], name='v3')
             >>> g.add_edge(v1, v2)
-            >>> print(v1.isneighbour(v2))
-            >>> print(v1.isneighbour(v3))
+            >>> print(v1.isadjacent(v2))
+            >>> print(v1.isadjacent(v3))
 
-        :seealso: :meth:`neighbours`
+        :seealso: :meth:`adjacent`
         """
         return vertex in [e.next(self) for e in self._edgelist]
+
+    #: alias of :meth:`isadjacent`
+    isneighbour = isadjacent
+    #: alias of :meth:`isadjacent`
+    isneighbor = isadjacent
 
     def incidences(self) -> list[tuple[BaseVertex, Edge]]:
         """
         Neighbours and edges of a vertex
 
         ``v.incidences()`` is a generator that returns a list of incidences,
-        tuples of (vertex, edge) for all neighbours of the vertex ``v``.
+        tuples of (vertex, edge) for all vertices adjacent to the vertex ``v``.
 
         .. note:: For a directed graph the edges are those leaving this vertex
 
@@ -3138,7 +3125,7 @@ class BaseVertex:
             >>> g.add_edge(v1, v2)
             >>> print(v1.incidences())
 
-        :seealso: :meth:`neighbours` :meth:`edges`
+        :seealso: :meth:`adjacent` :meth:`edges`
         """
         return [(e.next(self), e) for e in self._edgelist]
 
