@@ -3,7 +3,7 @@
 <div align="center">
   <img src="https://raw.githubusercontent.com/petercorke/pgraph-python/main/docs/figs/pgraph_logo.png" width="450" alt="pgraph logo">
   <br>
-  <strong>Mathematical graphs for Python</strong>
+  <strong>Graphs for Python</strong>
   <br><br>
 
 [![PyPI version](https://img.shields.io/pypi/v/pgraph-python?style=for-the-badge&color=blue)](https://pypi.org/project/pgraph-python/)
@@ -35,7 +35,15 @@
 [![powered by Matplotlib](https://img.shields.io/badge/powered_by-Matplotlib-11557c?logo=matplotlib&logoColor=white)](https://matplotlib.org)
 [![Powered by Spatial Maths](https://raw.githubusercontent.com/petercorke/spatialmath-python/master/.github/svg/sm_powered.min.svg)](https://github.com/petercorke/spatialmath-python)
 
-This Python package allows the manipulation of directed and non-directed graphs.  Also supports embedded graphs.  It is suitable for graphs with thousands of nodes.
+This package provides classes for directed and undirected graphs: vertices
+connected by edges, with edge costs and path planning.  Self-loops and
+parallel edges are permitted.
+
+Vertices can optionally be *embedded*: given a coordinate in a space of any
+dimension.  Edge costs are then computed from the vertex positions using a
+distance metric (Euclidean, Manhattan, SE(2), or your own), the vertex nearest
+a point can be found, `A*` uses the metric as its heuristic, and the graph can
+be plotted, or exported with its layout preserved.
 
 ![road network](https://github.com/petercorke/pgraph-python/raw/main/examples/roads.png)
 
@@ -89,18 +97,18 @@ Graphs belong to the class `UGraph` or `DGraph` for undirected or directed graph
 - `g.incidence()` incidence matrix
 
 ### Properties and methods of a vertex
-Vertices belong to the class `UVertex` (for undirected graphs) or `DVertex` (for directed graphs), which are each subclasses of `Vertex`.
+Vertices belong to the class `UVertex` (for undirected graphs) or `DVertex` (for directed graphs), which are each subclasses of `BaseVertex`.
 
 - `v.coord` the coordinate vector for embedded graph (optional)
 - `v.name` the name of the vertex (optional)
-- `v.neighbours()` is a list of the neighbouring vertices
+- `v.adjacent()` is a list of the adjacent vertices (`neighbours()` and `neighbors()` are the same)
 - `v1.samecomponent(v2)` predicate for vertices belonging to the same component
 
 Vertices can be named and referenced by name.
 
 ### Properties and methods of an edge
 Edges are instances of the class `Edge`.
-Edges are not referenced by the graph object, each edge references a pair of vertices, and the vertices reference the edges.  For a directed graph only the start vertex of an edge references the edge object, whereas for an undirected graph both vertices reference the edge object.
+Each edge references a pair of vertices, the graph lists all of its edges in `g.edges()`, and the vertices reference the edges.  For a directed graph only the start vertex of an edge references the edge object, whereas for an undirected graph both vertices reference the edge object.
 
 - `e.cost` cost of edge for planning methods
 - `e.next(v)` vertex on edge `e` that is not `v`
@@ -134,12 +142,6 @@ f1.connect(f2, cost=3)
 for f in f1.neighbours():
     # say hi to the neighbours
 ```
-
-## Under the hood
-
-The key objects and their interactions are shown below.
-
-![data structures](https://github.com/petercorke/pgraph-python/raw/main/docs/source/datastructures.png)
 
 ## MATLAB version
 
