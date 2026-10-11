@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+import os
 import sys
 import warnings
 import numpy as np
@@ -8,9 +9,8 @@ import matplotlib.pyplot as plt
 import copy
 from collections.abc import Iterable, Iterator
 import tempfile
-import subprocess
 import webbrowser
-from typing import Any, Callable, ClassVar, overload
+from typing import IO, Any, Callable, ClassVar, overload
 from numpy.typing import ArrayLike, NDArray
 
 from spatialmath.base.graphics import axes_logic
@@ -1444,16 +1444,152 @@ class _BaseGraph(ABC):
                 vertex.x, vertex.y, "o", color=color, markersize=12 * scale, alpha=alpha
             )
 
-    def dotfile(self, filename: str | Any | None = None, direction: str | None = None) -> None:
+    def export(
+        self,
+        filename: str | os.PathLike | IO | None = None,
+        format: str | None = None,
+        **options: Any,
+    ) -> str | None:
+        """
+        Export the graph as text or as a rendered image
+
+        :param filename: destination path or open file, defaults to None
+        :type filename: str, path-like or file object, optional
+        :param format: ``"dot"``, ``"mermaid"``, ``"graphml"``, ``"elk"`` or an
+            image format ``"svg"``, ``"pdf"``, ``"png"`` ..., inferred from
+            the extension of ``filename`` if not given
+        :type format: str, optional
+        :param options: format specific options, see below
+        :raises ValueError: the format is unknown or cannot be inferred, or an
+            image format is requested without a ``filename``
+        :raises TypeError: an option is not valid for the format
+        :raises RuntimeError: an image format is requested and GraphViz is not
+            installed, or fails
+        :return: the text if ``filename`` is None, otherwise None
+        :rtype: str or None
+
+        .. list-table::
+            :header-rows: 1
+
+            * - ``format``
+              - extensions
+              - positions
+              - options
+            * - ``"dot"``
+              - ``.dot`` ``.gv``
+              - ``pos="x,y!"``
+              - ``direction``, ``colorcomponents``, ``costs``
+            * - ``"mermaid"``
+              - ``.mmd`` ``.mermaid``
+              - no
+              - ``direction``, ``colorcomponents``, ``costs``, ``fence``
+            * - ``"graphml"``
+              - ``.graphml``
+              - ``x``, ``y``, ``coord``
+              - none
+            * - ``"elk"``
+              - ``.elk.json`` ``.elk``
+              - ``x``, ``y``
+              - ``size``, ``layout_options``
+            * - ``"svg"`` ``"pdf"`` ``"png"`` ...
+              - the same
+              - yes, via ``neato``
+              - ``engine``, ``direction``, ``colorcomponents``, ``costs``
+
+        The text formats need nothing beyond the standard library.  The image
+        formats run the GraphViz ``dot`` or ``neato`` executable.
+
+        .. runblock:: pycon
+
+            >>> from pgraph import UGraph
+            >>> g = UGraph()
+            >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+            >>> v2 = g.add_vertex(coord=[1,1], name='v2')
+            >>> g.add_edge(v1, v2, cost=2)
+            >>> print(g.export(format="mermaid", direction="LR"))
+
+        .. note::
+
+            - Output is reproducible: vertices are written in creation order
+              and edges in the order of their vertices, not in set order.
+            - A file object passed as ``filename`` is written but not closed.
+              A path is opened, and closed even if writing fails.
+            - Names are escaped for each format, and Mermaid, GraphML and ELK
+              use generated ids so any vertex name is valid.
+
+        .. rubric:: For graphs with parallel edges or loops
+
+        Every edge is written, each with its own cost, so parallel edges give
+        repeated lines (DOT, Mermaid) or distinct ``id`` elements (GraphML,
+        ELK).  A self-loop is written once, as an edge from a vertex to itself.
+
+        :seealso: :meth:`dotfile` :meth:`showgraph` :mod:`pgraph.exporters`
+        """
+        from . import exporters
+
+        if format is None:
+            format = exporters.format_from_filename(filename)
+            if format is None:
+                raise ValueError(
+                    "cannot infer the export format, give format= or a filename "
+                    f"with a known extension; formats: {exporters.formats()}"
+                )
+        format = format.lower()
+
+        if format in exporters.RENDER_FORMATS:
+            if filename is None:
+                raise ValueError(f"format {format!r} is an image and needs a filename")
+            image = exporters.render(self, format, **options)
+            if isinstance(filename, (str, os.PathLike)):
+                with open(filename, "wb") as f:
+                    f.write(image)
+            else:
+                try:
+                    filename.write(image)
+                except TypeError:  # a text mode file, fine for svg and ps
+                    if not exporters.RENDER_FORMATS[format]:
+                        raise
+                    filename.write(image.decode("utf-8"))
+            return None
+
+        try:
+            func = exporters._TEXT[format]
+        except KeyError:
+            raise ValueError(
+                f"unknown export format {format!r}, expected one of "
+                f"{exporters.formats()}"
+            ) from None
+        text = func(self, **options)
+
+        if filename is None:
+            return text
+        if isinstance(filename, (str, os.PathLike)):
+            with open(filename, "w", encoding="utf-8") as f:
+                f.write(text)
+        else:
+            filename.write(text)
+        return None
+
+    def dotfile(
+        self,
+        filename: str | os.PathLike | IO | None = None,
+        direction: str | None = None,
+    ) -> None:
         """
         Export graph as a GraphViz dot file
 
         :param filename: filename to save graph to, defaults to None
-        :type filename: str, optional
+        :type filename: str, path-like or file object, optional
+        :param direction: layout direction, eg. ``"LR"``, defaults to None
+        :type direction: str, optional
 
         ``g.dotfile()`` creates the specified file which contains the `GraphViz
         <https://graphviz.org>`_ code to represent the embedded graph.  By default
         output is to the console.
+
+        This is :meth:`export` with ``format="dot"`` and edge costs left
+        unlabelled, as it has always been.  Use :meth:`export` for other
+        formats or for edge labels.
 
         .. note::
 
@@ -1477,76 +1613,43 @@ class _BaseGraph(ABC):
             >>> g.add_edge(v1, v2)
             >>> g.dotfile()
 
-        :seealso: :func:`showgraph`
+        :seealso: :meth:`export` :meth:`showgraph`
         """
-
+        text = self.export(format="dot", direction=direction, costs=False)
+        assert text is not None
         if filename is None:
-            f = sys.stdout
-        elif isinstance(filename, str):
-            f = open(filename, "w")
+            sys.stdout.write(text)
+        elif isinstance(filename, (str, os.PathLike)):
+            with open(filename, "w", encoding="utf-8") as f:
+                f.write(text)
         else:
-            f = filename
+            filename.write(text)
 
-        if isinstance(self, DGraph):
-            print("digraph {", file=f)
-        else:
-            print("graph {", file=f)
-
-        if direction is not None:
-            print(f"rankdir = {direction}", file=f)
-
-        # add the vertices including name and position
-        for vertex in self:
-            if vertex.coord is None:
-                print('  "{:s}"'.format(vertex.name), file=f)
-            else:
-                print(
-                    '  "{:s}" [pos="{:.5g},{:.5g}"]'.format(
-                        vertex.name, vertex.coord[0], vertex.coord[1]
-                    ),
-                    file=f,
-                )
-        print(file=f)
-        # add the edges
-        for e in self.edges():
-            assert e.v1 is not None and e.v2 is not None
-            if isinstance(self, DGraph):
-                print('  "{:s}" -> "{:s}"'.format(e.v1.name, e.v2.name), file=f)
-            else:
-                print('  "{:s}" -- "{:s}"'.format(e.v1.name, e.v2.name), file=f)
-
-        print("}", file=f)
-
-        if isinstance(filename, str):
-            f.close()  # noqa
-
-    def showgraph(self, **kwargs: Any) -> None:
+    def showgraph(self, display: bool = True, **options: Any) -> str | None:
         """
         Display graph in a browser tab
 
-        :param kwargs: arguments passed to :meth:`dotfile`
+        :param display: open the rendered PDF in a browser tab, defaults to True
+        :param options: ``engine``, ``direction``, ``colorcomponents`` and
+            ``costs``, passed to :meth:`export`
+        :raises RuntimeError: GraphViz is not installed, or fails
+        :return: path of the rendered PDF if ``display`` is False, else None
+        :rtype: str or None
 
-        ``g.showgraph()`` renders and displays the graph in a browser tab.  The
-        graph is exported in `GraphViz <https://graphviz.org>`_ format, rendered to
-        PDF using ``dot`` and then displayed in a browser tab.
+        ``g.showgraph()`` renders the graph to PDF with `GraphViz
+        <https://graphviz.org>`_ and displays it in a browser tab.  With
+        ``display=False`` the PDF is rendered but not opened and its path is
+        returned, which is useful for tests and notebooks.
 
-        :seealso: :func:`dotfile`
+        :seealso: :meth:`export` :meth:`dotfile`
         """
-        # create the temporary dotfile
-        dotfile = tempfile.TemporaryFile(mode="w")
-        self.dotfile(dotfile, **kwargs)
-
-        # rewind the dot file, create PDF file in the filesystem, run dot
-        dotfile.seek(0)
-        pdffile = tempfile.NamedTemporaryFile(suffix=".pdf", delete=False)
-        result = subprocess.run("dot -Tpdf", shell=True, stdin=dotfile, stdout=pdffile)
-
-        if result.returncode == 0:
-            # dot ran happily
-            # open the PDF file in browser (hopefully portable), then cleanup
-            webbrowser.open(f"file://{pdffile.name}")
-            # time.sleep(1)
-            # os.remove(pdffile.name)
+        pdf = tempfile.NamedTemporaryFile(suffix=".pdf", delete=False)
+        pdf.close()
+        self.export(pdf.name, format="pdf", **options)
+        if display:
+            webbrowser.open(f"file://{pdf.name}")
+            return None
+        return pdf.name
 
     def iscyclic(self) -> bool:
         """
