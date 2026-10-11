@@ -3330,11 +3330,14 @@
 
 <span class="sd">        .. note::</span>
 
-<span class="sd">            - If the vertices subclass ``UVertex`` the edge is undirected, and if</span>
-<span class="sd">              they subclass ``DVertex`` the edge is directed.</span>
+<span class="sd">            - If the vertices subclass ``UVertex`` the edge is undirected: it is</span>
+<span class="sd">              recorded in the edge list of *both* vertices, so it is found from</span>
+<span class="sd">              either end. If they subclass ``DVertex`` the edge is directed: it</span>
+<span class="sd">              is recorded only in the edge list of this, the source, vertex.</span>
 <span class="sd">            - A supplied ``edge`` built without vertices has its ``v1`` and</span>
 <span class="sd">              ``v2`` set to the vertices being connected. One built with</span>
-<span class="sd">              vertices must agree with them (in either order if undirected).</span>
+<span class="sd">              vertices must agree with them: in either order if undirected,</span>
+<span class="sd">              exactly ``self`` then ``dest`` if directed.</span>
 <span class="sd">            - Both vertices must already have been added to the same graph,</span>
 <span class="sd">              e.g. via :meth:`PGraph.add_vertex` -- since a graph only ever</span>
 <span class="sd">              accepts its own vertex subclass (see :meth:`UGraph.add_vertex`,</span>
@@ -3374,8 +3377,32 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_graph</span><span class="o">.</span><span class="n">_connectivitychange</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_connectivitychange</span> <span class="o">=</span> <span class="kc">True</span>
 
+        <span class="c1"># the one thing that differs between undirected and directed vertices</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_attach</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">dest</span><span class="p">)</span>
+
         <span class="k">return</span> <span class="n">e</span></div>
 
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_attach</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">edge</span><span class="p">:</span> <span class="n">Edge</span><span class="p">,</span> <span class="n">dest</span><span class="p">:</span> <span class="n">BaseVertex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Record a new edge in the vertices' edge lists (private method)</span>
+
+<span class="sd">        :param edge: the edge just created or supplied by :meth:`connect`, with</span>
+<span class="sd">            ``edge.v1`` and ``edge.v2`` set and already part of the graph</span>
+<span class="sd">        :param dest: the vertex ``connect`` was called with</span>
+<span class="sd">        :raises NotImplementedError: not provided by this vertex kind</span>
+
+<span class="sd">        This is the hook that :meth:`connect` calls once the connection has</span>
+<span class="sd">        been validated and the edge registered with the graph, so it is never</span>
+<span class="sd">        called for a connection that is refused.  :class:`UVertex` records the</span>
+<span class="sd">        edge at both ends and :class:`DVertex` at the source only.  A vertex</span>
+<span class="sd">        kind of your own supplies this, not :meth:`connect`, which is defined</span>
+<span class="sd">        once.</span>
+<span class="sd">        """</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> does not define how an edge is attached; "</span>
+            <span class="s2">"subclass UVertex or DVertex"</span>
+        <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_endpoints_match</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">edge</span><span class="p">:</span> <span class="n">Edge</span><span class="p">,</span> <span class="n">dest</span><span class="p">:</span> <span class="n">BaseVertex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
@@ -3703,71 +3730,35 @@
 
 <span class="sd">    This class can be inherited to provide user objects with graph capability.</span>
 
+<span class="sd">    :meth:`~BaseVertex.connect` adds the new edge to *both* vertices' edge</span>
+<span class="sd">    lists, so it is discovered from either end, and accepts a supplied edge</span>
+<span class="sd">    whose endpoints are the two vertices in either order.</span>
+
+<span class="sd">    .. runblock:: pycon</span>
+
+<span class="sd">        &gt;&gt;&gt; from pgraph import UGraph</span>
+<span class="sd">        &gt;&gt;&gt; g = UGraph()</span>
+<span class="sd">        &gt;&gt;&gt; v1 = g.add_vertex(coord=[0,0], name='v1')</span>
+<span class="sd">        &gt;&gt;&gt; v2 = g.add_vertex(coord=[1,1], name='v2')</span>
+<span class="sd">        &gt;&gt;&gt; v1.connect(v2, cost=1.414)</span>
+<span class="sd">        &gt;&gt;&gt; print(v1.edges())</span>
+<span class="sd">        &gt;&gt;&gt; print(v2.edges())</span>
 
 <span class="sd">    .. inheritance-diagram:: UVertex</span>
 
 <span class="sd">    :seealso: :class:`BaseVertex` :class:`DVertex`</span>
 <span class="sd">    """</span>
 
-<div class="viewcode-block" id="UVertex.connect">
-<a class="viewcode-back" href="../../uvertex.html#pgraph.PGraph.UVertex.connect">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">connect</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">dest</span><span class="p">:</span> <span class="n">BaseVertex</span><span class="p">,</span>
-        <span class="n">edge</span><span class="p">:</span> <span class="n">Edge</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">cost</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">data</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Edge</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_attach</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">edge</span><span class="p">:</span> <span class="n">Edge</span><span class="p">,</span> <span class="n">dest</span><span class="p">:</span> <span class="n">BaseVertex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Connect this vertex to another with an undirected edge</span>
+<span class="sd">        Record an undirected edge at both ends (private method)</span>
 
-<span class="sd">        :param dest: vertex to connect to</span>
-<span class="sd">        :type dest: BaseVertex subclass</span>
-<span class="sd">        :param edge: Use this as the edge object, otherwise a new object of the</span>
-<span class="sd">                     graph's :attr:`_BaseGraph.edge_class` is created,</span>
-<span class="sd">                     defaults to None</span>
-<span class="sd">        :type edge: ``Edge`` subclass, optional</span>
-<span class="sd">        :param cost: the cost to traverse this edge, defaults to None</span>
-<span class="sd">        :type cost: float, optional</span>
-<span class="sd">        :param data: reference to arbitrary data associated with the edge,</span>
-<span class="sd">                     defaults to None</span>
-<span class="sd">        :type data: Any, optional</span>
-<span class="sd">        :raises ValueError: either vertex has not been added to a graph, the</span>
-<span class="sd">            vertices belong to different graphs, or ``edge`` already connects</span>
-<span class="sd">            other vertices</span>
-<span class="sd">        :raises TypeError: ``edge`` is not an instance of the graph's</span>
-<span class="sd">            :attr:`_BaseGraph.edge_class`</span>
-<span class="sd">        :return: the edge connecting the vertices</span>
-<span class="sd">        :rtype: Edge</span>
-
-<span class="sd">        Unlike the directed-graph counterpart, the new edge is added to</span>
-<span class="sd">        *both* vertices' edge lists, so it is discovered from either end.</span>
-
-<span class="sd">        If ``edge`` was built without vertices its ``v1`` and ``v2`` are set</span>
-<span class="sd">        to ``self`` and ``dest``. If it was built with vertices they must be</span>
-<span class="sd">        these two, in either order since an undirected edge has no direction.</span>
-
-<span class="sd">        .. runblock:: pycon</span>
-
-<span class="sd">            &gt;&gt;&gt; from pgraph import UVertex, Edge, UGraph</span>
-<span class="sd">            &gt;&gt;&gt; g = UGraph()</span>
-<span class="sd">            &gt;&gt;&gt; v1 = g.add_vertex(coord=[0,0], name='v1')</span>
-<span class="sd">            &gt;&gt;&gt; v2 = g.add_vertex(coord=[1,1], name='v2')</span>
-<span class="sd">            &gt;&gt;&gt; v1.connect(v2, cost=1.414)</span>
-<span class="sd">            &gt;&gt;&gt; print(v1.edges())</span>
-<span class="sd">            &gt;&gt;&gt; print(g.edges())</span>
-<span class="sd">            &gt;&gt;&gt; print(g)</span>
-
-<span class="sd">        :seealso: :meth:`BaseVertex.connect` :meth:`DVertex.connect`</span>
+<span class="sd">        The edge is added to *both* vertices' edge lists, so it is discovered</span>
+<span class="sd">        from either end.  A self-loop is therefore held twice by its vertex,</span>
+<span class="sd">        which is why it counts 2 towards the degree.</span>
 <span class="sd">        """</span>
-
-        <span class="n">e</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">edge</span><span class="o">=</span><span class="n">edge</span><span class="p">,</span> <span class="n">cost</span><span class="o">=</span><span class="n">cost</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_edgelist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
-        <span class="n">dest</span><span class="o">.</span><span class="n">_edgelist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">e</span></div>
-
+        <span class="bp">self</span><span class="o">.</span><span class="n">_edgelist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span>
+        <span class="n">dest</span><span class="o">.</span><span class="n">_edgelist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_endpoints_match</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">edge</span><span class="p">:</span> <span class="n">Edge</span><span class="p">,</span> <span class="n">dest</span><span class="p">:</span> <span class="n">BaseVertex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
@@ -3789,68 +3780,33 @@
 
 <span class="sd">    This class can be inherited to provide user objects with graph capability.</span>
 
+<span class="sd">    :meth:`~BaseVertex.connect` adds the new edge only to *this* vertex's edge</span>
+<span class="sd">    list, so it is discoverable only from the start of the directed edge, and a</span>
+<span class="sd">    supplied edge must run exactly from this vertex to the other.</span>
+
+<span class="sd">    .. runblock:: pycon</span>
+
+<span class="sd">        &gt;&gt;&gt; from pgraph import DGraph</span>
+<span class="sd">        &gt;&gt;&gt; g = DGraph()</span>
+<span class="sd">        &gt;&gt;&gt; v1 = g.add_vertex(coord=[0,0], name='v1')</span>
+<span class="sd">        &gt;&gt;&gt; v2 = g.add_vertex(coord=[1,1], name='v2')</span>
+<span class="sd">        &gt;&gt;&gt; v1.connect(v2, cost=1.414)</span>
+<span class="sd">        &gt;&gt;&gt; print(v1.edges())</span>
+<span class="sd">        &gt;&gt;&gt; print(v2.edges())</span>
+
 <span class="sd">    .. inheritance-diagram:: DVertex</span>
 
 <span class="sd">    :seealso: :class:`BaseVertex` :class:`UVertex`</span>
 <span class="sd">    """</span>
 
-<div class="viewcode-block" id="DVertex.connect">
-<a class="viewcode-back" href="../../dvertex.html#pgraph.PGraph.DVertex.connect">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">connect</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">dest</span><span class="p">:</span> <span class="n">BaseVertex</span><span class="p">,</span>
-        <span class="n">edge</span><span class="p">:</span> <span class="n">Edge</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">cost</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">data</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Edge</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_attach</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">edge</span><span class="p">:</span> <span class="n">Edge</span><span class="p">,</span> <span class="n">dest</span><span class="p">:</span> <span class="n">BaseVertex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Connect this vertex to another with a directed edge</span>
+<span class="sd">        Record a directed edge at its source only (private method)</span>
 
-<span class="sd">        :param dest: vertex to connect to</span>
-<span class="sd">        :type dest: BaseVertex subclass</span>
-<span class="sd">        :param edge: Use this as the edge object, otherwise a new object of the</span>
-<span class="sd">                     graph's :attr:`_BaseGraph.edge_class` is created,</span>
-<span class="sd">                     defaults to None</span>
-<span class="sd">        :type edge: ``Edge`` subclass, optional</span>
-<span class="sd">        :param cost: the cost to traverse this edge, defaults to None</span>
-<span class="sd">        :type cost: float, optional</span>
-<span class="sd">        :param data: reference to arbitrary data associated with the edge,</span>
-<span class="sd">                     defaults to None</span>
-<span class="sd">        :type data: Any, optional</span>
-<span class="sd">        :raises ValueError: either vertex has not been added to a graph, the</span>
-<span class="sd">            vertices belong to different graphs, or ``edge`` already connects</span>
-<span class="sd">            other vertices</span>
-<span class="sd">        :raises TypeError: ``edge`` is not an instance of the graph's</span>
-<span class="sd">            :attr:`_BaseGraph.edge_class`</span>
-<span class="sd">        :return: the edge connecting the vertices</span>
-<span class="sd">        :rtype: Edge</span>
-
-<span class="sd">        Unlike the undirected-graph counterpart, the new edge is added only</span>
-<span class="sd">        to *this* vertex's edge list -- it is only discoverable from the</span>
-<span class="sd">        start of the directed edge.</span>
-
-<span class="sd">        If ``edge`` was built without vertices its ``v1`` and ``v2`` are set</span>
-<span class="sd">        to ``self`` and ``dest``. If it was built with vertices they must be</span>
-<span class="sd">        exactly these two, in this order, since the edge has a direction.</span>
-
-<span class="sd">        .. runblock:: pycon</span>
-
-<span class="sd">            &gt;&gt;&gt; from pgraph import DVertex, Edge, DGraph</span>
-<span class="sd">            &gt;&gt;&gt; g = DGraph()</span>
-<span class="sd">            &gt;&gt;&gt; v1 = g.add_vertex(coord=[0,0], name='v1')</span>
-<span class="sd">            &gt;&gt;&gt; v2 = g.add_vertex(coord=[1,1], name='v2')</span>
-<span class="sd">            &gt;&gt;&gt; v1.connect(v2, cost=1.414)</span>
-<span class="sd">            &gt;&gt;&gt; print(v1.edges())</span>
-<span class="sd">            &gt;&gt;&gt; print(g.edges())</span>
-<span class="sd">            &gt;&gt;&gt; print(g)</span>
-
-<span class="sd">        :seealso: :meth:`BaseVertex.connect` :meth:`UVertex.connect`</span>
+<span class="sd">        The edge is added only to *this* vertex's edge list, so it is</span>
+<span class="sd">        discoverable only from the start of the directed edge.</span>
 <span class="sd">        """</span>
-        <span class="n">e</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">edge</span><span class="o">=</span><span class="n">edge</span><span class="p">,</span> <span class="n">cost</span><span class="o">=</span><span class="n">cost</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_edgelist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">e</span></div>
-</div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_edgelist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span></div>
 
 
 
