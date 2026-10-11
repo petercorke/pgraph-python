@@ -26,8 +26,6 @@ class _Classes:
     OtherVertex: type  # the wrong kind for this graph
 
     def setUp(self):
-        outer = self
-
         class MyVertex(self.Vertex):
             def __init__(self, *args, **kwargs):
                 super().__init__(*args, **kwargs)
@@ -105,7 +103,7 @@ class _Classes:
         g = self.Graph()
         self.assertIsInstance(g.add_vertex(self.MyVertex([0, 0])), self.MyVertex)
         a, b = g[0], g.add_vertex([1, 1])
-        self.assertIsInstance(g.add_edge(MyEdge(a, b)), MyEdge)
+        self.assertIsInstance(a.connect(b, edge=MyEdge(a, b)), MyEdge)
 
     def test_bad_vertex_class(self):
         for bad in (self.OtherVertex, int, "UVertex", self.Vertex([0, 0]), Edge):

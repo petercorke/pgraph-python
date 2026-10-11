@@ -29,6 +29,8 @@ class _BaseGraph(ABC):
         heuristic: Callable[[NDArray], float] | str | None = None,
         verbose: bool = False,
         dim: int | None = None,
+        vertex_class: type[BaseVertex] | None = None,
+        edge_class: type[Edge] | None = None,
     ):
         """
         Abstract base class for graphs
@@ -44,15 +46,53 @@ class _BaseGraph(ABC):
             None (unconstrained -- vertices may have coordinates of any
             length, or none at all)
         :type dim: int, optional
+        :param vertex_class: class of the vertices this graph creates, defaults
+            to ``UVertex`` for a :class:`UGraph` and ``DVertex`` for a
+            :class:`DGraph`
+        :type vertex_class: subclass of ``UVertex`` or ``DVertex``, optional
+        :param edge_class: class of the edges this graph creates, defaults to
+            :class:`Edge`
+        :type edge_class: subclass of ``Edge``, optional
         :raises ValueError: ``dim`` is given but is not a positive integer
+        :raises TypeError: ``vertex_class`` is not a subclass of this graph's
+            own vertex kind, or ``edge_class`` is not a subclass of ``Edge``
 
         This is the common base class of :class:`UGraph` and :class:`DGraph`
         and should not be instantiated directly.
 
+        ``vertex_class`` and ``edge_class`` let user subclasses be built by the
+        graph, so they never need to be constructed by hand::
+
+            g = UGraph(vertex_class=MyVertex, edge_class=MyEdge)
+            v = g.add_vertex([0, 0])  # a MyVertex
+            e = g.add_edge(v, w)      # a MyEdge
+
+        The classes are called as ``vertex_class(coord, name=name)`` and
+        ``edge_class(v1, v2, cost=cost, data=data)``, so a subclass that
+        overrides ``__init__`` must accept and pass on those arguments.
+        A graph given a ``vertex_class`` only accepts vertices of that class
+        in :meth:`add_vertex`, and one given an ``edge_class`` only accepts
+        edges of that class.
+
         :seealso: :class:`UGraph` :class:`DGraph` :meth:`add_vertex`
+            :meth:`add_edge` :attr:`vertex_class` :attr:`edge_class`
         """
         if dim is not None and dim <= 0:
             raise ValueError(f"dim must be a positive integer, got {dim!r}")
+        kind = type(self)._vertex_cls
+        if vertex_class is None:
+            vertex_class = kind
+        elif not (isinstance(vertex_class, type) and issubclass(vertex_class, kind)):
+            raise TypeError(
+                f"vertex_class must be a subclass of {kind.__name__} for a "
+                f"{type(self).__name__}, got {vertex_class!r}"
+            )
+        if edge_class is None:
+            edge_class = Edge
+        elif not (isinstance(edge_class, type) and issubclass(edge_class, Edge)):
+            raise TypeError(f"edge_class must be a subclass of Edge, got {edge_class!r}")
+        self._vertex_class: type[BaseVertex] = vertex_class
+        self._edge_class: type[Edge] = edge_class
         # we use a list and a dict, the list respects the order of adding
         self._vertexlist: list[BaseVertex] = []
         self._vertexdict: dict[str, BaseVertex] = {}
@@ -100,13 +140,15 @@ class _BaseGraph(ABC):
         return str(self)
 
     @classmethod
-    def Dict(cls, d: dict, reverse: bool = False) -> _BaseGraph:
+    def Dict(cls, d: dict, reverse: bool = False, **kwargs: Any) -> _BaseGraph:
         """
         Create graph from parent/child dictionary
 
         :param d: dictionary that maps from ``BaseVertex`` subclass to ``BaseVertex`` subclass
         :type d: dict
         :param reverse: reverse link direction, defaults to False
+        :param kwargs: optional arguments passed to the graph constructor, for
+            example ``vertex_class`` or ``edge_class``
         :return: graph
         :rtype: UGraph or DGraph
 
@@ -127,7 +169,7 @@ class _BaseGraph(ABC):
         :seealso: :meth:`Adjacency`
         """
 
-        g = cls()
+        g = cls(**kwargs)
 
         for vertex, parent in d.items():
             if isinstance(vertex, str):
@@ -162,6 +204,7 @@ class _BaseGraph(ABC):
         A: NDArray,
         coords: NDArray | None = None,
         names: list[str] | None = None,
+        **kwargs: Any,
     ) -> _BaseGraph:
         """
         Create graph from adjacency matrix
@@ -172,6 +215,8 @@ class _BaseGraph(ABC):
         :type coords: ndarray(N,M), optional
         :param names: names of vertices, defaults to None
         :type names: list(N) of str, optional
+        :param kwargs: optional arguments passed to the graph constructor, for
+            example ``vertex_class`` or ``edge_class``
         :return: graph
         :rtype: UGraph or DGraph
 
@@ -199,7 +244,7 @@ class _BaseGraph(ABC):
         if coords is not None and coords.shape[0] != A.shape[0]:
             raise ValueError("coords must have same number of rows as adjacency matrix")
 
-        g = cls()
+        g = cls(**kwargs)
 
         name = None
         coord = None
@@ -226,6 +271,30 @@ class _BaseGraph(ABC):
                         g[i].connect(g[j], cost=A[i, j])
 
         return g
+
+    @property
+    def vertex_class(self) -> type[BaseVertex]:
+        """
+        Class of the vertices this graph creates
+
+        :return: vertex class
+        :rtype: subclass of ``UVertex`` or ``DVertex``
+
+        :seealso: :meth:`add_vertex` :attr:`edge_class`
+        """
+        return self._vertex_class
+
+    @property
+    def edge_class(self) -> type[Edge]:
+        """
+        Class of the edges this graph creates
+
+        :return: edge class
+        :rtype: subclass of ``Edge``
+
+        :seealso: :meth:`add_edge` :attr:`vertex_class`
+        """
+        return self._edge_class
 
     def copy(self) -> _BaseGraph:
         """
@@ -257,7 +326,8 @@ class _BaseGraph(ABC):
         :type coord: array-like or BaseVertex subclass, optional
         :param name: name of vertex, defaults to "#i"
         :type name: str, optional
-        :raises TypeError: ``coord`` is a ``BaseVertex`` of the wrong kind
+        :raises TypeError: ``coord`` is a ``BaseVertex`` that is not an
+            instance of this graph's :attr:`vertex_class`
         :raises ValueError: the graph was constructed with ``dim``, and
             ``coord`` is given but its length doesn't match
         :return: the added vertex
@@ -265,8 +335,10 @@ class _BaseGraph(ABC):
 
         - ``g.add_vertex()`` creates a new vertex with optional ``coord`` and
           ``name``.
-        - ``g.add_vertex(v)`` takes an instance or subclass of this graph's
-          own vertex kind and adds it to the graph.
+        - ``g.add_vertex(v)`` takes an instance of this graph's
+          :attr:`vertex_class` (by default any ``UVertex`` for a
+          :class:`UGraph`, any ``DVertex`` for a :class:`DGraph`) and adds it
+          to the graph.
 
         If the vertex has no name and ``name`` is None give it a default name
         ``#N`` where ``N`` is a consecutive integer.
@@ -274,9 +346,9 @@ class _BaseGraph(ABC):
         The vertex is placed into a dictionary with a key equal to its name.
 
         This single implementation, shared by :class:`UGraph` and
-        :class:`DGraph`, is parameterized by each subclass's
-        :attr:`_vertex_cls` rather than duplicated per subclass -- see
-        :doc:`policy` for why that matters.
+        :class:`DGraph`, is parameterized by the graph's :attr:`vertex_class`
+        rather than duplicated per subclass -- see :doc:`policy` for why that
+        matters.
 
         .. runblock:: pycon
 
@@ -301,15 +373,15 @@ class _BaseGraph(ABC):
 
         :seealso: :meth:`vertex_copy`
         """
-        if isinstance(coord, self._vertex_cls):
+        if isinstance(coord, self._vertex_class):
             vertex = coord
         elif isinstance(coord, BaseVertex):
             raise TypeError(
-                f"expecting {self._vertex_cls.__name__} or coordinate data, "
+                f"expecting {self._vertex_class.__name__} or coordinate data, "
                 f"got {type(coord).__name__}"
             )
         else:
-            vertex = self._vertex_cls(coord, name=name)
+            vertex = self._vertex_class(coord, name=name)
 
         if (
             self._dim is not None
@@ -2759,9 +2831,10 @@ class BaseVertex:
 
         :param dest: The vertex to connect to
         :type dest: ``BaseVertex`` subclass
-        :param edge: Use this as the edge object, otherwise a new ``Edge``
-                     object is created from the vertices being connected,
-                     and the ``cost`` and ``edge`` parameters, defaults to None
+        :param edge: Use this as the edge object, otherwise a new object of the
+                     graph's :attr:`_BaseGraph.edge_class` is created from the
+                     vertices being connected, and the ``cost`` and ``data``
+                     parameters, defaults to None
         :type edge: ``Edge`` subclass, optional
         :param cost: the cost to traverse this edge, defaults to None
         :type cost: float, optional
@@ -2771,6 +2844,8 @@ class BaseVertex:
         :raises ValueError: either vertex has not been added to a graph, the
             vertices belong to different graphs, or ``edge`` already connects
             other vertices
+        :raises TypeError: ``edge`` is not an instance of the graph's
+            :attr:`_BaseGraph.edge_class`
         :return: the edge connecting the vertices
         :rtype: Edge
 
@@ -2808,10 +2883,15 @@ class BaseVertex:
         elif self._graph is not dest._graph:
             raise ValueError("vertices must belong to the same graph")
         elif isinstance(edge, Edge):
+            if not isinstance(edge, self._graph._edge_class):
+                raise TypeError(
+                    f"expecting an edge of class {self._graph._edge_class.__name__}, "
+                    f"got {type(edge).__name__}"
+                )
             e = edge
             self._bind_edge(e, dest)
         else:
-            e = Edge(self, dest, cost=cost, data=data)
+            e = self._graph._edge_class(self, dest, cost=cost, data=data)
 
         self._graph._edgelist.add(e)
         self._graph._connectivitychange = True
