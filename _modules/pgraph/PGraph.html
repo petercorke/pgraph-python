@@ -188,7 +188,10 @@
         <span class="c1"># we use a list and a dict, the list respects the order of adding</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_vertexlist</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">BaseVertex</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_vertexdict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">BaseVertex</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_edgelist</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">Edge</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="c1"># an insertion-ordered set: the keys are the edges, hashed by identity</span>
+        <span class="c1"># (Edge defines no __eq__), the values are unused.  This gives O(1)</span>
+        <span class="c1"># removal and a defined order.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_edges</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Edge</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_verbose</span> <span class="o">=</span> <span class="n">verbose</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_dim</span> <span class="o">=</span> <span class="n">dim</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_ncomponents</span> <span class="o">=</span> <span class="mi">0</span>
@@ -468,11 +471,11 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"the vertex list holds </span><span class="si">{</span><span class="n">entry</span><span class="si">!r}</span><span class="s2">, which is not a vertex"</span><span class="p">)</span>
         <span class="n">graph_edges</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Edge</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">member</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edgelist</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">member</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edges</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">member</span><span class="p">,</span> <span class="n">Edge</span><span class="p">):</span>
                 <span class="n">graph_edges</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">member</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"the edge set holds </span><span class="si">{</span><span class="n">member</span><span class="si">!r}</span><span class="s2">, which is not an edge"</span><span class="p">)</span>
+                <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"the graph's edges hold </span><span class="si">{</span><span class="n">member</span><span class="si">!r}</span><span class="s2">, which is not an edge"</span><span class="p">)</span>
 
         <span class="c1"># ---- vertices</span>
         <span class="n">members</span> <span class="o">=</span> <span class="p">{</span><span class="nb">id</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">vertices</span><span class="p">}</span>
@@ -950,7 +953,7 @@
 
 <span class="sd">        :seealso: :meth:`remove_vertex` :meth:`Edge.remove`</span>
 <span class="sd">        """</span>
-        <span class="k">if</span> <span class="n">edge</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edgelist</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">edge</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edges</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"edge does not belong to this graph"</span><span class="p">)</span>
         <span class="n">v1</span><span class="p">,</span> <span class="n">v2</span> <span class="o">=</span> <span class="n">edge</span><span class="o">.</span><span class="n">v1</span><span class="p">,</span> <span class="n">edge</span><span class="o">.</span><span class="n">v2</span>
         <span class="k">if</span> <span class="n">v1</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">v2</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -966,7 +969,7 @@
 
         <span class="n">edge</span><span class="o">.</span><span class="n">_set_endpoints</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_edgelist</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span></div>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edges</span><span class="p">[</span><span class="n">edge</span><span class="p">]</span></div>
 
 
 <div class="viewcode-block" id="BaseGraph.remove_vertex">
@@ -1066,7 +1069,7 @@
         <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vertexlist</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">"  "</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">))</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">"edges:"</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edgelist</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edges</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">"  "</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span></div>
 
 
@@ -1105,7 +1108,7 @@
 <span class="sd">            &gt;&gt;&gt; g.add_edge(v1, v2)</span>
 <span class="sd">            &gt;&gt;&gt; print(g.ne)</span>
 <span class="sd">        """</span>
-        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_edgelist</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_edges</span><span class="p">)</span>
 
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_graphcolor</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
@@ -1448,21 +1451,35 @@
 
 <div class="viewcode-block" id="BaseGraph.edges">
 <a class="viewcode-back" href="../../PGraph.html#pgraph.PGraph.BaseGraph.edges">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">edges</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">[</span><span class="n">Edge</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">edges</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Edge</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Get all edges in graph (base class method)</span>
 
 <span class="sd">        :return: All edges in the graph</span>
-<span class="sd">        :rtype: set of Edge references</span>
+<span class="sd">        :rtype: list of Edge references</span>
+
+<span class="sd">        The edges are in the order they were added to the graph.  This is a</span>
+<span class="sd">        new list, so it can be modified or sorted without affecting the graph,</span>
+<span class="sd">        and edges can be removed from the graph while iterating over it.</span>
 
 <span class="sd">        We can iterate over all edges in the graph by::</span>
 
 <span class="sd">            for e in g.edges():</span>
 <span class="sd">                print(e)</span>
 
-<span class="sd">        .. note:: Unlike :meth:`BaseVertex.edges`, which returns a ``list`` in</span>
-<span class="sd">            connection order, this returns a ``set`` with no defined</span>
-<span class="sd">            iteration order.</span>
+<span class="sd">        and select one by index, for example the second edge added is</span>
+<span class="sd">        ``g.edges()[1]``.</span>
+
+<span class="sd">        .. note:: Like :meth:`BaseVertex.edges` this is a ``list``, but where</span>
+<span class="sd">            that lists the edges attached to one vertex, this lists every edge</span>
+<span class="sd">            in the graph once.  A self-loop is one edge here, but appears</span>
+<span class="sd">            twice in the :meth:`BaseVertex.edges` of an undirected vertex</span>
+<span class="sd">            because it has two ends there.</span>
+
+<span class="sd">        .. versionchanged:: 1.0</span>
+<span class="sd">            Returns a ``list`` in order of addition.  In 0.6.5 this was the</span>
+<span class="sd">            graph's own ``set``, with no defined order, although the</span>
+<span class="sd">            documentation said ``list``.</span>
 
 <span class="sd">        .. runblock:: pycon</span>
 
@@ -1473,9 +1490,9 @@
 <span class="sd">            &gt;&gt;&gt; g.add_edge(v1, v2)</span>
 <span class="sd">            &gt;&gt;&gt; print(g.edges())</span>
 
-<span class="sd">        :seealso: :meth:`BaseVertex.edges`</span>
+<span class="sd">        :seealso: :meth:`BaseVertex.edges` :attr:`ne`</span>
 <span class="sd">        """</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edgelist</span></div>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_edges</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="BaseGraph.plot">
@@ -2390,14 +2407,14 @@
 <span class="sd">        .. note::</span>
 <span class="sd">            - vertices are numbered in their order of creation. A vertex index</span>
 <span class="sd">              can be resolved to a vertex reference by ``graph[i]``.</span>
-<span class="sd">            - edges are numbered in the order they appear in ``graph.edges()``.</span>
+<span class="sd">            - edges are numbered in the order they appear in :meth:`edges`, which</span>
+<span class="sd">              is the order they were added.</span>
 <span class="sd">            - Both endpoints of every edge are marked, regardless of</span>
 <span class="sd">              direction -- for a ``DGraph`` this means a vertex that is only</span>
-<span class="sd">              ever a target (never a source) still appears here, unlike</span>
-<span class="sd">              :meth:`degree`/:attr:`BaseVertex.degree`, which count outgoing</span>
-<span class="sd">              edges only. Iterating each vertex's own</span>
-<span class="sd">              :meth:`BaseVertex.edges` instead would silently drop such</span>
-<span class="sd">              vertices for a directed graph.</span>
+<span class="sd">              ever a target (never a source) still appears here.  Iterating</span>
+<span class="sd">              each vertex's own :meth:`BaseVertex.edges`, which are its</span>
+<span class="sd">              outgoing edges, would silently drop such vertices for a</span>
+<span class="sd">              directed graph.</span>
 
 <span class="sd">        .. rubric:: For graphs with parallel edges or loops</span>
 
@@ -3767,7 +3784,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">e</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_graph</span><span class="o">.</span><span class="n">_edge_class</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dest</span><span class="p">,</span> <span class="n">cost</span><span class="o">=</span><span class="n">cost</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_graph</span><span class="o">.</span><span class="n">_edgelist</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_graph</span><span class="o">.</span><span class="n">_edges</span><span class="p">[</span><span class="n">e</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_graph</span><span class="o">.</span><span class="n">_connectivitychange</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_connectivitychange</span> <span class="o">=</span> <span class="kc">True</span>
 
@@ -3893,11 +3910,16 @@
 <span class="sd">        :return: List of all edges leaving this vertex</span>
 <span class="sd">        :rtype: list of Edge</span>
 
+<span class="sd">        The edges are in the order they were connected.  This is a new list,</span>
+<span class="sd">        so it can be modified, and edges can be removed from the graph while</span>
+<span class="sd">        iterating over it.</span>
+
 <span class="sd">        .. note::</span>
 
 <span class="sd">            - For a directed graph the edges are those leaving this vertex</span>
 <span class="sd">            - For a non-directed graph the edges are those leaving or entering</span>
-<span class="sd">                this vertex</span>
+<span class="sd">                this vertex, and a self-loop is listed twice, once for each of</span>
+<span class="sd">                its ends</span>
 
 <span class="sd">        .. runblock:: pycon</span>
 
@@ -3911,7 +3933,7 @@
 <span class="sd">        :seealso: :meth:`out_edges` :meth:`in_edges` :meth:`adjacent`</span>
 <span class="sd">            :meth:`incidences` :attr:`degree` :meth:`BaseGraph.edges`</span>
 <span class="sd">        """</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edgelist</span></div>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_edgelist</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="BaseVertex.heuristic_distance">

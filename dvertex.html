@@ -440,12 +440,16 @@ graph, not the vertex.</p>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.15)">list</a> of <a class="reference internal" href="edge.html#pgraph.PGraph.Edge" title="pgraph.PGraph.Edge">Edge</a></p>
 </dd>
 </dl>
+<p>The edges are in the order they were connected.  This is a new list,
+so it can be modified, and edges can be removed from the graph while
+iterating over it.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <ul class="simple">
 <li><p>For a directed graph the edges are those leaving this vertex</p></li>
 <li><dl class="simple">
-<dt>For a non-directed graph the edges are those leaving or entering</dt><dd><p>this vertex</p>
+<dt>For a non-directed graph the edges are those leaving or entering</dt><dd><p>this vertex, and a self-loop is listed twice, once for each of
+its ends</p>
 </dd>
 </dl>
 </li>
