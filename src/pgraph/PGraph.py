@@ -16,7 +16,7 @@ from numpy.typing import ArrayLike, NDArray
 from spatialmath.base.graphics import axes_logic
 
 
-class _BaseGraph(ABC):
+class BaseGraph(ABC):
 
     #: concrete vertex type for this graph kind, provided by :class:`UGraph`
     #: and :class:`DGraph` -- lets :meth:`add_vertex` and :meth:`vertex_copy`
@@ -140,7 +140,7 @@ class _BaseGraph(ABC):
         return str(self)
 
     @classmethod
-    def Dict(cls, d: dict, reverse: bool = False, **kwargs: Any) -> _BaseGraph:
+    def Dict(cls, d: dict, reverse: bool = False, **kwargs: Any) -> BaseGraph:
         """
         Create graph from parent/child dictionary
 
@@ -150,7 +150,7 @@ class _BaseGraph(ABC):
         :param kwargs: optional arguments passed to the graph constructor, for
             example ``vertex_class`` or ``edge_class``
         :raises TypeError: ``vertex_class`` or ``edge_class`` is not a
-            suitable class, see :meth:`_BaseGraph.__init__`
+            suitable class, see :meth:`BaseGraph.__init__`
         :return: graph
         :rtype: UGraph or DGraph
 
@@ -207,7 +207,7 @@ class _BaseGraph(ABC):
         coords: NDArray | None = None,
         names: list[str] | None = None,
         **kwargs: Any,
-    ) -> _BaseGraph:
+    ) -> BaseGraph:
         """
         Create graph from adjacency matrix
 
@@ -222,7 +222,7 @@ class _BaseGraph(ABC):
         :raises ValueError: ``A`` is not square, or the length of ``names`` or
             the number of rows of ``coords`` does not match ``A``
         :raises TypeError: ``vertex_class`` or ``edge_class`` is not a
-            suitable class, see :meth:`_BaseGraph.__init__`
+            suitable class, see :meth:`BaseGraph.__init__`
         :return: graph
         :rtype: UGraph or DGraph
 
@@ -306,12 +306,12 @@ class _BaseGraph(ABC):
         """
         return self._edge_class
 
-    def copy(self) -> _BaseGraph:
+    def copy(self) -> BaseGraph:
         """
         Deepcopy of graph
 
         :return: deep copy
-        :rtype: _BaseGraph
+        :rtype: BaseGraph
 
         .. runblock:: pycon
 
@@ -370,7 +370,7 @@ class _BaseGraph(ABC):
             >>> print(v2.name)
 
         If the graph was constructed with a required ``dim`` (see
-        :meth:`_BaseGraph.__init__`), every embedded vertex must have a
+        :meth:`BaseGraph.__init__`), every embedded vertex must have a
         coordinate of exactly that length -- adding one of the wrong length
         raises ``ValueError``:
 
@@ -2478,18 +2478,18 @@ class _BaseGraph(ABC):
 # -------------------------------------------------------------------------- #
 
 
-class UGraph(_BaseGraph):
+class UGraph(BaseGraph):
     """
     Class for undirected graphs
 
     Vertices are :class:`UVertex` objects, or instances of the subclass given
     as ``vertex_class``. Edges are :class:`Edge` objects, or instances of the
-    subclass given as ``edge_class``; see :class:`_BaseGraph` for the
+    subclass given as ``edge_class``; see :class:`BaseGraph` for the
     constructor arguments and the exceptions they raise.
 
     .. inheritance-diagram:: UGraph
 
-    :seealso: :class:`_BaseGraph` :class:`DGraph`
+    :seealso: :class:`BaseGraph` :class:`DGraph`
     """
 
     def _graphcolor(self) -> None:
@@ -2537,18 +2537,18 @@ class UGraph(_BaseGraph):
             self._ncomponents = 0 if lastlabel is None else lastlabel + 1
 
 
-class DGraph(_BaseGraph):
+class DGraph(BaseGraph):
     """
     Class for directed graphs
 
     Vertices are :class:`DVertex` objects, or instances of the subclass given
     as ``vertex_class``. Edges are :class:`Edge` objects, or instances of the
-    subclass given as ``edge_class``; see :class:`_BaseGraph` for the
+    subclass given as ``edge_class``; see :class:`BaseGraph` for the
     constructor arguments and the exceptions they raise.
 
     .. inheritance-diagram:: DGraph
 
-    :seealso: :class:`_BaseGraph` :class:`UGraph`
+    :seealso: :class:`BaseGraph` :class:`UGraph`
     """
 
     def _graphcolor(self) -> int | None:
@@ -2654,7 +2654,7 @@ class Edge:
         - Inheritance is an alternative to providing arbitrary user data.
         - Pass the subclass as ``edge_class`` when constructing the graph and
           the graph will create instances of it itself, see
-          :class:`_BaseGraph`.
+          :class:`BaseGraph`.
 
     An Edge points to a pair of vertices.  At ``connect`` time the vertices
     get references back to the Edge object.
@@ -2828,7 +2828,7 @@ class Edge:
         :raises ValueError: either vertex has not been added to a graph, or
             the vertices belong to different graphs
         :raises TypeError: this edge is not an instance of the graph's
-            :attr:`_BaseGraph.edge_class`
+            :attr:`BaseGraph.edge_class`
 
         The edge connects vertices ``v1`` and ``v2``, and is added to the
         graph that those vertices belong to.
@@ -2948,13 +2948,13 @@ class Edge:
         ``e.remove()`` removes ``e`` from its graph's own edge collection and
         from its connected vertices' edge lists (both, for an undirected
         edge; the source only, for a directed one -- see
-        :meth:`_BaseGraph.remove_edge`), and clears ``e.v1``/``e.v2`` to
+        :meth:`BaseGraph.remove_edge`), and clears ``e.v1``/``e.v2`` to
         ``None``. The ``Edge`` object itself is not deleted -- it becomes an
         orphaned, disconnected shell, and calling ``remove()`` on it again
         raises ``ValueError``.
 
         .. note:: This is a thin convenience wrapper around
-            :meth:`_BaseGraph.remove_edge`.
+            :meth:`BaseGraph.remove_edge`.
 
         :rtype: None
 
@@ -2968,7 +2968,7 @@ class Edge:
             >>> e.remove()
             >>> print(g)
 
-        :seealso: :meth:`_BaseGraph.remove_edge` :meth:`BaseVertex.remove`
+        :seealso: :meth:`BaseGraph.remove_edge` :meth:`BaseVertex.remove`
         """
         if self.v1 is None or self.v1._graph is None:
             raise ValueError("edge is not connected to a graph")
@@ -3001,7 +3001,7 @@ class BaseVertex:
         :type name: str, optional
 
         Creates a vertex but does not add it to a graph -- use
-        :meth:`_BaseGraph.add_vertex` for that.
+        :meth:`BaseGraph.add_vertex` for that.
 
         .. runblock:: pycon
 
@@ -3009,7 +3009,7 @@ class BaseVertex:
             >>> v1 = UVertex(coord=[0,0], name='v1')
             >>> print(v1)
 
-        :seealso: :meth:`_BaseGraph.add_vertex`
+        :seealso: :meth:`BaseGraph.add_vertex`
         """
         self._edgelist: list[Edge] = []
         if coord is None:
@@ -3020,7 +3020,7 @@ class BaseVertex:
         self.label: int | None = None
         self._connectivitychange = True
         self._edgelist = []
-        self._graph: _BaseGraph | None = None  # reference to owning graph
+        self._graph: BaseGraph | None = None  # reference to owning graph
         # print('BaseVertex init', type(self))
 
     def __str__(self) -> str:
@@ -3057,7 +3057,7 @@ class BaseVertex:
             coord = ", ".join([f"{x:.4g}" for x in self.coord])
         return f"{self.__class__.__name__}[{self.name:s}, coord=({coord})]"
 
-    def copy(self, cls: type[_BaseGraph] | None = None) -> BaseVertex:
+    def copy(self, cls: type[BaseGraph] | None = None) -> BaseVertex:
         """
         Copy a vertex
 
@@ -3094,7 +3094,7 @@ class BaseVertex:
 
         ``v.adjacent()`` is a list of the vertices that this vertex is joined
         to by an edge.  "Adjacent" is the graph-theory term, and it is the
-        relation that :meth:`_BaseGraph.adjacency` tabulates: row ``i`` of the
+        relation that :meth:`BaseGraph.adjacency` tabulates: row ``i`` of the
         adjacency matrix is non-zero exactly at the columns of the vertices
         returned by ``g[i].adjacent()``.
 
@@ -3120,7 +3120,7 @@ class BaseVertex:
             >>> print(v1.adjacent())
 
         :seealso: :meth:`isadjacent` :meth:`incidences` :meth:`edges`
-            :meth:`_BaseGraph.adjacency`
+            :meth:`BaseGraph.adjacency`
         """
         return [e.next(self) for e in self._edgelist]
 
@@ -3198,7 +3198,7 @@ class BaseVertex:
         :param dest: The vertex to connect to
         :type dest: ``BaseVertex`` subclass
         :param edge: Use this as the edge object, otherwise a new object of the
-                     graph's :attr:`_BaseGraph.edge_class` is created from the
+                     graph's :attr:`BaseGraph.edge_class` is created from the
                      vertices being connected, and the ``cost`` and ``data``
                      parameters, defaults to None
         :type edge: ``Edge`` subclass, optional
@@ -3211,7 +3211,7 @@ class BaseVertex:
             vertices belong to different graphs, or ``edge`` already connects
             other vertices
         :raises TypeError: ``edge`` is not an instance of the graph's
-            :attr:`_BaseGraph.edge_class`
+            :attr:`BaseGraph.edge_class`
         :return: the edge connecting the vertices
         :rtype: Edge
 
@@ -3302,7 +3302,7 @@ class BaseVertex:
         :raises NotImplementedError: not provided by this vertex kind
 
         The twin of :meth:`_attach`: it undoes exactly what that recorded.
-        Called by :meth:`_BaseGraph.remove_edge` before the edge's endpoints
+        Called by :meth:`BaseGraph.remove_edge` before the edge's endpoints
         are cleared.  An edge that is absent from a list is skipped rather
         than treated as an error.
         """
@@ -3409,7 +3409,7 @@ class BaseVertex:
         :rtype: float
 
         Distance is computed according to the graph's heuristic, see
-        :meth:`_BaseGraph.heuristic`. The vertex must belong to a graph,
+        :meth:`BaseGraph.heuristic`. The vertex must belong to a graph,
         since the heuristic is a property of the graph, not the vertex.
 
         .. runblock:: pycon
@@ -3420,7 +3420,7 @@ class BaseVertex:
             >>> v2 = g.add_vertex(coord=[4, 3], name='v2')
             >>> print(v1.heuristic_distance(v2))
 
-        :seealso: :meth:`distance` :meth:`_BaseGraph.heuristic`
+        :seealso: :meth:`distance` :meth:`BaseGraph.heuristic`
         """
         if self._graph is None:
             raise ValueError("vertex is not connected to a graph")
@@ -3569,7 +3569,7 @@ class BaseVertex:
             >>> v4 = g.add_vertex(coord=[4,3], name='v4')
             >>> print(v1.closest())
 
-        :seealso: :meth:`_BaseGraph.closest`
+        :seealso: :meth:`BaseGraph.closest`
         """
         if self._graph is None:
             raise ValueError("vertex is not connected to a graph")
@@ -3588,7 +3588,7 @@ class BaseVertex:
         not deleted.
 
         .. note:: This is a thin convenience wrapper around
-            :meth:`_BaseGraph.remove_vertex`.
+            :meth:`BaseGraph.remove_vertex`.
 
         :rtype: None
 
@@ -3602,7 +3602,7 @@ class BaseVertex:
             >>> v2.remove()
             >>> print(g)
 
-        :seealso: :meth:`_BaseGraph.remove_vertex` :meth:`Edge.remove`
+        :seealso: :meth:`BaseGraph.remove_vertex` :meth:`Edge.remove`
         """
         if self._graph is None:
             raise ValueError("vertex is not connected to a graph")

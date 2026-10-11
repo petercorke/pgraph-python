@@ -2,7 +2,7 @@
 Export a graph as text (GraphViz DOT, Mermaid, GraphML, ELK JSON) or as a
 rendered image (via the GraphViz command line tools).
 
-This module is reached through :meth:`pgraph.PGraph._BaseGraph.export`, which
+This module is reached through :meth:`pgraph.PGraph.BaseGraph.export`, which
 dispatches on the format name or the file extension.  Each text exporter is a
 plain function ``f(graph, **options) -> str``, registered with
 :func:`register_exporter`, so a user can add a format without touching the
@@ -27,7 +27,7 @@ import subprocess  # nosec B404 - GraphViz is run without a shell, see render()
 from typing import IO, TYPE_CHECKING, Any, Callable
 
 if TYPE_CHECKING:
-    from .PGraph import BaseVertex, Edge, _BaseGraph
+    from .PGraph import BaseVertex, Edge, BaseGraph
 
 TextExporter = Callable[..., str]
 
@@ -114,13 +114,13 @@ def format_from_filename(filename: str | os.PathLike | IO | None) -> str | None:
 # helpers shared by the exporters
 
 
-def _is_directed(graph: _BaseGraph) -> bool:
+def _is_directed(graph: BaseGraph) -> bool:
     from .PGraph import DGraph  # not at module level: PGraph imports this module
 
     return isinstance(graph, DGraph)
 
 
-def _ordered_edges(graph: _BaseGraph) -> list[tuple[Edge, BaseVertex, BaseVertex]]:
+def _ordered_edges(graph: BaseGraph) -> list[tuple[Edge, BaseVertex, BaseVertex]]:
     """
     Edges in a reproducible order
 
@@ -144,7 +144,7 @@ def _ordered_edges(graph: _BaseGraph) -> list[tuple[Edge, BaseVertex, BaseVertex
     return edges
 
 
-def _component_colors(graph: _BaseGraph) -> dict[BaseVertex, str]:
+def _component_colors(graph: BaseGraph) -> dict[BaseVertex, str]:
     """
     Map each vertex to a ``#rrggbb`` colour for its component, as plot() does
     """
@@ -194,7 +194,7 @@ def _dot_quote(text: str) -> str:
 
 @register_exporter("dot", ".dot", ".gv")
 def dot(
-    graph: _BaseGraph,
+    graph: BaseGraph,
     *,
     direction: str | None = None,
     colorcomponents: bool = False,
@@ -243,7 +243,7 @@ def dot(
 
 @register_exporter("mermaid", ".mmd", ".mermaid")
 def mermaid(
-    graph: _BaseGraph,
+    graph: BaseGraph,
     *,
     direction: str = "TB",
     colorcomponents: bool = False,
@@ -292,7 +292,7 @@ def mermaid(
 
 
 @register_exporter("graphml", ".graphml")
-def graphml(graph: _BaseGraph) -> str:
+def graphml(graph: BaseGraph) -> str:
     """
     GraphML XML text
 
@@ -357,7 +357,7 @@ def graphml(graph: _BaseGraph) -> str:
 
 @register_exporter("elk", ".elk.json", ".elk")
 def elk(
-    graph: _BaseGraph,
+    graph: BaseGraph,
     *,
     size: tuple[float, float] = (60, 40),
     layout_options: dict[str, str] | None = None,
@@ -433,7 +433,7 @@ def elk(
 
 
 def render(
-    graph: _BaseGraph,
+    graph: BaseGraph,
     fmt: str,
     *,
     engine: str | None = None,
