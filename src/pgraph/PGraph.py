@@ -680,7 +680,8 @@ class BaseGraph(ABC):
             raise ValueError("vertex does not belong to this graph")
         assert vertex.name is not None
 
-        for edge in [e for e in self._edgelist if e.v1 is vertex or e.v2 is vertex]:
+        # its own lists name every edge at it, so no need to search the graph
+        for edge in vertex._incident_edges():
             self.remove_edge(edge)
 
         self._vertexlist.remove(vertex)
@@ -1702,10 +1703,7 @@ class BaseGraph(ABC):
             return self.ne > self.n - self.nc
 
         # DGraph: Kahn's algorithm
-        indegree = {vertex: 0 for vertex in self}
-        for e in self.edges():
-            assert e.v2 is not None
-            indegree[e.v2] += 1
+        indegree = {vertex: vertex.in_degree for vertex in self}
 
         frontier = [vertex for vertex in self if indegree[vertex] == 0]
         removed = 0
@@ -1726,13 +1724,19 @@ class BaseGraph(ABC):
         :return: average degree
         :rtype: float
 
-        Average degree is :math:`2 E / N` for an undirected graph and
-        :math:`E / N` for a directed graph where :math:`E` is the total number of
-        edges and :math:`N` is the number of vertices.
+        Average degree is :math:`2 E / N` where :math:`E` is the total number
+        of edges and :math:`N` is the number of vertices, for an undirected or a
+        directed graph.  It is the mean of :attr:`BaseVertex.degree`, and every
+        edge has two ends, so the degrees sum to :math:`2 E`.
 
         Parallel edges and self-loops are each counted as one edge in
-        :math:`E`, which is consistent with :meth:`degree`: a self-loop
-        contributes 2 to the degree sum of an undirected graph.
+        :math:`E`; a self-loop contributes 2 to the degree sum.
+
+        .. versionchanged:: 1.0
+            For a ``DGraph`` this was :math:`E / N`, the mean *out*-degree
+            (which equals the mean in-degree).  It is now :math:`2 E / N`, the
+            mean of the degree, which is twice the old value.  Use
+            ``g.ne / g.n`` for the previous number.
 
         .. runblock:: pycon
 
@@ -1747,12 +1751,7 @@ class BaseGraph(ABC):
 
         :seealso: :meth:`degree`
         """
-        if isinstance(self, DGraph):
-            return len(self.edges()) / self.n
-        elif isinstance(self, UGraph):
-            return 2 * len(self.edges()) / self.n
-        else:
-            raise TypeError(f"unsupported graph type {type(self).__name__}")
+        return 2 * self.ne / self.n
 
     # --------------------------------------------------------------------------- #
 
@@ -1785,7 +1784,7 @@ class BaseGraph(ABC):
         .. note::
 
             - Laplacian always has at least one zero eigenvalue (each row of
-              ``degree() - adjacency()`` sums to zero, so the all-ones
+              ``D_out - adjacency()`` sums to zero, so the all-ones
               vector is always a right null vector).
             - For an **undirected** graph specifically: the Laplacian is
               symmetric and positive-semidefinite, and the number of
@@ -1801,14 +1800,19 @@ class BaseGraph(ABC):
 
         .. rubric:: For graphs with parallel edges or loops
 
-        Both :meth:`degree` and :meth:`adjacency` count edges, so the
-        identity ``L = degree() - adjacency()`` and the zero row sums hold
-        unchanged. A self-loop adds the same amount to both and cancels out
+        Both the out-degree and :meth:`adjacency` count edges, so the
+        identity ``L = D_out - adjacency()`` and the zero row sums hold
+        unchanged.  A self-loop adds the same amount to both and cancels out
         of the Laplacian entirely.
+
+        .. note:: ``D_out`` is the diagonal matrix of
+            :attr:`BaseVertex.out_degree`.  For an undirected graph that is
+            :meth:`degree`, but for a directed graph :meth:`degree` is in plus
+            out, so the Laplacian does *not* use it.
 
         :seealso: :meth:`adjacency` :meth:`incidence` :meth:`degree`
         """
-        return self.degree() - self.adjacency()
+        return np.diag([v.out_degree for v in self]) - self.adjacency()
 
     def connectivity(self, vertices: Iterable[BaseVertex] | None = None) -> list[int]:
         """
@@ -1819,6 +1823,15 @@ class BaseGraph(ABC):
         :type vertices: iterable of BaseVertex subclass, optional
         :return: a list with the number of edges per vertex
         :rtype: list
+
+        This is the :attr:`BaseVertex.degree` of each vertex: the number of
+        edge *ends* at it, which is the number of edges connected to it except
+        that a self-loop has two ends and so counts twice.  For a directed
+        graph it counts the edges entering the vertex as well as those leaving.
+
+        .. versionchanged:: 1.0
+            For a ``DGraph`` this counted only the edges *leaving* each vertex.
+            Use ``[v.out_degree for v in g]`` for the previous values.
 
         The average vertex connectivity is::
 
@@ -1843,9 +1856,8 @@ class BaseGraph(ABC):
             >>> print(c)
 
 
-        .. note:: This is the diagonal of :meth:`degree`, so parallel edges are
-            counted individually and a self-loop counts twice for a
-            ``UGraph`` and once for a ``DGraph``. See the discussion there.
+        .. note:: This is the diagonal of :meth:`degree`.  Parallel edges are
+            counted individually.
 
         :seealso: :meth:`degree`
         """
@@ -1854,7 +1866,7 @@ class BaseGraph(ABC):
         if vertices is None:
             vertices = self
         for n in vertices:
-            c.append(len(n._edgelist))
+            c.append(n.degree)
         return c
 
     def degree(self) -> NDArray:
@@ -1864,11 +1876,16 @@ class BaseGraph(ABC):
         :return: degree matrix
         :rtype: ndarray(N,N)
 
-        This is a diagonal matrix  where element ``[i,i]`` is the number
-        of edges connected to vertex id ``i``.
+        This is a diagonal matrix where element ``[i,i]`` is the
+        :attr:`BaseVertex.degree` of vertex ``i``: the number of edge ends at
+        it, so a self-loop counts twice.  For a directed graph that is the
+        edges entering plus the edges leaving.
 
-        .. note:: For a ``DGraph`` only outgoing edges are counted, matching
-            :attr:`BaseVertex.degree`.
+        .. versionchanged:: 1.0
+            For a ``DGraph`` this was the out-degree matrix, counting only the
+            edges leaving each vertex.  It is now the total, in plus out.  The
+            old matrix is ``np.diag([v.out_degree for v in g])``, which is what
+            :meth:`Laplacian` uses.
 
         .. runblock:: pycon
 
@@ -1887,11 +1904,11 @@ class BaseGraph(ABC):
         .. rubric:: For graphs with parallel edges or loops
 
         Every edge is counted, so ``k`` parallel edges between two vertices
-        add ``k`` to the degree of each end. A self-loop adds 2 to the degree
-        of a ``UGraph`` vertex, since it has two ends, and 1 to the
-        (out-)degree of a ``DGraph`` vertex.
+        add ``k`` to the degree of each end.  A self-loop adds 2, for both
+        kinds of graph, since it has two ends.
 
-        :seealso: :meth:`adjacency` :meth:`incidence` :meth:`laplacian`
+        :seealso: :meth:`adjacency` :meth:`incidence` :meth:`Laplacian`
+            :meth:`connectivity` :meth:`average_degree` :attr:`BaseVertex.degree`
         """
 
         return np.diag(self.connectivity())
@@ -3020,6 +3037,9 @@ class BaseVertex:
         self.label: int | None = None
         self._connectivitychange = True
         self._edgelist = []
+        #: edges ending at this vertex.  Only a directed vertex fills it: an
+        #: undirected edge is already in ``_edgelist`` at both of its ends.
+        self._inlist: list[Edge] = []
         self._graph: BaseGraph | None = None  # reference to owning graph
         # print('BaseVertex init', type(self))
 
@@ -3119,7 +3139,8 @@ class BaseVertex:
             >>> g.add_edge(v1, v3)
             >>> print(v1.adjacent())
 
-        :seealso: :meth:`isadjacent` :meth:`incidences` :meth:`edges`
+        :seealso: :meth:`isadjacent` :meth:`successors` :meth:`predecessors`
+            :meth:`incidences` :meth:`out_edges` :meth:`edges`
             :meth:`BaseGraph.adjacency`
         """
         return [e.next(self) for e in self._edgelist]
@@ -3165,12 +3186,33 @@ class BaseVertex:
 
     def incidences(self) -> list[tuple[BaseVertex, Edge]]:
         """
-        Neighbours and edges of a vertex
+        Adjacent vertices paired with the edges that lead to them
 
-        ``v.incidences()`` is a generator that returns a list of incidences,
-        tuples of (vertex, edge) for all vertices adjacent to the vertex ``v``.
+        :return: a ``(vertex, edge)`` pair for each edge leaving this vertex,
+            in the order the edges were connected
+        :rtype: list of (BaseVertex subclass, Edge)
 
-        .. note:: For a directed graph the edges are those leaving this vertex
+        ``v.incidences()`` is :meth:`adjacent` and :meth:`out_edges` taken
+        together: the first element of each pair is the vertex at the far end
+        of the edge, the second is the edge itself, so its :attr:`Edge.cost`
+        and :attr:`Edge.data` are at hand.  It is equivalent to::
+
+            list(zip(v.adjacent(), v.out_edges()))
+
+        but is built in a single pass, which is what the path-planning methods
+        want when they expand a vertex.
+
+        .. note::
+
+            - In graph-theory terms :meth:`adjacent` is a vertex's *adjacency
+              list*, :meth:`out_edges` its *incidence list*, and this is the
+              two joined.
+            - For a directed graph the pairs are for the edges *leaving* this
+              vertex.  The ones entering it are :meth:`in_edges`, and the
+              vertices at their tails are :meth:`predecessors`.
+            - There is one pair per edge, so parallel edges to the same vertex
+              give repeated vertices with different edges, and an undirected
+              self-loop gives the pair twice, once for each end.
 
         .. runblock:: pycon
 
@@ -3178,10 +3220,16 @@ class BaseVertex:
             >>> g = UGraph()
             >>> v1 = g.add_vertex(coord=[0,0], name='v1')
             >>> v2 = g.add_vertex(coord=[1,1], name='v2')
-            >>> g.add_edge(v1, v2)
-            >>> print(v1.incidences())
+            >>> v3 = g.add_vertex(coord=[2,2], name='v3')
+            >>> g.add_edge(v1, v2, cost=1.5)
+            >>> g.add_edge(v1, v3, cost=2.5)
+            >>> for vertex, edge in v1.incidences():
+            ...     print(vertex.name, edge.cost)
 
-        :seealso: :meth:`adjacent` :meth:`edges`
+        :seealso: :meth:`adjacent` :meth:`isadjacent` :meth:`successors`
+            :meth:`out_edges` :meth:`in_edges` :meth:`predecessors`
+            :meth:`edges` :meth:`edgeto` :attr:`degree`
+            :meth:`BaseGraph.adjacency`
         """
         return [(e.next(self), e) for e in self._edgelist]
 
@@ -3396,6 +3444,9 @@ class BaseVertex:
             >>> v2 = g.add_vertex(coord=[1,1], name='v2')
             >>> g.add_edge(v1, v2)
             >>> print(v1.edges())
+
+        :seealso: :meth:`out_edges` :meth:`in_edges` :meth:`adjacent`
+            :meth:`incidences` :attr:`degree` :meth:`BaseGraph.edges`
         """
         return self._edgelist
 
@@ -3466,30 +3517,149 @@ class BaseVertex:
         :return: degree of the vertex
         :rtype: int
 
-        Returns the number of edges connected to the vertex.
+        The number of edge ends at this vertex: the edges leaving it plus the
+        edges entering it, so a self-loop counts twice.  The degrees of all the
+        vertices of a graph sum to twice its number of edges.
 
-        .. note:: For a ``DGraph`` only outgoing edges are considered.
+        For an undirected graph this is the number of incident edges.  For a
+        directed graph it is :attr:`in_degree` + :attr:`out_degree`.
+
+        .. versionchanged:: 1.0
+            For a ``DGraph`` this used to count only the edges *leaving* the
+            vertex.  It is now the graph-theory degree, in plus out.  Use
+            :attr:`out_degree` for the previous value.
 
         .. runblock:: pycon
 
-            >>> from pgraph import UGraph
-            >>> g = UGraph()
+            >>> from pgraph import DGraph
+            >>> g = DGraph()
             >>> v1 = g.add_vertex(coord=[0,0], name='v1')
             >>> v2 = g.add_vertex(coord=[1,1], name='v2')
             >>> v3 = g.add_vertex(coord=[2,2], name='v3')
             >>> g.add_edge(v1, v2)
             >>> g.add_edge(v1, v3)
-            >>> print(v1.degree)
+            >>> g.add_edge(v3, v1)
+            >>> print(v1.degree, v1.in_degree, v1.out_degree)
 
         .. rubric:: For graphs with parallel edges or loops
 
-        Every edge is counted, so ``k`` parallel edges to the same neighbour
-        add ``k``. A self-loop adds 2 for a ``UGraph`` vertex, since it has two
-        ends, and 1 for a ``DGraph`` vertex.
+        Every edge is counted, so ``k`` parallel edges to the same vertex add
+        ``k``.  A self-loop adds 2, for both kinds of graph: it has two ends.
 
-        :seealso: :meth:`edges`
+        :seealso: :attr:`in_degree` :attr:`out_degree` :meth:`edges`
+            :meth:`BaseGraph.degree` :meth:`BaseGraph.connectivity`
         """
-        return len(self.edges())
+        return len(self._edgelist) + len(self._inlist)
+
+    @property
+    def out_degree(self) -> int:
+        """
+        Number of edges leaving the vertex
+
+        :return: out-degree of the vertex
+        :rtype: int
+
+        For an undirected graph every incident edge both leaves and enters, so
+        this equals :attr:`degree`.
+
+        :seealso: :attr:`in_degree` :attr:`degree` :meth:`out_edges`
+        """
+        return len(self._edgelist)
+
+    @property
+    def in_degree(self) -> int:
+        """
+        Number of edges entering the vertex
+
+        :return: in-degree of the vertex
+        :rtype: int
+
+        For an undirected graph every incident edge both leaves and enters, so
+        this equals :attr:`degree`.
+
+        :seealso: :attr:`out_degree` :attr:`degree` :meth:`in_edges`
+        """
+        return len(self._incoming())
+
+    def _incoming(self) -> list[Edge]:
+        """The edges that end here (private method)"""
+        return self._inlist
+
+    def out_edges(self) -> list[Edge]:
+        """
+        The edges leaving the vertex
+
+        :return: the outgoing edges, in the order they were connected
+        :rtype: list of ``Edge``
+
+        This is a new list, and is the same as :meth:`edges`: for an undirected
+        graph every incident edge is outgoing.
+
+        :seealso: :meth:`in_edges` :meth:`edges` :meth:`adjacent` :meth:`successors`
+            :meth:`incidences` :attr:`out_degree`
+        """
+        return list(self._edgelist)
+
+    def in_edges(self) -> list[Edge]:
+        """
+        The edges entering the vertex
+
+        :return: the incoming edges, in the order they were connected
+        :rtype: list of ``Edge``
+
+        This is a new list.  For an undirected graph every incident edge is
+        incoming, so it equals :meth:`edges`.
+
+        :seealso: :meth:`out_edges` :meth:`edges` :meth:`predecessors` :attr:`in_degree`
+        """
+        return list(self._incoming())
+
+    def successors(self) -> list[BaseVertex]:
+        """
+        Vertices that this vertex has an edge to
+
+        :return: the vertices at the head of the outgoing edges
+        :rtype: list of BaseVertex subclass
+
+        This is :meth:`adjacent`, under its directed-graph name.
+
+        :seealso: :meth:`predecessors` :meth:`adjacent` :meth:`incidences`
+            :meth:`out_edges`
+        """
+        return self.adjacent()
+
+    def predecessors(self) -> list[BaseVertex]:
+        """
+        Vertices that have an edge to this vertex
+
+        :return: the vertices at the tail of the incoming edges
+        :rtype: list of BaseVertex subclass
+
+        There is one entry per edge, so a vertex joined by ``k`` parallel edges
+        appears ``k`` times.  For an undirected graph this is :meth:`adjacent`.
+
+        .. runblock:: pycon
+
+            >>> from pgraph import DGraph
+            >>> g = DGraph()
+            >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+            >>> v2 = g.add_vertex(coord=[1,1], name='v2')
+            >>> v3 = g.add_vertex(coord=[2,2], name='v3')
+            >>> g.add_edge(v1, v3)
+            >>> g.add_edge(v2, v3)
+            >>> print(v3.predecessors())
+
+        :seealso: :meth:`successors` :meth:`adjacent` :meth:`in_edges`
+            :attr:`in_degree`
+        """
+        return [e.next(self) for e in self._incoming()]
+
+    def _incident_edges(self) -> list[Edge]:
+        """Every distinct edge at this vertex, either end (private method)"""
+        seen: dict[int, Edge] = {}
+        for e in (*self._edgelist, *self._incoming()):
+            seen.setdefault(id(e), e)
+        return list(seen.values())
 
     @property
     def x(self) -> float:
@@ -3645,6 +3815,10 @@ class UVertex(BaseVertex):
         self._edgelist.append(edge)
         dest._edgelist.append(edge)
 
+    def _incoming(self) -> list[Edge]:
+        """The edges that end here: for an undirected vertex, all of them"""
+        return self._edgelist
+
     def _detach(self, edge: Edge, dest: BaseVertex) -> None:
         """
         Remove an undirected edge from both ends (private method)
@@ -3694,21 +3868,23 @@ class DVertex(BaseVertex):
 
     def _attach(self, edge: Edge, dest: BaseVertex) -> None:
         """
-        Record a directed edge at its source only (private method)
+        Record a directed edge at both ends (private method)
 
-        The edge is added only to *this* vertex's edge list, so it is
-        discoverable only from the start of the directed edge.
+        The edge goes in this vertex's list of outgoing edges and in
+        ``dest``'s list of incoming ones.
         """
         self._edgelist.append(edge)
+        dest._inlist.append(edge)
 
     def _detach(self, edge: Edge, dest: BaseVertex) -> None:
         """
-        Remove a directed edge from its source (private method)
-
-        ``dest`` never held it.
+        Remove a directed edge from its source and from where it ends
+        (private method)
         """
         if edge in self._edgelist:
             self._edgelist.remove(edge)
+        if edge in dest._inlist:
+            dest._inlist.remove(edge)
 
 
 # UGraph/DGraph declare their _vertex_cls here, rather than in their own
