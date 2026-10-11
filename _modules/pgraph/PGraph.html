@@ -2115,16 +2115,16 @@
 
     <span class="c1"># MATRIX REPRESENTATIONS</span>
 
-<div class="viewcode-block" id="BaseGraph.Laplacian">
-<a class="viewcode-back" href="../../PGraph.html#pgraph.PGraph.BaseGraph.Laplacian">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">Laplacian</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NDArray</span><span class="p">:</span>
+<div class="viewcode-block" id="BaseGraph.laplacian">
+<a class="viewcode-back" href="../../PGraph.html#pgraph.PGraph.BaseGraph.laplacian">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">laplacian</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NDArray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Laplacian matrix for the graph</span>
 
 <span class="sd">        :return: Laplacian matrix</span>
 <span class="sd">        :rtype: NumPy ndarray</span>
 
-<span class="sd">        ``g.Laplacian()`` is the Laplacian matrix (NxN) of the graph where N</span>
+<span class="sd">        ``g.laplacian()`` is the Laplacian matrix (NxN) of the graph where N</span>
 <span class="sd">        is the number of vertices.</span>
 
 <span class="sd">        .. runblock:: pycon</span>
@@ -2138,7 +2138,7 @@
 <span class="sd">            &gt;&gt;&gt; for i, j in [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (3, 4)]:</span>
 <span class="sd">            ...     g.add_edge(g[i], g[j])</span>
 <span class="sd">            ...</span>
-<span class="sd">            &gt;&gt;&gt; L = g.Laplacian()</span>
+<span class="sd">            &gt;&gt;&gt; L = g.laplacian()</span>
 <span class="sd">            &gt;&gt;&gt; print(L)</span>
 
 <span class="sd">        .. note::</span>
@@ -2173,6 +2173,27 @@
 <span class="sd">        :seealso: :meth:`adjacency` :meth:`incidence` :meth:`degree`</span>
 <span class="sd">        """</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">([</span><span class="n">v</span><span class="o">.</span><span class="n">out_degree</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">])</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">adjacency</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="BaseGraph.Laplacian">
+<a class="viewcode-back" href="../../PGraph.html#pgraph.PGraph.BaseGraph.Laplacian">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">Laplacian</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NDArray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Laplacian matrix for the graph (deprecated)</span>
+
+<span class="sd">        .. deprecated:: 1.0</span>
+<span class="sd">            Use :meth:`laplacian` instead.  A capitalized name denotes a class</span>
+<span class="sd">            method that constructs a graph, like :meth:`Adjacency` and</span>
+<span class="sd">            :meth:`Dict`; this is an instance method that returns a matrix.</span>
+
+<span class="sd">        :seealso: :meth:`laplacian`</span>
+<span class="sd">        """</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="s2">"Laplacian() is deprecated, use laplacian() instead"</span><span class="p">,</span>
+            <span class="ne">DeprecationWarning</span><span class="p">,</span>
+            <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">laplacian</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="BaseGraph.connectivity">
@@ -2251,7 +2272,7 @@
 <span class="sd">            For a ``DGraph`` this was the out-degree matrix, counting only the</span>
 <span class="sd">            edges leaving each vertex.  It is now the total, in plus out.  The</span>
 <span class="sd">            old matrix is ``np.diag([v.out_degree for v in g])``, which is what</span>
-<span class="sd">            :meth:`Laplacian` uses.</span>
+<span class="sd">            :meth:`laplacian` uses.</span>
 
 <span class="sd">        .. runblock:: pycon</span>
 
@@ -2273,7 +2294,7 @@
 <span class="sd">        add ``k`` to the degree of each end.  A self-loop adds 2, for both</span>
 <span class="sd">        kinds of graph, since it has two ends.</span>
 
-<span class="sd">        :seealso: :meth:`adjacency` :meth:`incidence` :meth:`Laplacian`</span>
+<span class="sd">        :seealso: :meth:`adjacency` :meth:`incidence` :meth:`laplacian`</span>
 <span class="sd">            :meth:`connectivity` :meth:`average_degree` :attr:`BaseVertex.degree`</span>
 <span class="sd">        """</span>
 
@@ -2326,7 +2347,7 @@
 <span class="sd">        (consistent with :meth:`degree`) and 1 for a ``DGraph``. In every case</span>
 <span class="sd">        each row of ``A`` sums to the degree of that vertex.</span>
 
-<span class="sd">        :seealso: :meth:`Laplacian` :meth:`incidence` :meth:`degree`</span>
+<span class="sd">        :seealso: :meth:`laplacian` :meth:`incidence` :meth:`degree`</span>
 <span class="sd">        """</span>
         <span class="c1"># create a dict mapping vertex to an id</span>
         <span class="n">vdict</span> <span class="o">=</span> <span class="p">{}</span>
@@ -2385,7 +2406,7 @@
 <span class="sd">        so row sums still equal :meth:`degree`); for a ``DGraph`` it holds a</span>
 <span class="sd">        single 1.</span>
 
-<span class="sd">        :seealso: :meth:`Laplacian` :meth:`adjacency` :meth:`degree`</span>
+<span class="sd">        :seealso: :meth:`laplacian` :meth:`adjacency` :meth:`degree`</span>
 <span class="sd">        """</span>
         <span class="n">edges</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">edges</span><span class="p">()</span>
         <span class="n">I</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">edges</span><span class="p">)))</span>
