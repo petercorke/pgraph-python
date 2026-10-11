@@ -852,16 +852,21 @@ class _BaseGraph(ABC):
         Get vertex (base class method)
 
         :param i: vertex description
-        :type i: int or str
+        :type i: int, str or BaseVertex subclass
+        :raises IndexError: ``i`` is an integer outside the range of vertices
+        :raises KeyError: ``i`` is a name that is not in the graph
+        :raises TypeError: ``i`` is none of the types above
         :return: the referenced vertex
         :rtype: BaseVertex subclass
 
         Retrieve a vertex by index or name:
 
-        -``g[i]`` is the i'th vertex in the graph.  This reflects the order of
-         addition to the graph.
-        -``g[s]`` is vertex named ``s``
-        -``g[v]`` is ``v`` where ``v`` is a ``BaseVertex`` subclass
+        - ``g[i]`` is the i'th vertex in the graph.  This reflects the order of
+          addition to the graph.  ``i`` can be any integer, including a NumPy
+          integer such as the result of ``np.argmin()``, and a negative
+          ``i`` counts from the last vertex.
+        - ``g[s]`` is vertex named ``s``
+        - ``g[v]`` is ``v`` where ``v`` is a ``BaseVertex`` subclass
 
         This method also supports iteration over the vertices in a graph::
 
@@ -870,12 +875,16 @@ class _BaseGraph(ABC):
 
         will iterate over all the vertices.
         """
-        if isinstance(i, int):
-            return self._vertexlist[i]
+        if isinstance(i, (int, np.integer)):
+            return self._vertexlist[int(i)]
         elif isinstance(i, str):
             return self._vertexdict[i]
         elif isinstance(i, BaseVertex):
             return i
+        else:
+            raise TypeError(
+                f"vertex must be an int, str or BaseVertex, got {type(i).__name__}"
+            )
 
     def __iter__(self) -> Iterator[BaseVertex]:
         """
