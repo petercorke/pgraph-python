@@ -713,8 +713,8 @@ supplied edge must run exactly from this vertex to the other.</p>
 <p>Each edge has:
 - <code class="docutils literal notranslate"><span class="pre">cost</span></code> cost of traversing this edge, required for planning methods
 - <code class="docutils literal notranslate"><span class="pre">data</span></code> reference to arbitrary data associated with the edge
-- <code class="docutils literal notranslate"><span class="pre">v1</span></code> first vertex, start vertex for a directed edge
-- <code class="docutils literal notranslate"><span class="pre">v2</span></code> second vertex, end vertex for a directed edge</p>
+- <code class="docutils literal notranslate"><span class="pre">v1</span></code> first vertex, start vertex for a directed edge (read-only)
+- <code class="docutils literal notranslate"><span class="pre">v2</span></code> second vertex, end vertex for a directed edge (read-only)</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <ul class="simple">
@@ -887,6 +887,50 @@ raises <code class="docutils literal notranslate"><span class="pre">ValueError</
 <dl class="field-list simple">
 <dt class="field-odd">Seealso<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">_BaseGraph.remove_edge()</span></code> <a class="reference internal" href="#pgraph.PGraph.BaseVertex.remove" title="pgraph.PGraph.BaseVertex.remove"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseVertex.remove()</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="pgraph.PGraph.Edge.v1">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">v1</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><span class="pre">BaseVertex</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span><a class="headerlink" href="#pgraph.PGraph.Edge.v1" title="Link to this definition"></a></dt>
+<dd><p>First vertex of the edge, the start vertex for a directed edge</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>the vertex, or None if the edge is not connected</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>BaseVertex subclass or None</p>
+</dd>
+</dl>
+<div class="versionchanged">
+<p><span class="versionmodified changed">Changed in version 1.0: </span>Read-only.  It was a plain attribute, so assigning to it on an edge
+that was in a graph left the graph inconsistent: the vertices’
+edge lists no longer agreed with the edge, and the edge could not
+be removed.  Give the vertices to the constructor, <code class="docutils literal notranslate"><span class="pre">Edge(v1,</span>
+<span class="pre">v2)</span></code>, or to <a class="reference internal" href="edge.html#pgraph.PGraph.Edge.connect" title="pgraph.PGraph.Edge.connect"><code class="xref py py-meth docutils literal notranslate"><span class="pre">connect()</span></code></a> or <a class="reference internal" href="#pgraph.PGraph.BaseVertex.connect" title="pgraph.PGraph.BaseVertex.connect"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseVertex.connect()</span></code></a>.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="edge.html#pgraph.PGraph.Edge.v2" title="pgraph.PGraph.Edge.v2"><code class="xref py py-attr docutils literal notranslate"><span class="pre">v2</span></code></a> <a class="reference internal" href="edge.html#pgraph.PGraph.Edge.connect" title="pgraph.PGraph.Edge.connect"><code class="xref py py-meth docutils literal notranslate"><span class="pre">connect()</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="pgraph.PGraph.Edge.v2">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">v2</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><span class="pre">BaseVertex</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span><a class="headerlink" href="#pgraph.PGraph.Edge.v2" title="Link to this definition"></a></dt>
+<dd><p>Second vertex of the edge, the end vertex for a directed edge</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>the vertex, or None if the edge is not connected</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>BaseVertex subclass or None</p>
+</dd>
+</dl>
+<p>Read-only, see <a class="reference internal" href="edge.html#pgraph.PGraph.Edge.v1" title="pgraph.PGraph.Edge.v1"><code class="xref py py-attr docutils literal notranslate"><span class="pre">v1</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="edge.html#pgraph.PGraph.Edge.v1" title="pgraph.PGraph.Edge.v1"><code class="xref py py-attr docutils literal notranslate"><span class="pre">v1</span></code></a> <a class="reference internal" href="edge.html#pgraph.PGraph.Edge.connect" title="pgraph.PGraph.Edge.connect"><code class="xref py py-meth docutils literal notranslate"><span class="pre">connect()</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>

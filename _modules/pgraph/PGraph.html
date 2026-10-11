@@ -725,8 +725,7 @@
         <span class="n">v2</span><span class="o">.</span><span class="n">_connectivitychange</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_connectivitychange</span> <span class="o">=</span> <span class="kc">True</span>
 
-        <span class="n">edge</span><span class="o">.</span><span class="n">v1</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="n">edge</span><span class="o">.</span><span class="n">v2</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">edge</span><span class="o">.</span><span class="n">_set_endpoints</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_edgelist</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span>
 
@@ -2743,6 +2742,12 @@
 <span class="c1"># ========================================================================== #</span>
 
 
+<span class="n">_ENDPOINT_MESSAGE</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">"Edge.</span><span class="si">{0}</span><span class="s2"> is read-only. Give the vertices to the constructor, Edge(v1, v2), "</span>
+    <span class="s2">"or connect the edge with v1.connect(v2, edge=e) or e.connect(v1, v2)"</span>
+<span class="p">)</span>
+
+
 <div class="viewcode-block" id="Edge">
 <a class="viewcode-back" href="../../edge.html#pgraph.PGraph.Edge">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Edge</span><span class="p">:</span>
@@ -2754,8 +2759,8 @@
 <span class="sd">    Each edge has:</span>
 <span class="sd">    - ``cost`` cost of traversing this edge, required for planning methods</span>
 <span class="sd">    - ``data`` reference to arbitrary data associated with the edge</span>
-<span class="sd">    - ``v1`` first vertex, start vertex for a directed edge</span>
-<span class="sd">    - ``v2`` second vertex, end vertex for a directed edge</span>
+<span class="sd">    - ``v1`` first vertex, start vertex for a directed edge (read-only)</span>
+<span class="sd">    - ``v2`` second vertex, end vertex for a directed edge (read-only)</span>
 
 <span class="sd">    .. note::</span>
 
@@ -2814,8 +2819,8 @@
 
 <span class="sd">        :seealso: :meth:`Edge.connect` :meth:`BaseVertex.connect`</span>
 <span class="sd">        """</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">v1</span> <span class="o">=</span> <span class="n">v1</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">v2</span> <span class="o">=</span> <span class="n">v2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_v1</span> <span class="o">=</span> <span class="n">v1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_v2</span> <span class="o">=</span> <span class="n">v2</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
 
@@ -2835,6 +2840,58 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">cost</span> <span class="o">=</span> <span class="kc">None</span></div>
 
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">v1</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BaseVertex</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        First vertex of the edge, the start vertex for a directed edge</span>
+
+<span class="sd">        :return: the vertex, or None if the edge is not connected</span>
+<span class="sd">        :rtype: BaseVertex subclass or None</span>
+
+<span class="sd">        .. versionchanged:: 1.0</span>
+<span class="sd">            Read-only.  It was a plain attribute, so assigning to it on an edge</span>
+<span class="sd">            that was in a graph left the graph inconsistent: the vertices'</span>
+<span class="sd">            edge lists no longer agreed with the edge, and the edge could not</span>
+<span class="sd">            be removed.  Give the vertices to the constructor, ``Edge(v1,</span>
+<span class="sd">            v2)``, or to :meth:`connect` or :meth:`BaseVertex.connect`.</span>
+
+<span class="sd">        :seealso: :attr:`v2` :meth:`connect`</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_v1</span>
+
+    <span class="nd">@v1</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">v1</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">BaseVertex</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="n">_ENDPOINT_MESSAGE</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">"v1"</span><span class="p">))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">v2</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BaseVertex</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Second vertex of the edge, the end vertex for a directed edge</span>
+
+<span class="sd">        :return: the vertex, or None if the edge is not connected</span>
+<span class="sd">        :rtype: BaseVertex subclass or None</span>
+
+<span class="sd">        Read-only, see :attr:`v1`.</span>
+
+<span class="sd">        :seealso: :attr:`v1` :meth:`connect`</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_v2</span>
+
+    <span class="nd">@v2</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">v2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">BaseVertex</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="n">_ENDPOINT_MESSAGE</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">"v2"</span><span class="p">))</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_set_endpoints</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v1</span><span class="p">:</span> <span class="n">BaseVertex</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">v2</span><span class="p">:</span> <span class="n">BaseVertex</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Bind the edge to its vertices, or unbind it (private method)</span>
+
+<span class="sd">        Only the library calls this: the constructor's own assignment, then</span>
+<span class="sd">        :meth:`connect`, :meth:`BaseVertex.connect` for an edge built without</span>
+<span class="sd">        vertices, and :meth:`_BaseGraph.remove_edge`, which clears them.</span>
+<span class="sd">        """</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_v1</span> <span class="o">=</span> <span class="n">v1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_v2</span> <span class="o">=</span> <span class="n">v2</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
@@ -2925,8 +2982,7 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"vertices must belong to the same graph"</span><span class="p">)</span>
 
         <span class="c1"># connect edge to its vertices</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">v1</span> <span class="o">=</span> <span class="n">v1</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">v2</span> <span class="o">=</span> <span class="n">v2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_endpoints</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">)</span>
 
         <span class="c1"># tell the vertices to add edge to their edgelists as appropriate for</span>
         <span class="c1"># DGraph or UGraph</span>
@@ -3428,8 +3484,7 @@
 <span class="sd">        endpoints disagree with the vertices' edge lists.</span>
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="n">edge</span><span class="o">.</span><span class="n">v1</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">edge</span><span class="o">.</span><span class="n">v2</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">edge</span><span class="o">.</span><span class="n">v1</span> <span class="o">=</span> <span class="bp">self</span>
-            <span class="n">edge</span><span class="o">.</span><span class="n">v2</span> <span class="o">=</span> <span class="n">dest</span>
+            <span class="n">edge</span><span class="o">.</span><span class="n">_set_endpoints</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dest</span><span class="p">)</span>
         <span class="k">elif</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_endpoints_match</span><span class="p">(</span><span class="n">edge</span><span class="p">,</span> <span class="n">dest</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">"edge already connects </span><span class="si">{</span><span class="n">edge</span><span class="o">.</span><span class="n">v1</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="n">edge</span><span class="o">.</span><span class="n">v2</span><span class="si">}</span><span class="s2">, "</span>
