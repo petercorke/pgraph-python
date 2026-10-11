@@ -1845,11 +1845,13 @@ class _BaseGraph(ABC):
         :raises TypeError: ``S`` or ``G`` is neither a vertex nor a string
         :raises KeyError: ``S`` or ``G`` is a name not in the graph
         :raises ValueError: an edge on the path has no cost
-        :return: list of vertices from S to G inclusive, path length
-        :rtype: list of BaseVertex subclass, float
+        :return: list of vertices from S to G inclusive and path length, or
+            None if there is no path
+        :rtype: (list of BaseVertex subclass, float) or None
 
         Returns a list of vertices that form a path from vertex ``S`` to
-        vertex ``G`` if possible, otherwise return None.
+        vertex ``G`` if possible, otherwise returns None -- so check the
+        result before unpacking it.
 
         .. runblock:: pycon
 
@@ -1947,11 +1949,13 @@ class _BaseGraph(ABC):
         :raises TypeError: ``S`` or ``G`` is neither a vertex nor a string
         :raises KeyError: ``S`` or ``G`` is a name not in the graph
         :raises ValueError: an edge examined during the search has no cost
-        :return: list of vertices from S to G inclusive, path length, tree
-        :rtype: list of BaseVertex subclass, float, dict
+        :return: list of vertices from S to G inclusive, path length and
+            search tree, or None if there is no path
+        :rtype: (list of BaseVertex subclass, float, dict) or None
 
         Returns a list of vertices that form a path from vertex ``S`` to
-        vertex ``G`` if possible, otherwise return None.
+        vertex ``G`` if possible, otherwise returns None -- so check the
+        result before unpacking it.
 
         The search tree is returned as dict that maps a vertex to its parent.
 
@@ -2067,11 +2071,13 @@ class _BaseGraph(ABC):
         :raises TypeError: ``S`` or ``G`` is neither a vertex nor a string
         :raises KeyError: ``S`` or ``G`` is a name not in the graph
         :raises ValueError: an edge examined during the search has no cost
-        :return: list of vertices from S to G inclusive, path length, tree
-        :rtype: list of BaseVertex subclass, float, dict
+        :return: list of vertices from S to G inclusive, path length and
+            search tree, or None if there is no path
+        :rtype: (list of BaseVertex subclass, float, dict) or None
 
         Returns a list of vertices that form a path from vertex ``S`` to
-        vertex ``G`` if possible, otherwise return None.
+        vertex ``G`` if possible, otherwise returns None -- so check the
+        result before unpacking it.
 
         The search tree is returned as dict that maps a vertex to its parent.
 
