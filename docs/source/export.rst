@@ -13,11 +13,11 @@ it.
 .. autosummary::
    :nosignatures:
 
-   ~pgraph.PGraph._BaseGraph.export
-   ~pgraph.PGraph._BaseGraph.dotfile
+   ~pgraph.PGraph.BaseGraph.export
+   ~pgraph.PGraph.BaseGraph.dotfile
 
 Details
 -------
 
-.. automethod:: pgraph.PGraph._BaseGraph.export
-.. automethod:: pgraph.PGraph._BaseGraph.dotfile
+.. automethod:: pgraph.PGraph.BaseGraph.export
+.. automethod:: pgraph.PGraph.BaseGraph.dotfile

@@ -13,10 +13,10 @@ Graph
 .. autosummary::
    :nosignatures:
 
-   ~pgraph.PGraph._BaseGraph.add_vertex
-   ~pgraph.PGraph._BaseGraph.add_edge
-   ~pgraph.PGraph._BaseGraph.remove_edge
-   ~pgraph.PGraph._BaseGraph.remove_vertex
+   ~pgraph.PGraph.BaseGraph.add_vertex
+   ~pgraph.PGraph.BaseGraph.add_edge
+   ~pgraph.PGraph.BaseGraph.remove_edge
+   ~pgraph.PGraph.BaseGraph.remove_vertex
 
 Vertex
 ------
@@ -31,11 +31,11 @@ Vertex
 Details
 -------
 
-.. automethod:: pgraph.PGraph._BaseGraph.add_vertex
-.. automethod:: pgraph.PGraph._BaseGraph.add_edge
-.. automethod:: pgraph.PGraph._BaseGraph.remove_edge
-.. automethod:: pgraph.PGraph._BaseGraph.remove_vertex
-.. automethod:: pgraph.PGraph._BaseGraph.remove
+.. automethod:: pgraph.PGraph.BaseGraph.add_vertex
+.. automethod:: pgraph.PGraph.BaseGraph.add_edge
+.. automethod:: pgraph.PGraph.BaseGraph.remove_edge
+.. automethod:: pgraph.PGraph.BaseGraph.remove_vertex
+.. automethod:: pgraph.PGraph.BaseGraph.remove
 
 .. automethod:: pgraph.PGraph.BaseVertex.connect
 .. automethod:: pgraph.PGraph.BaseVertex.edgeto

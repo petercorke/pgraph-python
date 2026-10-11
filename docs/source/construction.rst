@@ -12,8 +12,8 @@ standalone, independent of a graph.
 
    ~pgraph.PGraph.DGraph
    ~pgraph.PGraph.UGraph
-   ~pgraph.PGraph._BaseGraph.Dict
-   ~pgraph.PGraph._BaseGraph.Adjacency
+   ~pgraph.PGraph.BaseGraph.Dict
+   ~pgraph.PGraph.BaseGraph.Adjacency
 
 
 .. autoclass:: pgraph.PGraph.DGraph
@@ -22,17 +22,17 @@ standalone, independent of a graph.
 .. autoclass:: pgraph.PGraph.UGraph
    :show-inheritance:
 
-.. autoclass:: pgraph.PGraph._BaseGraph.Adjacency
+.. autoclass:: pgraph.PGraph.BaseGraph.Adjacency
    :show-inheritance:
 
-.. autoclass:: pgraph.PGraph._BaseGraph.Dict
+.. autoclass:: pgraph.PGraph.BaseGraph.Dict
    :show-inheritance:
 
 
 Inherited methods for all graph types
 --------------------------------------
 
-.. autoclass:: pgraph.PGraph._BaseGraph
+.. autoclass:: pgraph.PGraph.BaseGraph
    :members: copy, vertex_copy, metric, heuristic, show, vertex_class, edge_class
    :special-members: __init__, __str__, __repr__, __getitem__, __iter__, __contains__
 
