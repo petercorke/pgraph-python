@@ -106,15 +106,18 @@ class TestLibraryStillBindsThem(unittest.TestCase):
         a.connect(b, edge=o)
         self.assertEqual((o.v1, o.v2, o.uv), (a, b, (1, 2)))
 
-    def test_repr_and_copies_keep_the_endpoints(self):
+    def test_repr_shows_the_endpoints_and_an_edge_alone_is_not_copied(self):
         g = UGraph()
         a, b = g.add_vertex(name="a"), g.add_vertex(name="b")
         e = a.connect(b, cost=2)
         self.assertIn("a", str(e))
-        for dup in (copy.copy(e), copy.deepcopy(e)):
-            self.assertEqual(dup.cost, 2)
-            self.assertIsNotNone(dup.v1)
-            self.assertIsNotNone(dup.v2)
+        # an edge has no meaning apart from its graph: copy the graph instead
+        for f in (copy.copy, copy.deepcopy):
+            with self.assertRaises(TypeError):
+                f(e)
+        dup = g.copy().edges()[0]
+        self.assertEqual(dup.cost, 2)
+        self.assertEqual((dup.v1.name, dup.v2.name), ("a", "b"))
 
 
 if __name__ == "__main__":
