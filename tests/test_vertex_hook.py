@@ -59,7 +59,7 @@ class _Hook:
             def _attach(self, edge, dest):
                 # the edge is already registered with the graph at this point
                 outer.calls.append(
-                    (self, edge, dest, edge in self._graph._edgelist)
+                    (self, edge, dest, edge in self._graph._edges)
                 )
                 super()._attach(edge, dest)
 

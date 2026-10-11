@@ -105,7 +105,10 @@ class BaseGraph(ABC):
         # we use a list and a dict, the list respects the order of adding
         self._vertexlist: list[BaseVertex] = []
         self._vertexdict: dict[str, BaseVertex] = {}
-        self._edgelist: set[Edge] = set()
+        # an insertion-ordered set: the keys are the edges, hashed by identity
+        # (Edge defines no __eq__), the values are unused.  This gives O(1)
+        # removal and a defined order.
+        self._edges: dict[Edge, None] = {}
         self._verbose = verbose
         self._dim = dim
         self._ncomponents = 0
@@ -377,11 +380,11 @@ class BaseGraph(ABC):
             else:
                 problems.append(f"the vertex list holds {entry!r}, which is not a vertex")
         graph_edges: list[Edge] = []
-        for member in self._edgelist:
+        for member in self._edges:
             if isinstance(member, Edge):
                 graph_edges.append(member)
             else:
-                problems.append(f"the edge set holds {member!r}, which is not an edge")
+                problems.append(f"the graph's edges hold {member!r}, which is not an edge")
 
         # ---- vertices
         members = {id(v) for v in vertices}
@@ -844,7 +847,7 @@ class BaseGraph(ABC):
 
         :seealso: :meth:`remove_vertex` :meth:`Edge.remove`
         """
-        if edge not in self._edgelist:
+        if edge not in self._edges:
             raise ValueError("edge does not belong to this graph")
         v1, v2 = edge.v1, edge.v2
         if v1 is None or v2 is None:
@@ -860,7 +863,7 @@ class BaseGraph(ABC):
 
         edge._set_endpoints(None, None)
 
-        self._edgelist.remove(edge)
+        del self._edges[edge]
 
     def remove_vertex(self, vertex: BaseVertex) -> None:
         """
@@ -951,7 +954,7 @@ class BaseGraph(ABC):
         for v in self._vertexlist:
             print("  " + str(v))
         print("edges:")
-        for e in self._edgelist:
+        for e in self._edges:
             print("  " + str(e))
 
     @property
@@ -989,7 +992,7 @@ class BaseGraph(ABC):
             >>> g.add_edge(v1, v2)
             >>> print(g.ne)
         """
-        return len(self._edgelist)
+        return len(self._edges)
 
     @abstractmethod
     def _graphcolor(self) -> int | None:
@@ -1327,21 +1330,35 @@ class BaseGraph(ABC):
 
         return min_which, min_dist
 
-    def edges(self) -> set[Edge]:
+    def edges(self) -> list[Edge]:
         """
         Get all edges in graph (base class method)
 
         :return: All edges in the graph
-        :rtype: set of Edge references
+        :rtype: list of Edge references
+
+        The edges are in the order they were added to the graph.  This is a
+        new list, so it can be modified or sorted without affecting the graph,
+        and edges can be removed from the graph while iterating over it.
 
         We can iterate over all edges in the graph by::
 
             for e in g.edges():
                 print(e)
 
-        .. note:: Unlike :meth:`BaseVertex.edges`, which returns a ``list`` in
-            connection order, this returns a ``set`` with no defined
-            iteration order.
+        and select one by index, for example the second edge added is
+        ``g.edges()[1]``.
+
+        .. note:: Like :meth:`BaseVertex.edges` this is a ``list``, but where
+            that lists the edges attached to one vertex, this lists every edge
+            in the graph once.  A self-loop is one edge here, but appears
+            twice in the :meth:`BaseVertex.edges` of an undirected vertex
+            because it has two ends there.
+
+        .. versionchanged:: 1.0
+            Returns a ``list`` in order of addition.  In 0.6.5 this was the
+            graph's own ``set``, with no defined order, although the
+            documentation said ``list``.
 
         .. runblock:: pycon
 
@@ -1352,9 +1369,9 @@ class BaseGraph(ABC):
             >>> g.add_edge(v1, v2)
             >>> print(g.edges())
 
-        :seealso: :meth:`BaseVertex.edges`
+        :seealso: :meth:`BaseVertex.edges` :attr:`ne`
         """
-        return self._edgelist
+        return list(self._edges)
 
     def plot(
         self,
@@ -2224,14 +2241,14 @@ class BaseGraph(ABC):
         .. note::
             - vertices are numbered in their order of creation. A vertex index
               can be resolved to a vertex reference by ``graph[i]``.
-            - edges are numbered in the order they appear in ``graph.edges()``.
+            - edges are numbered in the order they appear in :meth:`edges`, which
+              is the order they were added.
             - Both endpoints of every edge are marked, regardless of
               direction -- for a ``DGraph`` this means a vertex that is only
-              ever a target (never a source) still appears here, unlike
-              :meth:`degree`/:attr:`BaseVertex.degree`, which count outgoing
-              edges only. Iterating each vertex's own
-              :meth:`BaseVertex.edges` instead would silently drop such
-              vertices for a directed graph.
+              ever a target (never a source) still appears here.  Iterating
+              each vertex's own :meth:`BaseVertex.edges`, which are its
+              outgoing edges, would silently drop such vertices for a
+              directed graph.
 
         .. rubric:: For graphs with parallel edges or loops
 
@@ -3541,7 +3558,7 @@ class BaseVertex:
         else:
             e = self._graph._edge_class(self, dest, cost=cost, data=data)
 
-        self._graph._edgelist.add(e)
+        self._graph._edges[e] = None
         self._graph._connectivitychange = True
         self._connectivitychange = True
 
@@ -3661,11 +3678,16 @@ class BaseVertex:
         :return: List of all edges leaving this vertex
         :rtype: list of Edge
 
+        The edges are in the order they were connected.  This is a new list,
+        so it can be modified, and edges can be removed from the graph while
+        iterating over it.
+
         .. note::
 
             - For a directed graph the edges are those leaving this vertex
             - For a non-directed graph the edges are those leaving or entering
-                this vertex
+                this vertex, and a self-loop is listed twice, once for each of
+                its ends
 
         .. runblock:: pycon
 
@@ -3679,7 +3701,7 @@ class BaseVertex:
         :seealso: :meth:`out_edges` :meth:`in_edges` :meth:`adjacent`
             :meth:`incidences` :attr:`degree` :meth:`BaseGraph.edges`
         """
-        return self._edgelist
+        return list(self._edgelist)
 
     def heuristic_distance(self, v2: BaseVertex) -> float:
         """
