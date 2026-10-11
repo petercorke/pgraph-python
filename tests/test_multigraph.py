@@ -1,7 +1,7 @@
 """
 Self-loops and parallel edges.
 
-pgraph does not forbid either, so every quantity derived from the edge set
+pgraph does not forbid either, so every quantity derived from the graph's edges
 (degree, the matrix representations, cycle detection, path planning) has to
 give a defined, consistent answer when they are present.
 

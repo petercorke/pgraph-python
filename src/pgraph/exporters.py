@@ -141,12 +141,11 @@ def _ordered_edges(graph: BaseGraph) -> list[tuple[Edge, BaseVertex, BaseVertex]
     """
     Edges in a reproducible order
 
-    ``graph.edges()`` is a set, so its order changes from run to run and the
-    exported text would not be stable (useless for diffs and golden files).
-    Instead walk the vertices in creation order and each vertex's own
-    outgoing edges, keeping the first sight of every edge.  Identity is by object, not by
-    endpoints, so parallel edges are all kept, and an undirected edge (held by
-    both ends, twice for a self-loop) is listed once.
+    Walk the vertices in creation order and each vertex's own outgoing edges,
+    keeping the first sight of every edge, so that edges are grouped by the
+    vertex they leave.  Identity is by object, not by endpoints, so parallel
+    edges are all kept, and an undirected edge (held by both ends, twice for a
+    self-loop) is listed once.
 
     Each item is ``(edge, start, end)``.
     """

@@ -178,7 +178,7 @@ class TestFindsCorruption(unittest.TestCase):
         # validate() is for finding corruption, so it must survive it
         g, a, b, c, d = build(UGraph)
         g._vertexlist.append("junk")
-        g._edgelist.add(42)
+        g._edges[42] = None
         a._edgelist.append("junk")
         msg = self.problems(g)
         for word in ("junk", "42", "not a vertex", "not an edge"):
@@ -209,14 +209,14 @@ class TestFindsCorruption(unittest.TestCase):
         g = UGraph(edge_class=MyEdge)
         a, b = g.add_vertex(name="a"), g.add_vertex(name="b")
         e = Edge(a, b)
-        g._edgelist.add(e)
+        g._edges[e] = None
         a._edgelist.append(e)
         b._edgelist.append(e)
         self.assertIn("MyEdge", self.problems(g))
 
     def test_vertex_list_entry_for_an_edge_removed_from_the_graph(self):
         g, a, b, c, d = build(UGraph)
-        g._edgelist.discard(a.edges()[0])
+        g._edges.pop(a.edges()[0], None)
         self.assertIn("not in the graph", self.problems(g))
 
     def test_self_loop_held_once_instead_of_twice(self):
