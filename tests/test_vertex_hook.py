@@ -126,7 +126,8 @@ class TestDirectedHook(_Hook, unittest.TestCase):
     def test_self_loop_is_held_once(self):
         e = self.a.connect(self.a)
         self.assertEqual(self.a.edges(), [e])
-        self.assertEqual(self.a.degree, 1)
+        self.assertEqual(self.a.out_degree, 1)  # held once as an outgoing edge
+        self.assertEqual(self.a.degree, 2)  # and once as an incoming one
 
 
 class TestHookIsTheExtensionPoint(unittest.TestCase):

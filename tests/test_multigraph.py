@@ -108,15 +108,21 @@ class _Multigraph:
         """Relationships that must hold for *any* edge multiset."""
         g = self.g
         deg = np.array(g.connectivity())
+        out = np.array([v.out_degree for v in g])
 
         A = g.adjacency()
-        np.testing.assert_array_equal(A.sum(axis=1), deg)
+        # a row of the adjacency matrix counts the edges that leave the vertex
+        np.testing.assert_array_equal(A.sum(axis=1), out)
         if not self.directed:
             np.testing.assert_array_equal(A, A.T)
+            np.testing.assert_array_equal(out, deg)
 
+        # the Laplacian is D_out - A, so each row sums to zero for any graph
         L = g.Laplacian()
-        np.testing.assert_array_equal(L, g.degree() - A)
+        np.testing.assert_array_equal(L, np.diag(out) - A)
         np.testing.assert_allclose(L.sum(axis=1), 0)
+        # and degrees sum to twice the edges (every edge has two ends)
+        self.assertEqual(deg.sum(), 2 * g.ne)
 
         I = g.incidence()
         self.assertEqual(I.shape, (g.n, g.ne))
@@ -284,10 +290,11 @@ class TestUGraphMultigraph(_Multigraph, unittest.TestCase):
 class TestDGraphMultigraph(_Multigraph, unittest.TestCase):
     Graph = DGraph
     directed = True
-    deg_base = [1, 1, 1, 0]  # out-degree only
-    deg_loop = [1, 2, 1, 0]  # a loop contributes 1
-    deg_parallel = [3, 1, 1, 0]
-    deg_both = [3, 2, 1, 0]
+    # degree is in + out, so a path's degrees are those of the undirected path
+    deg_base = [1, 2, 2, 1]
+    deg_loop = [1, 4, 2, 1]  # a loop has two ends: one out, one in
+    deg_parallel = [3, 4, 2, 1]
+    deg_both = [3, 6, 2, 1]
     loop_colsum = 1
     loop_adjacency = 1
 

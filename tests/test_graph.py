@@ -393,7 +393,8 @@ class TestUGraph(unittest.TestCase):
 
         self.assertEqual(g.n, 4)
         self.assertEqual(g.ne, 2)
-        self.assertEqual(g.average_degree(), 0.5)
+        # degrees sum to twice the edges for either kind of graph: 4 / 4
+        self.assertEqual(g.average_degree(), 1.0)
 
     def test_contains(self):
 
@@ -894,17 +895,20 @@ class TestDGraph(unittest.TestCase):
         nt.assert_array_equal(A, expected_A)
         self.assertFalse(np.array_equal(A, A.T))  # not symmetric, directed
 
-        # out-degree only: v0 has 2 outgoing, v1 has 1, v2 has 0 (even
-        # though v2 has two *incoming* edges)
+        # degree is in + out: v0 has 2 out and 0 in, v1 has 1 and 1, v2 has
+        # 0 and 2 -- two edge ends each
         D = g.degree()
-        nt.assert_array_equal(D, np.diag([2, 1, 0]))
+        nt.assert_array_equal(D, np.diag([2, 2, 2]))
 
+        # the directed Laplacian uses the OUT-degree, D_out - A, whose rows
+        # sum to zero; it is not degree() - A for a directed graph
         L = g.Laplacian()
         expected_L = np.diag([2, 1, 0]) - expected_A
         nt.assert_array_equal(L, expected_L)
+        nt.assert_array_equal(L.sum(axis=1), np.zeros(3))
 
-        # incidence marks both endpoints regardless of direction, so unlike
-        # degree() every vertex here touches exactly 2 edges
+        # incidence marks both endpoints regardless of direction, so it
+        # agrees with the total degree: every vertex touches exactly 2 edges
         I = g.incidence()
         self.assertEqual(I.shape, (g.n, g.ne))
         nt.assert_array_equal(I.sum(axis=0), np.full(g.ne, 2))
