@@ -108,7 +108,7 @@ edgelist of _each_ vertex.</p></li>
 <li><p>Inheritance is an alternative to providing arbitrary user data.</p></li>
 <li><p>Pass the subclass as <code class="docutils literal notranslate"><span class="pre">edge_class</span></code> when constructing the graph and
 the graph will create instances of it itself, see
-<a class="reference internal" href="planning.html#pgraph.PGraph._BaseGraph" title="pgraph.PGraph._BaseGraph"><code class="xref py py-class docutils literal notranslate"><span class="pre">_BaseGraph</span></code></a>.</p></li>
+<a class="reference internal" href="PGraph.html#pgraph.PGraph.BaseGraph" title="pgraph.PGraph.BaseGraph"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseGraph</span></code></a>.</p></li>
 </ul>
 </div>
 <p>An Edge points to a pair of vertices.  At <code class="docutils literal notranslate"><span class="pre">connect</span></code> time the vertices
@@ -170,7 +170,7 @@ also used standalone, independent of any graph.</p>
 <li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.15)"><strong>ValueError</strong></a> – either vertex has not been added to a graph, or
 the vertices belong to different graphs</p></li>
 <li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#TypeError" title="(in Python v3.15)"><strong>TypeError</strong></a> – this edge is not an instance of the graph’s
-<code class="xref py py-attr docutils literal notranslate"><span class="pre">_BaseGraph.edge_class</span></code></p></li>
+<a class="reference internal" href="PGraph.html#pgraph.PGraph.BaseGraph.edge_class" title="pgraph.PGraph.BaseGraph.edge_class"><code class="xref py py-attr docutils literal notranslate"><span class="pre">BaseGraph.edge_class</span></code></a></p></li>
 </ul>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -279,14 +279,14 @@ vertex that is not <code class="docutils literal notranslate"><span class="pre">
 <p><code class="docutils literal notranslate"><span class="pre">e.remove()</span></code> removes <code class="docutils literal notranslate"><span class="pre">e</span></code> from its graph’s own edge collection and
 from its connected vertices’ edge lists (both, for an undirected
 edge; the source only, for a directed one – see
-<code class="xref py py-meth docutils literal notranslate"><span class="pre">_BaseGraph.remove_edge()</span></code>), and clears <code class="docutils literal notranslate"><span class="pre">e.v1</span></code>/<code class="docutils literal notranslate"><span class="pre">e.v2</span></code> to
+<a class="reference internal" href="PGraph.html#pgraph.PGraph.BaseGraph.remove_edge" title="pgraph.PGraph.BaseGraph.remove_edge"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseGraph.remove_edge()</span></code></a>), and clears <code class="docutils literal notranslate"><span class="pre">e.v1</span></code>/<code class="docutils literal notranslate"><span class="pre">e.v2</span></code> to
 <code class="docutils literal notranslate"><span class="pre">None</span></code>. The <code class="docutils literal notranslate"><span class="pre">Edge</span></code> object itself is not deleted – it becomes an
 orphaned, disconnected shell, and calling <code class="docutils literal notranslate"><span class="pre">remove()</span></code> on it again
 raises <code class="docutils literal notranslate"><span class="pre">ValueError</span></code>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This is a thin convenience wrapper around
-<code class="xref py py-meth docutils literal notranslate"><span class="pre">_BaseGraph.remove_edge()</span></code>.</p>
+<a class="reference internal" href="PGraph.html#pgraph.PGraph.BaseGraph.remove_edge" title="pgraph.PGraph.BaseGraph.remove_edge"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseGraph.remove_edge()</span></code></a>.</p>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -305,7 +305,7 @@ raises <code class="docutils literal notranslate"><span class="pre">ValueError</
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Seealso<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">_BaseGraph.remove_edge()</span></code> <a class="reference internal" href="PGraph.html#pgraph.PGraph.BaseVertex.remove" title="pgraph.PGraph.BaseVertex.remove"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseVertex.remove()</span></code></a></p>
+<dd class="field-odd"><p><a class="reference internal" href="PGraph.html#pgraph.PGraph.BaseGraph.remove_edge" title="pgraph.PGraph.BaseGraph.remove_edge"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseGraph.remove_edge()</span></code></a> <a class="reference internal" href="PGraph.html#pgraph.PGraph.BaseVertex.remove" title="pgraph.PGraph.BaseVertex.remove"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseVertex.remove()</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>

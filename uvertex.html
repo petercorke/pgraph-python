@@ -58,13 +58,21 @@
 <li class="toctree-l4"><a class="reference internal" href="#pgraph.PGraph.UVertex.edges"><code class="docutils literal notranslate"><span class="pre">UVertex.edges()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#pgraph.PGraph.UVertex.edgeto"><code class="docutils literal notranslate"><span class="pre">UVertex.edgeto()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#pgraph.PGraph.UVertex.heuristic_distance"><code class="docutils literal notranslate"><span class="pre">UVertex.heuristic_distance()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pgraph.PGraph.UVertex.in_degree"><code class="docutils literal notranslate"><span class="pre">UVertex.in_degree</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pgraph.PGraph.UVertex.in_edges"><code class="docutils literal notranslate"><span class="pre">UVertex.in_edges()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#pgraph.PGraph.UVertex.incidences"><code class="docutils literal notranslate"><span class="pre">UVertex.incidences()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#pgraph.PGraph.UVertex.isadjacent"><code class="docutils literal notranslate"><span class="pre">UVertex.isadjacent()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#pgraph.PGraph.UVertex.isneighbor"><code class="docutils literal notranslate"><span class="pre">UVertex.isneighbor()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#pgraph.PGraph.UVertex.isneighbour"><code class="docutils literal notranslate"><span class="pre">UVertex.isneighbour()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pgraph.PGraph.UVertex.label"><code class="docutils literal notranslate"><span class="pre">UVertex.label</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pgraph.PGraph.UVertex.name"><code class="docutils literal notranslate"><span class="pre">UVertex.name</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#pgraph.PGraph.UVertex.neighbors"><code class="docutils literal notranslate"><span class="pre">UVertex.neighbors()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#pgraph.PGraph.UVertex.neighbours"><code class="docutils literal notranslate"><span class="pre">UVertex.neighbours()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pgraph.PGraph.UVertex.out_degree"><code class="docutils literal notranslate"><span class="pre">UVertex.out_degree</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pgraph.PGraph.UVertex.out_edges"><code class="docutils literal notranslate"><span class="pre">UVertex.out_edges()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pgraph.PGraph.UVertex.predecessors"><code class="docutils literal notranslate"><span class="pre">UVertex.predecessors()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#pgraph.PGraph.UVertex.remove"><code class="docutils literal notranslate"><span class="pre">UVertex.remove()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pgraph.PGraph.UVertex.successors"><code class="docutils literal notranslate"><span class="pre">UVertex.successors()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#pgraph.PGraph.UVertex.x"><code class="docutils literal notranslate"><span class="pre">UVertex.x</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#pgraph.PGraph.UVertex.y"><code class="docutils literal notranslate"><span class="pre">UVertex.y</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#pgraph.PGraph.UVertex.z"><code class="docutils literal notranslate"><span class="pre">UVertex.z</span></code></a></li>
@@ -148,7 +156,7 @@ whose endpoints are the two vertices in either order.</p>
 </dd>
 </dl>
 <p>Creates a vertex but does not add it to a graph – use
-<code class="xref py py-meth docutils literal notranslate"><span class="pre">_BaseGraph.add_vertex()</span></code> for that.</p>
+<a class="reference internal" href="PGraph.html#pgraph.PGraph.BaseGraph.add_vertex" title="pgraph.PGraph.BaseGraph.add_vertex"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseGraph.add_vertex()</span></code></a> for that.</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pgraph</span><span class="w"> </span><span class="kn">import</span> <a class="sphinx-codeautolink-a" href="uvertex.html#pgraph.PGraph.UVertex" title="pgraph.PGraph.UVertex"><span class="n">UVertex</span></a>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="uvertex.html#pgraph.PGraph.UVertex" title="pgraph.PGraph.UVertex"><span class="n">v1</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="uvertex.html#pgraph.PGraph.UVertex" title="pgraph.PGraph.UVertex"><span class="n">UVertex</span></a><span class="p">(</span><span class="n">coord</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s1">'v1'</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/builtins/functions.html#print"><span class="nb">print</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="uvertex.html#pgraph.PGraph.UVertex" title="pgraph.PGraph.UVertex"><span class="n">v1</span></a><span class="p">)</span>
@@ -157,7 +165,7 @@ whose endpoints are the two vertices in either order.</p>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Seealso<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">_BaseGraph.add_vertex()</span></code></p>
+<dd class="field-odd"><p><a class="reference internal" href="PGraph.html#pgraph.PGraph.BaseGraph.add_vertex" title="pgraph.PGraph.BaseGraph.add_vertex"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseGraph.add_vertex()</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -175,7 +183,7 @@ whose endpoints are the two vertices in either order.</p>
 </dl>
 <p><code class="docutils literal notranslate"><span class="pre">v.adjacent()</span></code> is a list of the vertices that this vertex is joined
 to by an edge.  “Adjacent” is the graph-theory term, and it is the
-relation that <a class="reference internal" href="matrices.html#pgraph.PGraph._BaseGraph.adjacency" title="pgraph.PGraph._BaseGraph.adjacency"><code class="xref py py-meth docutils literal notranslate"><span class="pre">_BaseGraph.adjacency()</span></code></a> tabulates: row <code class="docutils literal notranslate"><span class="pre">i</span></code> of the
+relation that <a class="reference internal" href="PGraph.html#pgraph.PGraph.BaseGraph.adjacency" title="pgraph.PGraph.BaseGraph.adjacency"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseGraph.adjacency()</span></code></a> tabulates: row <code class="docutils literal notranslate"><span class="pre">i</span></code> of the
 adjacency matrix is non-zero exactly at the columns of the vertices
 returned by <code class="docutils literal notranslate"><span class="pre">g[i].adjacent()</span></code>.</p>
 <div class="admonition note">
@@ -205,8 +213,9 @@ under the British and American spellings, and are not deprecated.</p></li>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Seealso<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#pgraph.PGraph.UVertex.isadjacent" title="pgraph.PGraph.UVertex.isadjacent"><code class="xref py py-meth docutils literal notranslate"><span class="pre">isadjacent()</span></code></a> <a class="reference internal" href="#pgraph.PGraph.UVertex.incidences" title="pgraph.PGraph.UVertex.incidences"><code class="xref py py-meth docutils literal notranslate"><span class="pre">incidences()</span></code></a> <a class="reference internal" href="#pgraph.PGraph.UVertex.edges" title="pgraph.PGraph.UVertex.edges"><code class="xref py py-meth docutils literal notranslate"><span class="pre">edges()</span></code></a>
-<a class="reference internal" href="matrices.html#pgraph.PGraph._BaseGraph.adjacency" title="pgraph.PGraph._BaseGraph.adjacency"><code class="xref py py-meth docutils literal notranslate"><span class="pre">_BaseGraph.adjacency()</span></code></a></p>
+<dd class="field-odd"><p><a class="reference internal" href="#pgraph.PGraph.UVertex.isadjacent" title="pgraph.PGraph.UVertex.isadjacent"><code class="xref py py-meth docutils literal notranslate"><span class="pre">isadjacent()</span></code></a> <a class="reference internal" href="#pgraph.PGraph.UVertex.successors" title="pgraph.PGraph.UVertex.successors"><code class="xref py py-meth docutils literal notranslate"><span class="pre">successors()</span></code></a> <a class="reference internal" href="#pgraph.PGraph.UVertex.predecessors" title="pgraph.PGraph.UVertex.predecessors"><code class="xref py py-meth docutils literal notranslate"><span class="pre">predecessors()</span></code></a>
+<a class="reference internal" href="#pgraph.PGraph.UVertex.incidences" title="pgraph.PGraph.UVertex.incidences"><code class="xref py py-meth docutils literal notranslate"><span class="pre">incidences()</span></code></a> <a class="reference internal" href="#pgraph.PGraph.UVertex.out_edges" title="pgraph.PGraph.UVertex.out_edges"><code class="xref py py-meth docutils literal notranslate"><span class="pre">out_edges()</span></code></a> <a class="reference internal" href="#pgraph.PGraph.UVertex.edges" title="pgraph.PGraph.UVertex.edges"><code class="xref py py-meth docutils literal notranslate"><span class="pre">edges()</span></code></a>
+<a class="reference internal" href="PGraph.html#pgraph.PGraph.BaseGraph.adjacency" title="pgraph.PGraph.BaseGraph.adjacency"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseGraph.adjacency()</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -237,7 +246,7 @@ vertices.</p>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Seealso<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">_BaseGraph.closest()</span></code></p>
+<dd class="field-odd"><p><a class="reference internal" href="PGraph.html#pgraph.PGraph.BaseGraph.closest" title="pgraph.PGraph.BaseGraph.closest"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseGraph.closest()</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -250,7 +259,7 @@ vertices.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>dest</strong> (<code class="docutils literal notranslate"><span class="pre">BaseVertex</span></code> subclass) – The vertex to connect to</p></li>
 <li><p><strong>edge</strong> (<code class="docutils literal notranslate"><span class="pre">Edge</span></code> subclass, optional) – Use this as the edge object, otherwise a new object of the
-graph’s <code class="xref py py-attr docutils literal notranslate"><span class="pre">_BaseGraph.edge_class</span></code> is created from the
+graph’s <a class="reference internal" href="PGraph.html#pgraph.PGraph.BaseGraph.edge_class" title="pgraph.PGraph.BaseGraph.edge_class"><code class="xref py py-attr docutils literal notranslate"><span class="pre">BaseGraph.edge_class</span></code></a> is created from the
 vertices being connected, and the <code class="docutils literal notranslate"><span class="pre">cost</span></code> and <code class="docutils literal notranslate"><span class="pre">data</span></code>
 parameters, defaults to None</p></li>
 <li><p><strong>cost</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a><em>, </em><em>optional</em>) – the cost to traverse this edge, defaults to None</p></li>
@@ -264,7 +273,7 @@ defaults to None</p></li>
 vertices belong to different graphs, or <code class="docutils literal notranslate"><span class="pre">edge</span></code> already connects
 other vertices</p></li>
 <li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#TypeError" title="(in Python v3.15)"><strong>TypeError</strong></a> – <code class="docutils literal notranslate"><span class="pre">edge</span></code> is not an instance of the graph’s
-<code class="xref py py-attr docutils literal notranslate"><span class="pre">_BaseGraph.edge_class</span></code></p></li>
+<a class="reference internal" href="PGraph.html#pgraph.PGraph.BaseGraph.edge_class" title="pgraph.PGraph.BaseGraph.edge_class"><code class="xref py py-attr docutils literal notranslate"><span class="pre">BaseGraph.edge_class</span></code></a></p></li>
 </ul>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -352,31 +361,38 @@ vertex of the same class as <code class="docutils literal notranslate"><span cla
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)">int</a></p>
 </dd>
 </dl>
-<p>Returns the number of edges connected to the vertex.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>For a <code class="docutils literal notranslate"><span class="pre">DGraph</span></code> only outgoing edges are considered.</p>
+<p>The number of edge ends at this vertex: the edges leaving it plus the
+edges entering it, so a self-loop counts twice.  The degrees of all the
+vertices of a graph sum to twice its number of edges.</p>
+<p>For an undirected graph this is the number of incident edges.  For a
+directed graph it is <a class="reference internal" href="#pgraph.PGraph.UVertex.in_degree" title="pgraph.PGraph.UVertex.in_degree"><code class="xref py py-attr docutils literal notranslate"><span class="pre">in_degree</span></code></a> + <a class="reference internal" href="#pgraph.PGraph.UVertex.out_degree" title="pgraph.PGraph.UVertex.out_degree"><code class="xref py py-attr docutils literal notranslate"><span class="pre">out_degree</span></code></a>.</p>
+<div class="versionchanged">
+<p><span class="versionmodified changed">Changed in version 1.0: </span>For a <code class="docutils literal notranslate"><span class="pre">DGraph</span></code> this used to count only the edges <em>leaving</em> the
+vertex.  It is now the graph-theory degree, in plus out.  Use
+<a class="reference internal" href="#pgraph.PGraph.UVertex.out_degree" title="pgraph.PGraph.UVertex.out_degree"><code class="xref py py-attr docutils literal notranslate"><span class="pre">out_degree</span></code></a> for the previous value.</p>
 </div>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pgraph</span><span class="w"> </span><span class="kn">import</span> <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">UGraph</span></a>
-<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">g</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">UGraph</span></a><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><span class="n">v1</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph.add_vertex" title="pgraph.PGraph.UGraph.add_vertex"><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span></a><span class="p">(</span><span class="n">coord</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s1">'v1'</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><span class="n">v2</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph.add_vertex" title="pgraph.PGraph.UGraph.add_vertex"><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span></a><span class="p">(</span><span class="n">coord</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s1">'v2'</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><span class="n">v3</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph.add_vertex" title="pgraph.PGraph.UGraph.add_vertex"><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span></a><span class="p">(</span><span class="n">coord</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s1">'v3'</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph.add_edge" title="pgraph.PGraph.UGraph.add_edge"><span class="n">g</span><span class="o">.</span><span class="n">add_edge</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><span class="n">v1</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><span class="n">v2</span></a><span class="p">)</span>
-<span class="go">Edge{[v1] -- [v2], cost=1.414}</span>
-<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph.add_edge" title="pgraph.PGraph.UGraph.add_edge"><span class="n">g</span><span class="o">.</span><span class="n">add_edge</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><span class="n">v1</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><span class="n">v3</span></a><span class="p">)</span>
-<span class="go">Edge{[v1] -- [v3], cost=2.828}</span>
-<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/builtins/functions.html#print"><span class="nb">print</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="PGraph.html#pgraph.PGraph.BaseVertex.degree" title="pgraph.PGraph.BaseVertex.degree"><span class="n">v1</span><span class="o">.</span><span class="n">degree</span></a><span class="p">)</span>
-<span class="go">2</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pgraph</span><span class="w"> </span><span class="kn">import</span> <a class="sphinx-codeautolink-a" href="dgraph.html#pgraph.PGraph.DGraph" title="pgraph.PGraph.DGraph"><span class="n">DGraph</span></a>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="dgraph.html#pgraph.PGraph.DGraph" title="pgraph.PGraph.DGraph"><span class="n">g</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="dgraph.html#pgraph.PGraph.DGraph" title="pgraph.PGraph.DGraph"><span class="n">DGraph</span></a><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><span class="n">v1</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="dgraph.html#pgraph.PGraph.DGraph.add_vertex" title="pgraph.PGraph.DGraph.add_vertex"><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span></a><span class="p">(</span><span class="n">coord</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s1">'v1'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><span class="n">v2</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="dgraph.html#pgraph.PGraph.DGraph.add_vertex" title="pgraph.PGraph.DGraph.add_vertex"><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span></a><span class="p">(</span><span class="n">coord</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s1">'v2'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><span class="n">v3</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="dgraph.html#pgraph.PGraph.DGraph.add_vertex" title="pgraph.PGraph.DGraph.add_vertex"><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span></a><span class="p">(</span><span class="n">coord</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s1">'v3'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="dgraph.html#pgraph.PGraph.DGraph.add_edge" title="pgraph.PGraph.DGraph.add_edge"><span class="n">g</span><span class="o">.</span><span class="n">add_edge</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><span class="n">v1</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><span class="n">v2</span></a><span class="p">)</span>
+<span class="go">Edge{[v1] -&gt; [v2], cost=1.414}</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="dgraph.html#pgraph.PGraph.DGraph.add_edge" title="pgraph.PGraph.DGraph.add_edge"><span class="n">g</span><span class="o">.</span><span class="n">add_edge</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><span class="n">v1</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><span class="n">v3</span></a><span class="p">)</span>
+<span class="go">Edge{[v1] -&gt; [v3], cost=2.828}</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="dgraph.html#pgraph.PGraph.DGraph.add_edge" title="pgraph.PGraph.DGraph.add_edge"><span class="n">g</span><span class="o">.</span><span class="n">add_edge</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><span class="n">v3</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><span class="n">v1</span></a><span class="p">)</span>
+<span class="go">Edge{[v3] -&gt; [v1], cost=2.828}</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/builtins/functions.html#print"><span class="nb">print</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="PGraph.html#pgraph.PGraph.BaseVertex.degree" title="pgraph.PGraph.BaseVertex.degree"><span class="n">v1</span><span class="o">.</span><span class="n">degree</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="PGraph.html#pgraph.PGraph.BaseVertex.in_degree" title="pgraph.PGraph.BaseVertex.in_degree"><span class="n">v1</span><span class="o">.</span><span class="n">in_degree</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="PGraph.html#pgraph.PGraph.BaseVertex.out_degree" title="pgraph.PGraph.BaseVertex.out_degree"><span class="n">v1</span><span class="o">.</span><span class="n">out_degree</span></a><span class="p">)</span>
+<span class="go">3 1 2</span>
 </pre></div>
 </div>
 <p class="rubric">For graphs with parallel edges or loops</p>
-<p>Every edge is counted, so <code class="docutils literal notranslate"><span class="pre">k</span></code> parallel edges to the same neighbour
-add <code class="docutils literal notranslate"><span class="pre">k</span></code>. A self-loop adds 2 for a <code class="docutils literal notranslate"><span class="pre">UGraph</span></code> vertex, since it has two
-ends, and 1 for a <code class="docutils literal notranslate"><span class="pre">DGraph</span></code> vertex.</p>
+<p>Every edge is counted, so <code class="docutils literal notranslate"><span class="pre">k</span></code> parallel edges to the same vertex add
+<code class="docutils literal notranslate"><span class="pre">k</span></code>.  A self-loop adds 2, for both kinds of graph: it has two ends.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Seealso<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#pgraph.PGraph.UVertex.edges" title="pgraph.PGraph.UVertex.edges"><code class="xref py py-meth docutils literal notranslate"><span class="pre">edges()</span></code></a></p>
+<dd class="field-odd"><p><a class="reference internal" href="#pgraph.PGraph.UVertex.in_degree" title="pgraph.PGraph.UVertex.in_degree"><code class="xref py py-attr docutils literal notranslate"><span class="pre">in_degree</span></code></a> <a class="reference internal" href="#pgraph.PGraph.UVertex.out_degree" title="pgraph.PGraph.UVertex.out_degree"><code class="xref py py-attr docutils literal notranslate"><span class="pre">out_degree</span></code></a> <a class="reference internal" href="#pgraph.PGraph.UVertex.edges" title="pgraph.PGraph.UVertex.edges"><code class="xref py py-meth docutils literal notranslate"><span class="pre">edges()</span></code></a>
+<a class="reference internal" href="PGraph.html#pgraph.PGraph.BaseGraph.degree" title="pgraph.PGraph.BaseGraph.degree"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseGraph.degree()</span></code></a> <a class="reference internal" href="PGraph.html#pgraph.PGraph.BaseGraph.connectivity" title="pgraph.PGraph.BaseGraph.connectivity"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseGraph.connectivity()</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -386,7 +402,7 @@ ends, and 1 for a <code class="docutils literal notranslate"><span class="pre">D
 <dd><p>Distance from vertex to point</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>coord</strong> (<em>ndarray</em><em>(</em><a class="reference internal" href="dgraph.html#pgraph.PGraph.DGraph.n" title="pgraph.PGraph.DGraph.n"><em>n</em></a><em>) or </em><a class="reference internal" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><em>BaseVertex</em></a>) – coordinates of the point</p>
+<dd class="field-odd"><p><strong>coord</strong> (<em>ndarray</em><em>(</em><a class="reference internal" href="PGraph.html#pgraph.PGraph.BaseGraph.n" title="pgraph.PGraph.BaseGraph.n"><em>n</em></a><em>) or </em><a class="reference internal" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><em>BaseVertex</em></a>) – coordinates of the point</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>distance</p>
@@ -445,6 +461,12 @@ graph, not the vertex.</p>
 <span class="go">[Edge{[v1] -- [v2], cost=1.414}]</span>
 </pre></div>
 </div>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#pgraph.PGraph.UVertex.out_edges" title="pgraph.PGraph.UVertex.out_edges"><code class="xref py py-meth docutils literal notranslate"><span class="pre">out_edges()</span></code></a> <a class="reference internal" href="#pgraph.PGraph.UVertex.in_edges" title="pgraph.PGraph.UVertex.in_edges"><code class="xref py py-meth docutils literal notranslate"><span class="pre">in_edges()</span></code></a> <a class="reference internal" href="#pgraph.PGraph.UVertex.adjacent" title="pgraph.PGraph.UVertex.adjacent"><code class="xref py py-meth docutils literal notranslate"><span class="pre">adjacent()</span></code></a>
+<a class="reference internal" href="#pgraph.PGraph.UVertex.incidences" title="pgraph.PGraph.UVertex.incidences"><code class="xref py py-meth docutils literal notranslate"><span class="pre">incidences()</span></code></a> <a class="reference internal" href="#pgraph.PGraph.UVertex.degree" title="pgraph.PGraph.UVertex.degree"><code class="xref py py-attr docutils literal notranslate"><span class="pre">degree</span></code></a> <a class="reference internal" href="PGraph.html#pgraph.PGraph.BaseGraph.edges" title="pgraph.PGraph.BaseGraph.edges"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseGraph.edges()</span></code></a></p>
+</dd>
+</dl>
 </dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pgraph.PGraph.UVertex.edgeto">
@@ -499,7 +521,7 @@ graph, not the vertex.</p>
 </dd>
 </dl>
 <p>Distance is computed according to the graph’s heuristic, see
-<code class="xref py py-meth docutils literal notranslate"><span class="pre">_BaseGraph.heuristic()</span></code>. The vertex must belong to a graph,
+<a class="reference internal" href="PGraph.html#pgraph.PGraph.BaseGraph.heuristic" title="pgraph.PGraph.BaseGraph.heuristic"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseGraph.heuristic()</span></code></a>. The vertex must belong to a graph,
 since the heuristic is a property of the graph, not the vertex.</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pgraph</span><span class="w"> </span><span class="kn">import</span> <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">UGraph</span></a>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">g</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">UGraph</span></a><span class="p">()</span>
@@ -511,36 +533,107 @@ since the heuristic is a property of the graph, not the vertex.</p>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Seealso<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#pgraph.PGraph.UVertex.distance" title="pgraph.PGraph.UVertex.distance"><code class="xref py py-meth docutils literal notranslate"><span class="pre">distance()</span></code></a> <code class="xref py py-meth docutils literal notranslate"><span class="pre">_BaseGraph.heuristic()</span></code></p>
+<dd class="field-odd"><p><a class="reference internal" href="#pgraph.PGraph.UVertex.distance" title="pgraph.PGraph.UVertex.distance"><code class="xref py py-meth docutils literal notranslate"><span class="pre">distance()</span></code></a> <a class="reference internal" href="PGraph.html#pgraph.PGraph.BaseGraph.heuristic" title="pgraph.PGraph.BaseGraph.heuristic"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseGraph.heuristic()</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="pgraph.PGraph.UVertex.in_degree">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">in_degree</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><span class="pre">int</span></a></span><a class="headerlink" href="#pgraph.PGraph.UVertex.in_degree" title="Link to this definition"></a></dt>
+<dd><p>Number of edges entering the vertex</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>in-degree of the vertex</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)">int</a></p>
+</dd>
+</dl>
+<p>For an undirected graph every incident edge both leaves and enters, so
+this equals <a class="reference internal" href="#pgraph.PGraph.UVertex.degree" title="pgraph.PGraph.UVertex.degree"><code class="xref py py-attr docutils literal notranslate"><span class="pre">degree</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#pgraph.PGraph.UVertex.out_degree" title="pgraph.PGraph.UVertex.out_degree"><code class="xref py py-attr docutils literal notranslate"><span class="pre">out_degree</span></code></a> <a class="reference internal" href="#pgraph.PGraph.UVertex.degree" title="pgraph.PGraph.UVertex.degree"><code class="xref py py-attr docutils literal notranslate"><span class="pre">degree</span></code></a> <a class="reference internal" href="#pgraph.PGraph.UVertex.in_edges" title="pgraph.PGraph.UVertex.in_edges"><code class="xref py py-meth docutils literal notranslate"><span class="pre">in_edges()</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pgraph.PGraph.UVertex.in_edges">
+<span class="sig-name descname"><span class="pre">in_edges</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pgraph.PGraph.UVertex.in_edges" title="Link to this definition"></a></dt>
+<dd><p>The edges entering the vertex</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>the incoming edges, in the order they were connected</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>list of <code class="docutils literal notranslate"><span class="pre">Edge</span></code></p>
+</dd>
+</dl>
+<p>This is a new list.  For an undirected graph every incident edge is
+incoming, so it equals <a class="reference internal" href="#pgraph.PGraph.UVertex.edges" title="pgraph.PGraph.UVertex.edges"><code class="xref py py-meth docutils literal notranslate"><span class="pre">edges()</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#pgraph.PGraph.UVertex.out_edges" title="pgraph.PGraph.UVertex.out_edges"><code class="xref py py-meth docutils literal notranslate"><span class="pre">out_edges()</span></code></a> <a class="reference internal" href="#pgraph.PGraph.UVertex.edges" title="pgraph.PGraph.UVertex.edges"><code class="xref py py-meth docutils literal notranslate"><span class="pre">edges()</span></code></a> <a class="reference internal" href="#pgraph.PGraph.UVertex.predecessors" title="pgraph.PGraph.UVertex.predecessors"><code class="xref py py-meth docutils literal notranslate"><span class="pre">predecessors()</span></code></a> <a class="reference internal" href="#pgraph.PGraph.UVertex.in_degree" title="pgraph.PGraph.UVertex.in_degree"><code class="xref py py-attr docutils literal notranslate"><span class="pre">in_degree</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pgraph.PGraph.UVertex.incidences">
 <span class="sig-name descname"><span class="pre">incidences</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pgraph.PGraph.UVertex.incidences" title="Link to this definition"></a></dt>
-<dd><p>Neighbours and edges of a vertex</p>
-<p><code class="docutils literal notranslate"><span class="pre">v.incidences()</span></code> is a generator that returns a list of incidences,
-tuples of (vertex, edge) for all vertices adjacent to the vertex <code class="docutils literal notranslate"><span class="pre">v</span></code>.</p>
+<dd><p>Adjacent vertices paired with the edges that lead to them</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>a <code class="docutils literal notranslate"><span class="pre">(vertex,</span> <span class="pre">edge)</span></code> pair for each edge leaving this vertex,
+in the order the edges were connected</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.15)">list</a> of (BaseVertex subclass, <a class="reference internal" href="edge.html#pgraph.PGraph.Edge" title="pgraph.PGraph.Edge">Edge</a>)</p>
+</dd>
+</dl>
+<p><code class="docutils literal notranslate"><span class="pre">v.incidences()</span></code> is <a class="reference internal" href="#pgraph.PGraph.UVertex.adjacent" title="pgraph.PGraph.UVertex.adjacent"><code class="xref py py-meth docutils literal notranslate"><span class="pre">adjacent()</span></code></a> and <a class="reference internal" href="#pgraph.PGraph.UVertex.out_edges" title="pgraph.PGraph.UVertex.out_edges"><code class="xref py py-meth docutils literal notranslate"><span class="pre">out_edges()</span></code></a> taken
+together: the first element of each pair is the vertex at the far end
+of the edge, the second is the edge itself, so its <code class="xref py py-attr docutils literal notranslate"><span class="pre">Edge.cost</span></code>
+and <code class="xref py py-attr docutils literal notranslate"><span class="pre">Edge.data</span></code> are at hand.  It is equivalent to:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/builtins/stdtypes.html#list"><span class="nb">list</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/builtins/functions.html#zip"><span class="nb">zip</span></a><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">adjacent</span><span class="p">(),</span> <span class="n">v</span><span class="o">.</span><span class="n">out_edges</span><span class="p">()))</span>
+</pre></div>
+</div>
+<p>but is built in a single pass, which is what the path-planning methods
+want when they expand a vertex.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>For a directed graph the edges are those leaving this vertex</p>
+<ul class="simple">
+<li><p>In graph-theory terms <a class="reference internal" href="#pgraph.PGraph.UVertex.adjacent" title="pgraph.PGraph.UVertex.adjacent"><code class="xref py py-meth docutils literal notranslate"><span class="pre">adjacent()</span></code></a> is a vertex’s <em>adjacency
+list</em>, <a class="reference internal" href="#pgraph.PGraph.UVertex.out_edges" title="pgraph.PGraph.UVertex.out_edges"><code class="xref py py-meth docutils literal notranslate"><span class="pre">out_edges()</span></code></a> its <em>incidence list</em>, and this is the
+two joined.</p></li>
+<li><p>For a directed graph the pairs are for the edges <em>leaving</em> this
+vertex.  The ones entering it are <a class="reference internal" href="#pgraph.PGraph.UVertex.in_edges" title="pgraph.PGraph.UVertex.in_edges"><code class="xref py py-meth docutils literal notranslate"><span class="pre">in_edges()</span></code></a>, and the
+vertices at their tails are <a class="reference internal" href="#pgraph.PGraph.UVertex.predecessors" title="pgraph.PGraph.UVertex.predecessors"><code class="xref py py-meth docutils literal notranslate"><span class="pre">predecessors()</span></code></a>.</p></li>
+<li><p>There is one pair per edge, so parallel edges to the same vertex
+give repeated vertices with different edges, and an undirected
+self-loop gives the pair twice, once for each end.</p></li>
+</ul>
 </div>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pgraph</span><span class="w"> </span><span class="kn">import</span> <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">UGraph</span></a>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">g</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">UGraph</span></a><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><span class="n">v1</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph.add_vertex" title="pgraph.PGraph.UGraph.add_vertex"><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span></a><span class="p">(</span><span class="n">coord</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s1">'v1'</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><span class="n">v2</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph.add_vertex" title="pgraph.PGraph.UGraph.add_vertex"><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span></a><span class="p">(</span><span class="n">coord</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s1">'v2'</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph.add_edge" title="pgraph.PGraph.UGraph.add_edge"><span class="n">g</span><span class="o">.</span><span class="n">add_edge</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><span class="n">v1</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><span class="n">v2</span></a><span class="p">)</span>
-<span class="go">Edge{[v1] -- [v2], cost=1.414}</span>
-<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/builtins/functions.html#print"><span class="nb">print</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="PGraph.html#pgraph.PGraph.BaseVertex.incidences" title="pgraph.PGraph.BaseVertex.incidences"><span class="n">v1</span><span class="o">.</span><span class="n">incidences</span></a><span class="p">())</span>
-<span class="go">[(UVertex[v2, coord=(1, 1)], Edge{[v1] -- [v2], cost=1.414})]</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><span class="n">v3</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph.add_vertex" title="pgraph.PGraph.UGraph.add_vertex"><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span></a><span class="p">(</span><span class="n">coord</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s1">'v3'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph.add_edge" title="pgraph.PGraph.UGraph.add_edge"><span class="n">g</span><span class="o">.</span><span class="n">add_edge</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><span class="n">v1</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><span class="n">v2</span></a><span class="p">,</span> <span class="n">cost</span><span class="o">=</span><span class="mf">1.5</span><span class="p">)</span>
+<span class="go">Edge{[v1] -- [v2], cost=1.5}</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="ugraph.html#pgraph.PGraph.UGraph.add_edge" title="pgraph.PGraph.UGraph.add_edge"><span class="n">g</span><span class="o">.</span><span class="n">add_edge</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><span class="n">v1</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><span class="n">v3</span></a><span class="p">,</span> <span class="n">cost</span><span class="o">=</span><span class="mf">2.5</span><span class="p">)</span>
+<span class="go">Edge{[v1] -- [v3], cost=2.5}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">vertex</span><span class="p">,</span> <span class="n">edge</span> <span class="ow">in</span> <a class="sphinx-codeautolink-a" href="PGraph.html#pgraph.PGraph.BaseVertex.incidences" title="pgraph.PGraph.BaseVertex.incidences"><span class="n">v1</span><span class="o">.</span><span class="n">incidences</span></a><span class="p">():</span>
+<span class="gp">... </span>    <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/builtins/functions.html#print"><span class="nb">print</span></a><span class="p">(</span><span class="n">vertex</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">edge</span><span class="o">.</span><span class="n">cost</span><span class="p">)</span>
+<span class="go">v2 1.5</span>
+<span class="go">v3 2.5</span>
 </pre></div>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Seealso<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#pgraph.PGraph.UVertex.adjacent" title="pgraph.PGraph.UVertex.adjacent"><code class="xref py py-meth docutils literal notranslate"><span class="pre">adjacent()</span></code></a> <a class="reference internal" href="#pgraph.PGraph.UVertex.edges" title="pgraph.PGraph.UVertex.edges"><code class="xref py py-meth docutils literal notranslate"><span class="pre">edges()</span></code></a></p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a>[<a class="reference internal" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseVertex</span></code></a>, <a class="reference internal" href="edge.html#pgraph.PGraph.Edge" title="pgraph.PGraph.Edge"><code class="xref py py-class docutils literal notranslate"><span class="pre">Edge</span></code></a>]]</span></p>
+<dd class="field-odd"><p><a class="reference internal" href="#pgraph.PGraph.UVertex.adjacent" title="pgraph.PGraph.UVertex.adjacent"><code class="xref py py-meth docutils literal notranslate"><span class="pre">adjacent()</span></code></a> <a class="reference internal" href="#pgraph.PGraph.UVertex.isadjacent" title="pgraph.PGraph.UVertex.isadjacent"><code class="xref py py-meth docutils literal notranslate"><span class="pre">isadjacent()</span></code></a> <a class="reference internal" href="#pgraph.PGraph.UVertex.successors" title="pgraph.PGraph.UVertex.successors"><code class="xref py py-meth docutils literal notranslate"><span class="pre">successors()</span></code></a>
+<a class="reference internal" href="#pgraph.PGraph.UVertex.out_edges" title="pgraph.PGraph.UVertex.out_edges"><code class="xref py py-meth docutils literal notranslate"><span class="pre">out_edges()</span></code></a> <a class="reference internal" href="#pgraph.PGraph.UVertex.in_edges" title="pgraph.PGraph.UVertex.in_edges"><code class="xref py py-meth docutils literal notranslate"><span class="pre">in_edges()</span></code></a> <a class="reference internal" href="#pgraph.PGraph.UVertex.predecessors" title="pgraph.PGraph.UVertex.predecessors"><code class="xref py py-meth docutils literal notranslate"><span class="pre">predecessors()</span></code></a>
+<a class="reference internal" href="#pgraph.PGraph.UVertex.edges" title="pgraph.PGraph.UVertex.edges"><code class="xref py py-meth docutils literal notranslate"><span class="pre">edges()</span></code></a> <a class="reference internal" href="#pgraph.PGraph.UVertex.edgeto" title="pgraph.PGraph.UVertex.edgeto"><code class="xref py py-meth docutils literal notranslate"><span class="pre">edgeto()</span></code></a> <a class="reference internal" href="#pgraph.PGraph.UVertex.degree" title="pgraph.PGraph.UVertex.degree"><code class="xref py py-attr docutils literal notranslate"><span class="pre">degree</span></code></a>
+<a class="reference internal" href="PGraph.html#pgraph.PGraph.BaseGraph.adjacency" title="pgraph.PGraph.BaseGraph.adjacency"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseGraph.adjacency()</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -655,6 +748,65 @@ tuples of (vertex, edge) for all vertices adjacent to the vertex <code class="do
 </dd>
 </dl>
 </dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="pgraph.PGraph.UVertex.label">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">label</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span><a class="headerlink" href="#pgraph.PGraph.UVertex.label" title="Link to this definition"></a></dt>
+<dd><p>Number of the graph component that contains the vertex</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>component number, counted from 0, or None if the components
+have not been found yet</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)">int</a> or None</p>
+</dd>
+</dl>
+<p>Assigned by the graph when its components are found, which happens when
+<a class="reference internal" href="PGraph.html#pgraph.PGraph.BaseGraph.nc" title="pgraph.PGraph.BaseGraph.nc"><code class="xref py py-attr docutils literal notranslate"><span class="pre">BaseGraph.nc</span></code></a>, <a class="reference internal" href="PGraph.html#pgraph.PGraph.BaseGraph.component" title="pgraph.PGraph.BaseGraph.component"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseGraph.component()</span></code></a> or
+<a class="reference internal" href="PGraph.html#pgraph.PGraph.BaseGraph.samecomponent" title="pgraph.PGraph.BaseGraph.samecomponent"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseGraph.samecomponent()</span></code></a> is used after the graph has changed.
+It is read-only.</p>
+<div class="versionchanged">
+<p><span class="versionmodified changed">Changed in version 1.0: </span>Read-only.  It was a plain attribute, but it is computed from the
+graph’s structure and meaningless to assign.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="PGraph.html#pgraph.PGraph.BaseGraph.nc" title="pgraph.PGraph.BaseGraph.nc"><code class="xref py py-attr docutils literal notranslate"><span class="pre">BaseGraph.nc</span></code></a> <a class="reference internal" href="PGraph.html#pgraph.PGraph.BaseGraph.component" title="pgraph.PGraph.BaseGraph.component"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseGraph.component()</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="pgraph.PGraph.UVertex.name">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">name</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span><a class="headerlink" href="#pgraph.PGraph.UVertex.name" title="Link to this definition"></a></dt>
+<dd><p>Name of the vertex</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>the name</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)">str</a> or None</p>
+</dd>
+</dl>
+<p>The name is the vertex’s key in its graph: <code class="docutils literal notranslate"><span class="pre">g[name]</span></code> and <code class="docutils literal notranslate"><span class="pre">name</span> <span class="pre">in</span>
+<span class="pre">g</span></code> look it up.  A vertex that is not in a graph can be given any name,
+or none.  For one that is in a graph:</p>
+<ul class="simple">
+<li><p>assigning a new name updates the graph’s name table, so the vertex
+is then found under the new name and not the old</p></li>
+<li><p>a name already used by another vertex in the graph raises
+<code class="docutils literal notranslate"><span class="pre">ValueError</span></code> and changes nothing</p></li>
+<li><p>the name cannot be cleared</p></li>
+</ul>
+<div class="versionchanged">
+<p><span class="versionmodified changed">Changed in version 1.0: </span>Renaming a vertex in a graph used to leave the graph’s name table
+stale, so lookups by the new name failed.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="PGraph.html#pgraph.PGraph.BaseGraph.add_vertex" title="pgraph.PGraph.BaseGraph.add_vertex"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseGraph.add_vertex()</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pgraph.PGraph.UVertex.neighbors">
 <span class="sig-name descname"><span class="pre">neighbors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pgraph.PGraph.UVertex.neighbors" title="Link to this definition"></a></dt>
@@ -669,7 +821,7 @@ tuples of (vertex, edge) for all vertices adjacent to the vertex <code class="do
 </dl>
 <p><code class="docutils literal notranslate"><span class="pre">v.adjacent()</span></code> is a list of the vertices that this vertex is joined
 to by an edge.  “Adjacent” is the graph-theory term, and it is the
-relation that <a class="reference internal" href="matrices.html#pgraph.PGraph._BaseGraph.adjacency" title="pgraph.PGraph._BaseGraph.adjacency"><code class="xref py py-meth docutils literal notranslate"><span class="pre">_BaseGraph.adjacency()</span></code></a> tabulates: row <code class="docutils literal notranslate"><span class="pre">i</span></code> of the
+relation that <a class="reference internal" href="PGraph.html#pgraph.PGraph.BaseGraph.adjacency" title="pgraph.PGraph.BaseGraph.adjacency"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseGraph.adjacency()</span></code></a> tabulates: row <code class="docutils literal notranslate"><span class="pre">i</span></code> of the
 adjacency matrix is non-zero exactly at the columns of the vertices
 returned by <code class="docutils literal notranslate"><span class="pre">g[i].adjacent()</span></code>.</p>
 <div class="admonition note">
@@ -699,8 +851,9 @@ under the British and American spellings, and are not deprecated.</p></li>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Seealso<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#pgraph.PGraph.UVertex.isadjacent" title="pgraph.PGraph.UVertex.isadjacent"><code class="xref py py-meth docutils literal notranslate"><span class="pre">isadjacent()</span></code></a> <a class="reference internal" href="#pgraph.PGraph.UVertex.incidences" title="pgraph.PGraph.UVertex.incidences"><code class="xref py py-meth docutils literal notranslate"><span class="pre">incidences()</span></code></a> <a class="reference internal" href="#pgraph.PGraph.UVertex.edges" title="pgraph.PGraph.UVertex.edges"><code class="xref py py-meth docutils literal notranslate"><span class="pre">edges()</span></code></a>
-<a class="reference internal" href="matrices.html#pgraph.PGraph._BaseGraph.adjacency" title="pgraph.PGraph._BaseGraph.adjacency"><code class="xref py py-meth docutils literal notranslate"><span class="pre">_BaseGraph.adjacency()</span></code></a></p>
+<dd class="field-odd"><p><a class="reference internal" href="#pgraph.PGraph.UVertex.isadjacent" title="pgraph.PGraph.UVertex.isadjacent"><code class="xref py py-meth docutils literal notranslate"><span class="pre">isadjacent()</span></code></a> <a class="reference internal" href="#pgraph.PGraph.UVertex.successors" title="pgraph.PGraph.UVertex.successors"><code class="xref py py-meth docutils literal notranslate"><span class="pre">successors()</span></code></a> <a class="reference internal" href="#pgraph.PGraph.UVertex.predecessors" title="pgraph.PGraph.UVertex.predecessors"><code class="xref py py-meth docutils literal notranslate"><span class="pre">predecessors()</span></code></a>
+<a class="reference internal" href="#pgraph.PGraph.UVertex.incidences" title="pgraph.PGraph.UVertex.incidences"><code class="xref py py-meth docutils literal notranslate"><span class="pre">incidences()</span></code></a> <a class="reference internal" href="#pgraph.PGraph.UVertex.out_edges" title="pgraph.PGraph.UVertex.out_edges"><code class="xref py py-meth docutils literal notranslate"><span class="pre">out_edges()</span></code></a> <a class="reference internal" href="#pgraph.PGraph.UVertex.edges" title="pgraph.PGraph.UVertex.edges"><code class="xref py py-meth docutils literal notranslate"><span class="pre">edges()</span></code></a>
+<a class="reference internal" href="PGraph.html#pgraph.PGraph.BaseGraph.adjacency" title="pgraph.PGraph.BaseGraph.adjacency"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseGraph.adjacency()</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -718,7 +871,7 @@ under the British and American spellings, and are not deprecated.</p></li>
 </dl>
 <p><code class="docutils literal notranslate"><span class="pre">v.adjacent()</span></code> is a list of the vertices that this vertex is joined
 to by an edge.  “Adjacent” is the graph-theory term, and it is the
-relation that <a class="reference internal" href="matrices.html#pgraph.PGraph._BaseGraph.adjacency" title="pgraph.PGraph._BaseGraph.adjacency"><code class="xref py py-meth docutils literal notranslate"><span class="pre">_BaseGraph.adjacency()</span></code></a> tabulates: row <code class="docutils literal notranslate"><span class="pre">i</span></code> of the
+relation that <a class="reference internal" href="PGraph.html#pgraph.PGraph.BaseGraph.adjacency" title="pgraph.PGraph.BaseGraph.adjacency"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseGraph.adjacency()</span></code></a> tabulates: row <code class="docutils literal notranslate"><span class="pre">i</span></code> of the
 adjacency matrix is non-zero exactly at the columns of the vertices
 returned by <code class="docutils literal notranslate"><span class="pre">g[i].adjacent()</span></code>.</p>
 <div class="admonition note">
@@ -748,8 +901,84 @@ under the British and American spellings, and are not deprecated.</p></li>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Seealso<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#pgraph.PGraph.UVertex.isadjacent" title="pgraph.PGraph.UVertex.isadjacent"><code class="xref py py-meth docutils literal notranslate"><span class="pre">isadjacent()</span></code></a> <a class="reference internal" href="#pgraph.PGraph.UVertex.incidences" title="pgraph.PGraph.UVertex.incidences"><code class="xref py py-meth docutils literal notranslate"><span class="pre">incidences()</span></code></a> <a class="reference internal" href="#pgraph.PGraph.UVertex.edges" title="pgraph.PGraph.UVertex.edges"><code class="xref py py-meth docutils literal notranslate"><span class="pre">edges()</span></code></a>
-<a class="reference internal" href="matrices.html#pgraph.PGraph._BaseGraph.adjacency" title="pgraph.PGraph._BaseGraph.adjacency"><code class="xref py py-meth docutils literal notranslate"><span class="pre">_BaseGraph.adjacency()</span></code></a></p>
+<dd class="field-odd"><p><a class="reference internal" href="#pgraph.PGraph.UVertex.isadjacent" title="pgraph.PGraph.UVertex.isadjacent"><code class="xref py py-meth docutils literal notranslate"><span class="pre">isadjacent()</span></code></a> <a class="reference internal" href="#pgraph.PGraph.UVertex.successors" title="pgraph.PGraph.UVertex.successors"><code class="xref py py-meth docutils literal notranslate"><span class="pre">successors()</span></code></a> <a class="reference internal" href="#pgraph.PGraph.UVertex.predecessors" title="pgraph.PGraph.UVertex.predecessors"><code class="xref py py-meth docutils literal notranslate"><span class="pre">predecessors()</span></code></a>
+<a class="reference internal" href="#pgraph.PGraph.UVertex.incidences" title="pgraph.PGraph.UVertex.incidences"><code class="xref py py-meth docutils literal notranslate"><span class="pre">incidences()</span></code></a> <a class="reference internal" href="#pgraph.PGraph.UVertex.out_edges" title="pgraph.PGraph.UVertex.out_edges"><code class="xref py py-meth docutils literal notranslate"><span class="pre">out_edges()</span></code></a> <a class="reference internal" href="#pgraph.PGraph.UVertex.edges" title="pgraph.PGraph.UVertex.edges"><code class="xref py py-meth docutils literal notranslate"><span class="pre">edges()</span></code></a>
+<a class="reference internal" href="PGraph.html#pgraph.PGraph.BaseGraph.adjacency" title="pgraph.PGraph.BaseGraph.adjacency"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseGraph.adjacency()</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="pgraph.PGraph.UVertex.out_degree">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">out_degree</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><span class="pre">int</span></a></span><a class="headerlink" href="#pgraph.PGraph.UVertex.out_degree" title="Link to this definition"></a></dt>
+<dd><p>Number of edges leaving the vertex</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>out-degree of the vertex</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)">int</a></p>
+</dd>
+</dl>
+<p>For an undirected graph every incident edge both leaves and enters, so
+this equals <a class="reference internal" href="#pgraph.PGraph.UVertex.degree" title="pgraph.PGraph.UVertex.degree"><code class="xref py py-attr docutils literal notranslate"><span class="pre">degree</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#pgraph.PGraph.UVertex.in_degree" title="pgraph.PGraph.UVertex.in_degree"><code class="xref py py-attr docutils literal notranslate"><span class="pre">in_degree</span></code></a> <a class="reference internal" href="#pgraph.PGraph.UVertex.degree" title="pgraph.PGraph.UVertex.degree"><code class="xref py py-attr docutils literal notranslate"><span class="pre">degree</span></code></a> <a class="reference internal" href="#pgraph.PGraph.UVertex.out_edges" title="pgraph.PGraph.UVertex.out_edges"><code class="xref py py-meth docutils literal notranslate"><span class="pre">out_edges()</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pgraph.PGraph.UVertex.out_edges">
+<span class="sig-name descname"><span class="pre">out_edges</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pgraph.PGraph.UVertex.out_edges" title="Link to this definition"></a></dt>
+<dd><p>The edges leaving the vertex</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>the outgoing edges, in the order they were connected</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>list of <code class="docutils literal notranslate"><span class="pre">Edge</span></code></p>
+</dd>
+</dl>
+<p>This is a new list, and is the same as <a class="reference internal" href="#pgraph.PGraph.UVertex.edges" title="pgraph.PGraph.UVertex.edges"><code class="xref py py-meth docutils literal notranslate"><span class="pre">edges()</span></code></a>: for an undirected
+graph every incident edge is outgoing.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#pgraph.PGraph.UVertex.in_edges" title="pgraph.PGraph.UVertex.in_edges"><code class="xref py py-meth docutils literal notranslate"><span class="pre">in_edges()</span></code></a> <a class="reference internal" href="#pgraph.PGraph.UVertex.edges" title="pgraph.PGraph.UVertex.edges"><code class="xref py py-meth docutils literal notranslate"><span class="pre">edges()</span></code></a> <a class="reference internal" href="#pgraph.PGraph.UVertex.adjacent" title="pgraph.PGraph.UVertex.adjacent"><code class="xref py py-meth docutils literal notranslate"><span class="pre">adjacent()</span></code></a> <a class="reference internal" href="#pgraph.PGraph.UVertex.successors" title="pgraph.PGraph.UVertex.successors"><code class="xref py py-meth docutils literal notranslate"><span class="pre">successors()</span></code></a>
+<a class="reference internal" href="#pgraph.PGraph.UVertex.incidences" title="pgraph.PGraph.UVertex.incidences"><code class="xref py py-meth docutils literal notranslate"><span class="pre">incidences()</span></code></a> <a class="reference internal" href="#pgraph.PGraph.UVertex.out_degree" title="pgraph.PGraph.UVertex.out_degree"><code class="xref py py-attr docutils literal notranslate"><span class="pre">out_degree</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pgraph.PGraph.UVertex.predecessors">
+<span class="sig-name descname"><span class="pre">predecessors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pgraph.PGraph.UVertex.predecessors" title="Link to this definition"></a></dt>
+<dd><p>Vertices that have an edge to this vertex</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>the vertices at the tail of the incoming edges</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.15)">list</a> of BaseVertex subclass</p>
+</dd>
+</dl>
+<p>There is one entry per edge, so a vertex joined by <code class="docutils literal notranslate"><span class="pre">k</span></code> parallel edges
+appears <code class="docutils literal notranslate"><span class="pre">k</span></code> times.  For an undirected graph this is <a class="reference internal" href="#pgraph.PGraph.UVertex.adjacent" title="pgraph.PGraph.UVertex.adjacent"><code class="xref py py-meth docutils literal notranslate"><span class="pre">adjacent()</span></code></a>.</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pgraph</span><span class="w"> </span><span class="kn">import</span> <a class="sphinx-codeautolink-a" href="dgraph.html#pgraph.PGraph.DGraph" title="pgraph.PGraph.DGraph"><span class="n">DGraph</span></a>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="dgraph.html#pgraph.PGraph.DGraph" title="pgraph.PGraph.DGraph"><span class="n">g</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="dgraph.html#pgraph.PGraph.DGraph" title="pgraph.PGraph.DGraph"><span class="n">DGraph</span></a><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><span class="n">v1</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="dgraph.html#pgraph.PGraph.DGraph.add_vertex" title="pgraph.PGraph.DGraph.add_vertex"><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span></a><span class="p">(</span><span class="n">coord</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s1">'v1'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><span class="n">v2</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="dgraph.html#pgraph.PGraph.DGraph.add_vertex" title="pgraph.PGraph.DGraph.add_vertex"><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span></a><span class="p">(</span><span class="n">coord</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s1">'v2'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><span class="n">v3</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="dgraph.html#pgraph.PGraph.DGraph.add_vertex" title="pgraph.PGraph.DGraph.add_vertex"><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span></a><span class="p">(</span><span class="n">coord</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s1">'v3'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="dgraph.html#pgraph.PGraph.DGraph.add_edge" title="pgraph.PGraph.DGraph.add_edge"><span class="n">g</span><span class="o">.</span><span class="n">add_edge</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><span class="n">v1</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><span class="n">v3</span></a><span class="p">)</span>
+<span class="go">Edge{[v1] -&gt; [v3], cost=2.828}</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="dgraph.html#pgraph.PGraph.DGraph.add_edge" title="pgraph.PGraph.DGraph.add_edge"><span class="n">g</span><span class="o">.</span><span class="n">add_edge</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><span class="n">v2</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="PGraph.html#pgraph.PGraph.BaseVertex" title="pgraph.PGraph.BaseVertex"><span class="n">v3</span></a><span class="p">)</span>
+<span class="go">Edge{[v2] -&gt; [v3], cost=1.414}</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/builtins/functions.html#print"><span class="nb">print</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="PGraph.html#pgraph.PGraph.BaseVertex.predecessors" title="pgraph.PGraph.BaseVertex.predecessors"><span class="n">v3</span><span class="o">.</span><span class="n">predecessors</span></a><span class="p">())</span>
+<span class="go">[DVertex[v1, coord=(0, 0)], DVertex[v2, coord=(1, 1)]]</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#pgraph.PGraph.UVertex.successors" title="pgraph.PGraph.UVertex.successors"><code class="xref py py-meth docutils literal notranslate"><span class="pre">successors()</span></code></a> <a class="reference internal" href="#pgraph.PGraph.UVertex.adjacent" title="pgraph.PGraph.UVertex.adjacent"><code class="xref py py-meth docutils literal notranslate"><span class="pre">adjacent()</span></code></a> <a class="reference internal" href="#pgraph.PGraph.UVertex.in_edges" title="pgraph.PGraph.UVertex.in_edges"><code class="xref py py-meth docutils literal notranslate"><span class="pre">in_edges()</span></code></a>
+<a class="reference internal" href="#pgraph.PGraph.UVertex.in_degree" title="pgraph.PGraph.UVertex.in_degree"><code class="xref py py-attr docutils literal notranslate"><span class="pre">in_degree</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -768,7 +997,7 @@ not deleted.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This is a thin convenience wrapper around
-<code class="xref py py-meth docutils literal notranslate"><span class="pre">_BaseGraph.remove_vertex()</span></code>.</p>
+<a class="reference internal" href="PGraph.html#pgraph.PGraph.BaseGraph.remove_vertex" title="pgraph.PGraph.BaseGraph.remove_vertex"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseGraph.remove_vertex()</span></code></a>.</p>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -788,7 +1017,27 @@ not deleted.</p>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Seealso<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-meth docutils literal notranslate"><span class="pre">_BaseGraph.remove_vertex()</span></code> <a class="reference internal" href="edge.html#pgraph.PGraph.Edge.remove" title="pgraph.PGraph.Edge.remove"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Edge.remove()</span></code></a></p>
+<dd class="field-odd"><p><a class="reference internal" href="PGraph.html#pgraph.PGraph.BaseGraph.remove_vertex" title="pgraph.PGraph.BaseGraph.remove_vertex"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseGraph.remove_vertex()</span></code></a> <a class="reference internal" href="edge.html#pgraph.PGraph.Edge.remove" title="pgraph.PGraph.Edge.remove"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Edge.remove()</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pgraph.PGraph.UVertex.successors">
+<span class="sig-name descname"><span class="pre">successors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pgraph.PGraph.UVertex.successors" title="Link to this definition"></a></dt>
+<dd><p>Vertices that this vertex has an edge to</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>the vertices at the head of the outgoing edges</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.15)">list</a> of BaseVertex subclass</p>
+</dd>
+</dl>
+<p>This is <a class="reference internal" href="#pgraph.PGraph.UVertex.adjacent" title="pgraph.PGraph.UVertex.adjacent"><code class="xref py py-meth docutils literal notranslate"><span class="pre">adjacent()</span></code></a>, under its directed-graph name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#pgraph.PGraph.UVertex.predecessors" title="pgraph.PGraph.UVertex.predecessors"><code class="xref py py-meth docutils literal notranslate"><span class="pre">predecessors()</span></code></a> <a class="reference internal" href="#pgraph.PGraph.UVertex.adjacent" title="pgraph.PGraph.UVertex.adjacent"><code class="xref py py-meth docutils literal notranslate"><span class="pre">adjacent()</span></code></a> <a class="reference internal" href="#pgraph.PGraph.UVertex.incidences" title="pgraph.PGraph.UVertex.incidences"><code class="xref py py-meth docutils literal notranslate"><span class="pre">incidences()</span></code></a>
+<a class="reference internal" href="#pgraph.PGraph.UVertex.out_edges" title="pgraph.PGraph.UVertex.out_edges"><code class="xref py py-meth docutils literal notranslate"><span class="pre">out_edges()</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
