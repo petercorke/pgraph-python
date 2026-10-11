@@ -146,7 +146,7 @@ class _Multigraph:
 
     def check_planning(self, length):
         """Every planner must reach C from A via B, with this length."""
-        g, A, B, C = self.g, self.A, self.B, self.C
+        g, A, C = self.g, self.A, self.C
         names = lambda path: [v.name for v in path]
 
         with within():
