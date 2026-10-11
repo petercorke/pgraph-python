@@ -76,7 +76,6 @@ target-version = ['py311']
 omit = []
 
 [tool.mypy]
-python_version = "3.9"
 ignore_missing_imports = true
 warn_unused_ignores = true
 warn_redundant_casts = true
