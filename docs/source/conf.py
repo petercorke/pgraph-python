@@ -18,7 +18,7 @@ sys.path.insert(0, os.path.abspath("../../src"))
 
 # -- Project information -----------------------------------------------------
 
-project = "Simple graph functionality for Python"
+project = "Graphs for Python"
 copyright = "2020-present, Peter Corke"
 author = "Peter Corke"
 
@@ -60,8 +60,12 @@ intersphinx_mapping = {
 
 html_theme_options = {
     "logo_only": False,
-    "display_version": True,
     "prev_next_buttons_location": "both",
+    # show the sub-headings of every page in the sidebar, not just the current one
+    "collapse_navigation": False,
+    # Introduction / API details -> page -> sub-heading; individual methods
+    # are reached from the page, not listed in the sidebar
+    "navigation_depth": 3,
     "analytics_id": "G-11Q6WJM565",
 }
 

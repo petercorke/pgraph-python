@@ -1,8 +1,9 @@
 Directed graph vertex
 ---------------------
 
+``DVertex`` overrides only ``connect()`` -- see :doc:`common` for the full
+method list (adjacent, edges, distance, degree, removal, ...).
+
 .. autoclass:: pgraph.PGraph.DVertex
-   :undoc-members:
+   :members: connect
    :show-inheritance:
-   :inherited-members:
-   :special-members: __init__

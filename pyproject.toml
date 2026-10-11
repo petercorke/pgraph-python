@@ -2,7 +2,7 @@
 name = "pgraph-python"
 version = "0.6.4"
 authors = [{ name = "Peter Corke", email = "rvc@petercorke.com" }]
-description = "Mathematical graphs for Python"
+description = "Graphs for Python"
 readme = "README.md"
 requires-python = ">=3.9"
 classifiers = [
@@ -76,7 +76,6 @@ target-version = ['py311']
 omit = []
 
 [tool.mypy]
-python_version = "3.9"
 ignore_missing_imports = true
 warn_unused_ignores = true
 warn_redundant_casts = true

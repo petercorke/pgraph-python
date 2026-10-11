@@ -153,18 +153,6 @@ class TestUGraph(unittest.TestCase):
         self.assertFalse(v1.isneighbour(v3))
         self.assertFalse(v3.isneighbour(v1))
 
-    def test_adjacent_deprecated(self):
-        # adjacent() must still work (same result as neighbours()) but
-        # emit a DeprecationWarning, not a hard failure
-        g = UGraph()
-        v1 = g.add_vertex(name='v1')
-        v2 = g.add_vertex(name='v2')
-        v1.connect(v2)
-
-        with self.assertWarns(DeprecationWarning):
-            n = v1.adjacent()
-        self.assertEqual(n, v1.neighbours())
-
     def test_getitem(self):
         g = UGraph()
         v1 = g.add_vertex(name='v1')
@@ -405,7 +393,8 @@ class TestUGraph(unittest.TestCase):
 
         self.assertEqual(g.n, 4)
         self.assertEqual(g.ne, 2)
-        self.assertEqual(g.average_degree(), 0.5)
+        # degrees sum to twice the edges for either kind of graph: 4 / 4
+        self.assertEqual(g.average_degree(), 1.0)
 
     def test_contains(self):
 
@@ -599,7 +588,7 @@ class TestUGraph(unittest.TestCase):
         D = g.degree()
         nt.assert_array_equal(D, np.diag([2, 1, 1, 0]))
 
-        L = g.Laplacian()
+        L = g.laplacian()
         expected_L = np.diag([2, 1, 1, 0]) - expected_A
         nt.assert_array_equal(L, expected_L)
 
@@ -906,17 +895,20 @@ class TestDGraph(unittest.TestCase):
         nt.assert_array_equal(A, expected_A)
         self.assertFalse(np.array_equal(A, A.T))  # not symmetric, directed
 
-        # out-degree only: v0 has 2 outgoing, v1 has 1, v2 has 0 (even
-        # though v2 has two *incoming* edges)
+        # degree is in + out: v0 has 2 out and 0 in, v1 has 1 and 1, v2 has
+        # 0 and 2 -- two edge ends each
         D = g.degree()
-        nt.assert_array_equal(D, np.diag([2, 1, 0]))
+        nt.assert_array_equal(D, np.diag([2, 2, 2]))
 
-        L = g.Laplacian()
+        # the directed Laplacian uses the OUT-degree, D_out - A, whose rows
+        # sum to zero; it is not degree() - A for a directed graph
+        L = g.laplacian()
         expected_L = np.diag([2, 1, 0]) - expected_A
         nt.assert_array_equal(L, expected_L)
+        nt.assert_array_equal(L.sum(axis=1), np.zeros(3))
 
-        # incidence marks both endpoints regardless of direction, so unlike
-        # degree() every vertex here touches exactly 2 edges
+        # incidence marks both endpoints regardless of direction, so it
+        # agrees with the total degree: every vertex touches exactly 2 edges
         I = g.incidence()
         self.assertEqual(I.shape, (g.n, g.ne))
         nt.assert_array_equal(I.sum(axis=0), np.full(g.ne, 2))

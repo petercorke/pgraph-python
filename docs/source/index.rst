@@ -6,21 +6,14 @@
 Graphs for Python
 =================
 
-This package provides a set of classes for manipulating simple directed and undirected graphs in Python.
-
-
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
 
-   directed
-   undirected
-   edge
-   planning
-   matrices
-
+   intro
+   api
 
 Indices and tables
-==================
+------------------
 
 * :ref:`genindex`
 * :ref:`search`
