@@ -522,6 +522,8 @@ class BaseGraph(ABC):
         :type name: str, optional
         :raises TypeError: ``coord`` is a ``BaseVertex`` that is not an
             instance of this graph's :attr:`vertex_class`
+        :raises ValueError: the name is already used by another vertex in the
+            graph, or ``coord`` is a vertex that already belongs to a graph
         :raises ValueError: the graph was constructed with ``dim``, and
             ``coord`` is given but its length doesn't match
         :return: the added vertex
@@ -535,7 +537,17 @@ class BaseGraph(ABC):
           to the graph.
 
         If the vertex has no name and ``name`` is None give it a default name
-        ``#N`` where ``N`` is a consecutive integer.
+        ``#N`` where ``N`` is the number of vertices, or the next integer above
+        it that is not already used by a name in the graph.
+
+        Names are unique within a graph, since they are how ``g[name]`` finds a
+        vertex, and a vertex belongs to one graph at a time.
+
+        .. versionchanged:: 1.0
+            Adding a vertex whose name is already used raises ``ValueError``.
+            It used to replace the earlier vertex in the name table, leaving it
+            in the graph but unreachable by name.  A default name could also
+            clash with an existing one after a vertex had been removed.
 
         The vertex is placed into a dictionary with a key equal to its name.
 
@@ -569,6 +581,11 @@ class BaseGraph(ABC):
         """
         if isinstance(coord, self._vertex_class):
             vertex = coord
+            if vertex._graph is not None:
+                raise ValueError(
+                    f"vertex {vertex.name!r} already belongs to a graph; "
+                    "remove it from that graph first"
+                )
         elif isinstance(coord, BaseVertex):
             raise TypeError(
                 f"expecting {self._vertex_class.__name__} or coordinate data, "
@@ -590,7 +607,13 @@ class BaseGraph(ABC):
         if name is None:
             name = vertex.name
         if name is None:
-            name = f"#{len(self._vertexlist)}"
+            # the first #N not already used: a removal makes len() reuse a name
+            n = len(self._vertexlist)
+            while f"#{n}" in self._vertexdict:
+                n += 1
+            name = f"#{n}"
+        elif name in self._vertexdict:
+            raise ValueError(f"the graph already has a vertex named {name!r}")
         vertex.name = name
         self._vertexlist.append(vertex)
         self._vertexdict[vertex.name] = vertex
