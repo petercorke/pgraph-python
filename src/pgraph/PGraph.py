@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
 import os
 import sys
 import warnings
@@ -46,7 +45,7 @@ _METRICS: dict[str, Callable[[NDArray], float]] = {
 }
 
 
-class Graph(ABC):
+class Graph:
 
     #: whether the edges of this kind of graph are directed, set by
     #: :class:`UGraph` and :class:`DGraph`
@@ -57,6 +56,11 @@ class Graph(ABC):
         # underneath stay honest, so isinstance and the hooks work as usual
         if cls is Graph:
             cls = DGraph if directed else UGraph
+        elif not hasattr(cls, "_directed"):
+            raise TypeError(
+                f"{cls.__name__} does not say whether its edges are directed; "
+                "subclass UGraph or DGraph"
+            )
         return super().__new__(cls)
 
     def __init__(
@@ -1291,7 +1295,6 @@ class Graph(ABC):
         """
         return len(self._edges)
 
-    @abstractmethod
     def _graphcolor(self) -> int | None:
         """
         Color the graph (subclass method)
@@ -1299,7 +1302,12 @@ class Graph(ABC):
         Concrete graph coloring algorithm, provided by :meth:`UGraph._graphcolor`
         and :meth:`DGraph._graphcolor`.
 
+        :raises NotImplementedError: not provided by this graph kind
         """
+        raise NotImplementedError(
+            f"{type(self).__name__} does not define how to color the graph; "
+            "subclass UGraph or DGraph"
+        )
 
     @property
     def nc(self) -> int:

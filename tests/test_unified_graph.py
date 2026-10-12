@@ -194,6 +194,62 @@ class TestConstructorsAreKindAware(unittest.TestCase):
                     self.assertEqual(h.validate(), [])
 
 
+class TestNotInstantiatedDirectly(unittest.TestCase):
+    """Graph is concrete only through the kind it dispatches to"""
+
+    def test_a_subclass_must_say_its_kind(self):
+        class Vague(Graph):
+            pass
+
+        with self.assertRaises(TypeError):
+            Vague()
+
+    def test_a_subclass_of_a_kind_is_fine(self):
+        class Mine(DGraph):
+            pass
+
+        self.assertTrue(Mine().directed)
+        self.assertTrue(Mine(directed=True).directed)
+
+    def test_the_base_hooks_say_which_kinds_provide_them(self):
+        g = UGraph()
+        a, b = g.add_vertex(name="a"), g.add_vertex(name="b")
+        e = Edge(a, b)
+        for call in (
+            lambda: Graph._attach(g, e),
+            lambda: Graph._detach(g, e),
+            lambda: Graph._incoming(g, a),
+            lambda: Graph._graphcolor(g),
+        ):
+            with self.assertRaises(NotImplementedError):
+                call()
+
+    def test_the_base_endpoint_test_is_directional(self):
+        g = DGraph()
+        a, b = g.add_vertex(name="a"), g.add_vertex(name="b")
+        e = Edge(a, b)
+        self.assertTrue(Graph._endpoints_match(g, e, a, b))
+        self.assertFalse(Graph._endpoints_match(g, e, b, a))
+
+
+class TestModuleLevelDeprecatedNames(unittest.TestCase):
+    """The names are also reachable as attributes of pgraph.PGraph"""
+
+    def test_alias_in_the_module(self):
+        import pgraph.PGraph as module
+
+        with self.assertWarns(DeprecationWarning):
+            self.assertIs(module.UVertex, Vertex)
+        with self.assertWarns(DeprecationWarning):
+            self.assertIs(module.DVertex, Vertex)
+
+    def test_other_names_in_the_module_are_errors(self):
+        import pgraph.PGraph as module
+
+        with self.assertRaises(AttributeError):
+            module.NoSuchThing
+
+
 class TestEdgeArrow(unittest.TestCase):
     def test_arrow_follows_the_graph(self):
         for flag, arrow in ((False, "--"), (True, "->")):

@@ -7,7 +7,7 @@ graph kind states how an edge enters and leaves its vertices' lists once, and
 
 import unittest
 
-from pgraph import DGraph, Edge, Graph, UGraph, Vertex
+from pgraph import DGraph, Edge, Graph, UGraph
 
 
 class TestHookIsDefinedPerKind(unittest.TestCase):
