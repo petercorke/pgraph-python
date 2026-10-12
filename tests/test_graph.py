@@ -3,7 +3,7 @@ import unittest
 import numpy as np
 import numpy.testing as nt
 
-from pgraph import *
+from pgraph import DGraph, Edge, UGraph, Vertex
 
 class TestUGraph(unittest.TestCase):
 
