@@ -313,5 +313,63 @@ class TestDirectedSubgraph(_Subgraph, unittest.TestCase):
         self.assertEqual(h["v3"].successors(), [])  # v3 -> v4 crossed it too
 
 
+class TestSubgraphMask(unittest.TestCase):
+    def graph(self, cls=UGraph):
+        g, v = line(cls)
+        for i in range(4):
+            g.add_edge(v[i], v[i + 1])
+        return g
+
+    def test_numpy_boolean_mask(self):
+        for cls in (UGraph, DGraph):
+            with self.subTest(cls=cls.__name__):
+                g = self.graph(cls)
+                h = g.subgraph(g.coordinates()[0] >= 2)  # v2, v3, v4
+                self.assertEqual(names(h), ["v2", "v3", "v4"])
+                self.assertEqual(h.ne, 2)
+                self.assertIsInstance(h, cls)
+
+    def test_list_of_booleans(self):
+        g = self.graph()
+        h = g.subgraph([True, True, False, False, False])
+        self.assertEqual(names(h), ["v0", "v1"])
+        self.assertEqual(h.ne, 1)
+
+    def test_the_same_as_vertices(self):
+        g = self.graph()
+        mask = np.array([False, True, True, True, False])
+        by_mask = g.subgraph(mask)
+        by_vertices = g.subgraph([g[i] for i in np.flatnonzero(mask)])
+        self.assertEqual(names(by_mask), names(by_vertices))
+        self.assertEqual(
+            [(e.v1.name, e.v2.name) for e in by_mask.edges()],
+            [(e.v1.name, e.v2.name) for e in by_vertices.edges()],
+        )
+
+    def test_all_false(self):
+        g = self.graph()
+        h = g.subgraph(np.zeros(5, dtype=bool))
+        self.assertEqual((h.n, h.ne), (0, 0))
+
+    def test_wrong_length(self):
+        g = self.graph()
+        for mask in (np.ones(4, dtype=bool), np.ones(6, dtype=bool), [True, False]):
+            with self.subTest(length=len(mask)):
+                with self.assertRaises(ValueError):
+                    g.subgraph(mask)
+
+    def test_integers_are_not_a_mask(self):
+        # [0, 1, 1, 0, 0] could as well be vertex indices, so it is refused
+        g = self.graph()
+        with self.assertRaises(TypeError):
+            g.subgraph(np.array([0, 1, 1, 0, 0]))
+        with self.assertRaises(TypeError):
+            g.subgraph([0, 1, 1, 0, 0])
+
+    def test_an_empty_list_is_no_vertices_not_an_empty_mask(self):
+        g = self.graph()
+        self.assertEqual(g.subgraph([]).n, 0)
+
+
 if __name__ == "__main__":
     unittest.main()
