@@ -112,7 +112,7 @@
              
   <section id="object-lifecycle-and-graph-membership-policy">
 <h1>Object lifecycle and graph-membership policy<a class="headerlink" href="#object-lifecycle-and-graph-membership-policy" title="Link to this heading"></a></h1>
-<p><code class="docutils literal notranslate"><span class="pre">BaseVertex</span></code>, <code class="docutils literal notranslate"><span class="pre">UVertex</span></code>, <code class="docutils literal notranslate"><span class="pre">DVertex</span></code> and <code class="docutils literal notranslate"><span class="pre">Edge</span></code> can all be constructed
+<p><code class="docutils literal notranslate"><span class="pre">Vertex</span></code>, <code class="docutils literal notranslate"><span class="pre">UVertex</span></code>, <code class="docutils literal notranslate"><span class="pre">DVertex</span></code> and <code class="docutils literal notranslate"><span class="pre">Edge</span></code> can all be constructed
 directly, independent of any graph. This is deliberate – it is not an
 oversight and not a “factory-only” design – but it means the rules for what
 those objects can and can’t do <em>before</em> they belong to a graph need to be
@@ -133,7 +133,7 @@ anything (see below) until it is added to a graph via
 <p><code class="xref py py-meth docutils literal notranslate"><span class="pre">UGraph.add_vertex()</span></code> and <code class="xref py py-meth docutils literal notranslate"><span class="pre">DGraph.add_vertex()</span></code> each only accept
 their own matching vertex subclass – a <code class="docutils literal notranslate"><span class="pre">UVertex</span></code> (or coordinate data, from
 which one is built) for <code class="xref py py-class docutils literal notranslate"><span class="pre">UGraph</span></code>, a <code class="docutils literal notranslate"><span class="pre">DVertex</span></code> for <code class="xref py py-class docutils literal notranslate"><span class="pre">DGraph</span></code>.
-Passing the wrong kind of vertex – a plain <code class="docutils literal notranslate"><span class="pre">BaseVertex</span></code>, or the other
+Passing the wrong kind of vertex – a plain <code class="docutils literal notranslate"><span class="pre">Vertex</span></code>, or the other
 graph’s subclass – raises <code class="docutils literal notranslate"><span class="pre">TypeError</span></code> rather than being silently accepted
 or converted.</p>
 <p>This is the mechanism that makes graph membership meaningful: once added, a
@@ -184,7 +184,7 @@ strictly.</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">UVertex()</span></code> / <code class="docutils literal notranslate"><span class="pre">DVertex()</span></code> / <code class="docutils literal notranslate"><span class="pre">BaseVertex()</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">UVertex()</span></code> / <code class="docutils literal notranslate"><span class="pre">DVertex()</span></code> / <code class="docutils literal notranslate"><span class="pre">Vertex()</span></code></p></td>
 <td><p>No</p></td>
 <td><p>–</p></td>
 </tr>
@@ -216,7 +216,7 @@ graphs</p></td>
   <hr/>
 
   <div role="contentinfo">
-  <p>Copyright &#169; 2020-present, Peter Corke: built 2026-10-11.
+  <p>Copyright &#169; 2020-present, Peter Corke: built 2026-10-12.
   </p>
   <a href="https://github.com/petercorke/pgraph-python" class="footer-github-link">GitHub</a>
 

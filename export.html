@@ -113,10 +113,10 @@ layout engine), as well as various image formats (e.g., PNG, SVG, PDF).</p>
 it.</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pgraph.PGraph.BaseGraph.export" title="pgraph.PGraph.BaseGraph.export"><code class="xref py py-obj docutils literal notranslate"><span class="pre">export</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pgraph.PGraph.Graph.export" title="pgraph.PGraph.Graph.export"><code class="xref py py-obj docutils literal notranslate"><span class="pre">export</span></code></a></p></td>
 <td><p>Convert and save the graph in a graph export or image format</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pgraph.PGraph.BaseGraph.dotfile" title="pgraph.PGraph.BaseGraph.dotfile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dotfile</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pgraph.PGraph.Graph.dotfile" title="pgraph.PGraph.Graph.dotfile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dotfile</span></code></a></p></td>
 <td><p>Export graph as a GraphViz dot file</p></td>
 </tr>
 </tbody>
@@ -124,8 +124,8 @@ it.</p>
 <section id="details">
 <h2>Details<a class="headerlink" href="#details" title="Link to this heading"></a></h2>
 <dl class="py method">
-<dt class="sig sig-object py" id="pgraph.PGraph.BaseGraph.export">
-<span class="sig-prename descclassname"><span class="pre">BaseGraph.</span></span><span class="sig-name descname"><span class="pre">export</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pgraph/PGraph.html#BaseGraph.export"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pgraph.PGraph.BaseGraph.export" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="pgraph.PGraph.Graph.export">
+<span class="sig-prename descclassname"><span class="pre">Graph.</span></span><span class="sig-name descname"><span class="pre">export</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pgraph/PGraph.html#Graph.export"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pgraph.PGraph.Graph.export" title="Link to this definition"></a></dt>
 <dd><p>Convert and save the graph in a graph export or image format</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -193,11 +193,11 @@ installed, or fails</p></li>
 formats run the GraphViz <code class="docutils literal notranslate"><span class="pre">dot</span></code> or <code class="docutils literal notranslate"><span class="pre">neato</span></code> executable.</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pgraph</span><span class="w"> </span><span class="kn">import</span> <a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">UGraph</span></a>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">g</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">UGraph</span></a><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">v1</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="modification.html#pgraph.PGraph.BaseGraph.add_vertex" title="pgraph.PGraph.BaseGraph.add_vertex"><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span></a><span class="p">(</span><span class="n">coord</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s1">'v1'</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">v2</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="modification.html#pgraph.PGraph.BaseGraph.add_vertex" title="pgraph.PGraph.BaseGraph.add_vertex"><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span></a><span class="p">(</span><span class="n">coord</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s1">'v2'</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="modification.html#pgraph.PGraph.BaseGraph.add_edge" title="pgraph.PGraph.BaseGraph.add_edge"><span class="n">g</span><span class="o">.</span><span class="n">add_edge</span></a><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">,</span> <span class="n">cost</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">v1</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="modification.html#pgraph.PGraph.Graph.add_vertex" title="pgraph.PGraph.Graph.add_vertex"><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span></a><span class="p">(</span><span class="n">coord</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s1">'v1'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">v2</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="modification.html#pgraph.PGraph.Graph.add_vertex" title="pgraph.PGraph.Graph.add_vertex"><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span></a><span class="p">(</span><span class="n">coord</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s1">'v2'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="modification.html#pgraph.PGraph.Graph.add_edge" title="pgraph.PGraph.Graph.add_edge"><span class="n">g</span><span class="o">.</span><span class="n">add_edge</span></a><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">,</span> <span class="n">cost</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 <span class="go">Edge{[v1] -- [v2], cost=2}</span>
-<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/builtins/functions.html#print"><span class="nb">print</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="export.html#pgraph.PGraph.BaseGraph.export" title="pgraph.PGraph.BaseGraph.export"><span class="n">g</span><span class="o">.</span><span class="n">export</span></a><span class="p">(</span><span class="nb">format</span><span class="o">=</span><span class="s2">"mermaid"</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="s2">"LR"</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/builtins/functions.html#print"><span class="nb">print</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="export.html#pgraph.PGraph.Graph.export" title="pgraph.PGraph.Graph.export"><span class="n">g</span><span class="o">.</span><span class="n">export</span></a><span class="p">(</span><span class="nb">format</span><span class="o">=</span><span class="s2">"mermaid"</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="s2">"LR"</span><span class="p">))</span>
 <span class="go">flowchart LR</span>
 <span class="go">    n0["v1"]</span>
 <span class="go">    n1["v2"]</span>
@@ -221,13 +221,13 @@ repeated lines (DOT, Mermaid) or distinct <code class="docutils literal notransl
 ELK).  A self-loop is written once, as an edge from a vertex to itself.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Seealso<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#pgraph.PGraph.BaseGraph.dotfile" title="pgraph.PGraph.BaseGraph.dotfile"><code class="xref py py-meth docutils literal notranslate"><span class="pre">dotfile()</span></code></a> <a class="reference internal" href="visualization.html#pgraph.PGraph.BaseGraph.showgraph" title="pgraph.PGraph.BaseGraph.showgraph"><code class="xref py py-meth docutils literal notranslate"><span class="pre">showgraph()</span></code></a> <code class="xref py py-mod docutils literal notranslate"><span class="pre">pgraph.exporters</span></code></p>
+<dd class="field-odd"><p><a class="reference internal" href="#pgraph.PGraph.Graph.dotfile" title="pgraph.PGraph.Graph.dotfile"><code class="xref py py-meth docutils literal notranslate"><span class="pre">dotfile()</span></code></a> <a class="reference internal" href="visualization.html#pgraph.PGraph.Graph.showgraph" title="pgraph.PGraph.Graph.showgraph"><code class="xref py py-meth docutils literal notranslate"><span class="pre">showgraph()</span></code></a> <code class="xref py py-mod docutils literal notranslate"><span class="pre">pgraph.exporters</span></code></p>
 </dd>
 </dl>
 </dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="pgraph.PGraph.BaseGraph.dotfile">
-<span class="sig-prename descclassname"><span class="pre">BaseGraph.</span></span><span class="sig-name descname"><span class="pre">dotfile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">direction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pgraph/PGraph.html#BaseGraph.dotfile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pgraph.PGraph.BaseGraph.dotfile" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="pgraph.PGraph.Graph.dotfile">
+<span class="sig-prename descclassname"><span class="pre">Graph.</span></span><span class="sig-name descname"><span class="pre">dotfile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">direction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pgraph/PGraph.html#Graph.dotfile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pgraph.PGraph.Graph.dotfile" title="Link to this definition"></a></dt>
 <dd><p>Export graph as a GraphViz dot file</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -242,8 +242,8 @@ ELK).  A self-loop is written once, as an edge from a vertex to itself.</p>
 </dl>
 <p><code class="docutils literal notranslate"><span class="pre">g.dotfile()</span></code> creates the specified file which contains the <a class="reference external" href="https://graphviz.org">GraphViz</a> code to represent the embedded graph.  By default
 output is to the console.</p>
-<p>This is <a class="reference internal" href="#pgraph.PGraph.BaseGraph.export" title="pgraph.PGraph.BaseGraph.export"><code class="xref py py-meth docutils literal notranslate"><span class="pre">export()</span></code></a> with <code class="docutils literal notranslate"><span class="pre">format="dot"</span></code> and edge costs left
-unlabelled, as it has always been.  Use <a class="reference internal" href="#pgraph.PGraph.BaseGraph.export" title="pgraph.PGraph.BaseGraph.export"><code class="xref py py-meth docutils literal notranslate"><span class="pre">export()</span></code></a> for other
+<p>This is <a class="reference internal" href="#pgraph.PGraph.Graph.export" title="pgraph.PGraph.Graph.export"><code class="xref py py-meth docutils literal notranslate"><span class="pre">export()</span></code></a> with <code class="docutils literal notranslate"><span class="pre">format="dot"</span></code> and edge costs left
+unlabelled, as it has always been.  Use <a class="reference internal" href="#pgraph.PGraph.Graph.export" title="pgraph.PGraph.Graph.export"><code class="xref py py-meth docutils literal notranslate"><span class="pre">export()</span></code></a> for other
 formats or for edge labels.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -261,11 +261,11 @@ suited for undirected graphs.</p>
 </div>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pgraph</span><span class="w"> </span><span class="kn">import</span> <a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">UGraph</span></a>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">g</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">UGraph</span></a><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">v1</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="modification.html#pgraph.PGraph.BaseGraph.add_vertex" title="pgraph.PGraph.BaseGraph.add_vertex"><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span></a><span class="p">(</span><span class="n">coord</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s1">'v1'</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">v2</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="modification.html#pgraph.PGraph.BaseGraph.add_vertex" title="pgraph.PGraph.BaseGraph.add_vertex"><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span></a><span class="p">(</span><span class="n">coord</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s1">'v2'</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="modification.html#pgraph.PGraph.BaseGraph.add_edge" title="pgraph.PGraph.BaseGraph.add_edge"><span class="n">g</span><span class="o">.</span><span class="n">add_edge</span></a><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">v1</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="modification.html#pgraph.PGraph.Graph.add_vertex" title="pgraph.PGraph.Graph.add_vertex"><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span></a><span class="p">(</span><span class="n">coord</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s1">'v1'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">v2</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="modification.html#pgraph.PGraph.Graph.add_vertex" title="pgraph.PGraph.Graph.add_vertex"><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span></a><span class="p">(</span><span class="n">coord</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s1">'v2'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="modification.html#pgraph.PGraph.Graph.add_edge" title="pgraph.PGraph.Graph.add_edge"><span class="n">g</span><span class="o">.</span><span class="n">add_edge</span></a><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">)</span>
 <span class="go">Edge{[v1] -- [v2], cost=1.414}</span>
-<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="export.html#pgraph.PGraph.BaseGraph.dotfile" title="pgraph.PGraph.BaseGraph.dotfile"><span class="n">g</span><span class="o">.</span><span class="n">dotfile</span></a><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="export.html#pgraph.PGraph.Graph.dotfile" title="pgraph.PGraph.Graph.dotfile"><span class="n">g</span><span class="o">.</span><span class="n">dotfile</span></a><span class="p">()</span>
 <span class="go">graph {</span>
 <span class="go">  "v1" [pos="0,0!"]</span>
 <span class="go">  "v2" [pos="1,1!"]</span>
@@ -275,7 +275,7 @@ suited for undirected graphs.</p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Edge costs are not included in the output.  Use <a class="reference internal" href="#pgraph.PGraph.BaseGraph.export" title="pgraph.PGraph.BaseGraph.export"><code class="xref py py-meth docutils literal notranslate"><span class="pre">export()</span></code></a> with
+<p>Edge costs are not included in the output.  Use <a class="reference internal" href="#pgraph.PGraph.Graph.export" title="pgraph.PGraph.Graph.export"><code class="xref py py-meth docutils literal notranslate"><span class="pre">export()</span></code></a> with
 <code class="docutils literal notranslate"><span class="pre">costs=True</span></code> to include them.</p>
 </div>
 <div class="admonition note">
@@ -285,7 +285,7 @@ be closed after the GraphViz model is written. Safe for use with <code class="do
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Seealso<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#pgraph.PGraph.BaseGraph.export" title="pgraph.PGraph.BaseGraph.export"><code class="xref py py-meth docutils literal notranslate"><span class="pre">export()</span></code></a> <a class="reference internal" href="visualization.html#pgraph.PGraph.BaseGraph.showgraph" title="pgraph.PGraph.BaseGraph.showgraph"><code class="xref py py-meth docutils literal notranslate"><span class="pre">showgraph()</span></code></a></p>
+<dd class="field-odd"><p><a class="reference internal" href="#pgraph.PGraph.Graph.export" title="pgraph.PGraph.Graph.export"><code class="xref py py-meth docutils literal notranslate"><span class="pre">export()</span></code></a> <a class="reference internal" href="visualization.html#pgraph.PGraph.Graph.showgraph" title="pgraph.PGraph.Graph.showgraph"><code class="xref py py-meth docutils literal notranslate"><span class="pre">showgraph()</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -299,7 +299,7 @@ be closed after the GraphViz model is written. Safe for use with <code class="do
 </div>
 <hr/>
 <div role="contentinfo">
-<p>Copyright © 2020-present, Peter Corke: built 2026-10-11.
+<p>Copyright © 2020-present, Peter Corke: built 2026-10-12.
   </p>
 <a class="footer-github-link" href="https://github.com/petercorke/pgraph-python">GitHub</a>
 </div>

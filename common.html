@@ -116,21 +116,21 @@
 <h1>Common methods<a class="headerlink" href="#common-methods" title="Link to this heading"></a></h1>
 <p>The package supports both directed (prefix <code class="docutils literal notranslate"><span class="pre">D</span></code>) and undirected graphs (prefix <code class="docutils literal notranslate"><span class="pre">U</span></code>), and the classes for these
 share a common interface.</p>
-<p>The graph classes represent a single graph, either directed or undirected, and they share <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseGraph</span></code>:</p>
-<div class="graphviz"><img src="_images/inheritance-9b549a2787b6207b5a8e4462746ba50c9bab8c5c.png" alt="Inheritance diagram of pgraph.PGraph.UGraph, pgraph.PGraph.DGraph" usemap="#inheritance170d93d6ca" class="inheritance graphviz" /></div>
+<p>The graph classes represent a single graph, either directed or undirected, and they share <code class="xref py py-class docutils literal notranslate"><span class="pre">Graph</span></code>:</p>
+<div class="graphviz"><img src="_images/inheritance-d794d56cdbec820819e5b4bf7ef97880f6a869e3.png" alt="Inheritance diagram of pgraph.PGraph.UGraph, pgraph.PGraph.DGraph" usemap="#inheritance170d93d6ca" class="inheritance graphviz" /></div>
 <map id="inheritance170d93d6ca" name="inheritance170d93d6ca">
-<area shape="rect" id="node1" href="construction.html#pgraph.PGraph.BaseGraph" target="_top" title="BaseGraph" alt="" coords="5,31,99,56"/>
-<area shape="rect" id="node2" href="construction.html#pgraph.PGraph.DGraph" target="_top" title="Class for directed graphs" alt="" coords="147,5,219,31"/>
-<area shape="rect" id="node3" href="construction.html#pgraph.PGraph.UGraph" target="_top" title="Class for undirected graphs" alt="" coords="147,55,219,80"/>
+<area shape="rect" id="node1" href="construction.html#pgraph.PGraph.DGraph" target="_top" title="Class for directed graphs" alt="" coords="125,5,197,31"/>
+<area shape="rect" id="node2" href="construction.html#pgraph.PGraph.Graph" target="_top" title="Graph" alt="" coords="5,31,77,56"/>
+<area shape="rect" id="node3" href="construction.html#pgraph.PGraph.UGraph" target="_top" title="Class for undirected graphs" alt="" coords="125,55,197,80"/>
 </map><p>The vertices in a directed graph (<code class="docutils literal notranslate"><span class="pre">DGraph</span></code>) inherit from <code class="xref py py-class docutils literal notranslate"><span class="pre">DVertex</span></code> and the
 vertices in an undirected graph (<code class="docutils literal notranslate"><span class="pre">UGraph</span></code>) inherit from <code class="xref py py-class docutils literal notranslate"><span class="pre">UVertex</span></code>.</p>
-<div class="graphviz"><img src="_images/inheritance-926e4af78c8f74171eb7d4afb5aac116c73031ef.png" alt="Inheritance diagram of pgraph.PGraph.UVertex, pgraph.PGraph.DVertex" usemap="#inheritancebe7f53667e" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="_images/inheritance-b92e2e3dba307d747bdde47034f6f39acc87731b.png" alt="Inheritance diagram of pgraph.PGraph.UVertex, pgraph.PGraph.DVertex" usemap="#inheritancebe7f53667e" class="inheritance graphviz" /></div>
 <map id="inheritancebe7f53667e" name="inheritancebe7f53667e">
-<area shape="rect" id="node2" href="dvertex.html#pgraph.PGraph.DVertex" target="_top" title="BaseVertex subclass for directed graphs" alt="" coords="149,5,224,31"/>
-<area shape="rect" id="node3" href="uvertex.html#pgraph.PGraph.UVertex" target="_top" title="BaseVertex subclass for undirected graphs" alt="" coords="149,55,224,80"/>
+<area shape="rect" id="node1" href="dvertex.html#pgraph.PGraph.DVertex" target="_top" title="Vertex subclass for directed graphs" alt="" coords="125,5,200,31"/>
+<area shape="rect" id="node3" href="uvertex.html#pgraph.PGraph.UVertex" target="_top" title="Vertex subclass for undirected graphs" alt="" coords="125,55,200,80"/>
 </map><p>The vertex classes share
 almost their entire interface, defined once on their common base classes
-(<code class="xref py py-class docutils literal notranslate"><span class="pre">BaseGraph</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseVertex</span></code>). This section documents that
+(<code class="xref py py-class docutils literal notranslate"><span class="pre">Graph</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Vertex</span></code>). This section documents that
 shared interface by task rather than by class; see <a class="reference internal" href="construction.html"><span class="doc">Construction and basic usage</span></a> for
 the <code class="xref py py-class docutils literal notranslate"><span class="pre">DGraph</span></code> and <code class="xref py py-class docutils literal notranslate"><span class="pre">UGraph</span></code> classes and <a class="reference internal" href="edges_vertices.html"><span class="doc">Edges &amp; Vertices</span></a> for
 what’s specific to directed vs. undirected vertices.</p>
@@ -144,8 +144,8 @@ what’s specific to directed vs. undirected vertices.</p>
 <li class="toctree-l1"><a class="reference internal" href="construction.html">Construction and basic usage</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="construction.html#pgraph.PGraph.DGraph"><code class="docutils literal notranslate"><span class="pre">DGraph</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="construction.html#pgraph.PGraph.UGraph"><code class="docutils literal notranslate"><span class="pre">UGraph</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="construction.html#pgraph.PGraph.BaseGraph.Adjacency"><code class="docutils literal notranslate"><span class="pre">Adjacency</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="construction.html#pgraph.PGraph.BaseGraph.Dict"><code class="docutils literal notranslate"><span class="pre">Dict</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="construction.html#pgraph.PGraph.Graph.Adjacency"><code class="docutils literal notranslate"><span class="pre">Adjacency</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="construction.html#pgraph.PGraph.Graph.Dict"><code class="docutils literal notranslate"><span class="pre">Dict</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="construction.html#inherited-methods-for-all-graph-types">Inherited methods for all graph types</a></li>
 </ul>
 </li>
@@ -192,7 +192,7 @@ what’s specific to directed vs. undirected vertices.</p>
   <hr/>
 
   <div role="contentinfo">
-  <p>Copyright &#169; 2020-present, Peter Corke: built 2026-10-11.
+  <p>Copyright &#169; 2020-present, Peter Corke: built 2026-10-12.
   </p>
   <a href="https://github.com/petercorke/pgraph-python" class="footer-github-link">GitHub</a>
 
