@@ -2300,8 +2300,7 @@ class Graph:
 
         found = []
         for vertex in candidates:
-            if vertex.coord is None:
-                continue
+            assert vertex.coord is not None  # the candidates all have a position
             dist = float(self.metric(vertex.coord - coord))
             if dist <= radius:
                 found.append((vertex, dist))

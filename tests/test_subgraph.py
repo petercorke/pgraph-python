@@ -6,12 +6,17 @@ vertices).
 Expectations are written out by hand.
 """
 
-import pickle  # nosec B403 - only used to round-trip graphs made in this file
+import pickle  # nosec B403 nosemgrep - only used to round-trip graphs made in this file
 import unittest
 
 import numpy as np
 
 from pgraph import DGraph, Edge, UGraph, Vertex
+
+
+def roundtrip(obj):
+    """Pickle and unpickle: these tests only read what they have just written"""
+    return pickle.loads(pickle.dumps(obj))  # nosec B301 nosemgrep
 
 
 def line(cls=UGraph, n=5, **kwargs):
@@ -284,7 +289,7 @@ class _Subgraph:
     def test_can_be_pickled_and_modified(self):
         g, v = self.graph()
         h = g.subgraph([v[1], v[2], v[3]])
-        h2 = pickle.loads(pickle.dumps(h))  # nosec B301
+        h2 = roundtrip(h)
         self.assertEqual(self.description(h2), self.description(h))
         h.add_edge(h["v1"], h["v3"])
         self.assertEqual(h.ne, 5)

@@ -14,7 +14,7 @@ import copy
 import importlib
 import importlib.util
 import pathlib
-import pickle  # nosec B403 - only used to round-trip graphs made in this file
+import pickle  # nosec B403 nosemgrep - only used to round-trip graphs made in this file
 import unittest
 import unittest.mock
 
@@ -24,6 +24,11 @@ import pgraph
 from pgraph import DGraph, SE2Metric, UGraph
 
 HAVE_SCIPY = importlib.util.find_spec("scipy") is not None
+
+
+def roundtrip(obj):
+    """Pickle and unpickle: these tests only read what they have just written"""
+    return pickle.loads(pickle.dumps(obj))  # nosec B301 nosemgrep
 
 
 def points_graph(cls=UGraph, n=200, dim=2, seed=0, **kwargs):
@@ -228,7 +233,7 @@ class TestIndexLifetime(unittest.TestCase):
 
     def test_not_in_copies_or_pickles(self):
         g = self.graph()
-        for h in (g.copy(), copy.deepcopy(g), pickle.loads(pickle.dumps(g)), g.subgraph(g)):  # nosec B301
+        for h in (g.copy(), copy.deepcopy(g), roundtrip(g), g.subgraph(g)):
             self.assertIsNone(h._kdtree)
             self.assertEqual(h.closest([9.0, 0.0])[0].name, "b")
 
@@ -248,6 +253,67 @@ class TestIndexLifetime(unittest.TestCase):
     def test_no_coordinates(self):
         g = UGraph()
         g.add_vertex()
+        with self.assertRaises(ValueError):
+            g.build_kdtree()
+
+
+class TestVectorizedAndLoopPaths(unittest.TestCase):
+    """near() without an index: built-in metrics in one operation, others in a loop"""
+
+    def test_SE2_without_an_index(self):
+        for weight in (0.0, 0.5, 2.0):
+            with self.subTest(weight=weight):
+                g, P = points_graph(UGraph, dim=3, metric=SE2Metric(weight))
+                for q in ([0.0, 0.0, 3.0], [4.0, -2.0, -3.0]):
+                    d = se2(P - np.asarray(q), weight)
+                    found = g.near(q, 5.0)
+                    self.assertEqual(
+                        sorted(int(v.name[1:]) for v, _ in found),
+                        sorted(np.flatnonzero(d <= 5.0).tolist()),
+                    )
+                    np.testing.assert_allclose([x for _, x in found], np.sort(d[d <= 5.0]), atol=1e-9)
+
+    def test_metric_of_your_own(self):
+        g = UGraph(dim=2, metric=lambda v: float(np.abs(v).max()))  # Chebyshev
+        for name, c in [("a", (0, 0)), ("b", (2, 2)), ("c", (3, 0)), ("d", (0, 5))]:
+            g.add_vertex(list(c), name=name)
+        g.add_vertex(name="nowhere")
+        found = g.near([0.0, 0.0], 3.0)
+        self.assertEqual([(v.name, d) for v, d in found], [("a", 0.0), ("b", 2.0), ("c", 3.0)])
+
+    def test_vertices_without_coordinates(self):
+        g = UGraph()
+        g.add_vertex(name="nowhere")
+        g.add_vertex(name="nowhere else")
+        self.assertEqual(g.within([[0, 0], [1, 1]]), [])
+        self.assertEqual(g.near([0, 0], 5), [])
+
+    def test_closest_skips_vertices_without_coordinates(self):
+        g = UGraph(dim=2)
+        g.add_vertex(name="nowhere")
+        g.add_vertex([3.0, 4.0], name="a")
+        vertex, d = g.closest([0.0, 0.0])  # no index: the loop
+        self.assertEqual((vertex.name, d), ("a", 5.0))
+
+
+@unittest.skipUnless(HAVE_SCIPY, "scipy is not installed")
+class TestIndexGuards(unittest.TestCase):
+    def test_a_query_that_is_not_finite_falls_back(self):
+        g, _ = points_graph(UGraph, n=20)
+        g.build_kdtree()
+        vertex, d = g.closest([np.nan, 0.0])  # the loop: nothing is nearer than nan
+        self.assertIsNone(vertex)
+        self.assertEqual(d, np.inf)
+
+    def test_a_query_of_the_wrong_length_with_SE2(self):
+        g, _ = points_graph(UGraph, n=20, dim=3, metric="SE2")
+        g.build_kdtree()
+        with self.assertRaises(ValueError):  # the metric itself says so
+            g.closest([0.0, 0.0])
+
+    def test_coordinates_that_are_none_finite(self):
+        g = UGraph(dim=2)
+        g.add_vertex([np.nan, np.nan])
         with self.assertRaises(ValueError):
             g.build_kdtree()
 
