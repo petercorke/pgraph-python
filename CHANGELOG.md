@@ -91,11 +91,15 @@ Fixed
   instead of raising.
 - `Edge.vertices()` raised `DeprecationWarning` as an exception; it now warns
   and returns the endpoints, as `Edge.endpoints` does.
-- Two bugs in `incidence()` that scrambled its output; `remove()` crashed for
-  every directed edge; `dotfile()` closed `sys.stdout` when called with its
-  default arguments; and several methods raised a bare `AttributeError` or
-  `TypeError` instead of a clear message for a vertex with no coordinate or no
-  graph.
+- `incidence()` returned the wrong matrix for every graph with an edge: a loop
+  variable overwrote the vertex index, so edges were marked in the wrong rows,
+  and for a directed graph the vertex at the end of an edge was not marked at
+  all.  The columns follow `edges()`, which is now in the order the edges were
+  added, where 0.6.5 used the order of a set.
+- `remove()` crashed for every directed edge; `dotfile()` closed `sys.stdout`
+  when called with its default arguments; and several methods raised a bare
+  `AttributeError` or `TypeError` instead of a clear message for a vertex with
+  no coordinate or no graph.
 - Removing a vertex left its `_graph` pointing at the graph; renaming a vertex
   left the name table stale; `g[x]` accepted any type.
 
