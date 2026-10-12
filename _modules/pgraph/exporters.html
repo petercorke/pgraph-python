@@ -336,19 +336,19 @@
     <span class="n">graph</span><span class="p">:</span> <span class="n">Graph</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">direction</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">colorcomponents</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">color_components</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">costs</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    GraphViz DOT text</span>
 
 <span class="sd">    :param direction: layout direction, ``rankdir`` in DOT, eg. ``"LR"``</span>
-<span class="sd">    :param colorcomponents: fill vertices by connected component</span>
+<span class="sd">    :param color_components: fill vertices by connected component</span>
 <span class="sd">    :param costs: label edges with their cost</span>
 <span class="sd">    """</span>
     <span class="n">directed</span> <span class="o">=</span> <span class="n">_is_directed</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span>
     <span class="n">link</span> <span class="o">=</span> <span class="s2">"-&gt;"</span> <span class="k">if</span> <span class="n">directed</span> <span class="k">else</span> <span class="s2">"--"</span>
-    <span class="n">colors</span> <span class="o">=</span> <span class="n">_component_colors</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span> <span class="k">if</span> <span class="n">colorcomponents</span> <span class="k">else</span> <span class="p">{}</span>
+    <span class="n">colors</span> <span class="o">=</span> <span class="n">_component_colors</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span> <span class="k">if</span> <span class="n">color_components</span> <span class="k">else</span> <span class="p">{}</span>
 
     <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"digraph {"</span> <span class="k">if</span> <span class="n">directed</span> <span class="k">else</span> <span class="s2">"graph {"</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">direction</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -388,7 +388,7 @@
     <span class="n">graph</span><span class="p">:</span> <span class="n">Graph</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">direction</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"TB"</span><span class="p">,</span>
-    <span class="n">colorcomponents</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">color_components</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">costs</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">fence</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -396,7 +396,7 @@
 <span class="sd">    Mermaid flowchart text</span>
 
 <span class="sd">    :param direction: ``"TB"``, ``"BT"``, ``"LR"`` or ``"RL"``</span>
-<span class="sd">    :param colorcomponents: fill vertices by connected component</span>
+<span class="sd">    :param color_components: fill vertices by connected component</span>
 <span class="sd">    :param costs: label edges with their cost</span>
 <span class="sd">    :param fence: wrap in a Markdown code fence, three backticks followed by</span>
 <span class="sd">        ``mermaid``</span>
@@ -423,7 +423,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"    </span><span class="si">{</span><span class="n">ids</span><span class="p">[</span><span class="n">v1</span><span class="p">]</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">arrow</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">ids</span><span class="p">[</span><span class="n">v2</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">colorcomponents</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">color_components</span><span class="p">:</span>
         <span class="n">colors</span> <span class="o">=</span> <span class="n">_component_colors</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">vertex</span><span class="p">,</span> <span class="n">color</span> <span class="ow">in</span> <span class="n">colors</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"    style </span><span class="si">{</span><span class="n">ids</span><span class="p">[</span><span class="n">vertex</span><span class="p">]</span><span class="si">}</span><span class="s2"> fill:</span><span class="si">{</span><span class="n">color</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
@@ -590,7 +590,7 @@
     <span class="o">*</span><span class="p">,</span>
     <span class="n">engine</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">direction</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">colorcomponents</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">color_components</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">costs</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""</span>
@@ -624,7 +624,7 @@
             <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">fmt</span><span class="si">}</span><span class="s2"> output, or export the text with format='dot'"</span>
         <span class="p">)</span>
 
-    <span class="n">text</span> <span class="o">=</span> <span class="n">dot</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="n">direction</span><span class="p">,</span> <span class="n">colorcomponents</span><span class="o">=</span><span class="n">colorcomponents</span><span class="p">,</span> <span class="n">costs</span><span class="o">=</span><span class="n">costs</span><span class="p">)</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">dot</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="n">direction</span><span class="p">,</span> <span class="n">color_components</span><span class="o">=</span><span class="n">color_components</span><span class="p">,</span> <span class="n">costs</span><span class="o">=</span><span class="n">costs</span><span class="p">)</span>
     <span class="n">result</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>  <span class="c1"># nosec B603 nosemgrep - allow-listed program and format, no shell</span>
         <span class="p">[</span><span class="n">exe</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"-T</span><span class="si">{</span><span class="n">fmt</span><span class="si">}</span><span class="s2">"</span><span class="p">],</span>
         <span class="nb">input</span><span class="o">=</span><span class="n">text</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">"utf-8"</span><span class="p">),</span>

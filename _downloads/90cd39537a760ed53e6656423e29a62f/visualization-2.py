@@ -1,11 +1,7 @@
-from pgraph import UGraph
-import numpy as np
-np.random.seed(0)
-g = UGraph()
-for i in range(5):
-    g.add_vertex(np.random.rand(2));
-for i, j in [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (3, 4)]:
-    g.add_edge(g[i], g[j]);
+from pgraph import DGraph
+g = DGraph()
+for name, xy in dict(A=(0, 1), B=(2, 1.7), C=(3.3, 0.3), D=(1.2, -0.5)).items():
+    g.add_vertex(xy, name=name);
+for a, b in ["AB", "AB", "AD", "BC", "CB", "DC", "CC"]:
+    g.add_edge(a, b);
 g.plot(block=None)
-path, length, _ = g.path_Astar(g[2], g[4])
-g.highlight_path(path, block=None)
