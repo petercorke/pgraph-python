@@ -172,12 +172,39 @@ one adjacent vertex, the cheapest if there are parallel edges, and
 </section>
 <section id="geometry-and-consistency">
 <h3>Geometry and consistency<a class="headerlink" href="#geometry-and-consistency" title="Link to this heading"></a></h3>
+<p>For a graph whose vertices have coordinates,
+<a class="reference internal" href="#pgraph.PGraph.Graph.coordinates" title="pgraph.PGraph.Graph.coordinates"><code class="xref py py-meth docutils literal notranslate"><span class="pre">coordinates()</span></code></a> is the matrix of them, one column per
+vertex.  <a class="reference internal" href="#pgraph.PGraph.Graph.closest" title="pgraph.PGraph.Graph.closest"><code class="xref py py-meth docutils literal notranslate"><span class="pre">closest()</span></code></a> finds the nearest vertex to a
+point, <a class="reference internal" href="#pgraph.PGraph.Graph.near" title="pgraph.PGraph.Graph.near"><code class="xref py py-meth docutils literal notranslate"><span class="pre">near()</span></code></a> the vertices within a distance of a
+point and <a class="reference internal" href="#pgraph.PGraph.Graph.within" title="pgraph.PGraph.Graph.within"><code class="xref py py-meth docutils literal notranslate"><span class="pre">within()</span></code></a> the vertices inside a box.  Passing
+the result of the last to <a class="reference internal" href="#pgraph.PGraph.Graph.subgraph" title="pgraph.PGraph.Graph.subgraph"><code class="xref py py-meth docutils literal notranslate"><span class="pre">subgraph()</span></code></a> gives the part of
+the graph in a region, without the edges that cross its border, and a boolean
+mask computed from the coordinates selects in the same way.</p>
+<p>These are a single pass over the vertices.  For a large graph that is queried
+often, <a class="reference internal" href="#pgraph.PGraph.Graph.build_kdtree" title="pgraph.PGraph.Graph.build_kdtree"><code class="xref py py-meth docutils literal notranslate"><span class="pre">build_kdtree()</span></code></a> builds an index that
+<a class="reference internal" href="#pgraph.PGraph.Graph.closest" title="pgraph.PGraph.Graph.closest"><code class="xref py py-meth docutils literal notranslate"><span class="pre">closest()</span></code></a> and <a class="reference internal" href="#pgraph.PGraph.Graph.near" title="pgraph.PGraph.Graph.near"><code class="xref py py-meth docutils literal notranslate"><span class="pre">near()</span></code></a> then
+use, which needs scipy and is for the built-in metrics.</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pgraph.PGraph.Graph.closest" title="pgraph.PGraph.Graph.closest"><code class="xref py py-obj docutils literal notranslate"><span class="pre">closest</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pgraph.PGraph.Graph.coordinates" title="pgraph.PGraph.Graph.coordinates"><code class="xref py py-obj docutils literal notranslate"><span class="pre">coordinates</span></code></a></p></td>
+<td><p>Coordinates of all the vertices as a matrix</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pgraph.PGraph.Graph.closest" title="pgraph.PGraph.Graph.closest"><code class="xref py py-obj docutils literal notranslate"><span class="pre">closest</span></code></a></p></td>
 <td><p>Vertex closest to point</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pgraph.PGraph.Graph.validate" title="pgraph.PGraph.Graph.validate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pgraph.PGraph.Graph.near" title="pgraph.PGraph.Graph.near"><code class="xref py py-obj docutils literal notranslate"><span class="pre">near</span></code></a></p></td>
+<td><p>Vertices within a distance of a point</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pgraph.PGraph.Graph.within" title="pgraph.PGraph.Graph.within"><code class="xref py py-obj docutils literal notranslate"><span class="pre">within</span></code></a></p></td>
+<td><p>Vertices inside a box</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pgraph.PGraph.Graph.build_kdtree" title="pgraph.PGraph.Graph.build_kdtree"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_kdtree</span></code></a></p></td>
+<td><p>Build a spatial index of the vertices, used by <code class="xref py py-meth docutils literal notranslate"><span class="pre">closest()</span></code> and <code class="xref py py-meth docutils literal notranslate"><span class="pre">near()</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pgraph.PGraph.Graph.subgraph" title="pgraph.PGraph.Graph.subgraph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">subgraph</span></code></a></p></td>
+<td><p>Subgraph induced by a set of vertices</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pgraph.PGraph.Graph.validate" title="pgraph.PGraph.Graph.validate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate</span></code></a></p></td>
 <td><p>Check that the graph's records agree with each other</p></td>
 </tr>
 </tbody>
@@ -666,19 +693,19 @@ Use <code class="docutils literal notranslate"><span class="pre">[v.out_degree</
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">g</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">UGraph</span></a><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/builtins/stdtypes.html#range"><span class="nb">range</span></a><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
 <span class="gp">... </span>    <a class="sphinx-codeautolink-a" href="modification.html#pgraph.PGraph.Graph.add_vertex" title="pgraph.PGraph.Graph.add_vertex"><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="https://numpy.org/doc/stable/reference/random/generated/numpy.random.rand.html#numpy.random.rand" title="numpy.random.rand"><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span></a><span class="p">(</span><span class="mi">2</span><span class="p">));</span>
-<span class="go">Vertex[#0, coord=(0.7897, 0.8523)]</span>
-<span class="go">Vertex[#1, coord=(0.341, 0.8745)]</span>
-<span class="go">Vertex[#2, coord=(0.7073, 0.5143)]</span>
-<span class="go">Vertex[#3, coord=(0.8231, 0.3277)]</span>
-<span class="go">Vertex[#4, coord=(0.2842, 0.7564)]</span>
+<span class="go">Vertex[#0, coord=(0.1592, 0.5457)]</span>
+<span class="go">Vertex[#1, coord=(0.5676, 0.4832)]</span>
+<span class="go">Vertex[#2, coord=(0.03344, 0.05261)]</span>
+<span class="go">Vertex[#3, coord=(0.6761, 0.8079)]</span>
+<span class="go">Vertex[#4, coord=(0.4961, 0.7772)]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">)]:</span>
 <span class="gp">... </span>    <a class="sphinx-codeautolink-a" href="modification.html#pgraph.PGraph.Graph.add_edge" title="pgraph.PGraph.Graph.add_edge"><span class="n">g</span><span class="o">.</span><span class="n">add_edge</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">g</span></a><span class="p">[</span><span class="n">i</span><span class="p">],</span> <a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">g</span></a><span class="p">[</span><span class="n">j</span><span class="p">]);</span>
-<span class="go">Edge{[#0] -- [#1], cost=0.4492}</span>
-<span class="go">Edge{[#0] -- [#2], cost=0.3479}</span>
-<span class="go">Edge{[#0] -- [#3], cost=0.5256}</span>
-<span class="go">Edge{[#1] -- [#2], cost=0.5138}</span>
-<span class="go">Edge{[#1] -- [#3], cost=0.729}</span>
-<span class="go">Edge{[#3] -- [#4], cost=0.6886}</span>
+<span class="go">Edge{[#0] -- [#1], cost=0.4131}</span>
+<span class="go">Edge{[#0] -- [#2], cost=0.5088}</span>
+<span class="go">Edge{[#0] -- [#3], cost=0.5796}</span>
+<span class="go">Edge{[#1] -- [#2], cost=0.686}</span>
+<span class="go">Edge{[#1] -- [#3], cost=0.3424}</span>
+<span class="go">Edge{[#3] -- [#4], cost=0.1827}</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">c</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="analysis.html#pgraph.PGraph.Graph.connectivity" title="pgraph.PGraph.Graph.connectivity"><span class="n">g</span><span class="o">.</span><span class="n">connectivity</span></a><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/builtins/functions.html#print"><span class="nb">print</span></a><span class="p">(</span><span class="n">c</span><span class="p">)</span>
 <span class="go">[3, 3, 2, 3, 1]</span>
@@ -739,6 +766,58 @@ mean of the degree, which is twice the old value.  Use
 </dl>
 </dd></dl>
 <dl class="py method">
+<dt class="sig sig-object py" id="pgraph.PGraph.Graph.coordinates">
+<span class="sig-prename descclassname"><span class="pre">Graph.</span></span><span class="sig-name descname"><span class="pre">coordinates</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pgraph/PGraph.html#Graph.coordinates"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pgraph.PGraph.Graph.coordinates" title="Link to this definition"></a></dt>
+<dd><p>Coordinates of all the vertices as a matrix</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>coordinates, one column per vertex in the order they were added</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>ndarray(dim, <a class="reference internal" href="#pgraph.PGraph.Graph.n" title="pgraph.PGraph.Graph.n">n</a>)</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.15)"><strong>ValueError</strong></a> – the coordinates of two vertices differ in length</p>
+</dd>
+</dl>
+<p>Column <code class="docutils literal notranslate"><span class="pre">i</span></code> is the coordinate of <code class="docutils literal notranslate"><span class="pre">g[i]</span></code>, the same order as the
+rows and columns of <a class="reference internal" href="representations.html#pgraph.PGraph.Graph.adjacency" title="pgraph.PGraph.Graph.adjacency"><code class="xref py py-meth docutils literal notranslate"><span class="pre">adjacency()</span></code></a>.  A vertex that has no
+coordinate has a column of NaN, so the matrix always has one column
+per vertex.  The number of rows is <code class="docutils literal notranslate"><span class="pre">dim</span></code> if the graph was given one,
+otherwise the length of the first coordinate, and 0 if no vertex has
+one.  Elements are float.</p>
+<p>The result is a <em>view</em> of a new array that has one row per vertex, so
+the coordinate of each vertex is contiguous in memory and <code class="docutils literal notranslate"><span class="pre">C[:,</span> <span class="pre">i]</span></code>
+is a contiguous slice, while a row such as <code class="docutils literal notranslate"><span class="pre">C[0]</span></code> is strided.  Use
+<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ascontiguousarray.html#numpy.ascontiguousarray" title="(in NumPy v2.5)"><code class="xref py py-func docutils literal notranslate"><span class="pre">numpy.ascontiguousarray()</span></code></a> if you need the rows to be contiguous.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This is a snapshot, made each time: changing it does not
+move the vertices, and moving a vertex does not change a matrix
+that was already returned.</p>
+</div>
+<p>With NumPy this selects vertices in a single operation, as
+<a class="reference internal" href="#pgraph.PGraph.Graph.within" title="pgraph.PGraph.Graph.within"><code class="xref py py-meth docutils literal notranslate"><span class="pre">within()</span></code></a> and <a class="reference internal" href="#pgraph.PGraph.Graph.near" title="pgraph.PGraph.Graph.near"><code class="xref py py-meth docutils literal notranslate"><span class="pre">near()</span></code></a> do, or it can be given to a spatial
+index of your own.</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pgraph</span><span class="w"> </span><span class="kn">import</span> <a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">UGraph</span></a>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">g</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">UGraph</span></a><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/builtins/stdtypes.html#range"><span class="nb">range</span></a><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+<span class="gp">... </span>    <a class="sphinx-codeautolink-a" href="modification.html#pgraph.PGraph.Graph.add_vertex" title="pgraph.PGraph.Graph.add_vertex"><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span></a><span class="p">(</span><span class="n">coord</span><span class="o">=</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">10</span> <span class="o">*</span> <span class="n">i</span><span class="p">])</span>
+<span class="go">Vertex[#0, coord=(0, 0)]</span>
+<span class="go">Vertex[#1, coord=(1, 10)]</span>
+<span class="go">Vertex[#2, coord=(2, 20)]</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="analysis.html#pgraph.PGraph.Graph.coordinates" title="pgraph.PGraph.Graph.coordinates"><span class="n">g</span><span class="o">.</span><span class="n">coordinates</span></a><span class="p">()</span>
+<span class="go">array([[ 0.,  1.,  2.],</span>
+<span class="go">       [ 0., 10., 20.]])</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#pgraph.PGraph.Graph.within" title="pgraph.PGraph.Graph.within"><code class="xref py py-meth docutils literal notranslate"><span class="pre">within()</span></code></a> <a class="reference internal" href="#pgraph.PGraph.Graph.near" title="pgraph.PGraph.Graph.near"><code class="xref py py-meth docutils literal notranslate"><span class="pre">near()</span></code></a> <a class="reference internal" href="#pgraph.PGraph.Graph.closest" title="pgraph.PGraph.Graph.closest"><code class="xref py py-meth docutils literal notranslate"><span class="pre">closest()</span></code></a> <a class="reference internal" href="representations.html#pgraph.PGraph.Graph.adjacency" title="pgraph.PGraph.Graph.adjacency"><code class="xref py py-meth docutils literal notranslate"><span class="pre">adjacency()</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
 <dt class="sig sig-object py" id="pgraph.PGraph.Graph.closest">
 <span class="sig-prename descclassname"><span class="pre">Graph.</span></span><span class="sig-name descname"><span class="pre">closest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coord</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pgraph/PGraph.html#Graph.closest"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pgraph.PGraph.Graph.closest" title="Link to this definition"></a></dt>
 <dd><p>Vertex closest to point</p>
@@ -757,6 +836,8 @@ vertex in the graph has a coordinate</p>
 <p>Returns the vertex closest to the given point. Distance is computed
 according to the graph’s metric. Vertices without a coordinate
 (<code class="docutils literal notranslate"><span class="pre">coord</span></code> is None) are skipped – they have no position to compare.</p>
+<p>This is a pass over the vertices, unless a spatial index has been
+built with <a class="reference internal" href="#pgraph.PGraph.Graph.build_kdtree" title="pgraph.PGraph.Graph.build_kdtree"><code class="xref py py-meth docutils literal notranslate"><span class="pre">build_kdtree()</span></code></a> and is still valid.</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pgraph</span><span class="w"> </span><span class="kn">import</span> <a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">UGraph</span></a>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">g</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">UGraph</span></a><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="edges_vertices.html#pgraph.PGraph.Vertex" title="pgraph.PGraph.Vertex"><span class="n">v1</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="modification.html#pgraph.PGraph.Graph.add_vertex" title="pgraph.PGraph.Graph.add_vertex"><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span></a><span class="p">(</span><span class="n">coord</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s1">'v1'</span><span class="p">)</span>
@@ -768,21 +849,242 @@ according to the graph’s metric. Vertices without a coordinate
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Seealso<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="construction.html#pgraph.PGraph.Graph.metric" title="pgraph.PGraph.Graph.metric"><code class="xref py py-meth docutils literal notranslate"><span class="pre">metric()</span></code></a></p>
+<dd class="field-odd"><p><a class="reference internal" href="construction.html#pgraph.PGraph.Graph.metric" title="pgraph.PGraph.Graph.metric"><code class="xref py py-meth docutils literal notranslate"><span class="pre">metric()</span></code></a> <a class="reference internal" href="#pgraph.PGraph.Graph.near" title="pgraph.PGraph.Graph.near"><code class="xref py py-meth docutils literal notranslate"><span class="pre">near()</span></code></a> <a class="reference internal" href="#pgraph.PGraph.Graph.build_kdtree" title="pgraph.PGraph.Graph.build_kdtree"><code class="xref py py-meth docutils literal notranslate"><span class="pre">build_kdtree()</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pgraph.PGraph.Graph.near">
+<span class="sig-prename descclassname"><span class="pre">Graph.</span></span><span class="sig-name descname"><span class="pre">near</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coord</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radius</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pgraph/PGraph.html#Graph.near"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pgraph.PGraph.Graph.near" title="Link to this definition"></a></dt>
+<dd><p>Vertices within a distance of a point</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>coord</strong> (<em>ndarray</em><em>(</em><a class="reference internal" href="#pgraph.PGraph.Graph.n" title="pgraph.PGraph.Graph.n"><em>n</em></a><em>)</em>) – coordinates of a point</p></li>
+<li><p><strong>radius</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></span>) – greatest distance, inclusive</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.15)"><strong>ValueError</strong></a> – <code class="docutils literal notranslate"><span class="pre">radius</span></code> is negative</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>the vertices within <code class="docutils literal notranslate"><span class="pre">radius</span></code> of the point with their
+distances, nearest first</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.15)">list</a> of (Vertex subclass, <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)">float</a>)</p>
+</dd>
+</dl>
+<p>Distance is computed according to the graph’s metric, as it is by
+<a class="reference internal" href="#pgraph.PGraph.Graph.closest" title="pgraph.PGraph.Graph.closest"><code class="xref py py-meth docutils literal notranslate"><span class="pre">closest()</span></code></a>, of which this is the generalization to every vertex
+within a radius.  Vertices without a coordinate are skipped, and
+vertices at equal distance are in the order of the graph.</p>
+<p>For the built-in metrics the distance to every vertex is found in one
+operation on <a class="reference internal" href="#pgraph.PGraph.Graph.coordinates" title="pgraph.PGraph.Graph.coordinates"><code class="xref py py-meth docutils literal notranslate"><span class="pre">coordinates()</span></code></a>, or by the spatial index if
+<a class="reference internal" href="#pgraph.PGraph.Graph.build_kdtree" title="pgraph.PGraph.Graph.build_kdtree"><code class="xref py py-meth docutils literal notranslate"><span class="pre">build_kdtree()</span></code></a> was called; a metric of your own is applied
+to each vertex in turn.</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pgraph</span><span class="w"> </span><span class="kn">import</span> <a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">UGraph</span></a>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">g</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">UGraph</span></a><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/builtins/stdtypes.html#range"><span class="nb">range</span></a><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
+<span class="gp">... </span>    <a class="sphinx-codeautolink-a" href="modification.html#pgraph.PGraph.Graph.add_vertex" title="pgraph.PGraph.Graph.add_vertex"><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span></a><span class="p">(</span><span class="n">coord</span><span class="o">=</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">"v</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">Vertex[v0, coord=(0, 0)]</span>
+<span class="go">Vertex[v1, coord=(1, 0)]</span>
+<span class="go">Vertex[v2, coord=(2, 0)]</span>
+<span class="go">Vertex[v3, coord=(3, 0)]</span>
+<span class="go">Vertex[v4, coord=(4, 0)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[(</span><span class="n">v</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <a class="sphinx-codeautolink-a" href="analysis.html#pgraph.PGraph.Graph.near" title="pgraph.PGraph.Graph.near"><span class="n">g</span><span class="o">.</span><span class="n">near</span></a><span class="p">([</span><span class="mf">2.2</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="mf">1.5</span><span class="p">)]</span>
+<span class="go">[('v2', 0.20000000000000018), ('v3', 0.7999999999999998), ('v1', 1.2000000000000002)]</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#pgraph.PGraph.Graph.closest" title="pgraph.PGraph.Graph.closest"><code class="xref py py-meth docutils literal notranslate"><span class="pre">closest()</span></code></a> <a class="reference internal" href="#pgraph.PGraph.Graph.within" title="pgraph.PGraph.Graph.within"><code class="xref py py-meth docutils literal notranslate"><span class="pre">within()</span></code></a> <a class="reference internal" href="construction.html#pgraph.PGraph.Graph.metric" title="pgraph.PGraph.Graph.metric"><code class="xref py py-meth docutils literal notranslate"><span class="pre">metric()</span></code></a> <a class="reference internal" href="#pgraph.PGraph.Graph.build_kdtree" title="pgraph.PGraph.Graph.build_kdtree"><code class="xref py py-meth docutils literal notranslate"><span class="pre">build_kdtree()</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pgraph.PGraph.Graph.within">
+<span class="sig-prename descclassname"><span class="pre">Graph.</span></span><span class="sig-name descname"><span class="pre">within</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">box</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pgraph/PGraph.html#Graph.within"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pgraph.PGraph.Graph.within" title="Link to this definition"></a></dt>
+<dd><p>Vertices inside a box</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>box</strong> (<em>ndarray</em><em>(</em><em>2</em><em>,</em><a class="reference internal" href="#pgraph.PGraph.Graph.n" title="pgraph.PGraph.Graph.n"><em>n</em></a><em>)</em>) – lower and upper corners of the box</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.15)"><strong>ValueError</strong></a> – <code class="docutils literal notranslate"><span class="pre">box</span></code> is not 2 x n, its upper corner is below its
+lower corner in some dimension, or the coordinates of the vertices
+do not have n elements</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>the vertices inside the box, in the order of the graph</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.15)">list</a> of Vertex subclass</p>
+</dd>
+</dl>
+<p>The first row of <code class="docutils literal notranslate"><span class="pre">box</span></code> is the lower corner, the second row the upper
+corner, so in two dimensions it is <code class="docutils literal notranslate"><span class="pre">[[xmin,</span> <span class="pre">ymin],</span> <span class="pre">[xmax,</span> <span class="pre">ymax]]</span></code>.
+The box is closed: a vertex on its boundary is inside.  Vertices
+without a coordinate are skipped, as they are by <a class="reference internal" href="#pgraph.PGraph.Graph.closest" title="pgraph.PGraph.Graph.closest"><code class="xref py py-meth docutils literal notranslate"><span class="pre">closest()</span></code></a>.</p>
+<p>The test is made for all the vertices at once on <a class="reference internal" href="#pgraph.PGraph.Graph.coordinates" title="pgraph.PGraph.Graph.coordinates"><code class="xref py py-meth docutils literal notranslate"><span class="pre">coordinates()</span></code></a>.
+Together with <a class="reference internal" href="#pgraph.PGraph.Graph.subgraph" title="pgraph.PGraph.Graph.subgraph"><code class="xref py py-meth docutils literal notranslate"><span class="pre">subgraph()</span></code></a> it selects the part of an embedded
+graph in a region</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pgraph</span><span class="w"> </span><span class="kn">import</span> <a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">UGraph</span></a>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">g</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">UGraph</span></a><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/builtins/stdtypes.html#range"><span class="nb">range</span></a><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
+<span class="gp">... </span>    <a class="sphinx-codeautolink-a" href="modification.html#pgraph.PGraph.Graph.add_vertex" title="pgraph.PGraph.Graph.add_vertex"><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span></a><span class="p">(</span><span class="n">coord</span><span class="o">=</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">i</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">"v</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="go">Vertex[v0, coord=(0, 0)]</span>
+<span class="go">Vertex[v1, coord=(1, 1)]</span>
+<span class="go">Vertex[v2, coord=(2, 2)]</span>
+<span class="go">Vertex[v3, coord=(3, 3)]</span>
+<span class="go">Vertex[v4, coord=(4, 4)]</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="analysis.html#pgraph.PGraph.Graph.within" title="pgraph.PGraph.Graph.within"><span class="n">g</span><span class="o">.</span><span class="n">within</span></a><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]])</span>
+<span class="go">[Vertex[v1, coord=(1, 1)], Vertex[v2, coord=(2, 2)], Vertex[v3, coord=(3, 3)]]</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="analysis.html#pgraph.PGraph.Graph.subgraph" title="pgraph.PGraph.Graph.subgraph"><span class="n">g</span><span class="o">.</span><span class="n">subgraph</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="analysis.html#pgraph.PGraph.Graph.within" title="pgraph.PGraph.Graph.within"><span class="n">g</span><span class="o">.</span><span class="n">within</span></a><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]]))</span>
+<span class="go">UGraph:</span>
+<span class="go">  v1 at [1 1] component=0</span>
+<span class="go">  v2 at [2 2] component=1</span>
+<span class="go">  v3 at [3 3] component=2</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#pgraph.PGraph.Graph.near" title="pgraph.PGraph.Graph.near"><code class="xref py py-meth docutils literal notranslate"><span class="pre">near()</span></code></a> <a class="reference internal" href="#pgraph.PGraph.Graph.closest" title="pgraph.PGraph.Graph.closest"><code class="xref py py-meth docutils literal notranslate"><span class="pre">closest()</span></code></a> <a class="reference internal" href="#pgraph.PGraph.Graph.subgraph" title="pgraph.PGraph.Graph.subgraph"><code class="xref py py-meth docutils literal notranslate"><span class="pre">subgraph()</span></code></a> <a class="reference internal" href="#pgraph.PGraph.Graph.coordinates" title="pgraph.PGraph.Graph.coordinates"><code class="xref py py-meth docutils literal notranslate"><span class="pre">coordinates()</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pgraph.PGraph.Graph.build_kdtree">
+<span class="sig-prename descclassname"><span class="pre">Graph.</span></span><span class="sig-name descname"><span class="pre">build_kdtree</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pgraph/PGraph.html#Graph.build_kdtree"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pgraph.PGraph.Graph.build_kdtree" title="Link to this definition"></a></dt>
+<dd><p>Build a spatial index of the vertices, used by <a class="reference internal" href="#pgraph.PGraph.Graph.closest" title="pgraph.PGraph.Graph.closest"><code class="xref py py-meth docutils literal notranslate"><span class="pre">closest()</span></code></a> and <a class="reference internal" href="#pgraph.PGraph.Graph.near" title="pgraph.PGraph.Graph.near"><code class="xref py py-meth docutils literal notranslate"><span class="pre">near()</span></code></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.15)"><strong>ValueError</strong></a> – the metric is not one of the built-in <code class="docutils literal notranslate"><span class="pre">"L1"</span></code>,
+<code class="docutils literal notranslate"><span class="pre">"L2"</span></code> or <code class="docutils literal notranslate"><span class="pre">"SE2"</span></code>, or <code class="docutils literal notranslate"><span class="pre">"SE2"</span></code> and the coordinates are not
+3 elements, or no vertex has a coordinate</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ImportError" title="(in Python v3.15)"><strong>ImportError</strong></a> – scipy is not installed</p></li>
+</ul>
+</dd>
+</dl>
+<p>Finding the nearest vertex to a point is a pass over all the vertices,
+which is the cost of a query on a large graph that is queried often.  A
+k-d tree answers in a time that grows more slowly, at the cost of
+building it once.  <a class="reference internal" href="#pgraph.PGraph.Graph.closest" title="pgraph.PGraph.Graph.closest"><code class="xref py py-meth docutils literal notranslate"><span class="pre">closest()</span></code></a> and <a class="reference internal" href="#pgraph.PGraph.Graph.near" title="pgraph.PGraph.Graph.near"><code class="xref py py-meth docutils literal notranslate"><span class="pre">near()</span></code></a> use the index if it
+has been built, and fall back to the pass over the vertices if it has
+not or if the graph has changed.</p>
+<p>The index is for the built-in metrics <code class="docutils literal notranslate"><span class="pre">"L1"</span></code>, <code class="docutils literal notranslate"><span class="pre">"L2"</span></code> and
+<code class="docutils literal notranslate"><span class="pre">"SE2"</span></code> (with any weight, see <a class="reference internal" href="construction.html#pgraph.PGraph.SE2Metric" title="pgraph.PGraph.SE2Metric"><code class="xref py py-class docutils literal notranslate"><span class="pre">SE2Metric</span></code></a>), and results
+are the same as without it, except that when two vertices are exactly
+the same distance the one returned may differ.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The index is dropped when a vertex is added or removed
+or when <code class="docutils literal notranslate"><span class="pre">vertex.coord</span></code> is assigned (including <code class="docutils literal notranslate"><span class="pre">+=</span></code>), and
+<a class="reference internal" href="#pgraph.PGraph.Graph.closest" title="pgraph.PGraph.Graph.closest"><code class="xref py py-meth docutils literal notranslate"><span class="pre">closest()</span></code></a> is then correct but slow, until it is built again.
+It cannot see a coordinate that is changed in place,
+<code class="docutils literal notranslate"><span class="pre">vertex.coord[0]</span> <span class="pre">=</span> <span class="pre">x</span></code>.  Do not change vertices in place after
+building, or build again.</p>
+</div>
+<p>The index is not copied or pickled with the graph.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This needs <a class="reference external" href="https://scipy.org">scipy</a>.  pgraph does not
+list it as a dependency and imports it only when this method is
+called, but <cite>spatialmath-python</cite>, which pgraph does depend on,
+installs it.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#pgraph.PGraph.Graph.closest" title="pgraph.PGraph.Graph.closest"><code class="xref py py-meth docutils literal notranslate"><span class="pre">closest()</span></code></a> <a class="reference internal" href="#pgraph.PGraph.Graph.near" title="pgraph.PGraph.Graph.near"><code class="xref py py-meth docutils literal notranslate"><span class="pre">near()</span></code></a> <a class="reference internal" href="#pgraph.PGraph.Graph.coordinates" title="pgraph.PGraph.Graph.coordinates"><code class="xref py py-meth docutils literal notranslate"><span class="pre">coordinates()</span></code></a></p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pgraph.PGraph.Graph.subgraph">
+<span class="sig-prename descclassname"><span class="pre">Graph.</span></span><span class="sig-name descname"><span class="pre">subgraph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vertices</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pgraph/PGraph.html#Graph.subgraph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pgraph.PGraph.Graph.subgraph" title="Link to this definition"></a></dt>
+<dd><p>Subgraph induced by a set of vertices</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>vertices</strong> (<em>iterable</em><em> of </em><em>Vertex subclass</em><em> or </em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em>, or </em><em>ndarray</em><em>(</em><a class="reference internal" href="#pgraph.PGraph.Graph.n" title="pgraph.PGraph.Graph.n"><em>n</em></a><em>) of </em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a>) – vertices of this graph, or their names, or a boolean
+mask with one element per vertex</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.15)"><strong>ValueError</strong></a> – a vertex is not in this graph, or a mask is not
+the length of the number of vertices</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#KeyError" title="(in Python v3.15)"><strong>KeyError</strong></a> – a name is not that of a vertex in this graph</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#TypeError" title="(in Python v3.15)"><strong>TypeError</strong></a> – an item is neither a vertex nor a string</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>a new graph of the same kind</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="construction.html#pgraph.PGraph.Graph" title="pgraph.PGraph.Graph">Graph</a></p>
+</dd>
+</dl>
+<p>The new graph has the given vertices and every edge of this graph that
+has <em>both</em> its end vertices among them.  An edge that has one end
+outside is removed, so the edges that cross the border of a region
+are dropped.  Parallel edges and loops are kept.</p>
+<p>Like <a class="reference internal" href="construction.html#pgraph.PGraph.Graph.copy" title="pgraph.PGraph.Graph.copy"><code class="xref py py-meth docutils literal notranslate"><span class="pre">copy()</span></code></a> the new graph is independent of this one: its
+vertices and edges are new objects that keep their class, name,
+coordinate, cost and any attributes that were added, and the graph
+keeps its metric, heuristic and vertex and edge classes.  They are in
+the order of this graph, however <code class="docutils literal notranslate"><span class="pre">vertices</span></code> was ordered.  Names are
+kept, so the vertex <code class="docutils literal notranslate"><span class="pre">g[name]</span></code> has its counterpart <code class="docutils literal notranslate"><span class="pre">h[name]</span></code>.</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pgraph</span><span class="w"> </span><span class="kn">import</span> <a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">UGraph</span></a>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">g</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">UGraph</span></a><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">v</span> <span class="o">=</span> <span class="p">[</span><a class="sphinx-codeautolink-a" href="modification.html#pgraph.PGraph.Graph.add_vertex" title="pgraph.PGraph.Graph.add_vertex"><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span></a><span class="p">(</span><span class="n">coord</span><span class="o">=</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">"v</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/builtins/stdtypes.html#range"><span class="nb">range</span></a><span class="p">(</span><span class="mi">4</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/builtins/stdtypes.html#range"><span class="nb">range</span></a><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+<span class="gp">... </span>    <a class="sphinx-codeautolink-a" href="modification.html#pgraph.PGraph.Graph.add_edge" title="pgraph.PGraph.Graph.add_edge"><span class="n">g</span><span class="o">.</span><span class="n">add_edge</span></a><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">v</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
+<span class="go">Edge{[v0] -- [v1], cost=1}</span>
+<span class="go">Edge{[v1] -- [v2], cost=1}</span>
+<span class="go">Edge{[v2] -- [v3], cost=1}</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.Graph" title="pgraph.PGraph.Graph"><span class="n">h</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="analysis.html#pgraph.PGraph.Graph.subgraph" title="pgraph.PGraph.Graph.subgraph"><span class="n">g</span><span class="o">.</span><span class="n">subgraph</span></a><span class="p">([</span><span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">v</span><span class="p">[</span><span class="mi">2</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/builtins/functions.html#print"><span class="nb">print</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.Graph" title="pgraph.PGraph.Graph"><span class="n">h</span></a><span class="p">)</span>
+<span class="go">UGraph: 2 vertices, 1 edge, 1 component</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="analysis.html#pgraph.PGraph.Graph.edges" title="pgraph.PGraph.Graph.edges"><span class="n">h</span><span class="o">.</span><span class="n">edges</span></a><span class="p">()</span>
+<span class="go">[Edge{[v1] -- [v2], cost=1}]</span>
+</pre></div>
+</div>
+<p>It is a single pass over the graph.  The vertices might be a component,
+the vertices that satisfy a test, or those in a region of an embedded
+graph from <a class="reference internal" href="#pgraph.PGraph.Graph.within" title="pgraph.PGraph.Graph.within"><code class="xref py py-meth docutils literal notranslate"><span class="pre">within()</span></code></a>.</p>
+<p>A boolean mask, such as the result of a comparison on
+<a class="reference internal" href="#pgraph.PGraph.Graph.coordinates" title="pgraph.PGraph.Graph.coordinates"><code class="xref py py-meth docutils literal notranslate"><span class="pre">coordinates()</span></code></a>, selects the vertices by their position in the
+graph, the <code class="docutils literal notranslate"><span class="pre">True</span></code> elements being kept:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">h</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">subgraph</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">coordinates</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>   <span class="c1"># the vertices with x &gt; 0</span>
+</pre></div>
+</div>
+<p>The mask must be of boolean type (a list of <code class="docutils literal notranslate"><span class="pre">bool</span></code> also works) and of
+length <code class="docutils literal notranslate"><span class="pre">g.n</span></code>.  A vector of 0 and 1 of integer type is not accepted, since
+it could as well be a list of indices.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="construction.html#pgraph.PGraph.Graph.copy" title="pgraph.PGraph.Graph.copy"><code class="xref py py-meth docutils literal notranslate"><span class="pre">copy()</span></code></a> <a class="reference internal" href="#pgraph.PGraph.Graph.within" title="pgraph.PGraph.Graph.within"><code class="xref py py-meth docutils literal notranslate"><span class="pre">within()</span></code></a> <a class="reference internal" href="#pgraph.PGraph.Graph.component" title="pgraph.PGraph.Graph.component"><code class="xref py py-meth docutils literal notranslate"><span class="pre">component()</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pgraph.PGraph.Graph.validate">
-<span class="sig-prename descclassname"><span class="pre">Graph.</span></span><span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pgraph/PGraph.html#Graph.validate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pgraph.PGraph.Graph.validate" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">Graph.</span></span><span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embedded</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pgraph/PGraph.html#Graph.validate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pgraph.PGraph.Graph.validate" title="Link to this definition"></a></dt>
 <dd><p>Check that the graph’s records agree with each other</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>a description of each inconsistency found, empty if the graph
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>embedded</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span>) – also report a vertex that has no coordinate, defaults
+to False</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>a description of each inconsistency found, empty if the graph
 is consistent</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.15)">list</a> of <a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)">str</a></p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.15)">list</a> of <a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)">str</a></p>
 </dd>
 </dl>
 <p>A graph keeps the same facts in several places: its set of edges, each
@@ -804,6 +1106,10 @@ an instance of <a class="reference internal" href="construction.html#pgraph.PGra
 <li><p>every vertex points back at this graph, is an instance of
 <a class="reference internal" href="construction.html#pgraph.PGraph.Graph.vertex_class" title="pgraph.PGraph.Graph.vertex_class"><code class="xref py py-attr docutils literal notranslate"><span class="pre">vertex_class</span></code></a>, is in the name table under its own name, and
 has a coordinate of the required length if <code class="docutils literal notranslate"><span class="pre">dim</span></code> was given</p></li>
+<li><p>every coordinate is a finite one-dimensional numeric vector, and if
+<code class="docutils literal notranslate"><span class="pre">dim</span></code> was not given they all have the same length</p></li>
+<li><p>with <code class="docutils literal notranslate"><span class="pre">embedded=True</span></code>, every vertex has a coordinate.  A graph with
+no coordinates is valid, but one that is half embedded rarely is</p></li>
 <li><p>every entry of the name table is a vertex of this graph and is
 filed under its own name</p></li>
 <li><p>each edge is in the right vertex lists, the right number of times:

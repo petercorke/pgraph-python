@@ -49,10 +49,29 @@ Structure and connectivity
 Geometry and consistency
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
+For a graph whose vertices have coordinates,
+:meth:`~pgraph.PGraph.Graph.coordinates` is the matrix of them, one column per
+vertex.  :meth:`~pgraph.PGraph.Graph.closest` finds the nearest vertex to a
+point, :meth:`~pgraph.PGraph.Graph.near` the vertices within a distance of a
+point and :meth:`~pgraph.PGraph.Graph.within` the vertices inside a box.  Passing
+the result of the last to :meth:`~pgraph.PGraph.Graph.subgraph` gives the part of
+the graph in a region, without the edges that cross its border, and a boolean
+mask computed from the coordinates selects in the same way.
+
+These are a single pass over the vertices.  For a large graph that is queried
+often, :meth:`~pgraph.PGraph.Graph.build_kdtree` builds an index that
+:meth:`~pgraph.PGraph.Graph.closest` and :meth:`~pgraph.PGraph.Graph.near` then
+use, which needs scipy and is for the built-in metrics.
+
 .. autosummary::
    :nosignatures:
 
+   ~pgraph.PGraph.Graph.coordinates
    ~pgraph.PGraph.Graph.closest
+   ~pgraph.PGraph.Graph.near
+   ~pgraph.PGraph.Graph.within
+   ~pgraph.PGraph.Graph.build_kdtree
+   ~pgraph.PGraph.Graph.subgraph
    ~pgraph.PGraph.Graph.validate
 
 The matrices of a graph (:meth:`~pgraph.PGraph.Graph.adjacency`,
@@ -153,7 +172,12 @@ Details
 .. automethod:: pgraph.PGraph.Graph.samecomponent
 .. automethod:: pgraph.PGraph.Graph.connectivity
 .. automethod:: pgraph.PGraph.Graph.average_degree
+.. automethod:: pgraph.PGraph.Graph.coordinates
 .. automethod:: pgraph.PGraph.Graph.closest
+.. automethod:: pgraph.PGraph.Graph.near
+.. automethod:: pgraph.PGraph.Graph.within
+.. automethod:: pgraph.PGraph.Graph.build_kdtree
+.. automethod:: pgraph.PGraph.Graph.subgraph
 .. automethod:: pgraph.PGraph.Graph.validate
 
 .. autoproperty:: pgraph.PGraph.Vertex.name
