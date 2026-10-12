@@ -17,6 +17,7 @@ not by the code under test.
 
 import signal
 import unittest
+import unittest.mock
 from contextlib import contextmanager
 
 import numpy as np
@@ -195,6 +196,41 @@ class _Components:
         g = build(self.cls, 4, [(0, 1), (2, 3)])
         self.assertTrue(g.samecomponent(g[0], g[1]))
         self.assertFalse(g.samecomponent(g[1], g[2]))
+
+
+class TestNotRecomputed(unittest.TestCase):
+    """The traversal runs once, and again only after the graph has changed"""
+
+    def traversals(self, g, ask):
+        calls = []
+        original = type(g[0]).adjacent
+
+        def spy(vertex, *args, **kwargs):
+            calls.append(vertex)
+            return original(vertex, *args, **kwargs)
+
+        with unittest.mock.patch.object(type(g[0]), "adjacent", spy):
+            ask()
+        return len(calls)
+
+    def check(self, cls):
+        g = build(cls, 4, [(0, 1), (2, 3)])
+        ask = lambda: (g.nc, g.component(g[0]), g.samecomponent(g[0], g[1]), g[2].label)
+
+        self.assertGreater(self.traversals(g, ask), 0)  # first time: does the work
+        self.assertEqual(self.traversals(g, ask), 0)  # nothing changed: none
+        self.assertEqual(self.traversals(g, ask), 0)
+
+        g.add_edge(g[1], g[2])  # a change: once more, and the answer is new
+        self.assertGreater(self.traversals(g, ask), 0)
+        self.assertEqual(g.nc, 1)
+        self.assertEqual(self.traversals(g, ask), 0)
+
+    def test_undirected(self):
+        self.check(UGraph)
+
+    def test_directed(self):
+        self.check(DGraph)
 
 
 class TestUndirectedComponents(_Components, unittest.TestCase):

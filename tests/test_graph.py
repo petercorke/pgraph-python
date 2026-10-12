@@ -3,7 +3,7 @@ import unittest
 import numpy as np
 import numpy.testing as nt
 
-from pgraph import *
+from pgraph import DGraph, Edge, UGraph, Vertex
 
 class TestUGraph(unittest.TestCase):
 
@@ -50,6 +50,21 @@ class TestUGraph(unittest.TestCase):
         lines = s.split('\n')
         self.assertEqual(len(lines), 3)  # class-name header + one line per vertex
         self.assertEqual(lines[0], "DGraph:")
+
+
+    def test_str_has_thousands_separators(self):
+        # counts of 1,000 or more are easier to read with separators
+        g = UGraph()
+        vs = [g.add_vertex() for _ in range(1001)]
+        self.assertEqual(str(g), "UGraph: 1,001 vertices, 0 edges, 1,001 components")
+        for a, b in zip(vs, vs[1:]):
+            g.add_edge(a, b)
+        self.assertEqual(str(g), "UGraph: 1,001 vertices, 1,000 edges, 1 component")
+        # below a thousand it is as before
+        h = UGraph()
+        for _ in range(999):
+            h.add_vertex()
+        self.assertEqual(str(h), "UGraph: 999 vertices, 0 edges, 999 components")
 
     def test_attr(self):
 
@@ -297,6 +312,24 @@ class TestUGraph(unittest.TestCase):
         with self.assertWarns(DeprecationWarning):
             verts = e.vertices()
         self.assertEqual(verts, e.endpoints)
+
+    def test_planners_validate_start_and_goal(self):
+        # 0.6.5 checked the type of the start twice and never the goal
+        g = UGraph()
+        a = g.add_vertex(coord=[0, 0], name="a")
+        b = g.add_vertex(coord=[1, 0], name="b")
+        g.add_edge(a, b)
+
+        for planner in (g.path_BFS, g.path_UCS, g.path_Astar):
+            with self.subTest(planner=planner.__name__):
+                with self.assertRaises(TypeError):
+                    planner(a, 42)
+                with self.assertRaises(TypeError):
+                    planner(42, b)
+                with self.assertRaises(KeyError):
+                    planner(a, "no such vertex")
+                # by name and by reference both work
+                self.assertEqual(planner("a", "b")[0], [a, b])
 
     def test_edge3(self):
 
