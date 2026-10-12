@@ -98,6 +98,43 @@ def _post(query: str, retries: int = 4) -> dict[str, Any]:
     raise RuntimeError("unreachable")
 
 
+def _compact(value: Any) -> str:
+    return json.dumps(value, separators=(",", ":"), ensure_ascii=False)
+
+
+def _to_lines(data: dict[str, Any]) -> str:
+    """JSON with one record per line, for a file that is read by people and diffs
+
+    A dict of records is written a key per line, and a list of lists an item
+    per line, so that a change to the data is a change to a few lines, and a
+    record can be found with ``grep``.  It is about 10% bigger than the
+    compact form and the same JSON.
+    """
+    lines = ["{"]
+    keys = list(data)
+    for k, key in enumerate(keys):
+        value = data[key]
+        tail = "," if k < len(keys) - 1 else ""
+        label = json.dumps(key)
+        if isinstance(value, dict) and value:
+            lines.append(f" {label}: {{")
+            items = list(value.items())
+            for i, (name, record) in enumerate(items):
+                comma = "," if i < len(items) - 1 else ""
+                lines.append(f"  {json.dumps(name)}: {_compact(record)}{comma}")
+            lines.append(" }" + tail)
+        elif isinstance(value, list) and value and all(isinstance(r, list) for r in value):
+            lines.append(f" {label}: [")
+            for i, record in enumerate(value):
+                comma = "," if i < len(value) - 1 else ""
+                lines.append(f"  {_compact(record)}{comma}")
+            lines.append(" ]" + tail)
+        else:
+            lines.append(f" {label}: {_compact(value)}{tail}")
+    lines.append("}")
+    return "\n".join(lines) + "\n"
+
+
 def fetch_roads(
     bbox: tuple[float, float, float, float],
     cache: str | Path,
@@ -106,11 +143,13 @@ def fetch_roads(
     """Roads that a car can use inside a bounding box
 
     :param bbox: ``(south, west, north, east)`` in degrees
-    :param cache: JSON file that holds the result, read if it exists
+    :param cache: JSON file that holds the result, read if it exists.  It is
+        written with one record (node, way) per line
     :param refresh: fetch again even if ``cache`` exists
-    :return: ``{"bbox": ..., "nodes": {id: [lat, lon]}, "ways": [...]}`` where
+    :return: ``{"bbox": ..., "ways": [...], "nodes": {id: [lat, lon]}}`` where
         each way is ``[name, direction, [node ids]]`` and direction is 1 if the
-        way is one-way in the order of its nodes, -1 if against it, 0 if both
+        way is one-way in the order of its nodes, -1 if against it, 0 if both.
+        The ways come first in the file, since they are what a reader looks at
     """
     cache = Path(cache)
     if cache.exists() and not refresh:
@@ -131,10 +170,10 @@ def fetch_roads(
         "source": "OpenStreetMap, © OpenStreetMap contributors, ODbL "
         "https://www.openstreetmap.org/copyright",
         "bbox": list(bbox),
-        "nodes": {str(i): coords[i] for i in sorted(used)},
         "ways": ways,
+        "nodes": {str(i): coords[i] for i in sorted(used)},
     }
-    cache.write_text(json.dumps(data, separators=(",", ":"), ensure_ascii=False))
+    cache.write_text(_to_lines(data), encoding="utf-8")
     return data
 
 
