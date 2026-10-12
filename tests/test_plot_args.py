@@ -2,7 +2,8 @@
 plot() / highlight_*() argument handling and the errors they give for graphs
 that cannot be drawn.  These were found by mypy: ``text=None`` and
 ``text=True`` crashed although the docstring documents ``None`` as "default
-formatting", and unplottable graphs gave a bare TypeError/IndexError.
+formatting", and unplottable graphs gave a bare TypeError/IndexError.  The
+0.6.5 names of the options are in test_plot_arrows.py.
 """
 
 import unittest
@@ -32,28 +33,28 @@ class TestPlotArgs(unittest.TestCase):
         self.g.plot(block=None)
         self.assertEqual(sorted(self.texts()), ["a", "b"])
 
-    def test_text_none_means_default_formatting(self):
-        self.g.plot(text=None, block=None)
+    def test_text_opt_none_means_default_formatting(self):
+        self.g.plot(text_opt=None, block=None)
         self.assertEqual(sorted(self.texts()), ["a", "b"])
 
-    def test_text_true_means_default_formatting(self):
-        self.g.plot(text=True, block=None)
+    def test_labels_true_means_default_formatting(self):
+        self.g.plot(labels=True, block=None)
         self.assertEqual(sorted(self.texts()), ["a", "b"])
 
-    def test_text_false_means_no_labels(self):
-        self.g.plot(text=False, block=None)
+    def test_labels_false_means_no_labels(self):
+        self.g.plot(labels=False, block=None)
         self.assertEqual(self.texts(), [])
 
-    def test_text_dict_is_the_format(self):
-        self.g.plot(text={"color": "r"}, block=None)
+    def test_text_opt_is_the_format(self):
+        self.g.plot(text_opt={"color": "r"}, block=None)
         self.assertEqual({t.get_color() for t in plt.gca().texts}, {"r"})
 
-    def test_vopt_eopt_none(self):
-        self.g.plot(vopt=None, eopt=None, block=None)
+    def test_options_none(self):
+        self.g.plot(vertex_opt=None, edge_opt=None, arrow_opt=None, text_opt=None, block=None)
 
     def test_options_are_not_shared_between_calls(self):
         # a mutable default argument must not accumulate state
-        self.g.plot(vopt={"markersize": 3}, block=None)
+        self.g.plot(vertex_opt={"markersize": 3}, block=None)
         plt.close("all")
         self.g.plot(block=None)
         sizes = {line.get_markersize() for line in plt.gca().lines}
@@ -64,7 +65,7 @@ class TestPlotArgs(unittest.TestCase):
         a = g.add_vertex([0, 0, 0], name="a")
         b = g.add_vertex([1, 1, 1], name="b")
         g.add_edge(a, b)
-        g.plot(text=None, block=None)
+        g.plot(text_opt=None, block=None)
         self.assertEqual(sorted(self.texts()), ["a", "b"])
 
     def test_3d_vertices_plotted_at_their_z(self):
@@ -73,7 +74,7 @@ class TestPlotArgs(unittest.TestCase):
         a = g.add_vertex([0, 0, 5], name="a")
         b = g.add_vertex([1, 1, 7], name="b")
         g.add_edge(a, b)
-        g.plot(colorcomponents=False, block=None)
+        g.plot(color_components=False, block=None)
         zs = set()
         for line in plt.gca().lines:
             x, y, z = line.get_data_3d()
