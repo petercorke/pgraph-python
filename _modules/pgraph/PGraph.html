@@ -121,6 +121,8 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.transforms</span><span class="w"> </span><span class="kn">import</span> <span class="n">Affine2D</span><span class="p">,</span> <span class="n">ScaledTranslation</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mpl_toolkits.mplot3d</span><span class="w"> </span><span class="kn">import</span> <span class="n">proj3d</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">heapq</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">deque</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Iterator</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">webbrowser</span>
@@ -3291,7 +3293,10 @@
 
         <span class="c1"># we use lists not sets since the order is instructive in verbose</span>
         <span class="c1"># mode, really need ordered sets...</span>
-        <span class="n">frontier</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Vertex</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">S</span><span class="p">]</span>
+        <span class="c1"># the frontier is a queue; ``seen`` is everything that has been on it,</span>
+        <span class="c1"># so that "frontier or explored" is a set lookup, not a list scan</span>
+        <span class="n">frontier</span><span class="p">:</span> <span class="n">deque</span><span class="p">[</span><span class="n">Vertex</span><span class="p">]</span> <span class="o">=</span> <span class="n">deque</span><span class="p">([</span><span class="n">S</span><span class="p">])</span>
+        <span class="n">seen</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">Vertex</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">S</span><span class="p">}</span>
         <span class="n">explored</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Vertex</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">parent</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Vertex</span><span class="p">,</span> <span class="n">Vertex</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">done</span> <span class="o">=</span> <span class="kc">False</span>
@@ -3302,7 +3307,7 @@
                 <span class="nb">print</span><span class="p">(</span><span class="s2">"FRONTIER:"</span><span class="p">,</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">frontier</span><span class="p">]))</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s2">"EXPLORED:"</span><span class="p">,</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">explored</span><span class="p">]))</span>
 
-            <span class="n">x</span> <span class="o">=</span> <span class="n">frontier</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">frontier</span><span class="o">.</span><span class="n">popleft</span><span class="p">()</span>
             <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s2">"   expand"</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 
@@ -3316,8 +3321,9 @@
                     <span class="n">parent</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span>
                     <span class="n">done</span> <span class="o">=</span> <span class="kc">True</span>
                     <span class="k">break</span>
-                <span class="k">if</span> <span class="n">n</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">frontier</span> <span class="ow">and</span> <span class="n">n</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">explored</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">n</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">seen</span><span class="p">:</span>
                     <span class="c1"># add it to the frontier</span>
+                    <span class="n">seen</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
                     <span class="n">frontier</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
                     <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
                         <span class="nb">print</span><span class="p">(</span><span class="s2">"      add"</span><span class="p">,</span> <span class="n">n</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">"to the frontier"</span><span class="p">)</span>
@@ -3339,8 +3345,9 @@
         <span class="k">while</span> <span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">S</span><span class="p">:</span>
             <span class="n">p</span> <span class="o">=</span> <span class="n">parent</span><span class="p">[</span><span class="n">x</span><span class="p">]</span>
             <span class="n">length</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_require_cost</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">edgeto</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
-            <span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
+            <span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
             <span class="n">x</span> <span class="o">=</span> <span class="n">p</span>
+        <span class="n">path</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="n">summary</span> <span class="ow">or</span> <span class="n">verbose</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span>
@@ -3404,8 +3411,14 @@
         <span class="n">S</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_vertex</span><span class="p">(</span><span class="n">S</span><span class="p">,</span> <span class="s2">"start"</span><span class="p">)</span>
         <span class="n">G</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_vertex</span><span class="p">(</span><span class="n">G</span><span class="p">,</span> <span class="s2">"goal"</span><span class="p">)</span>
 
-        <span class="n">frontier</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Vertex</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">S</span><span class="p">]</span>
-        <span class="n">explored</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Vertex</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># The frontier is a dict, used as an ordered set: its order is the order</span>
+        <span class="c1"># vertices first joined it, which breaks ties between equal ``f``, and</span>
+        <span class="c1"># its value is that position.  ``heap`` finds the minimum ``f``; a</span>
+        <span class="c1"># vertex that is reparented is pushed again, and the older entry is</span>
+        <span class="c1"># recognised as stale when it is popped.</span>
+        <span class="n">frontier</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Vertex</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">S</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+        <span class="n">heap</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">Vertex</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">S</span><span class="p">)]</span>
+        <span class="n">explored</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Vertex</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">parent</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Vertex</span><span class="p">,</span> <span class="n">Vertex</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">f</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Vertex</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">S</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>  <span class="c1"># evaluation function</span>
 
@@ -3417,8 +3430,11 @@
                 <span class="p">)</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s2">"EXPLORED:"</span><span class="p">,</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">explored</span><span class="p">]))</span>
 
-            <span class="n">i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">([</span><span class="n">f</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">frontier</span><span class="p">])</span>  <span class="c1"># minimum f in frontier</span>
-            <span class="n">x</span> <span class="o">=</span> <span class="n">frontier</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>  <span class="c1"># minimum f in frontier, skipping stale heap entries</span>
+                <span class="n">fx</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">x</span> <span class="o">=</span> <span class="n">heapq</span><span class="o">.</span><span class="n">heappop</span><span class="p">(</span><span class="n">heap</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">frontier</span> <span class="ow">and</span> <span class="n">f</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">==</span> <span class="n">fx</span><span class="p">:</span>
+                    <span class="k">break</span>
+            <span class="k">del</span> <span class="n">frontier</span><span class="p">[</span><span class="n">x</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s2">"   expand"</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="n">G</span><span class="p">:</span>
@@ -3432,7 +3448,8 @@
                     <span class="c1"># add it to the frontier</span>
                     <span class="n">parent</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span>
                     <span class="n">f</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="n">fnew</span>
-                    <span class="n">frontier</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+                    <span class="n">frontier</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>  <span class="c1"># one entry per vertex added so far</span>
+                    <span class="n">heapq</span><span class="o">.</span><span class="n">heappush</span><span class="p">(</span><span class="n">heap</span><span class="p">,</span> <span class="p">(</span><span class="n">fnew</span><span class="p">,</span> <span class="n">frontier</span><span class="p">[</span><span class="n">n</span><span class="p">],</span> <span class="n">n</span><span class="p">))</span>
                     <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
                         <span class="nb">print</span><span class="p">(</span><span class="s2">"      add"</span><span class="p">,</span> <span class="n">n</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">"to the frontier"</span><span class="p">)</span>
 
@@ -3446,8 +3463,9 @@
                             <span class="p">)</span>
                         <span class="n">f</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="n">fnew</span>
                         <span class="n">parent</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span>
+                        <span class="n">heapq</span><span class="o">.</span><span class="n">heappush</span><span class="p">(</span><span class="n">heap</span><span class="p">,</span> <span class="p">(</span><span class="n">fnew</span><span class="p">,</span> <span class="n">frontier</span><span class="p">[</span><span class="n">n</span><span class="p">],</span> <span class="n">n</span><span class="p">))</span>
 
-            <span class="n">explored</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="n">explored</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s2">"     move"</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">"to the explored list"</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -3462,8 +3480,9 @@
         <span class="k">while</span> <span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">S</span><span class="p">:</span>
             <span class="n">p</span> <span class="o">=</span> <span class="n">parent</span><span class="p">[</span><span class="n">x</span><span class="p">]</span>
             <span class="n">length</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_require_cost</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">edgeto</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
-            <span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
+            <span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
             <span class="n">x</span> <span class="o">=</span> <span class="n">p</span>
+        <span class="n">path</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
 
         <span class="n">parent_names</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">v</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">parent</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -3533,8 +3552,10 @@
         <span class="n">S</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_vertex</span><span class="p">(</span><span class="n">S</span><span class="p">,</span> <span class="s2">"start"</span><span class="p">)</span>
         <span class="n">G</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_vertex</span><span class="p">(</span><span class="n">G</span><span class="p">,</span> <span class="s2">"goal"</span><span class="p">)</span>
 
-        <span class="n">frontier</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Vertex</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">S</span><span class="p">]</span>
-        <span class="n">explored</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Vertex</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># see path_UCS for the frontier and heap</span>
+        <span class="n">frontier</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Vertex</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">S</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+        <span class="n">heap</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">Vertex</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">S</span><span class="p">)]</span>
+        <span class="n">explored</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Vertex</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">parent</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Vertex</span><span class="p">,</span> <span class="n">Vertex</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">g</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Vertex</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">S</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>  <span class="c1"># cost to come</span>
         <span class="n">f</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Vertex</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">S</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>  <span class="c1"># evaluation function</span>
@@ -3547,8 +3568,11 @@
                 <span class="p">)</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s2">"EXPLORED:"</span><span class="p">,</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">explored</span><span class="p">]))</span>
 
-            <span class="n">i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">([</span><span class="n">f</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">frontier</span><span class="p">])</span>  <span class="c1"># minimum f in frontier</span>
-            <span class="n">x</span> <span class="o">=</span> <span class="n">frontier</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>  <span class="c1"># minimum f in frontier, skipping stale heap entries</span>
+                <span class="n">fx</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">x</span> <span class="o">=</span> <span class="n">heapq</span><span class="o">.</span><span class="n">heappop</span><span class="p">(</span><span class="n">heap</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">frontier</span> <span class="ow">and</span> <span class="n">f</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">==</span> <span class="n">fx</span><span class="p">:</span>
+                    <span class="k">break</span>
+            <span class="k">del</span> <span class="n">frontier</span><span class="p">[</span><span class="n">x</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s2">"   expand"</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="n">G</span><span class="p">:</span>
@@ -3559,10 +3583,11 @@
                     <span class="k">continue</span>  <span class="c1"># self-loop, never part of a shortest path</span>
                 <span class="k">if</span> <span class="n">n</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">frontier</span> <span class="ow">and</span> <span class="n">n</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">explored</span><span class="p">:</span>
                     <span class="c1"># add it to the frontier</span>
-                    <span class="n">frontier</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
                     <span class="n">parent</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span>
+                    <span class="n">frontier</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>  <span class="c1"># one entry per vertex added so far</span>
                     <span class="n">g</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="n">g</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_require_cost</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>  <span class="c1"># update cost to come</span>
                     <span class="n">f</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="n">g</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">+</span> <span class="n">n</span><span class="o">.</span><span class="n">heuristic_distance</span><span class="p">(</span><span class="n">G</span><span class="p">)</span>  <span class="c1"># heuristic</span>
+                    <span class="n">heapq</span><span class="o">.</span><span class="n">heappush</span><span class="p">(</span><span class="n">heap</span><span class="p">,</span> <span class="p">(</span><span class="n">f</span><span class="p">[</span><span class="n">n</span><span class="p">],</span> <span class="n">frontier</span><span class="p">[</span><span class="n">n</span><span class="p">],</span> <span class="n">n</span><span class="p">))</span>
                     <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
                         <span class="nb">print</span><span class="p">(</span><span class="s2">"      add"</span><span class="p">,</span> <span class="n">n</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">"to the frontier"</span><span class="p">)</span>
                 <span class="k">elif</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">frontier</span><span class="p">:</span>
@@ -3578,8 +3603,9 @@
                         <span class="n">f</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="n">g</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">+</span> <span class="n">n</span><span class="o">.</span><span class="n">heuristic_distance</span><span class="p">(</span><span class="n">G</span><span class="p">)</span>  <span class="c1"># heuristic</span>
 
                         <span class="n">parent</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span>  <span class="c1"># reparent</span>
+                        <span class="n">heapq</span><span class="o">.</span><span class="n">heappush</span><span class="p">(</span><span class="n">heap</span><span class="p">,</span> <span class="p">(</span><span class="n">f</span><span class="p">[</span><span class="n">n</span><span class="p">],</span> <span class="n">frontier</span><span class="p">[</span><span class="n">n</span><span class="p">],</span> <span class="n">n</span><span class="p">))</span>
 
-            <span class="n">explored</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="n">explored</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s2">"     move"</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s2">"to the explored list"</span><span class="p">)</span>
 
@@ -3595,8 +3621,9 @@
         <span class="k">while</span> <span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">S</span><span class="p">:</span>
             <span class="n">p</span> <span class="o">=</span> <span class="n">parent</span><span class="p">[</span><span class="n">x</span><span class="p">]</span>
             <span class="n">length</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_require_cost</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">edgeto</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
-            <span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
+            <span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
             <span class="n">x</span> <span class="o">=</span> <span class="n">p</span>
+        <span class="n">path</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
 
         <span class="n">parent_names</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">v</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">parent</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
