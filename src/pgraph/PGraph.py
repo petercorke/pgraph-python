@@ -12,6 +12,7 @@ from matplotlib.transforms import Affine2D, ScaledTranslation
 from mpl_toolkits.mplot3d import proj3d
 import copy
 import heapq
+import importlib
 from collections import deque
 from collections.abc import Iterable, Iterator
 import tempfile
@@ -30,6 +31,16 @@ def _L1(v: NDArray) -> float:
 def _L2(v: NDArray) -> float:
     """L2 (Euclidean) norm, the built-in ``"L2"`` metric"""
     return float(np.linalg.norm(v))
+
+
+class _KDTree:
+    """A spatial index of a graph's vertices and how to query it (private)"""
+
+    def __init__(self, tree: Any, index: NDArray, p: float, prepare: Any):
+        self.tree = tree  # scipy.spatial.cKDTree
+        self.index = index  # position in the graph's vertex list of each point
+        self.p = p  # the Minkowski norm that the tree uses
+        self.prepare = prepare  # point -> point for the tree, or None if out of range
 
 
 class SE2Metric:
@@ -335,6 +346,10 @@ class Graph:
         self._dim = dim
         self._ncomponents = 0
         self._connectivitychange = False
+        # the optional spatial index of build_kdtree(), and whether the
+        # vertices have changed since it was built
+        self._kdtree: _KDTree | None = None
+        self._spatialchange = False
         if metric is None:
             self.metric = "L2"
         else:
@@ -653,10 +668,12 @@ class Graph:
         """
         return self._edge_class
 
-    def validate(self) -> list[str]:
+    def validate(self, embedded: bool = False) -> list[str]:
         """
         Check that the graph's records agree with each other
 
+        :param embedded: also report a vertex that has no coordinate, defaults
+            to False
         :return: a description of each inconsistency found, empty if the graph
             is consistent
         :rtype: list of str
@@ -682,6 +699,10 @@ class Graph:
         - every vertex points back at this graph, is an instance of
           :attr:`vertex_class`, is in the name table under its own name, and
           has a coordinate of the required length if ``dim`` was given
+        - every coordinate is a finite one-dimensional numeric vector, and if
+          ``dim`` was not given they all have the same length
+        - with ``embedded=True``, every vertex has a coordinate.  A graph with
+          no coordinates is valid, but one that is half embedded rarely is
         - every entry of the name table is a vertex of this graph and is
           filed under its own name
         - each edge is in the right vertex lists, the right number of times:
@@ -737,6 +758,7 @@ class Graph:
                     f"name table entry {key!r} refers to vertex {v.name!r}, "
                     "which has a different name"
                 )
+        length: int | None = None  # of the coordinates, if dim was not given
         for v in vertices:
             if v._graph is not self:
                 problems.append(f"vertex {v.name!r} does not point back at this graph")
@@ -758,6 +780,32 @@ class Graph:
                     f"vertex {v.name!r} has a coordinate of length "
                     f"{len(v.coord)} but the graph requires dim={self._dim}"
                 )
+            if v.coord is None:
+                if embedded:
+                    problems.append(f"vertex {v.name!r} has no coordinate")
+            else:
+                try:
+                    coord = np.asarray(v.coord, dtype=float)
+                except (TypeError, ValueError):
+                    problems.append(f"vertex {v.name!r} has a coordinate that is not numeric")
+                else:
+                    if coord.ndim != 1:
+                        problems.append(
+                            f"vertex {v.name!r} has a coordinate of shape "
+                            f"{coord.shape}, not a vector"
+                        )
+                    elif not np.all(np.isfinite(coord)):
+                        problems.append(
+                            f"vertex {v.name!r} has a coordinate that is not finite"
+                        )
+                    elif self._dim is None:
+                        if length is None:
+                            length = len(coord)
+                        elif len(coord) != length:
+                            problems.append(
+                                f"vertex {v.name!r} has a coordinate of length "
+                                f"{len(coord)}, but others have {length}"
+                            )
             if not directed and v._inlist:
                 problems.append(
                     f"vertex {v.name!r} has {len(v._inlist)} incoming edges "
@@ -890,10 +938,105 @@ class Graph:
         """
         return copy.deepcopy(self)
 
+    def subgraph(self, vertices: Iterable[Vertex | str] | NDArray) -> Graph:
+        """
+        Subgraph induced by a set of vertices
+
+        :param vertices: vertices of this graph, or their names, or a boolean
+            mask with one element per vertex
+        :type vertices: iterable of Vertex subclass or str, or ndarray(n) of bool
+        :raises ValueError: a vertex is not in this graph, or a mask is not
+            the length of the number of vertices
+        :raises KeyError: a name is not that of a vertex in this graph
+        :raises TypeError: an item is neither a vertex nor a string
+        :return: a new graph of the same kind
+        :rtype: Graph
+
+        The new graph has the given vertices and every edge of this graph that
+        has *both* its end vertices among them.  An edge that has one end
+        outside is removed, so the edges that cross the border of a region
+        are dropped.  Parallel edges and loops are kept.
+
+        Like :meth:`copy` the new graph is independent of this one: its
+        vertices and edges are new objects that keep their class, name,
+        coordinate, cost and any attributes that were added, and the graph
+        keeps its metric, heuristic and vertex and edge classes.  They are in
+        the order of this graph, however ``vertices`` was ordered.  Names are
+        kept, so the vertex ``g[name]`` has its counterpart ``h[name]``.
+
+        .. runblock:: pycon
+
+            >>> from pgraph import UGraph
+            >>> g = UGraph()
+            >>> v = [g.add_vertex(coord=[i, 0], name=f"v{i}") for i in range(4)]
+            >>> for i in range(3):
+            ...     g.add_edge(v[i], v[i + 1])
+            >>> h = g.subgraph([v[1], v[2]])
+            >>> print(h)
+            >>> h.edges()
+
+        It is a single pass over the graph.  The vertices might be a component,
+        the vertices that satisfy a test, or those in a region of an embedded
+        graph from :meth:`within`.
+
+        A boolean mask, such as the result of a comparison on
+        :meth:`coordinates`, selects the vertices by their position in the
+        graph, the ``True`` elements being kept::
+
+            h = g.subgraph(g.coordinates()[0] > 0)   # the vertices with x > 0
+
+        The mask must be of boolean type (a list of ``bool`` also works) and of
+        length ``g.n``.  A vector of 0 and 1 of integer type is not accepted, since
+        it could as well be a list of indices.
+
+        :seealso: :meth:`copy` :meth:`within` :meth:`component`
+        """
+        mask = None
+        if isinstance(vertices, np.ndarray) and vertices.dtype == np.bool_:
+            mask = vertices
+        elif (
+            isinstance(vertices, (list, tuple))
+            and len(vertices) > 0
+            and all(isinstance(x, (bool, np.bool_)) for x in vertices)
+        ):
+            mask = np.array(vertices, dtype=bool)
+
+        if mask is not None:
+            if mask.shape != (len(self._vertexlist),):
+                raise ValueError(
+                    f"a mask must have one element per vertex, {len(self._vertexlist)}, "
+                    f"not shape {mask.shape}"
+                )
+            keep = [int(i) for i in np.flatnonzero(mask)]
+        else:
+            wanted = set()
+            items: Iterable[Any] = vertices
+            for item in items:
+                v = self._resolve_vertex(item, "vertex")
+                if v._graph is not self:
+                    raise ValueError(f"vertex {v.name!r} is not in this graph")
+                wanted.add(id(v))
+            keep = [i for i, v in enumerate(self._vertexlist) if id(v) in wanted]
+
+        state = self.__getstate__()
+        flat = state["_flat"]
+        renumber = {old: new for new, old in enumerate(keep)}
+        flat["vertices"] = [flat["vertices"][i] for i in keep]
+        flat["edges"] = [
+            (cls, renumber[i], renumber[j], attrs)
+            for cls, i, j, attrs in flat["edges"]
+            if i in renumber and j in renumber
+        ]
+
+        h = type(self).__new__(type(self))
+        h.__setstate__(copy.deepcopy(state))
+        h._connectivitychange = True  # the components are those of the new graph
+        return h
+
     # pickling and copying
 
     #: the graph's own containers, which are saved as a flat description
-    _STRUCTURE = ("_vertexlist", "_vertexdict", "_edges")
+    _STRUCTURE = ("_vertexlist", "_vertexdict", "_edges", "_kdtree")
 
     #: the references a vertex holds, which are rebuilt rather than saved
     _VERTEX_LINKS = ("_edgelist", "_inlist", "_graph")
@@ -955,6 +1098,8 @@ class Graph:
             if isinstance(value, tuple) and value[0] == "builtin":
                 state[key] = _METRICS[value[1]]
         self.__dict__.update(state)
+        self._kdtree = None
+        self._spatialchange = False
 
         self._vertexlist = []
         self._vertexdict = {}
@@ -1094,6 +1239,7 @@ class Graph:
             print(f"New vertex {vertex.name}: {vertex.coord}")
         vertex._graph = self
         self._connectivitychange = True
+        self._spatialchange = True
         return vertex
 
     @classmethod
@@ -1378,6 +1524,7 @@ class Graph:
         vertex._graph = None  # it is not in any graph now
         vertex._label = None  # and so not in a component
         self._connectivitychange = True
+        self._spatialchange = True
 
     def remove(self, x: Edge | Vertex) -> None:
         """
@@ -1806,6 +1953,197 @@ class Graph:
         elif isinstance(item, Vertex):
             return item in self._vertexdict.values()
 
+    def coordinates(self) -> NDArray:
+        """
+        Coordinates of all the vertices as a matrix
+
+        :return: coordinates, one column per vertex in the order they were added
+        :rtype: ndarray(dim, n)
+        :raises ValueError: the coordinates of two vertices differ in length
+
+        Column ``i`` is the coordinate of ``g[i]``, the same order as the
+        rows and columns of :meth:`adjacency`.  A vertex that has no
+        coordinate has a column of NaN, so the matrix always has one column
+        per vertex.  The number of rows is ``dim`` if the graph was given one,
+        otherwise the length of the first coordinate, and 0 if no vertex has
+        one.  Elements are float.
+
+        The result is a *view* of a new array that has one row per vertex, so
+        the coordinate of each vertex is contiguous in memory and ``C[:, i]``
+        is a contiguous slice, while a row such as ``C[0]`` is strided.  Use
+        :func:`numpy.ascontiguousarray` if you need the rows to be contiguous.
+
+        .. note:: This is a snapshot, made each time: changing it does not
+            move the vertices, and moving a vertex does not change a matrix
+            that was already returned.
+
+        With NumPy this selects vertices in a single operation, as
+        :meth:`within` and :meth:`near` do, or it can be given to a spatial
+        index of your own.
+
+        .. runblock:: pycon
+
+            >>> from pgraph import UGraph
+            >>> g = UGraph()
+            >>> for i in range(3):
+            ...     g.add_vertex(coord=[i, 10 * i])
+            >>> g.coordinates()
+
+        :seealso: :meth:`within` :meth:`near` :meth:`closest` :meth:`adjacency`
+        """
+        n = len(self._vertexlist)
+        dim = self._dim
+        if dim is None:
+            dim = next((len(v.coord) for v in self._vertexlist if v.coord is not None), 0)
+        out = np.full((n, dim), np.nan)
+        for i, vertex in enumerate(self._vertexlist):
+            if vertex.coord is None:
+                continue
+            if len(vertex.coord) != dim:
+                raise ValueError(
+                    f"vertex {vertex.name!r} has a coordinate of length "
+                    f"{len(vertex.coord)}, but the others have {dim}"
+                )
+            out[i] = vertex.coord
+        return out.T
+
+    def build_kdtree(self) -> None:
+        """
+        Build a spatial index of the vertices, used by :meth:`closest` and :meth:`near`
+
+        :raises ValueError: the metric is not one of the built-in ``"L1"``,
+            ``"L2"`` or ``"SE2"``, or ``"SE2"`` and the coordinates are not
+            3 elements, or no vertex has a coordinate
+        :raises ImportError: scipy is not installed
+
+        Finding the nearest vertex to a point is a pass over all the vertices,
+        which is the cost of a query on a large graph that is queried often.  A
+        k-d tree answers in a time that grows more slowly, at the cost of
+        building it once.  :meth:`closest` and :meth:`near` use the index if it
+        has been built, and fall back to the pass over the vertices if it has
+        not or if the graph has changed.
+
+        The index is for the built-in metrics ``"L1"``, ``"L2"`` and
+        ``"SE2"`` (with any weight, see :class:`SE2Metric`), and results
+        are the same as without it, except that when two vertices are exactly
+        the same distance the one returned may differ.
+
+        .. warning:: The index is dropped when a vertex is added or removed
+            or when ``vertex.coord`` is assigned (including ``+=``), and
+            :meth:`closest` is then correct but slow, until it is built again.
+            It cannot see a coordinate that is changed in place,
+            ``vertex.coord[0] = x``.  Do not change vertices in place after
+            building, or build again.
+
+        The index is not copied or pickled with the graph.
+
+        .. note:: This needs `scipy <https://scipy.org>`_.  pgraph does not
+            list it as a dependency and imports it only when this method is
+            called, but `spatialmath-python`, which pgraph does depend on,
+            installs it.
+
+        :seealso: :meth:`closest` :meth:`near` :meth:`coordinates`
+        """
+        metric = self._metric
+        weight: float | None = None
+        if metric is _METRICS["L1"]:
+            p = 1
+        elif metric is _METRICS["L2"]:
+            p = 2
+        elif isinstance(metric, SE2Metric):
+            p, weight = 2, metric.weight
+        else:
+            raise ValueError(
+                "build_kdtree is for the built-in metrics 'L1', 'L2' and 'SE2', "
+                f"not {metric!r}"
+            )
+        try:
+            spatial = importlib.import_module("scipy.spatial")
+        except ImportError as err:
+            raise ImportError(
+                "build_kdtree needs scipy, which pgraph does not itself require: "
+                "pip install scipy"
+            ) from err
+
+        points = self.coordinates().T  # one row per vertex
+        if points.shape[1] == 0:
+            raise ValueError("no vertex has a coordinate")
+        index = np.flatnonzero(np.isfinite(points).all(axis=1))
+        if len(index) == 0:
+            raise ValueError("no vertex has a coordinate")
+        points = points[index]
+
+        prepare: Any = None
+        if weight is None:
+            tree = spatial.cKDTree(points)
+        else:
+            if points.shape[1] != 3:
+                raise ValueError(
+                    f"the SE2 metric needs 3-element coordinates, not {points.shape[1]}"
+                )
+            # scipy has periodic dimensions for the angle, but a periodic box
+            # must be finite and the data in it, so put the plane inside a box
+            # much larger than the data and wrap the angle, scaled by its weight
+            span = max(float(np.ptp(points[:, :2], axis=0).max()), 1.0)
+            size = 1e3 * span
+            shift = points[:, :2].min(axis=0) - size / 4
+            period = 2 * np.pi * weight
+
+            def prepare(q: NDArray) -> NDArray | None:  # noqa: F811
+                xy = q[:2] - shift
+                if not np.all((xy >= 0) & (xy < size)):
+                    return None  # far outside the data: let the caller do it
+                if weight == 0:
+                    return xy
+                return np.r_[xy, np.mod(weight * q[2], period)]
+
+            if weight == 0:
+                tree = spatial.cKDTree(points[:, :2] - shift, boxsize=[size, size])
+            else:
+                data = np.column_stack(
+                    [points[:, :2] - shift, np.mod(weight * points[:, 2], period)]
+                )
+                tree = spatial.cKDTree(data, boxsize=[size, size, period])
+
+        self._kdtree = _KDTree(tree, index, p, prepare)
+        self._spatialchange = False
+
+    def _index(self) -> _KDTree | None:
+        """The spatial index, if it is built and still valid (private method)"""
+        if self._kdtree is not None and self._spatialchange:
+            self._kdtree = None  # vertices were added or removed: no longer right
+        return self._kdtree
+
+    def _index_point(self, index: _KDTree, coord: ArrayLike) -> NDArray | None:
+        """The point to query the index with, or None if it cannot be (private)"""
+        q = np.asarray(coord, dtype=float)
+        if q.ndim != 1 or not np.all(np.isfinite(q)):
+            return None
+        if index.prepare is None:
+            return q if q.shape[0] == index.tree.m else None
+        if q.shape[0] != 3:
+            return None
+        return index.prepare(q)
+
+    def _metric_columns(self, diff: NDArray) -> NDArray | None:
+        """
+        The metric of each column of a matrix, or None (private method)
+
+        Only for the built-in metrics, which can be applied to all columns in
+        one operation; the metric of a user is a function of one vector.
+        """
+        metric = self._metric
+        if metric is _METRICS["L1"]:
+            return np.asarray(np.abs(diff).sum(axis=0))
+        if metric is _METRICS["L2"]:
+            return np.asarray(np.sqrt((diff**2).sum(axis=0)))
+        if isinstance(metric, SE2Metric) and diff.shape[0] == 3:
+            theta = (diff[2] + np.pi) % (2 * np.pi) - np.pi
+            return np.asarray(
+                np.sqrt(diff[0] ** 2 + diff[1] ** 2 + (metric.weight * theta) ** 2)
+            )
+        return None
+
     def closest(self, coord: ArrayLike) -> tuple[Vertex | None, float]:
         """
         Vertex closest to point
@@ -1820,6 +2158,9 @@ class Graph:
         according to the graph's metric. Vertices without a coordinate
         (``coord`` is None) are skipped -- they have no position to compare.
 
+        This is a pass over the vertices, unless a spatial index has been
+        built with :meth:`build_kdtree` and is still valid.
+
         .. runblock:: pycon
 
             >>> from pgraph import UGraph
@@ -1829,8 +2170,16 @@ class Graph:
             >>> vertex, d = g.closest([1, 1])
             >>> print(vertex, d)
 
-        :seealso: :meth:`metric`
+        :seealso: :meth:`metric` :meth:`near` :meth:`build_kdtree`
         """
+        index = self._index()
+        if index is not None:
+            q = self._index_point(index, coord)
+            if q is not None:
+                d, i = index.tree.query(q, p=index.p)
+                if np.isfinite(d):
+                    return self._vertexlist[int(index.index[i])], float(d)
+
         min_dist = np.inf
         min_which: Vertex | None = None
 
@@ -1843,6 +2192,120 @@ class Graph:
                 min_which = vertex
 
         return min_which, min_dist
+
+    def within(self, box: ArrayLike) -> list[Vertex]:
+        """
+        Vertices inside a box
+
+        :param box: lower and upper corners of the box
+        :type box: ndarray(2,n)
+        :raises ValueError: ``box`` is not 2 x n, its upper corner is below its
+            lower corner in some dimension, or the coordinates of the vertices
+            do not have n elements
+        :return: the vertices inside the box, in the order of the graph
+        :rtype: list of Vertex subclass
+
+        The first row of ``box`` is the lower corner, the second row the upper
+        corner, so in two dimensions it is ``[[xmin, ymin], [xmax, ymax]]``.
+        The box is closed: a vertex on its boundary is inside.  Vertices
+        without a coordinate are skipped, as they are by :meth:`closest`.
+
+        The test is made for all the vertices at once on :meth:`coordinates`.
+        Together with :meth:`subgraph` it selects the part of an embedded
+        graph in a region
+
+        .. runblock:: pycon
+
+            >>> from pgraph import UGraph
+            >>> g = UGraph()
+            >>> for i in range(5):
+            ...     g.add_vertex(coord=[i, i], name=f"v{i}")
+            >>> g.within([[1, 1], [3, 3]])
+            >>> g.subgraph(g.within([[1, 1], [3, 3]]))
+
+        :seealso: :meth:`near` :meth:`closest` :meth:`subgraph` :meth:`coordinates`
+        """
+        box = np.asarray(box, dtype=float)
+        if box.ndim != 2 or box.shape[0] != 2:
+            raise ValueError(f"box must be 2 x n, not {box.shape}")
+        lower, upper = box
+        if np.any(upper < lower):
+            raise ValueError("the upper corner of the box is below the lower corner")
+
+        C = self.coordinates()
+        if C.shape[0] == 0 or C.shape[1] == 0:
+            return []  # no vertex has a coordinate
+        if C.shape[0] != lower.size:
+            raise ValueError(
+                f"the vertices have coordinates of {C.shape[0]} elements, "
+                f"the box has {lower.size}"
+            )
+        inside = np.all((C >= lower[:, None]) & (C <= upper[:, None]), axis=0)
+        return [self._vertexlist[i] for i in np.flatnonzero(inside)]
+
+    def near(self, coord: ArrayLike, radius: float) -> list[tuple[Vertex, float]]:
+        """
+        Vertices within a distance of a point
+
+        :param coord: coordinates of a point
+        :type coord: ndarray(n)
+        :param radius: greatest distance, inclusive
+        :raises ValueError: ``radius`` is negative
+        :return: the vertices within ``radius`` of the point with their
+            distances, nearest first
+        :rtype: list of (Vertex subclass, float)
+
+        Distance is computed according to the graph's metric, as it is by
+        :meth:`closest`, of which this is the generalization to every vertex
+        within a radius.  Vertices without a coordinate are skipped, and
+        vertices at equal distance are in the order of the graph.
+
+        For the built-in metrics the distance to every vertex is found in one
+        operation on :meth:`coordinates`, or by the spatial index if
+        :meth:`build_kdtree` was called; a metric of your own is applied
+        to each vertex in turn.
+
+        .. runblock:: pycon
+
+            >>> from pgraph import UGraph
+            >>> g = UGraph()
+            >>> for i in range(5):
+            ...     g.add_vertex(coord=[i, 0], name=f"v{i}")
+            >>> [(v.name, d) for v, d in g.near([2.2, 0], 1.5)]
+
+        :seealso: :meth:`closest` :meth:`within` :meth:`metric` :meth:`build_kdtree`
+        """
+        if radius < 0:
+            raise ValueError(f"radius must not be negative, got {radius!r}")
+
+        candidates: list[Vertex] | None = None
+        index = self._index()
+        if index is not None:
+            q = self._index_point(index, coord)
+            if q is not None:
+                # the index finds the candidates, the metric gives the distance
+                hits = index.tree.query_ball_point(q, radius * (1 + 1e-9) + 1e-12, p=index.p)
+                candidates = [self._vertexlist[int(index.index[i])] for i in sorted(hits)]
+
+        if candidates is None:
+            C = self.coordinates()
+            point = np.asarray(coord, dtype=float)
+            if C.shape[0] != 0 and point.shape == (C.shape[0],):
+                d = self._metric_columns(C - point[:, None])
+                if d is not None:
+                    hit = np.flatnonzero(d <= radius)
+                    hit = hit[np.argsort(d[hit], kind="stable")]
+                    return [(self._vertexlist[i], float(d[i])) for i in hit]
+            candidates = [v for v in self._vertexlist if v.coord is not None]
+
+        found = []
+        for vertex in candidates:
+            assert vertex.coord is not None  # the candidates all have a position
+            dist = float(self.metric(vertex.coord - coord))
+            if dist <= radius:
+                found.append((vertex, dist))
+        found.sort(key=lambda pair: pair[1])
+        return found
 
     def edges(self) -> list[Edge]:
         """
@@ -4037,6 +4500,16 @@ class Vertex:
         self._inlist: list[Edge] = []
         self._graph: Graph | None = None  # reference to owning graph
         # print('Vertex init', type(self))
+
+    def __setattr__(self, name: str, value: Any) -> None:
+        # a vertex that moves makes its graph's spatial index (build_kdtree)
+        # stale; this sees ``v.coord = x`` and ``v.coord += x`` but not
+        # ``v.coord[0] = x``, which is why that is documented
+        if name == "coord":
+            graph = self.__dict__.get("_graph")
+            if graph is not None:
+                graph._spatialchange = True
+        object.__setattr__(self, name, value)
 
     def __reduce__(self) -> Any:
         """
