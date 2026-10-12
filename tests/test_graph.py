@@ -14,15 +14,15 @@ class TestUGraph(unittest.TestCase):
         v1 = g.add_vertex()
         v2 = g.add_vertex()
         self.assertEqual(g.n, 2)
-        self.assertIsInstance(v1, UVertex)
-        self.assertIsInstance(v2, UVertex)
+        self.assertIsInstance(v1, Vertex)
+        self.assertIsInstance(v2, Vertex)
 
     def test_constructor2(self):
 
         g = UGraph()
 
         v = g.add_vertex([1,2,3])
-        self.assertIsInstance(v, UVertex)
+        self.assertIsInstance(v, Vertex)
         self.assertEqual(v.x, 1)
         self.assertEqual(v.y, 2)
         self.assertEqual(v.z, 3)
@@ -74,7 +74,7 @@ class TestUGraph(unittest.TestCase):
         self.assertIs(g[0], v1)
         self.assertIs(g[0], v1)
 
-        class MyNode(UVertex):
+        class MyNode(Vertex):
             def __init__(self, a):
                 super().__init__()
                 self.a = a
@@ -339,7 +339,7 @@ class TestUGraph(unittest.TestCase):
 
         g = UGraph()
 
-        v = UVertex()
+        v = Vertex()
 
         g.add_vertex(v)
         self.assertEqual(v.name, '#0')
@@ -411,10 +411,10 @@ class TestUGraph(unittest.TestCase):
 
     def test_Dict(self):
 
-        v1 = UVertex(name='v1')
-        v2 = UVertex(name='v2')
-        v3 = UVertex(name='v3')
-        v4 = UVertex(name='v4')
+        v1 = Vertex(name='v1')
+        v2 = Vertex(name='v2')
+        v3 = Vertex(name='v3')
+        v4 = Vertex(name='v4')
 
         parent = {}
         parent[v2] = v1
@@ -829,18 +829,18 @@ class TestDGraph(unittest.TestCase):
         v1 = g.add_vertex()
         v2 = g.add_vertex()
         self.assertEqual(g.n, 2)
-        self.assertIsInstance(v1, DVertex)
-        self.assertIsInstance(v2, DVertex)
+        self.assertIsInstance(v1, Vertex)
+        self.assertIsInstance(v2, Vertex)
 
     def test_Dict(self):
-        # regression test: Dict() used to hardcode UVertex() regardless of
+        # regression test: Dict() used to hardcode Vertex() regardless of
         # the graph type, silently producing wrong-typed vertices in a DGraph
         g = DGraph.Dict({'child': 'parent'})
 
         self.assertIsInstance(g, DGraph)
         self.assertEqual(g.n, 2)
         for v in g:
-            self.assertIsInstance(v, DVertex)
+            self.assertIsInstance(v, Vertex)
 
     def test_iscyclic(self):
 
@@ -926,7 +926,7 @@ class TestDGraph(unittest.TestCase):
     def test_remove_edge(self):
         # regression test: removing a directed edge used to always crash,
         # since it assumed both endpoints track the edge in their own
-        # _edgelist, but a DVertex only tracks outgoing edges
+        # _edgelist, but a Vertex only tracks outgoing edges
         g = DGraph()
         v1 = g.add_vertex(name='1')
         v2 = g.add_vertex(name='2')

@@ -11,7 +11,7 @@ import unittest
 
 import numpy as np
 
-from pgraph import DGraph, DVertex, Edge, UGraph, UVertex
+from pgraph import DGraph, Edge, UGraph, Vertex
 
 
 class MyEdge(Edge):
@@ -20,10 +20,14 @@ class MyEdge(Edge):
         self.traversals = 0
 
 
+class OtherVertex(Vertex):
+    """A vertex class that is not the one a graph under test is configured for"""
+
+
 class _Classes:
     Graph: type
-    Vertex: type  # UVertex or DVertex
-    OtherVertex: type  # the wrong kind for this graph
+    Vertex: type
+    OtherVertex: type
 
     def setUp(self):
         class MyVertex(self.Vertex):
@@ -80,14 +84,15 @@ class _Classes:
         self.assertIs(self.g.add_vertex(v), v)
 
     def test_add_vertex_rejects_plain_vertex_of_right_kind(self):
-        # the graph was configured to hold MyVertex, not just any UVertex/DVertex
+        # the graph was configured to hold MyVertex, not just any Vertex
         with self.assertRaises(TypeError):
             self.g.add_vertex(self.Vertex([5, 5]))
         self.assertEqual(self.g.n, 0)
 
-    def test_add_vertex_rejects_wrong_kind(self):
+    def test_add_vertex_rejects_a_vertex_of_another_class(self):
         with self.assertRaises(TypeError):
             self.g.add_vertex(self.OtherVertex([5, 5]))
+        self.assertEqual(self.g.n, 0)
 
     def test_connect_rejects_edge_of_wrong_class(self):
         a = self.g.add_vertex([0, 0])
@@ -106,13 +111,13 @@ class _Classes:
         self.assertIsInstance(a.connect(b, edge=MyEdge(a, b)), MyEdge)
 
     def test_bad_vertex_class(self):
-        for bad in (self.OtherVertex, int, "UVertex", self.Vertex([0, 0]), Edge):
+        for bad in (int, "Vertex", self.Vertex([0, 0]), Edge):
             with self.subTest(bad=bad):
                 with self.assertRaises(TypeError):
                     self.Graph(vertex_class=bad)
 
     def test_bad_edge_class(self):
-        for bad in (UVertex, int, "Edge", Edge(cost=1)):
+        for bad in (Vertex, int, "Edge", Edge(cost=1)):
             with self.subTest(bad=bad):
                 with self.assertRaises(TypeError):
                     self.Graph(edge_class=bad)
@@ -157,14 +162,14 @@ class _Classes:
 
 class TestUGraphClasses(_Classes, unittest.TestCase):
     Graph = UGraph
-    Vertex = UVertex
-    OtherVertex = DVertex
+    Vertex = Vertex
+    OtherVertex = OtherVertex
 
 
 class TestDGraphClasses(_Classes, unittest.TestCase):
     Graph = DGraph
-    Vertex = DVertex
-    OtherVertex = UVertex
+    Vertex = Vertex
+    OtherVertex = OtherVertex
 
 
 if __name__ == "__main__":

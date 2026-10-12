@@ -9,18 +9,16 @@ second implementation, and they do not warn.
 import unittest
 import warnings
 
-from pgraph import DGraph, UGraph, DVertex, UVertex
-from pgraph.PGraph import Vertex
+from pgraph import DGraph, UGraph, Vertex
 
 
 class TestAliases(unittest.TestCase):
     def test_aliases_are_the_same_function(self):
-        for cls in (Vertex, UVertex, DVertex):
-            with self.subTest(cls=cls.__name__):
-                self.assertIs(cls.neighbours, cls.adjacent)
-                self.assertIs(cls.neighbors, cls.adjacent)
-                self.assertIs(cls.isneighbour, cls.isadjacent)
-                self.assertIs(cls.isneighbor, cls.isadjacent)
+        cls = Vertex
+        self.assertIs(cls.neighbours, cls.adjacent)
+        self.assertIs(cls.neighbors, cls.adjacent)
+        self.assertIs(cls.isneighbour, cls.isadjacent)
+        self.assertIs(cls.isneighbor, cls.isadjacent)
 
     def test_no_warnings(self):
         g = UGraph()

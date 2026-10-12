@@ -8,7 +8,7 @@ name that is free.
 
 import unittest
 
-from pgraph import DGraph, UGraph, UVertex
+from pgraph import DGraph, UGraph, Vertex
 
 
 class _AddVertex:
@@ -103,13 +103,13 @@ class _AddVertex:
 
 
 class TestUGraph(_AddVertex, unittest.TestCase):
-    Graph, Vertex = UGraph, UVertex
+    Graph = UGraph
+    Vertex = Vertex
 
 
 class TestDGraph(_AddVertex, unittest.TestCase):
-    from pgraph import DVertex as Vertex
-
     Graph = DGraph
+    Vertex = Vertex
 
 
 if __name__ == "__main__":

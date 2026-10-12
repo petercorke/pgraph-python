@@ -96,7 +96,7 @@ Graphs belong to the class `UGraph` or `DGraph` for undirected or directed graph
 - `g.incidence()` incidence matrix
 
 ### Properties and methods of a vertex
-Vertices belong to the class `UVertex` (for undirected graphs) or `DVertex` (for directed graphs), which are each subclasses of `Vertex`.
+Vertices are instances of the class `Vertex`, for both undirected and directed graphs.
 
 - `v.coord` the coordinate vector for embedded graph (optional)
 - `v.name` the name of the vertex (optional)
@@ -123,11 +123,11 @@ Each edge references a pair of vertices, the graph lists all of its edges in `g.
 Consider a user class `Foo` that we would like to connect using a graph _overlay_, ie.
 instances of `Foo` becomes vertices in a graph.
 
-- Have it subclass either `DVertex` or `UVertex` depending on graph type
+- Have it subclass `Vertex`
 - Then place instances of `Foo` into the graph using `add_vertex` and create edges as required
 
 ```
-class Foo(UVertex):
+class Foo(Vertex):
   # foo stuff goes here
   
 f1 = Foo(...)

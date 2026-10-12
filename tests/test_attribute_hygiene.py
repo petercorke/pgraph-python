@@ -13,7 +13,7 @@ corrupt a graph.
 
 import unittest
 
-from pgraph import Graph, Vertex, DGraph, UGraph, UVertex, exporters
+from pgraph import Graph, Vertex, DGraph, UGraph, exporters
 
 
 class TestLabelIsReadOnly(unittest.TestCase):
@@ -34,7 +34,7 @@ class TestLabelIsReadOnly(unittest.TestCase):
         self.assertEqual({v.label for v in self.g}, {0, 1})
 
     def test_none_until_the_components_are_found(self):
-        self.assertIsNone(UVertex(name="loose").label)
+        self.assertIsNone(Vertex(name="loose").label)
 
     def test_directed_graph_too(self):
         g = DGraph()
@@ -82,7 +82,7 @@ class TestRename(unittest.TestCase):
         self.assertEqual(self.a.name, "a")
 
     def test_before_adding_is_just_assignment(self):
-        v = UVertex([0, 0])
+        v = Vertex([0, 0])
         v.name = "free"
         v.name = None
         v.name = "again"
@@ -123,8 +123,9 @@ class TestPublicBaseNames(unittest.TestCase):
         self.assertTrue(issubclass(DGraph, Graph))
         self.assertIsInstance(UGraph(), Graph)
 
-    def test_basevertex_is_exported(self):
-        self.assertTrue(issubclass(UVertex, Vertex))
+    def test_vertex_is_exported(self):
+        self.assertIs(UGraph().add_vertex([0, 0]).__class__, Vertex)
+        self.assertIs(DGraph().add_vertex([0, 0]).__class__, Vertex)
 
     def test_the_unreleased_private_name_is_gone(self):
         import pgraph.PGraph as module

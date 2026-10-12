@@ -6,7 +6,7 @@ coordinates or a vertex.
 
 import unittest
 
-from pgraph import DGraph, Edge, UGraph, UVertex
+from pgraph import DGraph, Edge, UGraph, Vertex
 
 
 class MyEdge(Edge):
@@ -87,7 +87,7 @@ class _AddEdge:
         self.assertEqual(h.ne, 0)
 
     def test_edge_between_ungraphed_vertices(self):
-        v, w = UVertex([0, 0]), UVertex([1, 1])
+        v, w = Vertex([0, 0]), Vertex([1, 1])
         with self.assertRaises(ValueError):
             self.g.add_edge(MyEdge(v, w))
 

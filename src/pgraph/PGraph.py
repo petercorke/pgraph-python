@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
 import os
 import sys
 import warnings
@@ -46,12 +45,23 @@ _METRICS: dict[str, Callable[[NDArray], float]] = {
 }
 
 
-class Graph(ABC):
+class Graph:
 
-    #: concrete vertex type for this graph kind, provided by :class:`UGraph`
-    #: and :class:`DGraph` -- lets :meth:`add_vertex` and :meth:`vertex_copy`
-    #: be defined once here rather than duplicated per subclass.
-    _vertex_cls: ClassVar[type[Vertex]]
+    #: whether the edges of this kind of graph are directed, set by
+    #: :class:`UGraph` and :class:`DGraph`
+    _directed: ClassVar[bool]
+
+    def __new__(cls, *args: Any, directed: bool | None = None, **kwargs: Any) -> Graph:
+        # Graph(directed=True) is a DGraph and Graph() a UGraph; the classes
+        # underneath stay honest, so isinstance and the hooks work as usual
+        if cls is Graph:
+            cls = DGraph if directed else UGraph
+        elif not hasattr(cls, "_directed"):
+            raise TypeError(
+                f"{cls.__name__} does not say whether its edges are directed; "
+                "subclass UGraph or DGraph"
+            )
+        return super().__new__(cls)
 
     def __init__(
         self,
@@ -62,9 +72,10 @@ class Graph(ABC):
         dim: int | None = None,
         vertex_class: type[Vertex] | None = None,
         edge_class: type[Edge] | None = None,
+        directed: bool | None = None,
     ):
         """
-        Abstract base class for graphs
+        Graph, undirected or directed
 
         :param metric: distance metric, defaults to "L2"
         :type metric: callable or str, optional
@@ -78,18 +89,31 @@ class Graph(ABC):
             length, or none at all)
         :type dim: int, optional
         :param vertex_class: class of the vertices this graph creates, defaults
-            to ``UVertex`` for a :class:`UGraph` and ``DVertex`` for a
-            :class:`DGraph`
-        :type vertex_class: subclass of ``UVertex`` or ``DVertex``, optional
+            to :class:`Vertex`
+        :type vertex_class: subclass of :class:`Vertex`, optional
         :param edge_class: class of the edges this graph creates, defaults to
             :class:`Edge`
         :type edge_class: subclass of ``Edge``, optional
         :raises ValueError: ``dim`` is given but is not a positive integer
-        :raises TypeError: ``vertex_class`` is not a subclass of this graph's
-            own vertex kind, or ``edge_class`` is not a subclass of ``Edge``
+        :param directed: whether the edges are directed, defaults to False
+            for ``Graph`` and is fixed by the class for :class:`UGraph` and
+            :class:`DGraph`
+        :type directed: bool, optional
+        :raises ValueError: ``directed`` contradicts the class, for example
+            ``UGraph(directed=True)``
+        :raises TypeError: ``vertex_class`` is not a subclass of
+            :class:`Vertex`, or ``edge_class`` is not a subclass of ``Edge``
 
-        This is the common base class of :class:`UGraph` and :class:`DGraph`
-        and should not be instantiated directly.
+        ``Graph(directed=True)`` is a :class:`DGraph` and ``Graph()`` a
+        :class:`UGraph`, so the kind can be chosen by a variable::
+
+            g = Graph(directed=is_directed)
+
+        :class:`UGraph` and :class:`DGraph` remain, and are what
+        ``isinstance`` and the documentation refer to.  Everything else, the
+        vertices included, is the same for both kinds, so there is one vertex
+        class, :class:`Vertex`.  A vertex has no direction of its own; the
+        graph it belongs to decides how an edge is recorded at its ends.
 
         All arguments are keyword-only, so ``UGraph(dim=6)`` is correct and
         ``UGraph(6)`` raises :exc:`TypeError`.
@@ -118,14 +142,16 @@ class Graph(ABC):
         """
         if dim is not None and dim <= 0:
             raise ValueError(f"dim must be a positive integer, got {dim!r}")
-        kind = type(self)._vertex_cls
-        if vertex_class is None:
-            vertex_class = kind
-        elif not (isinstance(vertex_class, type) and issubclass(vertex_class, kind)):
-            raise TypeError(
-                f"vertex_class must be a subclass of {kind.__name__} for a "
-                f"{type(self).__name__}, got {vertex_class!r}"
+        if directed is not None and bool(directed) != type(self)._directed:
+            raise ValueError(
+                f"{type(self).__name__} is "
+                f"{'directed' if type(self)._directed else 'undirected'}, "
+                f"but directed={directed!r} was given"
             )
+        if vertex_class is None:
+            vertex_class = Vertex
+        elif not (isinstance(vertex_class, type) and issubclass(vertex_class, Vertex)):
+            raise TypeError(f"vertex_class must be a subclass of Vertex, got {vertex_class!r}")
         if edge_class is None:
             edge_class = Edge
         elif not (isinstance(edge_class, type) and issubclass(edge_class, Edge)):
@@ -310,7 +336,7 @@ class Graph(ABC):
                 coord = coords[i, :]
             g.add_vertex(name=name, coord=coord)
 
-        if isinstance(g, UGraph):
+        if not g.directed:
             # undirected graph: upper triangle including the diagonal
             for i in range(A.shape[0]):
                 for j in range(i, A.shape[1]):
@@ -326,21 +352,107 @@ class Graph(ABC):
         return g
 
     @property
+    def directed(self) -> bool:
+        """
+        Test if the graph is directed
+
+        :return: True for a :class:`DGraph`, False for a :class:`UGraph`
+        :rtype: bool
+
+        An undirected edge is recorded at both of its vertices, and is
+        followed in either direction.  A directed edge is recorded as leaving
+        its start vertex and entering its end vertex.
+
+        .. runblock:: pycon
+
+            >>> from pgraph import Graph
+            >>> Graph().directed
+            >>> Graph(directed=True).directed
+
+        :seealso: :class:`UGraph` :class:`DGraph`
+        """
+        return self._directed
+
+    # the hooks: the one place where undirected and directed graphs differ in
+    # how an edge is held.  A vertex has no direction of its own, so its
+    # connect() and the graph's remove_edge() ask the graph.
+
+    def _attach(self, edge: Edge) -> None:
+        """
+        Record a new edge in the edge lists of its vertices (private method)
+
+        :param edge: the edge just created or supplied to
+            :meth:`Vertex.connect`, with ``edge.v1`` and ``edge.v2`` set and
+            already part of the graph
+        :raises NotImplementedError: not provided by this graph kind
+
+        This is the hook that :meth:`Vertex.connect` calls once the connection
+        has been validated and the edge registered with the graph, so it is
+        never called for a connection that is refused.  :class:`UGraph`
+        records the edge at both ends and :class:`DGraph` as leaving its start
+        and entering its end.  It is defined by the graph kind, not by
+        :meth:`Vertex.connect`.
+        """
+        raise NotImplementedError(
+            f"{type(self).__name__} does not define how an edge is attached; "
+            "subclass UGraph or DGraph"
+        )
+
+    def _detach(self, edge: Edge) -> None:
+        """
+        Remove an edge from the edge lists of its vertices (private method)
+
+        :param edge: the edge being removed, with ``edge.v1`` and ``edge.v2``
+            still set
+        :raises NotImplementedError: not provided by this graph kind
+
+        The twin of :meth:`_attach`: it undoes exactly what that recorded.
+        Called by :meth:`remove_edge` before the edge's endpoints are
+        cleared.  An edge that is absent from a list is skipped rather than
+        treated as an error.
+        """
+        raise NotImplementedError(
+            f"{type(self).__name__} does not define how an edge is detached; "
+            "subclass UGraph or DGraph"
+        )
+
+    def _incoming(self, vertex: Vertex) -> list[Edge]:
+        """
+        The edges that end at a vertex (private method)
+
+        :param vertex: a vertex of this graph
+        :raises NotImplementedError: not provided by this graph kind
+        """
+        raise NotImplementedError(
+            f"{type(self).__name__} does not define the incoming edges; "
+            "subclass UGraph or DGraph"
+        )
+
+    def _endpoints_match(self, edge: Edge, v1: Vertex, v2: Vertex) -> bool:
+        """
+        Test if an edge already connects two vertices (private method)
+
+        A directed edge must run from ``v1`` to ``v2``; see
+        :meth:`UGraph._endpoints_match` for the undirected relaxation.
+        """
+        return edge.v1 is v1 and edge.v2 is v2
+
+    @property
     def vertex_class(self) -> type[Vertex]:
         """
         Class of the vertices this graph creates
 
         :return: vertex class
-        :rtype: subclass of ``UVertex`` or ``DVertex``
+        :rtype: subclass of ``Vertex``
 
         This is read-only.  It is set by the ``vertex_class`` argument of the
-        graph constructor, see :meth:`__init__`, and is ``UVertex`` for a
-        :class:`UGraph` and ``DVertex`` for a :class:`DGraph` if not given.
+        graph constructor, see :meth:`__init__`, and is :class:`Vertex` if not
+        given.
 
         .. runblock:: pycon
 
-            >>> from pgraph import UGraph, UVertex
-            >>> class MyVertex(UVertex):
+            >>> from pgraph import UGraph, Vertex
+            >>> class MyVertex(Vertex):
             ...     pass
             >>> g = UGraph(vertex_class=MyVertex)
             >>> print(g.vertex_class.__name__)
@@ -424,7 +536,7 @@ class Graph(ABC):
         from collections import Counter
 
         problems: list[str] = []
-        directed = isinstance(self, DGraph)
+        directed = self.directed
 
         # ---- the containers themselves must hold the right kind of thing; a
         # stray object is reported and set aside so the checks below can run
@@ -694,7 +806,7 @@ class Graph(ABC):
             v1, v2 = self._vertexlist[i], self._vertexlist[j]
             e._set_endpoints(v1, v2)
             self._edges[e] = None
-            v1._attach(e, v2)
+            self._attach(e)
 
     def add_vertex(
         self, coord: ArrayLike | Vertex | None = None, name: str | None = None
@@ -703,8 +815,8 @@ class Graph(ABC):
         Add a vertex to the graph
 
         :param coord: coordinate for an embedded graph, or an existing vertex
-            of this graph's own kind (``UVertex`` for :class:`UGraph`,
-            ``DVertex`` for :class:`DGraph`) to add as-is, defaults to None
+            (an instance of this graph's :attr:`vertex_class`, not belonging
+            to a graph) to add as-is, defaults to None
         :type coord: array-like or Vertex subclass, optional
         :param name: name of vertex, defaults to "#i"
         :type name: str, optional
@@ -722,8 +834,7 @@ class Graph(ABC):
         - ``g.add_vertex()`` creates a new vertex with optional ``coord`` and
           ``name``.
         - ``g.add_vertex(v)`` takes an instance of this graph's
-          :attr:`vertex_class` (by default any ``UVertex`` for a
-          :class:`UGraph`, any ``DVertex`` for a :class:`DGraph`) and adds it
+          :attr:`vertex_class` (by default any :class:`Vertex`) and adds it
           to the graph.
 
         If the vertex has no name and ``name`` is None give it a default name
@@ -743,13 +854,13 @@ class Graph(ABC):
 
         .. runblock:: pycon
 
-            >>> from pgraph import UGraph, UVertex
+            >>> from pgraph import UGraph, Vertex
             >>> g = UGraph()
             >>> v1 = g.add_vertex(coord=[0,0])
             >>> repr(v1)
             >>> print(v1)
             >>> print(v1.name)
-            >>> v2 = g.add_vertex(UVertex(coord=[1,1], name='v2'))
+            >>> v2 = g.add_vertex(Vertex(coord=[1,1], name='v2'))
             >>> print(v2.name)
             >>> g['v2']
 
@@ -828,7 +939,7 @@ class Graph(ABC):
 
         A vertex can only belong to a single graph, so this method is used to
         create a new vertex with the same name and coordinates for inclusion
-        in a new graph -- of ``cls``'s own vertex kind, per :attr:`_vertex_cls`.
+        in a new graph.  A vertex is the same for undirected and directed graphs.
 
         .. runblock:: pycon
 
@@ -840,7 +951,7 @@ class Graph(ABC):
 
         :seealso: :meth:`Vertex.copy`
         """
-        return cls._vertex_cls(coord=vertex.coord, name=vertex.name)
+        return Vertex(coord=vertex.coord, name=vertex.name)
 
     def _resolve_vertex(self, v: Vertex | str, label: str) -> Vertex:
         """
@@ -1045,7 +1156,7 @@ class Graph(ABC):
 
         # how the edge is held differs between undirected and directed
         # vertices, so the vertex kind undoes what its _attach did
-        v1._detach(edge, v2)
+        self._detach(edge)
 
         v1._connectivitychange = True
         v2._connectivitychange = True
@@ -1184,7 +1295,6 @@ class Graph(ABC):
         """
         return len(self._edges)
 
-    @abstractmethod
     def _graphcolor(self) -> int | None:
         """
         Color the graph (subclass method)
@@ -1192,7 +1302,12 @@ class Graph(ABC):
         Concrete graph coloring algorithm, provided by :meth:`UGraph._graphcolor`
         and :meth:`DGraph._graphcolor`.
 
+        :raises NotImplementedError: not provided by this graph kind
         """
+        raise NotImplementedError(
+            f"{type(self).__name__} does not define how to color the graph; "
+            "subclass UGraph or DGraph"
+        )
 
     @property
     def nc(self) -> int:
@@ -2018,8 +2133,8 @@ class Graph(ABC):
 
         .. note::
 
-            - The graph is undirected if it is a subclass of ``UGraph``
-            - The graph is directed if it is a subclass of ``DGraph``
+            - The graph is undirected if it is a :class:`UGraph`
+            - The graph is directed if it is a :class:`DGraph`
 
         .. note:: The ``graphviz`` formatters ``dot`` and ``neato`` can be used to render the
             graph in various formats including PDF, PNG, JPG, GIF, SVG, etc.  The formmatters are
@@ -2129,7 +2244,7 @@ class Graph(ABC):
             
         :seealso: :meth:`adjacency`
         """
-        if isinstance(self, UGraph):
+        if not self.directed:
             return self.ne > self.n - self.nc
 
         # DGraph: Kahn's algorithm
@@ -2463,7 +2578,7 @@ class Graph(ABC):
             assert e.v1 is not None and e.v2 is not None
             I[vdict[e.v1], j] = 1
             I[vdict[e.v2], j] = 1
-            if e.v1 is e.v2 and isinstance(self, UGraph):
+            if e.v1 is e.v2 and not self.directed:
                 I[vdict[e.v1], j] = 2  # self-loop, counted at both ends
 
         return I
@@ -2947,15 +3062,56 @@ class UGraph(Graph):
     """
     Class for undirected graphs
 
-    Vertices are :class:`UVertex` objects, or instances of the subclass given
+    Vertices are :class:`Vertex` objects, or instances of the subclass given
     as ``vertex_class``. Edges are :class:`Edge` objects, or instances of the
     subclass given as ``edge_class``; see :class:`Graph` for the
     constructor arguments and the exceptions they raise.
+
+    An edge is recorded at *both* of its vertices, so it is found from either
+    end, and an edge supplied to :meth:`Vertex.connect` may have its endpoints
+    in either order.
 
     .. inheritance-diagram:: UGraph
 
     :seealso: :class:`Graph` :class:`DGraph`
     """
+
+    _directed = False
+
+    def _attach(self, edge: Edge) -> None:
+        """
+        Record an undirected edge at both ends (private method)
+
+        The edge is added to *both* vertices' edge lists, so it is discovered
+        from either end.  A self-loop is therefore held twice by its vertex,
+        which is why it counts 2 towards the degree.
+        """
+        assert edge.v1 is not None and edge.v2 is not None
+        edge.v1._edgelist.append(edge)
+        edge.v2._edgelist.append(edge)
+
+    def _detach(self, edge: Edge) -> None:
+        """
+        Remove an undirected edge from both ends (private method)
+
+        A self-loop was recorded twice by :meth:`_attach`, so it is removed
+        twice.
+        """
+        for vertex in (edge.v1, edge.v2):
+            if vertex is not None and edge in vertex._edgelist:
+                vertex._edgelist.remove(edge)
+
+    def _incoming(self, vertex: Vertex) -> list[Edge]:
+        """The edges that end here: for an undirected graph, all of them"""
+        return vertex._edgelist
+
+    def _endpoints_match(self, edge: Edge, v1: Vertex, v2: Vertex) -> bool:
+        """
+        Test if an edge already connects two vertices (private method)
+
+        An undirected edge has no direction, so either order is accepted.
+        """
+        return (edge.v1 is v1 and edge.v2 is v2) or (edge.v1 is v2 and edge.v2 is v1)
 
     def _graphcolor(self) -> None:
         """
@@ -3006,15 +3162,45 @@ class DGraph(Graph):
     """
     Class for directed graphs
 
-    Vertices are :class:`DVertex` objects, or instances of the subclass given
+    Vertices are :class:`Vertex` objects, or instances of the subclass given
     as ``vertex_class``. Edges are :class:`Edge` objects, or instances of the
     subclass given as ``edge_class``; see :class:`Graph` for the
     constructor arguments and the exceptions they raise.
+
+    An edge is recorded as leaving its start vertex and entering its end
+    vertex, and an edge supplied to :meth:`Vertex.connect` must run exactly
+    from that vertex to the other.
 
     .. inheritance-diagram:: DGraph
 
     :seealso: :class:`Graph` :class:`UGraph`
     """
+
+    _directed = True
+
+    def _attach(self, edge: Edge) -> None:
+        """
+        Record a directed edge at both ends (private method)
+
+        The edge goes in the start vertex's list of outgoing edges and in the
+        end vertex's list of incoming ones.
+        """
+        assert edge.v1 is not None and edge.v2 is not None
+        edge.v1._edgelist.append(edge)
+        edge.v2._inlist.append(edge)
+
+    def _detach(self, edge: Edge) -> None:
+        """
+        Remove a directed edge from its start and from its end (private method)
+        """
+        if edge.v1 is not None and edge in edge.v1._edgelist:
+            edge.v1._edgelist.remove(edge)
+        if edge.v2 is not None and edge in edge.v2._inlist:
+            edge.v2._inlist.remove(edge)
+
+    def _incoming(self, vertex: Vertex) -> list[Edge]:
+        """The edges that end at the vertex"""
+        return vertex._inlist
 
     def _graphcolor(self) -> int | None:
         """
@@ -3260,9 +3446,9 @@ class Edge:
 
         .. runblock:: pycon
 
-            >>> from pgraph import UVertex, Edge
-            >>> v1 = UVertex(coord=[1,2], name="A")
-            >>> v2 = UVertex(coord=[3,4], name="B")
+            >>> from pgraph import Vertex, Edge
+            >>> v1 = Vertex(coord=[1,2], name="A")
+            >>> v2 = Vertex(coord=[3,4], name="B")
             >>> e = Edge(v1, v2, cost=5.0, data="A to B")
             >>> repr(e)
 
@@ -3279,15 +3465,16 @@ class Edge:
 
         .. runblock:: pycon
 
-            >>> from pgraph import UVertex, Edge
-            >>> v1 = UVertex(coord=[1,2], name="A")
-            >>> v2 = UVertex(coord=[3,4], name="B")
+            >>> from pgraph import Vertex, Edge
+            >>> v1 = Vertex(coord=[1,2], name="A")
+            >>> v2 = Vertex(coord=[3,4], name="B")
             >>> e = Edge(v1, v2, cost=5.0, data="A to B")
             >>> str(e)
 
         :seealso: :meth:`__repr__`
         """
-        arrow = "->" if isinstance(self.v1, DVertex) else "--"
+        graph = self.v1._graph if self.v1 is not None else None
+        arrow = "->" if graph is not None and graph.directed else "--"
         cost_str = "None" if self.cost is None else f"{self.cost:.4g}"
         s = f"{self.__class__.__name__}{{{self.v1} {arrow} {self.v2}, cost={cost_str}}}"
         if self.data is not None:
@@ -3317,7 +3504,7 @@ class Edge:
 
         .. runblock:: pycon
 
-            >>> from pgraph import UVertex, Edge, UGraph
+            >>> from pgraph import Vertex, Edge, UGraph
             >>> g = UGraph()
             >>> v1 = g.add_vertex(coord=[0,0], name='v1')
             >>> v2 = g.add_vertex(coord=[1,1], name='v2')
@@ -3359,9 +3546,9 @@ class Edge:
 
         .. runblock:: pycon
 
-            >>> from pgraph import UVertex, Edge
-            >>> v1 = UVertex(coord=[1,2], name="A")
-            >>> v2 = UVertex(coord=[3,4], name="B")
+            >>> from pgraph import Vertex, Edge
+            >>> v1 = Vertex(coord=[1,2], name="A")
+            >>> v2 = Vertex(coord=[3,4], name="B")
             >>> e = Edge(v1, v2, cost=5.0, data="A to B")
             >>> print(e)
             >>> e.next(v1)
@@ -3404,9 +3591,9 @@ class Edge:
 
         .. runblock:: pycon
 
-            >>> from pgraph import UVertex, Edge
-            >>> v1 = UVertex(coord=[1,2], name="A")
-            >>> v2 = UVertex(coord=[3,4], name="B")
+            >>> from pgraph import Vertex, Edge
+            >>> v1 = Vertex(coord=[1,2], name="A")
+            >>> v2 = Vertex(coord=[3,4], name="B")
             >>> e = Edge(v1, v2, cost=5.0, data="A to B")
             >>> print(e)
             >>> print(e.endpoints)
@@ -3457,7 +3644,18 @@ class Edge:
 
 class Vertex:
     """
-    Base class for vertices of directed and non-directed graphs.
+    A vertex of a graph, directed or undirected.
+
+    A vertex has no direction of its own: how an edge is recorded at its ends
+    is decided by the graph it belongs to (see :class:`UGraph` and
+    :class:`DGraph`).  So there is one vertex class, which can be subclassed
+    to give user objects graph capability and passed to the graph as
+    ``vertex_class``.
+
+    .. versionchanged:: 1.0
+        This replaces ``UVertex`` and ``DVertex``, which are deprecated names
+        for it.  They differed only in how an edge was recorded, which is now
+        the graph's decision.
 
     Each vertex has:
         - ``name`` which is its key in the graph, so renaming a vertex that is
@@ -3469,7 +3667,7 @@ class Vertex:
     and its edges are available from :meth:`edges`, :meth:`out_edges` and
     :meth:`in_edges`.
 
-    :seealso: :class:`UVertex` :class:`DVertex` :class:`Edge`
+    :seealso: :class:`Graph` :class:`Edge`
     """
 
     def __init__(self, coord: ArrayLike | None = None, name: str | None = None):
@@ -3486,8 +3684,8 @@ class Vertex:
 
         .. runblock:: pycon
 
-            >>> from pgraph import UVertex
-            >>> v1 = UVertex(coord=[0,0], name='v1')
+            >>> from pgraph import Vertex
+            >>> v1 = Vertex(coord=[0,0], name='v1')
             >>> print(v1)
 
         :seealso: :meth:`Graph.add_vertex`
@@ -3528,8 +3726,8 @@ class Vertex:
 
         .. runblock:: pycon
 
-            >>> from pgraph import UVertex
-            >>> v = UVertex(coord=[1,2], name="A")
+            >>> from pgraph import Vertex
+            >>> v = Vertex(coord=[1,2], name="A")
             >>> str(v)
         """
         return f"[{self.name:s}]"
@@ -3543,8 +3741,8 @@ class Vertex:
 
         .. runblock:: pycon
 
-            >>> from pgraph import UVertex
-            >>> v = UVertex(coord=[1,2], name="A")
+            >>> from pgraph import Vertex
+            >>> v = Vertex(coord=[1,2], name="A")
             >>> repr(v)
         """
         if self.coord is None:
@@ -3569,8 +3767,8 @@ class Vertex:
 
         .. runblock:: pycon
 
-            >>> from pgraph import UVertex, DGraph
-            >>> v = UVertex(coord=[1,2], name='v1')
+            >>> from pgraph import Vertex, DGraph
+            >>> v = Vertex(coord=[1,2], name='v1')
             >>> v2 = v.copy(cls=DGraph)
             >>> print(v2)
 
@@ -3743,19 +3941,16 @@ class Vertex:
 
         .. note::
 
-            - If the vertices subclass ``UVertex`` the edge is undirected: it is
-              recorded in the edge list of *both* vertices, so it is found from
-              either end. If they subclass ``DVertex`` the edge is directed: it
-              is recorded only in the edge list of this, the source, vertex.
+            - In an undirected graph the edge is recorded in the edge list of
+              *both* vertices, so it is found from either end. In a directed
+              graph it is recorded as leaving this, the start, vertex and
+              entering ``dest``.
             - A supplied ``edge`` built without vertices has its ``v1`` and
               ``v2`` set to the vertices being connected. One built with
               vertices must agree with them: in either order if undirected,
               exactly ``self`` then ``dest`` if directed.
             - Both vertices must already have been added to the same graph,
-              e.g. via :meth:`Graph.add_vertex` -- since a graph only ever
-              accepts its own vertex subclass (see :meth:`UGraph.add_vertex`,
-              :meth:`DGraph.add_vertex`), this also rules out connecting a
-              ``UVertex`` to a ``DVertex``.
+              e.g. via :meth:`Graph.add_vertex`.
 
         .. runblock:: pycon
 
@@ -3790,59 +3985,10 @@ class Vertex:
         self._graph._connectivitychange = True
         self._connectivitychange = True
 
-        # the one thing that differs between undirected and directed vertices
-        self._attach(e, dest)
+        # the one thing that differs between undirected and directed graphs
+        self._graph._attach(e)
 
         return e
-
-    def _attach(self, edge: Edge, dest: Vertex) -> None:
-        """
-        Record a new edge in the vertices' edge lists (private method)
-
-        :param edge: the edge just created or supplied by :meth:`connect`, with
-            ``edge.v1`` and ``edge.v2`` set and already part of the graph
-        :param dest: the vertex ``connect`` was called with
-        :raises NotImplementedError: not provided by this vertex kind
-
-        This is the hook that :meth:`connect` calls once the connection has
-        been validated and the edge registered with the graph, so it is never
-        called for a connection that is refused.  :class:`UVertex` records the
-        edge at both ends and :class:`DVertex` at the source only.  A vertex
-        kind of your own supplies this, not :meth:`connect`, which is defined
-        once.
-        """
-        raise NotImplementedError(
-            f"{type(self).__name__} does not define how an edge is attached; "
-            "subclass UVertex or DVertex"
-        )
-
-    def _detach(self, edge: Edge, dest: Vertex) -> None:
-        """
-        Remove an edge from the vertices' edge lists (private method)
-
-        :param edge: the edge being removed, with ``edge.v1`` and ``edge.v2``
-            still set
-        :param dest: the vertex at the other end, ``edge.v2``
-        :raises NotImplementedError: not provided by this vertex kind
-
-        The twin of :meth:`_attach`: it undoes exactly what that recorded.
-        Called by :meth:`Graph.remove_edge` before the edge's endpoints
-        are cleared.  An edge that is absent from a list is skipped rather
-        than treated as an error.
-        """
-        raise NotImplementedError(
-            f"{type(self).__name__} does not define how an edge is detached; "
-            "subclass UVertex or DVertex"
-        )
-
-    def _endpoints_match(self, edge: Edge, dest: Vertex) -> bool:
-        """
-        Test if an edge already connects this vertex to ``dest`` (private method)
-
-        A directed edge must run from this vertex to ``dest``; see
-        :meth:`UVertex._endpoints_match` for the undirected relaxation.
-        """
-        return edge.v1 is self and edge.v2 is dest
 
     def _bind_edge(self, edge: Edge, dest: Vertex) -> None:
         """
@@ -3858,9 +4004,11 @@ class Vertex:
         changed, rather than leaving the graph holding an edge whose
         endpoints disagree with the vertices' edge lists.
         """
+        graph = self._graph
+        assert graph is not None  # connect() has checked
         if edge.v1 is None and edge.v2 is None:
             edge._set_endpoints(self, dest)
-        elif not self._endpoints_match(edge, dest):
+        elif not graph._endpoints_match(edge, self, dest):
             raise ValueError(
                 f"edge already connects {edge.v1} and {edge.v2}, "
                 f"not {self} and {dest}"
@@ -4063,7 +4211,9 @@ class Vertex:
 
     def _incoming(self) -> list[Edge]:
         """The edges that end here (private method)"""
-        return self._inlist
+        if self._graph is None:
+            return self._inlist
+        return self._graph._incoming(self)
 
     def out_edges(self) -> list[Edge]:
         """
@@ -4220,8 +4370,8 @@ class Vertex:
 
         .. runblock:: pycon
 
-            >>> from pgraph import UVertex
-            >>> v = UVertex(coord=[1,2], name='v1')
+            >>> from pgraph import Vertex
+            >>> v = Vertex(coord=[1,2], name='v1')
             >>> print(v.x)
         """
         if self.coord is None:
@@ -4239,8 +4389,8 @@ class Vertex:
 
         .. runblock:: pycon
 
-            >>> from pgraph import UVertex
-            >>> v = UVertex(coord=[1,2], name='v1')
+            >>> from pgraph import Vertex
+            >>> v = Vertex(coord=[1,2], name='v1')
             >>> print(v.y)
         """
         if self.coord is None:
@@ -4258,8 +4408,8 @@ class Vertex:
 
         .. runblock:: pycon
 
-            >>> from pgraph import UVertex
-            >>> v = UVertex(coord=[1,2,3], name='v1')
+            >>> from pgraph import Vertex
+            >>> v = Vertex(coord=[1,2,3], name='v1')
             >>> print(v.z)
         """
         if self.coord is None:
@@ -4327,130 +4477,16 @@ class Vertex:
         self._graph.remove_vertex(self)
 
 
-class UVertex(Vertex):
-    """
-    Vertex subclass for undirected graphs
-
-    This class can be inherited to provide user objects with graph capability.
-
-    :meth:`~Vertex.connect` adds the new edge to *both* vertices' edge
-    lists, so it is discovered from either end, and accepts a supplied edge
-    whose endpoints are the two vertices in either order.
-
-    .. runblock:: pycon
-
-        >>> from pgraph import UGraph
-        >>> g = UGraph()
-        >>> v1 = g.add_vertex(coord=[0,0], name='v1')
-        >>> v2 = g.add_vertex(coord=[1,1], name='v2')
-        >>> v1.connect(v2, cost=1.414)
-        >>> print(v1.edges())
-        >>> print(v2.edges())
-
-    .. inheritance-diagram:: UVertex
-
-    :seealso: :class:`Vertex` :class:`DVertex`
-    """
-
-    def _attach(self, edge: Edge, dest: Vertex) -> None:
-        """
-        Record an undirected edge at both ends (private method)
-
-        The edge is added to *both* vertices' edge lists, so it is discovered
-        from either end.  A self-loop is therefore held twice by its vertex,
-        which is why it counts 2 towards the degree.
-        """
-        self._edgelist.append(edge)
-        dest._edgelist.append(edge)
-
-    def _incoming(self) -> list[Edge]:
-        """The edges that end here: for an undirected vertex, all of them"""
-        return self._edgelist
-
-    def _detach(self, edge: Edge, dest: Vertex) -> None:
-        """
-        Remove an undirected edge from both ends (private method)
-
-        A self-loop was recorded twice by :meth:`_attach`, so it is removed
-        twice.
-        """
-        for vertex in (self, dest):
-            if edge in vertex._edgelist:
-                vertex._edgelist.remove(edge)
-
-    def _endpoints_match(self, edge: Edge, dest: Vertex) -> bool:
-        """
-        Test if an edge already connects this vertex and ``dest`` (private method)
-
-        An undirected edge has no direction, so either order is accepted.
-        """
-        return (edge.v1 is self and edge.v2 is dest) or (
-            edge.v1 is dest and edge.v2 is self
+# UVertex and DVertex were two vertex classes that differed only in how an edge
+# was recorded at them, which is the graph's decision.  They remain as names
+# for Vertex, so that existing code that subclasses or constructs them runs.
+def __getattr__(name: str) -> Any:
+    if name in ("UVertex", "DVertex"):
+        warnings.warn(
+            f"{name} is deprecated, use Vertex instead: a vertex has no "
+            "direction of its own, the graph it belongs to decides",
+            DeprecationWarning,
+            stacklevel=2,
         )
-
-
-class DVertex(Vertex):
-    """
-    Vertex subclass for directed graphs
-
-    This class can be inherited to provide user objects with graph capability.
-
-    :meth:`~Vertex.connect` adds the new edge only to *this* vertex's edge
-    list, so it is discoverable only from the start of the directed edge, and a
-    supplied edge must run exactly from this vertex to the other.
-
-    .. runblock:: pycon
-
-        >>> from pgraph import DGraph
-        >>> g = DGraph()
-        >>> v1 = g.add_vertex(coord=[0,0], name='v1')
-        >>> v2 = g.add_vertex(coord=[1,1], name='v2')
-        >>> v1.connect(v2, cost=1.414)
-        >>> print(v1.edges())
-        >>> print(v2.edges())
-
-    .. inheritance-diagram:: DVertex
-
-    :seealso: :class:`Vertex` :class:`UVertex`
-    """
-
-    def _attach(self, edge: Edge, dest: Vertex) -> None:
-        """
-        Record a directed edge at both ends (private method)
-
-        The edge goes in this vertex's list of outgoing edges and in
-        ``dest``'s list of incoming ones.
-        """
-        self._edgelist.append(edge)
-        dest._inlist.append(edge)
-
-    def _detach(self, edge: Edge, dest: Vertex) -> None:
-        """
-        Remove a directed edge from its source and from where it ends
-        (private method)
-        """
-        if edge in self._edgelist:
-            self._edgelist.remove(edge)
-        if edge in dest._inlist:
-            dest._inlist.remove(edge)
-
-
-# UGraph/DGraph declare their _vertex_cls here, rather than in their own
-# class body, because UVertex/DVertex are defined later in this file --
-# _vertex_cls is a real runtime assignment (unlike a type annotation), so it
-# can't rely on `from __future__ import annotations` to defer it.
-UGraph._vertex_cls = UVertex
-DGraph._vertex_cls = DVertex
-
-
-if __name__ == "__main__":
-
-    g = UGraph()
-    print(g)
-
-    for i in range(10):
-        g.add_vertex()
-
-    g.add_edge(g[0], g[1])
-
-    print(g)
+        return Vertex
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
