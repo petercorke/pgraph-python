@@ -313,6 +313,24 @@ class TestUGraph(unittest.TestCase):
             verts = e.vertices()
         self.assertEqual(verts, e.endpoints)
 
+    def test_planners_validate_start_and_goal(self):
+        # 0.6.5 checked the type of the start twice and never the goal
+        g = UGraph()
+        a = g.add_vertex(coord=[0, 0], name="a")
+        b = g.add_vertex(coord=[1, 0], name="b")
+        g.add_edge(a, b)
+
+        for planner in (g.path_BFS, g.path_UCS, g.path_Astar):
+            with self.subTest(planner=planner.__name__):
+                with self.assertRaises(TypeError):
+                    planner(a, 42)
+                with self.assertRaises(TypeError):
+                    planner(42, b)
+                with self.assertRaises(KeyError):
+                    planner(a, "no such vertex")
+                # by name and by reference both work
+                self.assertEqual(planner("a", "b")[0], [a, b])
+
     def test_edge3(self):
 
         g = UGraph()

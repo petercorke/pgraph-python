@@ -408,6 +408,8 @@ class TestWrappers(unittest.TestCase):
             g.dotfile()
         self.assertEqual(out.getvalue(), g.export(format="dot", costs=False))
         self.assertNotIn("label=", out.getvalue())
+        # writing to the console must leave it usable (0.6.5 closed it)
+        self.assertFalse(out.closed)
 
     def test_dotfile_to_path_and_stream(self):
         g, *_ = line_graph(UGraph)
