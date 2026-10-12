@@ -24,13 +24,14 @@ Hughenden to Brisbane
 
 ## Benchmark
 
-- `benchmark.py` times the key operations of the package and prints a table: adding vertices and edges, copying, pickling, finding the components, removing a vertex, finding the closest vertex to a point, forming the adjacency, Laplacian and incidence matrices, and the three path planners (breadth-first, uniform cost and A\*).  The graphs are random geometric graphs in the plane, each vertex joined to its 4 nearest neighbours, of 100, 1,000 and 10,000 vertices, and the same graphs and path queries are used every run.  The last column of the table is the exponent *b* in time ∝ N<sup>*b*</sup> between the smallest and largest graph for the quantity shown: 0 is constant, 1 is linear and 2 is quadratic.
+- `benchmark.py` times the key operations of the package and prints a table: adding vertices and edges, copying, pickling, finding the components, removing a vertex, finding the closest vertex to a point, forming the adjacency, Laplacian and incidence matrices, and the three path planners (breadth-first, uniform cost and A\*).  The graphs are random geometric graphs in the plane, each vertex joined to its 4 nearest neighbours, of 100, 1,000 and 10,000 vertices, and the same graphs and path queries are used every run.  The last column of the table, the growth exponent, is the exponent *b* in time ∝ N<sup>*b*</sup> between the smallest and largest graph for the quantity shown: 0 is constant, 1 is linear and 2 is quadratic.
 
   ```
   python benchmark.py             # undirected graphs, about 15 seconds
   python benchmark.py --directed  # directed graphs
   python benchmark.py --quick     # without the largest graph
+  python benchmark.py --md        # the table as MarkDown, to paste into a README
   python benchmark.py --rst       # the table as reST, to paste into the documentation
   ```
 
-  Also `--sizes`, `--seed` and `--matrix-max` (the matrices are dense, so they are only formed up to this number of vertices), and `--plot` to time `plot()` as well, which needs a working matplotlib backend.  It uses only numpy and the standard library.  Timings depend on the machine, so compare runs made on the same one.
+  Also `--sizes`, `--seed` and `--matrix-max` (the matrices are dense, so they are only formed up to this number of vertices), and `--plot` to time `plot()` as well, which needs a working matplotlib backend.  The table is made with `ansitable`, which `spatialmath-python` installs, and with `--md` or `--rst` only the table goes to standard output, so it can be redirected to a file.  Timings depend on the machine, so compare runs made on the same one.
