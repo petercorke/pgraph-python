@@ -265,9 +265,9 @@ and to add them to the graph.</p>
 </div>
 <p>and then add them to the graph</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">(</span><span class="n">v1</span><span class="p">)</span>
-<span class="go">Vertex[#0, coord=(0.3854, 0.3345)]</span>
+<span class="go">Vertex[#0, coord=(0.5566, 0.315)]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">(</span><span class="n">v2</span><span class="p">)</span>
-<span class="go">Vertex[#1, coord=(0.1836, 0.4981)]</span>
+<span class="go">Vertex[#1, coord=(0.6082, 0.119)]</span>
 </pre></div>
 </div>
 <p>Our graph now has two vertices, but no edges</p>
@@ -281,7 +281,7 @@ and to add them to the graph.</p>
 </div>
 <p>and then add it to the graph</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">g</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
-<span class="go">Edge{[#0] -- [#1], cost=0.2598}</span>
+<span class="go">Edge{[#0] -- [#1], cost=0.2027}</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/builtins/functions.html#print"><span class="nb">print</span></a><span class="p">(</span><span class="n">g</span><span class="p">)</span>
 <span class="go">UGraph: 2 vertices, 1 edge, 1 component</span>
 </pre></div>
@@ -294,9 +294,9 @@ and to add them to the graph.</p>
 <p>Alternatively, we can create a vertex and <em>connect</em> it to an existing vertex, which will implicitly create an edge between the two vertices and add it to the graph.</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">v3</span> <span class="o">=</span> <span class="n">Vertex</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">(</span><span class="n">v3</span><span class="p">)</span>
-<span class="go">Vertex[#2, coord=(0.3624, 0.07393)]</span>
+<span class="go">Vertex[#2, coord=(0.07289, 0.5529)]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">v2</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">v3</span><span class="p">)</span>
-<span class="go">Edge{[#1] -- [#2], cost=0.4603}</span>
+<span class="go">Edge{[#1] -- [#2], cost=0.6891}</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/builtins/functions.html#print"><span class="nb">print</span></a><span class="p">(</span><span class="n">g</span><span class="p">)</span>
 <span class="go">UGraph: 3 vertices, 2 edges, 1 component</span>
 </pre></div>
