@@ -116,6 +116,137 @@ vertices it connects. In the case of a loop, the edge appears twice in the verte
 For the directed case, each vertex maintains two edge lists: a list of outgoing edges and a list of incoming edges.</p>
 <p>The graph class provides methods for adding and removing vertices and edges (see <a class="reference internal" href="modification.html"><span class="doc">Adding and removing vertices and edges</span></a>)
 and for querying its structure (see <a class="reference internal" href="analysis.html"><span class="doc">Graph analysis</span></a>).</p>
+<section id="what-a-vertex-holds">
+<h3>What a vertex holds<a class="headerlink" href="#what-a-vertex-holds" title="Link to this heading"></a></h3>
+<p>Each vertex has <strong>two</strong> private edge lists, plus a back-pointer to its graph.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 15.0%"/>
+<col style="width: 55.0%"/>
+<col style="width: 30.0%"/>
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Attribute</p></th>
+<th class="head"><p>For undirected graphs</p></th>
+<th class="head"><p>For directed graphs</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">_edgelist</span></code></p></td>
+<td><p>the edges <em>incident on</em> it</p></td>
+<td><p>the edges <em>leaving</em> it</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">_inlist</span></code></p></td>
+<td><p>empty</p></td>
+<td><p>the edges <em>entering</em> it</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">_graph</span></code></p></td>
+<td><p>the graph it belongs to (<code class="docutils literal notranslate"><span class="pre">None</span></code> if standalone)</p></td>
+<td><p>the graph it belongs to (<code class="docutils literal notranslate"><span class="pre">None</span></code> if standalone)</p></td>
+</tr>
+</tbody>
+</table>
+<p>Every list entry is a reference to the same <a class="reference internal" href="#pgraph.PGraph.Edge" title="pgraph.PGraph.Edge"><code class="xref py py-class docutils literal notranslate"><span class="pre">Edge</span></code></a> class object, and
+there is exactly one edge object for each edge in the graph.</p>
+<ul class="simple">
+<li><p><strong>Undirected:</strong> one list does everything, since an undirected edge is both “out”
+and “in”.  That is also why a loop is stored twice, once for each end, and why it
+counts 2 towards <code class="docutils literal notranslate"><span class="pre">degree</span></code>.</p></li>
+<li><p><strong>Directed:</strong> the two lists are the out-list and the in-list.  A loop sits once in
+each, so <code class="docutils literal notranslate"><span class="pre">degree</span></code> (in + out) is 2 there too.</p></li>
+</ul>
+</section>
+<section id="an-example-as-lists">
+<h3>An example, as lists<a class="headerlink" href="#an-example-as-lists" title="Link to this heading"></a></h3>
+<p>For these simple graphs</p>
+<p>(<a class="reference download internal" download="" href="_downloads/4a51512f8304dd3eed73a609992b7c34/edges_vertices-1.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="_downloads/11f3cd1f5f293f8da275baf45bafc46e/edges_vertices-1.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="_downloads/53be10d15658b2a7c2fc213e12eb2b20/edges_vertices-1.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="_downloads/623e3018fcee176d38681809949e1f5b/edges_vertices-1.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
+<figure class="align-default">
+<img alt="the example graph drawn as an undirected and as a directed graph: two parallel edges e1 and e2 from a to b, e3 from b to c and a loop e4 on c" class="plot-directive" src="_images/edges_vertices-1.png"/>
+</figure>
+<p>The vertices <code class="docutils literal notranslate"><span class="pre">a</span></code>, <code class="docutils literal notranslate"><span class="pre">b</span></code> and <code class="docutils literal notranslate"><span class="pre">c</span></code> and edges <code class="docutils literal notranslate"><span class="pre">e1</span></code> and <code class="docutils literal notranslate"><span class="pre">e2</span></code> are added in that order.
+The resulting vertex lists are</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 10.0%"/>
+<col style="width: 30.0%"/>
+<col style="width: 30.0%"/>
+<col style="width: 30.0%"/>
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Vertex name</p></th>
+<th class="head"><p><code class="docutils literal notranslate"><span class="pre">UGraph</span></code> <code class="docutils literal notranslate"><span class="pre">_edgelist</span></code></p></th>
+<th class="head"><p><code class="docutils literal notranslate"><span class="pre">DGraph</span></code> <code class="docutils literal notranslate"><span class="pre">_edgelist</span></code></p></th>
+<th class="head"><p><code class="docutils literal notranslate"><span class="pre">DGraph</span></code> <code class="docutils literal notranslate"><span class="pre">_inlist</span></code></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">a</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[e1,</span> <span class="pre">e2]</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[e1,</span> <span class="pre">e2]</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[]</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">b</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[e1,</span> <span class="pre">e2,</span> <span class="pre">e3]</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[e3]</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[e1,</span> <span class="pre">e2]</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">c</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[e3,</span> <span class="pre">e4,</span> <span class="pre">e4]</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[e4]</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[e3,</span> <span class="pre">e4]</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<p>The graph also keeps <strong>every edge once</strong> in <code class="docutils literal notranslate"><span class="pre">graph._edges</span></code> (an insertion-ordered
+dict, so <code class="docutils literal notranslate"><span class="pre">[e1,</span> <span class="pre">e2,</span> <span class="pre">e3,</span> <span class="pre">e4]</span></code>).</p>
+</section>
+<section id="the-public-view-of-those-lists">
+<h3>The public view of those lists<a class="headerlink" href="#the-public-view-of-those-lists" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 30.0%"/>
+<col style="width: 35.0%"/>
+<col style="width: 35.0%"/>
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Method</p></th>
+<th class="head"><p>Returns for <code class="docutils literal notranslate"><span class="pre">UGraph</span></code></p></th>
+<th class="head"><p>Returns for <code class="docutils literal notranslate"><span class="pre">DGraph</span></code></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">edges()</span></code>, <code class="docutils literal notranslate"><span class="pre">out_edges()</span></code></p></td>
+<td><p>a copy of <code class="docutils literal notranslate"><span class="pre">_edgelist</span></code></p></td>
+<td><p>a copy of <code class="docutils literal notranslate"><span class="pre">_edgelist</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">in_edges()</span></code></p></td>
+<td><p>a copy of <code class="docutils literal notranslate"><span class="pre">_edgelist</span></code></p></td>
+<td><p>a copy of <code class="docutils literal notranslate"><span class="pre">_inlist</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">degree</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">len(_edgelist)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">len(_edgelist)</span> <span class="pre">+</span> <span class="pre">len(_inlist)</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">in_degree</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">len(_edgelist)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">len(_inlist)</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">out_degree</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">len(_edgelist)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">len(_edgelist)</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">adjacent()</span></code></p></td>
+<td><p>the far end of each edge in <code class="docutils literal notranslate"><span class="pre">_edgelist</span></code></p></td>
+<td><p>the far end of each edge in <code class="docutils literal notranslate"><span class="pre">_edgelist</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">incidences()</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">adjacent()</span></code> paired with <code class="docutils literal notranslate"><span class="pre">out_edges()</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">adjacent()</span></code> paired with <code class="docutils literal notranslate"><span class="pre">out_edges()</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<p>All are returned in the order the edges were connected.</p>
+</section>
 </section>
 <section id="working-with-vertices-and-edges-directly">
 <h2>Working with vertices and edges directly<a class="headerlink" href="#working-with-vertices-and-edges-directly" title="Link to this heading"></a></h2>
@@ -134,9 +265,9 @@ and to add them to the graph.</p>
 </div>
 <p>and then add them to the graph</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">(</span><span class="n">v1</span><span class="p">)</span>
-<span class="go">Vertex[#0, coord=(0.7956, 0.87)]</span>
+<span class="go">Vertex[#0, coord=(0.1298, 0.07609)]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">(</span><span class="n">v2</span><span class="p">)</span>
-<span class="go">Vertex[#1, coord=(0.4328, 0.1609)]</span>
+<span class="go">Vertex[#1, coord=(0.002457, 0.4751)]</span>
 </pre></div>
 </div>
 <p>Our graph now has two vertices, but no edges</p>
@@ -150,7 +281,7 @@ and to add them to the graph.</p>
 </div>
 <p>and then add it to the graph</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">g</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
-<span class="go">Edge{[#0] -- [#1], cost=0.7966}</span>
+<span class="go">Edge{[#0] -- [#1], cost=0.4188}</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/builtins/functions.html#print"><span class="nb">print</span></a><span class="p">(</span><span class="n">g</span><span class="p">)</span>
 <span class="go">UGraph: 2 vertices, 1 edge, 1 component</span>
 </pre></div>
@@ -163,9 +294,9 @@ and to add them to the graph.</p>
 <p>Alternatively, we can create a vertex and <em>connect</em> it to an existing vertex, which will implicitly create an edge between the two vertices and add it to the graph.</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">v3</span> <span class="o">=</span> <span class="n">Vertex</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">(</span><span class="n">v3</span><span class="p">)</span>
-<span class="go">Vertex[#2, coord=(0.9421, 0.3296)]</span>
+<span class="go">Vertex[#2, coord=(0.3846, 0.3775)]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">v2</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">v3</span><span class="p">)</span>
-<span class="go">Edge{[#1] -- [#2], cost=0.5365}</span>
+<span class="go">Edge{[#1] -- [#2], cost=0.3944}</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/builtins/functions.html#print"><span class="nb">print</span></a><span class="p">(</span><span class="n">g</span><span class="p">)</span>
 <span class="go">UGraph: 3 vertices, 2 edges, 1 component</span>
 </pre></div>
