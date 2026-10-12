@@ -2,7 +2,7 @@
 Export a graph as text (GraphViz DOT, Mermaid, GraphML, ELK JSON) or as a
 rendered image (via the GraphViz command line tools).
 
-This module is reached through :meth:`pgraph.PGraph.Graph.export`, which
+This module is reached through :meth:`~pgraph.PGraph.Graph.export`, which
 dispatches on the format name or the file extension.  Each text exporter is a
 plain function ``f(graph, **options) -> str``, registered with
 :func:`register_exporter`, so a user can add a format without touching the
@@ -160,7 +160,7 @@ def _ordered_edges(graph: Graph) -> list[tuple[Edge, Vertex, Vertex]]:
 
 def _component_colors(graph: Graph) -> dict[Vertex, str]:
     """
-    Map each vertex to a ``#rrggbb`` colour for its component, as plot() does
+    Map each vertex to a ``#rrggbb`` color for its component, as plot() does
     """
     import matplotlib.pyplot as plt
     import numpy as np
@@ -270,7 +270,8 @@ def mermaid(
     :param direction: ``"TB"``, ``"BT"``, ``"LR"`` or ``"RL"``
     :param colorcomponents: fill vertices by connected component
     :param costs: label edges with their cost
-    :param fence: wrap in a Markdown ```` ```mermaid ```` code fence
+    :param fence: wrap in a Markdown code fence, three backticks followed by
+        ``mermaid``
 
     Mermaid flowcharts are laid out automatically and cannot pin node
     positions, so vertex coordinates are not represented.  Vertices are given

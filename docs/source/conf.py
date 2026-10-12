@@ -45,6 +45,7 @@ extensions = [
 ]
 
 autosummary_generate = True
+add_module_names = False  # show Graph.n, not pgraph.PGraph.Graph.n
 
 # copybutton configuration: strip >>> and ... prompts when copying
 copybutton_prompt_text = r">>> |\.\.\. "

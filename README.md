@@ -34,7 +34,7 @@
 [![powered by Matplotlib](https://img.shields.io/badge/powered_by-Matplotlib-11557c?logo=matplotlib&logoColor=white)](https://matplotlib.org)
 [![Powered by Spatial Maths](https://raw.githubusercontent.com/petercorke/spatialmath-python/master/.github/svg/sm_powered.min.svg)](https://github.com/petercorke/spatialmath-python)
 
-This package provides classes for directed and undirected graphs: vertices
+This pure-Python package provides classes for directed and undirected graphs: vertices
 connected by edges, with edge costs and path planning.  Self-loops and
 parallel edges are permitted.
 
@@ -66,7 +66,7 @@ for route in routes:
     g.add_edge(route[0], route[1], cost=route[2])
 
 # plan a path from Hughenden to Brisbane
-p = g.path_Astar('Hughenden', 'Brisbane')
+p, length, _ = g.path_Astar('Hughenden', 'Brisbane')
 g.plot(block=False) # plot it
 g.highlight_path(p)  # overlay the path
 ```
@@ -85,6 +85,7 @@ Graphs belong to the class `UGraph` or `DGraph` for undirected or directed graph
 - `g.plot()` plots the vertices and edges
 - `g.nc` the number of graph components, 1 if fully connected
 - `g.component(v)` the component that vertex `v` belongs to
+- `g.samecomponent(v1, v2)` predicate for vertices belonging to the same component
 
     ***
 - `g.path_BFS()` breadth-first search
@@ -101,13 +102,12 @@ Vertices are instances of the class `Vertex`, for both undirected and directed g
 - `v.coord` the coordinate vector for embedded graph (optional)
 - `v.name` the name of the vertex (optional)
 - `v.adjacent()` is a list of the adjacent vertices (`neighbours()` and `neighbors()` are the same)
-- `v1.samecomponent(v2)` predicate for vertices belonging to the same component
 
 Vertices can be named and referenced by name.
 
 ### Properties and methods of an edge
 Edges are instances of the class `Edge`.
-Each edge references a pair of vertices, the graph lists all of its edges in `g.edges()`, and the vertices reference the edges.  For a directed graph only the start vertex of an edge references the edge object, whereas for an undirected graph both vertices reference the edge object.
+Each edge references a pair of vertices, the graph lists all of its edges in `g.edges()`, and the vertices reference the edges.
 
 - `e.cost` cost of edge for planning methods
 - `e.next(v)` vertex on edge `e` that is not `v`
@@ -115,13 +115,13 @@ Each edge references a pair of vertices, the graph lists all of its edges in `g.
 
 ## Modifying a graph
 
-- `g.remove(v)` remove vertex `v`
-- `e.remove()` remove edge `e`
+- `g.remove_vertex(v)` or `v.remove()` remove vertex `v`
+- `g.remove_edge(e)` or `e.remove()` remove edge `e`
 
-## Subclasing pgraph classes
+## Subclassing pgraph classes
 
-Consider a user class `Foo` that we would like to connect using a graph _overlay_, ie.
-instances of `Foo` becomes vertices in a graph.
+Consider a user class `Foo` that we would like to connect using a graph _overlay_, i.e.
+instances of `Foo` become vertices in a graph.
 
 - Have it subclass `Vertex`
 - Then place instances of `Foo` into the graph using `add_vertex` and create edges as required
@@ -138,8 +138,8 @@ g.add_vertex(f1)
 g.add_vertex(f2)
 
 f1.connect(f2, cost=3)
-for f in f1.neighbours():
-    # say hi to the neighbours
+for f in f1.adjacent():
+    f.say_hi()  # say hi to the neighbours
 ```
 
 ## MATLAB version

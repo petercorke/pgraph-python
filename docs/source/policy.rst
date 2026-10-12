@@ -13,19 +13,20 @@ Standalone construction
 A vertex or edge built directly, e.g. ``Vertex(coord=[1, 2], name="A")`` or
 ``Edge(v1, v2, cost=5.0)``, is a fully valid object in its own right. The
 main supported use of this is lightweight, graph-independent work: building a
-couple of vertices purely to demonstrate or test :class:`Edge` cost
-computation, without needing a graph at all.
+couple of vertices and an edge between them to demonstrate or test, without
+needing a graph at all.  Without a graph there is no metric, so the edge's
+cost is the one given, or ``None``.
 
 An object in this state has ``._graph is None``. It cannot be connected to
 anything (see below) until it is added to a graph via
-:meth:`UGraph.add_vertex` / :meth:`DGraph.add_vertex`.
+:meth:`~pgraph.PGraph.Graph.add_vertex`.
 
 Adding a vertex to a graph
 ---------------------------
 
 A vertex is the same for undirected and directed graphs: it has no
 direction of its own, and the graph it belongs to decides how an edge is
-recorded at its ends.  :meth:`Graph.add_vertex` accepts coordinate data, from
+recorded at its ends.  :meth:`~pgraph.PGraph.Graph.add_vertex` accepts coordinate data, from
 which a vertex is built, or an existing ``Vertex`` that does not belong to a
 graph.  A graph given a ``vertex_class`` only accepts instances of that class;
 passing any other vertex raises ``TypeError`` rather than being silently
