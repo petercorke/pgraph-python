@@ -379,6 +379,15 @@ attributes and methods used to query one are</p>
 </dd>
 </dl>
 <p>Number of components in the graph. Components are labeled from 0 to <code class="docutils literal notranslate"><span class="pre">g.nc-1</span></code>.</p>
+<p>For a directed graph the components are <em>weakly</em> connected: the
+direction of the edges is ignored, so two vertices are in the same
+component if there is a path between them that may run against the
+arrows.  A graph with no vertices has no components.</p>
+<div class="versionchanged">
+<p><span class="versionmodified changed">Changed in version 1.0: </span>Does not hang.  For many directed graphs, the smallest being the
+4-cycle, the algorithm of 0.6.5 never finished, which also stopped
+<a class="reference internal" href="#pgraph.PGraph.Graph.component" title="pgraph.PGraph.Graph.component"><code class="xref py py-meth docutils literal notranslate"><span class="pre">component()</span></code></a>, <a class="reference internal" href="#pgraph.PGraph.Graph.samecomponent" title="pgraph.PGraph.Graph.samecomponent"><code class="xref py py-meth docutils literal notranslate"><span class="pre">samecomponent()</span></code></a> and <a class="reference internal" href="visualization.html#pgraph.PGraph.Graph.plot" title="pgraph.PGraph.Graph.plot"><code class="xref py py-meth docutils literal notranslate"><span class="pre">plot()</span></code></a>.</p>
+</div>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pgraph</span><span class="w"> </span><span class="kn">import</span> <a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">UGraph</span></a>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">g</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">UGraph</span></a><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="edges_vertices.html#pgraph.PGraph.Vertex" title="pgraph.PGraph.Vertex"><span class="n">v1</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="modification.html#pgraph.PGraph.Graph.add_vertex" title="pgraph.PGraph.Graph.add_vertex"><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span></a><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">'v1'</span><span class="p">)</span>
@@ -596,11 +605,11 @@ O(V+E). Not used here for that reason.</p>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)">bool</a></p>
 </dd>
 </dl>
-<p>Test whether vertices belong to the same component.  For a:</p>
-<ul class="simple">
-<li><p>directed graph this implies a path between them</p></li>
-<li><p>undirected graph there is not necessarily a path between them</p></li>
-</ul>
+<p>Test whether vertices belong to the same component.  A component is a
+set of vertices that are connected by a path of edges, ignoring their
+direction, so for a directed graph this does not mean that there is a
+path from one to the other: <code class="docutils literal notranslate"><span class="pre">a</span> <span class="pre">-&gt;</span> <span class="pre">c</span> <span class="pre">&lt;-</span> <span class="pre">b</span></code> is one component, but there
+is no path from <code class="docutils literal notranslate"><span class="pre">a</span></code> to <code class="docutils literal notranslate"><span class="pre">b</span></code>.</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pgraph</span><span class="w"> </span><span class="kn">import</span> <a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">UGraph</span></a>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">g</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">UGraph</span></a><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="edges_vertices.html#pgraph.PGraph.Vertex" title="pgraph.PGraph.Vertex"><span class="n">v1</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="modification.html#pgraph.PGraph.Graph.add_vertex" title="pgraph.PGraph.Graph.add_vertex"><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span></a><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">'v1'</span><span class="p">)</span>
@@ -657,19 +666,19 @@ Use <code class="docutils literal notranslate"><span class="pre">[v.out_degree</
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">g</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">UGraph</span></a><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/builtins/stdtypes.html#range"><span class="nb">range</span></a><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
 <span class="gp">... </span>    <a class="sphinx-codeautolink-a" href="modification.html#pgraph.PGraph.Graph.add_vertex" title="pgraph.PGraph.Graph.add_vertex"><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="https://numpy.org/doc/stable/reference/random/generated/numpy.random.rand.html#numpy.random.rand" title="numpy.random.rand"><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span></a><span class="p">(</span><span class="mi">2</span><span class="p">));</span>
-<span class="go">Vertex[#0, coord=(0.6706, 0.3356)]</span>
-<span class="go">Vertex[#1, coord=(0.6734, 0.8713)]</span>
-<span class="go">Vertex[#2, coord=(0.525, 0.4272)]</span>
-<span class="go">Vertex[#3, coord=(0.5264, 0.794)]</span>
-<span class="go">Vertex[#4, coord=(0.381, 0.5825)]</span>
+<span class="go">Vertex[#0, coord=(0.2811, 0.789)]</span>
+<span class="go">Vertex[#1, coord=(0.2025, 0.9329)]</span>
+<span class="go">Vertex[#2, coord=(0.158, 0.5038)]</span>
+<span class="go">Vertex[#3, coord=(0.1727, 0.06123)]</span>
+<span class="go">Vertex[#4, coord=(0.261, 0.8466)]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">)]:</span>
 <span class="gp">... </span>    <a class="sphinx-codeautolink-a" href="modification.html#pgraph.PGraph.Graph.add_edge" title="pgraph.PGraph.Graph.add_edge"><span class="n">g</span><span class="o">.</span><span class="n">add_edge</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">g</span></a><span class="p">[</span><span class="n">i</span><span class="p">],</span> <a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">g</span></a><span class="p">[</span><span class="n">j</span><span class="p">]);</span>
-<span class="go">Edge{[#0] -- [#1], cost=0.5358}</span>
-<span class="go">Edge{[#0] -- [#2], cost=0.1721}</span>
-<span class="go">Edge{[#0] -- [#3], cost=0.4806}</span>
-<span class="go">Edge{[#1] -- [#2], cost=0.4682}</span>
-<span class="go">Edge{[#1] -- [#3], cost=0.1661}</span>
-<span class="go">Edge{[#3] -- [#4], cost=0.2567}</span>
+<span class="go">Edge{[#0] -- [#1], cost=0.164}</span>
+<span class="go">Edge{[#0] -- [#2], cost=0.3106}</span>
+<span class="go">Edge{[#0] -- [#3], cost=0.7358}</span>
+<span class="go">Edge{[#1] -- [#2], cost=0.4314}</span>
+<span class="go">Edge{[#1] -- [#3], cost=0.8722}</span>
+<span class="go">Edge{[#3] -- [#4], cost=0.7903}</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">c</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="analysis.html#pgraph.PGraph.Graph.connectivity" title="pgraph.PGraph.Graph.connectivity"><span class="n">g</span><span class="o">.</span><span class="n">connectivity</span></a><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/builtins/functions.html#print"><span class="nb">print</span></a><span class="p">(</span><span class="n">c</span><span class="p">)</span>
 <span class="go">[3, 3, 2, 3, 1]</span>
@@ -857,20 +866,22 @@ stale, so lookups by the new name failed.</p>
 <dd><p>Number of the graph component that contains the vertex</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>component number, counted from 0, or None if the components
-have not been found yet</p>
+<dd class="field-odd"><p>component number, counted from 0, or None if the vertex is
+not in a graph</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)">int</a> or None</p>
 </dd>
 </dl>
-<p>Assigned by the graph when its components are found, which happens when
-<a class="reference internal" href="#pgraph.PGraph.Graph.nc" title="pgraph.PGraph.Graph.nc"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Graph.nc</span></code></a>, <a class="reference internal" href="#pgraph.PGraph.Graph.component" title="pgraph.PGraph.Graph.component"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Graph.component()</span></code></a> or
-<a class="reference internal" href="#pgraph.PGraph.Graph.samecomponent" title="pgraph.PGraph.Graph.samecomponent"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Graph.samecomponent()</span></code></a> is used after the graph has changed.
-It is read-only.</p>
+<p>Assigned by the graph, which finds its components when this is read
+after the graph has changed, as it does for <a class="reference internal" href="#pgraph.PGraph.Graph.nc" title="pgraph.PGraph.Graph.nc"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Graph.nc</span></code></a>,
+<a class="reference internal" href="#pgraph.PGraph.Graph.component" title="pgraph.PGraph.Graph.component"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Graph.component()</span></code></a> and <a class="reference internal" href="#pgraph.PGraph.Graph.samecomponent" title="pgraph.PGraph.Graph.samecomponent"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Graph.samecomponent()</span></code></a>.  The numbering
+is by the first vertex of each component, in the order the vertices
+were added.  It is read-only.</p>
 <div class="versionchanged">
 <p><span class="versionmodified changed">Changed in version 1.0: </span>Read-only.  It was a plain attribute, but it is computed from the
-graph’s structure and meaningless to assign.</p>
+graph’s structure and meaningless to assign.  Reading it finds the
+components; in 0.6.5 it was <code class="docutils literal notranslate"><span class="pre">None</span></code> until something else had.</p>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Seealso<span class="colon">:</span></dt>

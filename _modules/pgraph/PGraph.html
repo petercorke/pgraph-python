@@ -1357,6 +1357,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_vertexlist</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">vertex</span><span class="p">)</span>
         <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vertexdict</span><span class="p">[</span><span class="n">vertex</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
         <span class="n">vertex</span><span class="o">.</span><span class="n">_graph</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># it is not in any graph now</span>
+        <span class="n">vertex</span><span class="o">.</span><span class="n">_label</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># and so not in a component</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_connectivitychange</span> <span class="o">=</span> <span class="kc">True</span></div>
 
 
@@ -1452,19 +1453,52 @@
 <span class="sd">        """</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_edges</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_graphcolor</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_graphcolor</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Color the graph (subclass method)</span>
+<span class="sd">        Label the components of the graph (private method)</span>
 
-<span class="sd">        Concrete graph coloring algorithm, provided by :meth:`UGraph._graphcolor`</span>
-<span class="sd">        and :meth:`DGraph._graphcolor`.</span>
+<span class="sd">        Assigns every vertex a ``label``, the number of its component, from 0</span>
+<span class="sd">        in the order of the first vertex of each component, and sets the</span>
+<span class="sd">        number of components.  Components are *weakly* connected: the</span>
+<span class="sd">        direction of an edge is ignored, so a vertex is in the component of</span>
+<span class="sd">        every vertex that it has a path to or from.</span>
 
-<span class="sd">        :raises NotImplementedError: not provided by this graph kind</span>
+<span class="sd">        This is a single pass over the vertices and edges, O(V + E), and is</span>
+<span class="sd">        only done again when the graph has changed since, which every</span>
+<span class="sd">        operation that adds or removes a vertex or edge records in the graph's</span>
+<span class="sd">        ``_connectivitychange``.</span>
+
+<span class="sd">        :seealso: :meth:`nc` :meth:`component`</span>
 <span class="sd">        """</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> does not define how to color the graph; "</span>
-            <span class="s2">"subclass UGraph or DGraph"</span>
-        <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connectivitychange</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="k">for</span> <span class="n">vertex</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="n">vertex</span><span class="o">.</span><span class="n">_label</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">vertex</span><span class="o">.</span><span class="n">_connectivitychange</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">start</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">start</span><span class="o">.</span><span class="n">_label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">start</span><span class="o">.</span><span class="n">_label</span> <span class="o">=</span> <span class="n">count</span>
+            <span class="n">frontier</span> <span class="o">=</span> <span class="p">[</span><span class="n">start</span><span class="p">]</span>
+            <span class="k">while</span> <span class="n">frontier</span><span class="p">:</span>
+                <span class="n">v</span> <span class="o">=</span> <span class="n">frontier</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+                <span class="c1"># an edge may be followed against its direction, so the</span>
+                <span class="c1"># vertices that lead to this one count as well as those it</span>
+                <span class="c1"># leads to; in an undirected graph they are the same</span>
+                <span class="n">around</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">adjacent</span><span class="p">()</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">directed</span><span class="p">:</span>
+                    <span class="n">around</span> <span class="o">=</span> <span class="n">around</span> <span class="o">+</span> <span class="n">v</span><span class="o">.</span><span class="n">predecessors</span><span class="p">()</span>
+                <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">around</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">w</span><span class="o">.</span><span class="n">_label</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">w</span><span class="o">.</span><span class="n">_label</span> <span class="o">=</span> <span class="n">count</span>
+                        <span class="n">frontier</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
+            <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ncomponents</span> <span class="o">=</span> <span class="n">count</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_connectivitychange</span> <span class="o">=</span> <span class="kc">False</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">nc</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
@@ -1475,6 +1509,16 @@
 <span class="sd">        :rtype: int</span>
 
 <span class="sd">        Number of components in the graph. Components are labeled from 0 to ``g.nc-1``.</span>
+
+<span class="sd">        For a directed graph the components are *weakly* connected: the</span>
+<span class="sd">        direction of the edges is ignored, so two vertices are in the same</span>
+<span class="sd">        component if there is a path between them that may run against the</span>
+<span class="sd">        arrows.  A graph with no vertices has no components.</span>
+
+<span class="sd">        .. versionchanged:: 1.0</span>
+<span class="sd">            Does not hang.  For many directed graphs, the smallest being the</span>
+<span class="sd">            4-cycle, the algorithm of 0.6.5 never finished, which also stopped</span>
+<span class="sd">            :meth:`component`, :meth:`samecomponent` and :meth:`plot`.</span>
 
 <span class="sd">        .. runblock:: pycon</span>
 
@@ -1493,10 +1537,7 @@
 
 <span class="sd">        :seealso: :meth:`component` :meth:`samecomponent`</span>
 <span class="sd">        """</span>
-        <span class="n">n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_graphcolor</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">n</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_ncomponents</span> <span class="o">=</span> <span class="n">n</span>
-
+        <span class="bp">self</span><span class="o">.</span><span class="n">_graphcolor</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ncomponents</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_metricfunc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metric</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">NDArray</span><span class="p">],</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">NDArray</span><span class="p">],</span> <span class="nb">float</span><span class="p">]:</span>
@@ -2891,10 +2932,11 @@
 <span class="sd">        :return: true if vertices belong to same graph component</span>
 <span class="sd">        :rtype: bool</span>
 
-<span class="sd">        Test whether vertices belong to the same component.  For a:</span>
-
-<span class="sd">        - directed graph this implies a path between them</span>
-<span class="sd">        - undirected graph there is not necessarily a path between them</span>
+<span class="sd">        Test whether vertices belong to the same component.  A component is a</span>
+<span class="sd">        set of vertices that are connected by a path of edges, ignoring their</span>
+<span class="sd">        direction, so for a directed graph this does not mean that there is a</span>
+<span class="sd">        path from one to the other: ``a -&gt; c &lt;- b`` is one component, but there</span>
+<span class="sd">        is no path from ``a`` to ``b``.</span>
 
 <span class="sd">        .. runblock:: pycon</span>
 
@@ -3349,51 +3391,7 @@
 
 <span class="sd">        An undirected edge has no direction, so either order is accepted.</span>
 <span class="sd">        """</span>
-        <span class="k">return</span> <span class="p">(</span><span class="n">edge</span><span class="o">.</span><span class="n">v1</span> <span class="ow">is</span> <span class="n">v1</span> <span class="ow">and</span> <span class="n">edge</span><span class="o">.</span><span class="n">v2</span> <span class="ow">is</span> <span class="n">v2</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">edge</span><span class="o">.</span><span class="n">v1</span> <span class="ow">is</span> <span class="n">v2</span> <span class="ow">and</span> <span class="n">edge</span><span class="o">.</span><span class="n">v2</span> <span class="ow">is</span> <span class="n">v1</span><span class="p">)</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">_graphcolor</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Color the graph</span>
-
-<span class="sd">        Performs a depth-first labeling operation, assigning the ``label``</span>
-<span class="sd">        attribute of every vertex with a sequential integer starting from 0.</span>
-
-<span class="sd">        This method checks the ``_connectivitychange`` attribute of all vertices</span>
-<span class="sd">        and if any are True it will perform the coloring operation. This flag</span>
-<span class="sd">        is set True by any operation that adds or removes a vertex or edge.</span>
-
-<span class="sd">        :seealso: :meth:`nc`</span>
-<span class="sd">        """</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connectivitychange</span> <span class="ow">or</span> <span class="nb">any</span><span class="p">([</span><span class="n">n</span><span class="o">.</span><span class="n">_connectivitychange</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">]):</span>
-
-            <span class="c1"># color the graph</span>
-
-            <span class="c1"># clear all the labels</span>
-            <span class="k">for</span> <span class="n">vertex</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
-                <span class="n">vertex</span><span class="o">.</span><span class="n">_label</span> <span class="o">=</span> <span class="kc">None</span>
-                <span class="n">vertex</span><span class="o">.</span><span class="n">_connectivitychange</span> <span class="o">=</span> <span class="kc">False</span>
-
-            <span class="n">lastlabel</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">):</span>
-                <span class="n">assignment</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
-                    <span class="c1"># find first vertex with no label</span>
-                    <span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">label</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                        <span class="c1"># do BFS</span>
-                        <span class="n">q</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="p">]</span>  <span class="c1"># initialize frontier</span>
-                        <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">q</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                            <span class="n">v</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>  <span class="c1"># expand v</span>
-                            <span class="n">v</span><span class="o">.</span><span class="n">_label</span> <span class="o">=</span> <span class="n">label</span>
-                            <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">v</span><span class="o">.</span><span class="n">adjacent</span><span class="p">():</span>
-                                <span class="k">if</span> <span class="n">n</span><span class="o">.</span><span class="n">label</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                                    <span class="n">q</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
-                        <span class="n">lastlabel</span> <span class="o">=</span> <span class="n">label</span>
-                        <span class="n">assignment</span> <span class="o">=</span> <span class="kc">True</span>
-                        <span class="k">break</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">assignment</span><span class="p">:</span>
-                    <span class="k">break</span>
-
-            <span class="bp">self</span><span class="o">.</span><span class="n">_ncomponents</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">lastlabel</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">lastlabel</span> <span class="o">+</span> <span class="mi">1</span></div>
+        <span class="k">return</span> <span class="p">(</span><span class="n">edge</span><span class="o">.</span><span class="n">v1</span> <span class="ow">is</span> <span class="n">v1</span> <span class="ow">and</span> <span class="n">edge</span><span class="o">.</span><span class="n">v2</span> <span class="ow">is</span> <span class="n">v2</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">edge</span><span class="o">.</span><span class="n">v1</span> <span class="ow">is</span> <span class="n">v2</span> <span class="ow">and</span> <span class="n">edge</span><span class="o">.</span><span class="n">v2</span> <span class="ow">is</span> <span class="n">v1</span><span class="p">)</span></div>
 
 
 
@@ -3441,80 +3439,7 @@
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_incoming</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vertex</span><span class="p">:</span> <span class="n">Vertex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Edge</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">"""The edges that end at the vertex"""</span>
-        <span class="k">return</span> <span class="n">vertex</span><span class="o">.</span><span class="n">_inlist</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">_graphcolor</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Color the graph</span>
-
-<span class="sd">        Performs a depth-first labeling operation, assigning the ``label``</span>
-<span class="sd">        attribute of every vertex with a sequential integer starting from 0.</span>
-
-<span class="sd">        This method checks the ``_connectivitychange`` attribute of all vertices</span>
-<span class="sd">        and if any are True it will perform the coloring operation. This flag</span>
-<span class="sd">        is set True by any operation that adds or removes a vertex or edge.</span>
-
-<span class="sd">        :seealso: :meth:`nc`</span>
-<span class="sd">        """</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connectivitychange</span> <span class="ow">or</span> <span class="nb">any</span><span class="p">([</span><span class="n">n</span><span class="o">.</span><span class="n">_connectivitychange</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">]):</span>
-
-            <span class="c1"># color the graph</span>
-
-            <span class="c1"># clear all the labels</span>
-            <span class="k">for</span> <span class="n">vertex</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
-                <span class="n">vertex</span><span class="o">.</span><span class="n">_label</span> <span class="o">=</span> <span class="kc">None</span>
-                <span class="n">vertex</span><span class="o">.</span><span class="n">_connectivitychange</span> <span class="o">=</span> <span class="kc">False</span>
-
-            <span class="c1"># initial labeling pass</span>
-            <span class="n">merge</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-            <span class="n">nextlabel</span> <span class="o">=</span> <span class="mi">1</span>
-            <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">label</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="c1"># no label, try to inherit one from a neighbour</span>
-                    <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">v</span><span class="o">.</span><span class="n">adjacent</span><span class="p">():</span>
-                        <span class="k">if</span> <span class="n">n</span><span class="o">.</span><span class="n">label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                            <span class="c1"># neighbour has a label</span>
-                            <span class="n">v</span><span class="o">.</span><span class="n">_label</span> <span class="o">=</span> <span class="n">n</span><span class="o">.</span><span class="n">label</span>
-                            <span class="k">break</span>
-
-                <span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">label</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="c1"># still not labeled, assign a new label</span>
-                    <span class="n">v</span><span class="o">.</span><span class="n">_label</span> <span class="o">=</span> <span class="n">nextlabel</span>
-                    <span class="n">nextlabel</span> <span class="o">+=</span> <span class="mi">1</span>
-
-                <span class="n">label</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">label</span>
-                <span class="k">assert</span> <span class="n">label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-
-                <span class="c1"># now look for clashes</span>
-                <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">v</span><span class="o">.</span><span class="n">adjacent</span><span class="p">():</span>
-                    <span class="k">if</span> <span class="n">n</span><span class="o">.</span><span class="n">label</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                        <span class="c1"># neighbour has no label, give it this one</span>
-                        <span class="n">n</span><span class="o">.</span><span class="n">_label</span> <span class="o">=</span> <span class="n">label</span>
-                    <span class="k">elif</span> <span class="n">label</span> <span class="o">!=</span> <span class="n">n</span><span class="o">.</span><span class="n">label</span><span class="p">:</span>
-                        <span class="c1"># label clash, note it for merging</span>
-                        <span class="k">assert</span> <span class="n">n</span><span class="o">.</span><span class="n">label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-                        <span class="n">merge</span><span class="p">[</span><span class="n">n</span><span class="o">.</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="n">label</span>
-
-            <span class="c1"># merge labels and find unique labels</span>
-            <span class="n">unique</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-            <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
-                <span class="n">vlabel</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">label</span>
-                <span class="k">assert</span> <span class="n">vlabel</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-                <span class="k">while</span> <span class="n">vlabel</span> <span class="ow">in</span> <span class="n">merge</span><span class="p">:</span>
-                    <span class="n">vlabel</span> <span class="o">=</span> <span class="n">merge</span><span class="p">[</span><span class="n">vlabel</span><span class="p">]</span>
-                <span class="n">v</span><span class="o">.</span><span class="n">_label</span> <span class="o">=</span> <span class="n">vlabel</span>
-                <span class="n">unique</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">vlabel</span><span class="p">)</span>
-
-            <span class="n">final</span> <span class="o">=</span> <span class="p">{</span><span class="n">u</span><span class="p">:</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">u</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">unique</span><span class="p">)}</span>
-            <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
-                <span class="n">vlabel</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">label</span>
-                <span class="k">assert</span> <span class="n">vlabel</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-                <span class="n">v</span><span class="o">.</span><span class="n">_label</span> <span class="o">=</span> <span class="n">final</span><span class="p">[</span><span class="n">vlabel</span><span class="p">]</span>
-
-            <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">unique</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># no coloring performed</span>
-            <span class="k">return</span> <span class="kc">None</span></div>
+        <span class="k">return</span> <span class="n">vertex</span><span class="o">.</span><span class="n">_inlist</span></div>
 
 
 
@@ -4709,21 +4634,25 @@
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Number of the graph component that contains the vertex</span>
 
-<span class="sd">        :return: component number, counted from 0, or None if the components</span>
-<span class="sd">            have not been found yet</span>
+<span class="sd">        :return: component number, counted from 0, or None if the vertex is</span>
+<span class="sd">            not in a graph</span>
 <span class="sd">        :rtype: int or None</span>
 
-<span class="sd">        Assigned by the graph when its components are found, which happens when</span>
-<span class="sd">        :attr:`Graph.nc`, :meth:`Graph.component` or</span>
-<span class="sd">        :meth:`Graph.samecomponent` is used after the graph has changed.</span>
-<span class="sd">        It is read-only.</span>
+<span class="sd">        Assigned by the graph, which finds its components when this is read</span>
+<span class="sd">        after the graph has changed, as it does for :attr:`Graph.nc`,</span>
+<span class="sd">        :meth:`Graph.component` and :meth:`Graph.samecomponent`.  The numbering</span>
+<span class="sd">        is by the first vertex of each component, in the order the vertices</span>
+<span class="sd">        were added.  It is read-only.</span>
 
 <span class="sd">        .. versionchanged:: 1.0</span>
 <span class="sd">            Read-only.  It was a plain attribute, but it is computed from the</span>
-<span class="sd">            graph's structure and meaningless to assign.</span>
+<span class="sd">            graph's structure and meaningless to assign.  Reading it finds the</span>
+<span class="sd">            components; in 0.6.5 it was ``None`` until something else had.</span>
 
 <span class="sd">        :seealso: :attr:`Graph.nc` :meth:`Graph.component`</span>
 <span class="sd">        """</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_graph</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_graph</span><span class="o">.</span><span class="n">_graphcolor</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_label</span>
 
     <span class="nd">@property</span>
