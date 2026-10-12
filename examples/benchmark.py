@@ -24,7 +24,7 @@ from __future__ import annotations
 
 import argparse
 import math
-import pickle  # nosec B403 - only used to time a round trip of our own data
+import pickle  # nosec B403 nosemgrep - only used to time a round trip of our own data
 import platform
 import statistics
 import subprocess  # nosec B404 - only used to ask macOS for the CPU name
@@ -79,6 +79,11 @@ def build(
         for a, b in edges:
             g.add_edge(vertices[a], vertices[b])
     return g
+
+
+def roundtrip(obj: Any) -> Any:
+    """Pickle and unpickle: it only ever reads what it has just written"""
+    return pickle.loads(pickle.dumps(obj))  # nosec B301 nosemgrep
 
 
 def measure(
@@ -145,7 +150,7 @@ def run_size(
         / ne
     )
     out["copy"] = measure(lambda _: g.copy())
-    out["pickle"] = measure(lambda _: pickle.loads(pickle.dumps(g)))  # nosec B301
+    out["pickle"] = measure(lambda _: roundtrip(g))
 
     # structure
     def fresh_changed() -> Graph:
