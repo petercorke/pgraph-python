@@ -111,6 +111,7 @@
   <h1>Source code for pgraph.PGraph</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
@@ -142,15 +143,78 @@
     <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">v</span><span class="p">))</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_SE2</span><span class="p">(</span><span class="n">v</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Mixed norm for (x, y, theta), the built-in ``"SE2"`` metric"""</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">"SE2 metric requires a 3-element (x, y, theta) vector, got length </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
-        <span class="p">)</span>
-    <span class="c1"># wrap angle to range [-pi, pi)</span>
-    <span class="n">v</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">%</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
-    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">v</span><span class="p">))</span>
+<div class="viewcode-block" id="SE2Metric">
+<a class="viewcode-back" href="../../construction.html#pgraph.PGraph.SE2Metric">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SE2Metric</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""</span>
+<span class="sd">    Distance between planar poses, a weighted mixed norm</span>
+
+<span class="sd">    :param weight: length that one radian of turn counts for, defaults to 1</span>
+<span class="sd">    :raises ValueError: ``weight`` is negative or not finite</span>
+
+<span class="sd">    The metric of a vector :math:`(x, y, \theta)`, the difference between two</span>
+<span class="sd">    poses, is</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        d = \sqrt{x^2 + y^2 + (w \bar{\theta})^2}</span>
+
+<span class="sd">    where :math:`\bar{\theta}` is :math:`\theta` wrapped to the interval</span>
+<span class="sd">    :math:`[-\pi, \pi)` and :math:`w` is the ``weight``.</span>
+
+<span class="sd">    Distance and angle have different units, so their relative importance is</span>
+<span class="sd">    a choice.  The weight is the conversion: it is how much length a turn of one</span>
+<span class="sd">    radian is worth, so a turn of :math:`\theta` costs as much as moving</span>
+<span class="sd">    :math:`w \theta`.  A weight of 1 treats a radian as a metre, which is what</span>
+<span class="sd">    the string ``"SE2"`` means.  A characteristic length of the vehicle, such as</span>
+<span class="sd">    its turning radius, is a natural choice.  With a weight of 0 the</span>
+<span class="sd">    orientation is ignored and this is the distance in the plane.</span>
+
+<span class="sd">    An instance is a metric for a graph, and can be used as its heuristic too::</span>
+
+<span class="sd">        g = UGraph(dim=3, metric=SE2Metric(weight=0.5))</span>
+
+<span class="sd">    .. runblock:: pycon</span>
+
+<span class="sd">        &gt;&gt;&gt; from pgraph import SE2Metric</span>
+<span class="sd">        &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">        &gt;&gt;&gt; v = np.r_[3, 4, np.pi / 2]   # 3 east, 4 north, a quarter turn</span>
+<span class="sd">        &gt;&gt;&gt; SE2Metric()(v)</span>
+<span class="sd">        &gt;&gt;&gt; SE2Metric(weight=0.5)(v)</span>
+<span class="sd">        &gt;&gt;&gt; SE2Metric(weight=0)(v)</span>
+
+<span class="sd">    A metric with a weight is still a metric, so it is a consistent heuristic</span>
+<span class="sd">    for A* when the edge costs are computed with it.  If edge costs come from</span>
+<span class="sd">    somewhere else, use a weight low enough, or zero, for the heuristic never to</span>
+<span class="sd">    exceed the cost to go.</span>
+
+<span class="sd">    :seealso: :meth:`Graph.metric` :meth:`Graph.heuristic`</span>
+<span class="sd">    """</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weight</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">):</span>
+        <span class="n">weight</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">weight</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">math</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">weight</span><span class="p">)</span> <span class="ow">or</span> <span class="n">weight</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"weight must be finite and not negative, got </span><span class="si">{</span><span class="n">weight</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">weight</span> <span class="o">=</span> <span class="n">weight</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"SE2 metric requires a 3-element (x, y, theta) vector, got length </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
+            <span class="p">)</span>
+        <span class="c1"># wrap the angle to the range [-pi, pi), without changing the argument</span>
+        <span class="n">theta</span> <span class="o">=</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">%</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">-</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span>
+        <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">weight</span> <span class="o">*</span> <span class="n">theta</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"SE2Metric(weight=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">weight</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2">)"</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">SE2Metric</span><span class="p">)</span> <span class="ow">and</span> <span class="n">other</span><span class="o">.</span><span class="n">weight</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">weight</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">hash</span><span class="p">((</span><span class="s2">"SE2Metric"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">weight</span><span class="p">))</span></div>
+
 
 
 <span class="c1">#: the built-in metrics by name.  They are module level, and pickled by name,</span>
@@ -158,7 +222,7 @@
 <span class="n">_METRICS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">NDArray</span><span class="p">],</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">"L1"</span><span class="p">:</span> <span class="n">_L1</span><span class="p">,</span>
     <span class="s2">"L2"</span><span class="p">:</span> <span class="n">_L2</span><span class="p">,</span>
-    <span class="s2">"SE2"</span><span class="p">:</span> <span class="n">_SE2</span><span class="p">,</span>
+    <span class="s2">"SE2"</span><span class="p">:</span> <span class="n">SE2Metric</span><span class="p">(),</span>
 <span class="p">}</span>
 
 
@@ -920,7 +984,8 @@
 <span class="sd">        .. note::</span>
 
 <span class="sd">            - A metric or heuristic given by name (``"L1"``, ``"L2"``,</span>
-<span class="sd">              ``"SE2"``) is pickled by name.  A function you supply must be</span>
+<span class="sd">              ``"SE2"``) is pickled by name, and an :class:`SE2Metric` with</span>
+<span class="sd">              its weight.  A function you supply must be</span>
 <span class="sd">              importable at module level to be pickled; a ``lambda`` or a</span>
 <span class="sd">              function defined inside another function can be copied but not</span>
 <span class="sd">              pickled.</span>
@@ -1702,7 +1767,10 @@
 <span class="sd">            is :math:`\theta` wrapped to the interval :math:`[-\pi, \pi)`.</span>
 <span class="sd">            Requires every coordinate involved -- vertex ``coord`` and any</span>
 <span class="sd">            point passed to :meth:`closest`/:meth:`Vertex.distance` -- to be</span>
-<span class="sd">            exactly 3 elements; raises :exc:`ValueError` otherwise.</span>
+<span class="sd">            exactly 3 elements; raises :exc:`ValueError` otherwise.  Radians</span>
+<span class="sd">            and metres are weighted equally; to change that pass</span>
+<span class="sd">            :class:`SE2Metric` with a ``weight``, as in</span>
+<span class="sd">            ``g.metric = SE2Metric(weight=0.5)``.</span>
 
 <span class="sd">        The metric is used by :meth:`closest` and :meth:`distance`</span>
 
@@ -1713,6 +1781,16 @@
 <span class="sd">            &gt;&gt;&gt; g = UGraph()</span>
 <span class="sd">            &gt;&gt;&gt; g.metric = 'L1'</span>
 <span class="sd">            &gt;&gt;&gt; print(g.metric(np.r_[3, -4]))</span>
+
+<span class="sd">        A pose metric whose orientation counts for less than its position</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from pgraph import UGraph, SE2Metric</span>
+<span class="sd">            &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">            &gt;&gt;&gt; g = UGraph(dim=3)</span>
+<span class="sd">            &gt;&gt;&gt; g.metric = SE2Metric(weight=0.5)</span>
+<span class="sd">            &gt;&gt;&gt; print(g.metric(np.r_[3, 4, np.pi / 2]))</span>
 <span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_metric</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metricfunc</span><span class="p">(</span><span class="n">metric</span><span class="p">)</span>
 
@@ -1748,7 +1826,10 @@
 <span class="sd">            is :math:`\theta` wrapped to the interval :math:`[-\pi, \pi)`.</span>
 <span class="sd">            Requires every coordinate involved -- vertex ``coord`` and any</span>
 <span class="sd">            point passed to :meth:`closest`/:meth:`Vertex.distance` -- to be</span>
-<span class="sd">            exactly 3 elements; raises :exc:`ValueError` otherwise.</span>
+<span class="sd">            exactly 3 elements; raises :exc:`ValueError` otherwise.  Radians</span>
+<span class="sd">            and metres are weighted equally; to change that pass</span>
+<span class="sd">            :class:`SE2Metric` with a ``weight``, as in</span>
+<span class="sd">            ``g.metric = SE2Metric(weight=0.5)``.</span>
 
 <span class="sd">        The heuristic distance is only used by the A* planner :meth:`path_Astar`.</span>
 
@@ -1759,6 +1840,10 @@
 <span class="sd">            &gt;&gt;&gt; g = UGraph()</span>
 <span class="sd">            &gt;&gt;&gt; g.heuristic = 'L2'</span>
 <span class="sd">            &gt;&gt;&gt; print(g.heuristic(np.r_[3, 4]))</span>
+
+<span class="sd">        The heuristic of A* must not exceed the true cost to go.  For poses</span>
+<span class="sd">        whose costs are the planar distance travelled, ignore the orientation</span>
+<span class="sd">        with ``SE2Metric(weight=0)``.</span>
 <span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_heuristic</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metricfunc</span><span class="p">(</span><span class="n">heuristic</span><span class="p">)</span>
 

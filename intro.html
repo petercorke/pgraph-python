@@ -111,7 +111,7 @@ connected by edges, with edge costs and path planning.  Self-loops and
 parallel edges are permitted.</p>
 <p>Vertices can optionally be <em>embedded</em>: given a coordinate in a space of any
 dimension.  Edge costs are then computed from the vertex positions using a
-distance metric (Euclidean, Manhattan, SE(2), or your own), the vertex nearest
+distance metric (Euclidean, Manhattan, SE(2) with a weight on the angle, or your own), the vertex nearest
 a point can be found, <code class="docutils literal notranslate"><span class="pre">A*</span></code> uses the metric as its heuristic, and the graph can
 be plotted, or exported with its layout preserved.</p>
 <section id="what-is-a-graph">

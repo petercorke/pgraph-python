@@ -20,6 +20,7 @@
 <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
 <script src="_static/clipboard.min.js?v=a7894cd8"></script>
 <script src="_static/copybutton.js?v=ccdb6887"></script>
+<script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
 <script src="_static/js/theme.js"></script>
 <link href="genindex.html" rel="index" title="Index"/>
 <link href="search.html" rel="search" title="Search"/>
@@ -534,7 +535,8 @@ graph should be copied instead.</p>
 <p class="admonition-title">Note</p>
 <ul class="simple">
 <li><p>A metric or heuristic given by name (<code class="docutils literal notranslate"><span class="pre">"L1"</span></code>, <code class="docutils literal notranslate"><span class="pre">"L2"</span></code>,
-<code class="docutils literal notranslate"><span class="pre">"SE2"</span></code>) is pickled by name.  A function you supply must be
+<code class="docutils literal notranslate"><span class="pre">"SE2"</span></code>) is pickled by name, and an <a class="reference internal" href="#pgraph.PGraph.SE2Metric" title="pgraph.PGraph.SE2Metric"><code class="xref py py-class docutils literal notranslate"><span class="pre">SE2Metric</span></code></a> with
+its weight.  A function you supply must be
 importable at module level to be pickled; a <code class="docutils literal notranslate"><span class="pre">lambda</span></code> or a
 function defined inside another function can be copied but not
 pickled.</p></li>
@@ -749,6 +751,83 @@ vertex of the same class as <code class="docutils literal notranslate"><span cla
 <dl class="field-list simple">
 <dt class="field-odd">Seealso<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference internal" href="#pgraph.PGraph.Graph.vertex_copy" title="pgraph.PGraph.Graph.vertex_copy"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Graph.vertex_copy()</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+</section>
+<section id="distance-metrics">
+<h2>Distance metrics<a class="headerlink" href="#distance-metrics" title="Link to this heading"></a></h2>
+<p>The cost of an edge, the nearest vertex to a point and the heuristic of the A*
+planner all come from a distance metric, a function of the difference between
+two coordinates.  It is chosen by name, <code class="docutils literal notranslate"><span class="pre">"L2"</span></code> (the default, Euclidean),
+<code class="docutils literal notranslate"><span class="pre">"L1"</span></code> (Manhattan) or <code class="docutils literal notranslate"><span class="pre">"SE2"</span></code>, or you can supply your own function; see
+<a class="reference internal" href="#pgraph.PGraph.Graph.metric" title="pgraph.PGraph.Graph.metric"><code class="xref py py-attr docutils literal notranslate"><span class="pre">metric</span></code></a> and <a class="reference internal" href="#pgraph.PGraph.Graph.heuristic" title="pgraph.PGraph.Graph.heuristic"><code class="xref py py-attr docutils literal notranslate"><span class="pre">heuristic</span></code></a>.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">"SE2"</span></code> metric is for poses <span class="math notranslate nohighlight">\((x, y, \theta)\)</span> and adds a position
+in metres to an angle in radians, which are not the same kind of quantity.  It
+counts a radian as a metre.  If a turn should count for more or less, use
+<a class="reference internal" href="#pgraph.PGraph.SE2Metric" title="pgraph.PGraph.SE2Metric"><code class="xref py py-class docutils literal notranslate"><span class="pre">SE2Metric</span></code></a> with a weight, which is the length that a
+radian is worth.  Below, one vertex is 2 m ahead and facing the same way, and
+another is at our position but turned through 1.5 radians.  With a weight of 1 the
+turn costs 1.5, so the turned vertex is the nearer; with a weight of 2 it costs 3,
+and the vertex ahead is nearer</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pgraph</span><span class="w"> </span><span class="kn">import</span> <a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">UGraph</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.SE2Metric" title="pgraph.PGraph.SE2Metric"><span class="n">SE2Metric</span></a>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">weight</span> <span class="ow">in</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">):</span>
+<span class="gp">... </span>    <a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">g</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">UGraph</span></a><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.SE2Metric" title="pgraph.PGraph.SE2Metric"><span class="n">SE2Metric</span></a><span class="p">(</span><span class="n">weight</span><span class="o">=</span><span class="n">weight</span><span class="p">))</span>
+<span class="gp">... </span>    <a class="sphinx-codeautolink-a" href="edges_vertices.html#pgraph.PGraph.Vertex" title="pgraph.PGraph.Vertex"><span class="n">v</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="modification.html#pgraph.PGraph.Graph.add_vertex" title="pgraph.PGraph.Graph.add_vertex"><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span></a><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s2">"ahead"</span><span class="p">)</span>
+<span class="gp">... </span>    <a class="sphinx-codeautolink-a" href="edges_vertices.html#pgraph.PGraph.Vertex" title="pgraph.PGraph.Vertex"><span class="n">v</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="modification.html#pgraph.PGraph.Graph.add_vertex" title="pgraph.PGraph.Graph.add_vertex"><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span></a><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s2">"turned"</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">vertex</span><span class="p">,</span> <span class="n">distance</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="analysis.html#pgraph.PGraph.Graph.closest" title="pgraph.PGraph.Graph.closest"><span class="n">g</span><span class="o">.</span><span class="n">closest</span></a><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="gp">... </span>    <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/builtins/functions.html#print"><span class="nb">print</span></a><span class="p">(</span><span class="n">weight</span><span class="p">,</span> <span class="n">vertex</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">distance</span><span class="p">)</span>
+<span class="go">1.0 turned 1.5</span>
+<span class="go">2.0 ahead 2.0</span>
+</pre></div>
+</div>
+<dl class="py class">
+<dt class="sig sig-object py" id="pgraph.PGraph.SE2Metric">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">SE2Metric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pgraph/PGraph.html#SE2Metric"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pgraph.PGraph.SE2Metric" title="Link to this definition"></a></dt>
+<dd><p>Distance between planar poses, a weighted mixed norm</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>weight</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></span>) – length that one radian of turn counts for, defaults to 1</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.15)"><strong>ValueError</strong></a> – <code class="docutils literal notranslate"><span class="pre">weight</span></code> is negative or not finite</p>
+</dd>
+</dl>
+<p>The metric of a vector <span class="math notranslate nohighlight">\((x, y, \theta)\)</span>, the difference between two
+poses, is</p>
+<div class="math notranslate nohighlight">
+\[d = \sqrt{x^2 + y^2 + (w \bar{\theta})^2}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\bar{\theta}\)</span> is <span class="math notranslate nohighlight">\(\theta\)</span> wrapped to the interval
+<span class="math notranslate nohighlight">\([-\pi, \pi)\)</span> and <span class="math notranslate nohighlight">\(w\)</span> is the <code class="docutils literal notranslate"><span class="pre">weight</span></code>.</p>
+<p>Distance and angle have different units, so their relative importance is
+a choice.  The weight is the conversion: it is how much length a turn of one
+radian is worth, so a turn of <span class="math notranslate nohighlight">\(\theta\)</span> costs as much as moving
+<span class="math notranslate nohighlight">\(w \theta\)</span>.  A weight of 1 treats a radian as a metre, which is what
+the string <code class="docutils literal notranslate"><span class="pre">"SE2"</span></code> means.  A characteristic length of the vehicle, such as
+its turning radius, is a natural choice.  With a weight of 0 the
+orientation is ignored and this is the distance in the plane.</p>
+<p>An instance is a metric for a graph, and can be used as its heuristic too:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">g</span> <span class="o">=</span> <span class="n">UGraph</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="n">SE2Metric</span><span class="p">(</span><span class="n">weight</span><span class="o">=</span><span class="mf">0.5</span><span class="p">))</span>
+</pre></div>
+</div>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pgraph</span><span class="w"> </span><span class="kn">import</span> <a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.SE2Metric" title="pgraph.PGraph.SE2Metric"><span class="n">SE2Metric</span></a>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><a class="sphinx-codeautolink-a" href="https://numpy.org/doc/stable/reference/index.html#module-numpy"><span class="nn">numpy</span></a><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">v</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="https://numpy.org/doc/stable/reference/generated/numpy.r_.html#numpy.r_" title="numpy.r_"><span class="n">np</span><span class="o">.</span><span class="n">r_</span></a><span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <a class="sphinx-codeautolink-a" href="https://numpy.org/doc/stable/reference/constants.html#numpy.pi" title="numpy.pi"><span class="n">np</span><span class="o">.</span><span class="n">pi</span></a> <span class="o">/</span> <span class="mi">2</span><span class="p">]</span>   <span class="c1"># 3 east, 4 north, a quarter turn</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.SE2Metric" title="pgraph.PGraph.SE2Metric"><span class="n">SE2Metric</span></a><span class="p">()(</span><span class="n">v</span><span class="p">)</span>
+<span class="go">5.240935136048942</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.SE2Metric" title="pgraph.PGraph.SE2Metric"><span class="n">SE2Metric</span></a><span class="p">(</span><span class="n">weight</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)(</span><span class="n">v</span><span class="p">)</span>
+<span class="go">5.06130914636402</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.SE2Metric" title="pgraph.PGraph.SE2Metric"><span class="n">SE2Metric</span></a><span class="p">(</span><span class="n">weight</span><span class="o">=</span><span class="mi">0</span><span class="p">)(</span><span class="n">v</span><span class="p">)</span>
+<span class="go">5.0</span>
+</pre></div>
+</div>
+<p>A metric with a weight is still a metric, so it is a consistent heuristic
+for A* when the edge costs are computed with it.  If edge costs come from
+somewhere else, use a weight low enough, or zero, for the heuristic never to
+exceed the cost to go.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Seealso<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#pgraph.PGraph.Graph.metric" title="pgraph.PGraph.Graph.metric"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Graph.metric()</span></code></a> <a class="reference internal" href="#pgraph.PGraph.Graph.heuristic" title="pgraph.PGraph.Graph.heuristic"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Graph.heuristic()</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
