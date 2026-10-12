@@ -2314,11 +2314,11 @@ class Graph:
             * - ``"dot"``
               - ``.dot`` ``.gv``
               - ``pos="x,y!"``
-              - ``direction``, ``colorcomponents``, ``costs``
+              - ``direction``, ``color_components``, ``costs``
             * - ``"mermaid"``
               - ``.mmd`` ``.mermaid``
               - no
-              - ``direction``, ``colorcomponents``, ``costs``, ``fence``
+              - ``direction``, ``color_components``, ``costs``, ``fence``
             * - ``"graphml"``
               - ``.graphml``
               - ``x``, ``y``, ``coord``
@@ -2330,7 +2330,7 @@ class Graph:
             * - ``"svg"`` ``"pdf"`` ``"png"`` ...
               - the same
               - yes, via ``neato``
-              - ``engine``, ``direction``, ``colorcomponents``, ``costs``
+              - ``engine``, ``direction``, ``color_components``, ``costs``
 
         The text formats need nothing beyond the standard library.  The image
         formats run the GraphViz ``dot`` or ``neato`` executable.
@@ -2463,7 +2463,7 @@ class Graph:
         Display graph as a vertex/edge diagram in a browser tab
 
         :param display: open the rendered PDF in a browser tab, defaults to True
-        :param options: ``engine``, ``direction``, ``colorcomponents`` and
+        :param options: ``engine``, ``direction``, ``color_components`` and
             ``costs``, passed to :meth:`export`
         :raises RuntimeError: GraphViz is not installed, or fails
         :return: path of the rendered PDF if ``display`` is False, else None
