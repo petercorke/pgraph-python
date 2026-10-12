@@ -1,43 +1,43 @@
 """
 ``_attach`` records an edge in the vertices' edge lists when it is connected;
 ``_detach`` is its twin, undoing exactly that when the edge is removed, so each
-vertex kind states how an edge enters and leaves its lists once, and
+graph kind states how an edge enters and leaves its vertices' lists once, and
 ``remove_edge`` / ``remove_vertex`` need no knowledge of which kind they hold.
 """
 
 import unittest
 
-from pgraph import DGraph, DVertex, Edge, UGraph, UVertex
-from pgraph.PGraph import Vertex
+from pgraph import DGraph, Edge, Graph, UGraph, Vertex
 
 
 class TestHookIsDefinedPerKind(unittest.TestCase):
     def test_kinds_supply_it(self):
-        self.assertIsNot(UVertex._detach, Vertex._detach)
-        self.assertIsNot(DVertex._detach, Vertex._detach)
-        self.assertIsNot(UVertex._detach, DVertex._detach)
+        self.assertIsNot(UGraph._detach, Graph._detach)
+        self.assertIsNot(DGraph._detach, Graph._detach)
+        self.assertIsNot(UGraph._detach, DGraph._detach)
 
     def test_base_hook_is_not_implemented(self):
-        a, b = Vertex(name="a"), Vertex(name="b")
+        g = UGraph()
+        a, b = g.add_vertex(name="a"), g.add_vertex(name="b")
         with self.assertRaises(NotImplementedError):
-            a._detach(Edge(a, b), b)
+            Graph._detach(g, Edge(a, b))
 
 
 class _Detach:
     Graph: type
-    Vertex: type
 
     def setUp(self):
         self.calls = []
         outer = self
 
-        class Recording(self.Vertex):
-            def _detach(self, edge, dest):
+        class Recording(self.Graph):
+            def _detach(self, edge):
                 # at this point the edge still knows its endpoints
-                outer.calls.append((self, edge, dest, edge.v1, edge.v2))
-                super()._detach(edge, dest)
+                outer.calls.append((edge, edge.v1, edge.v2))
+                super()._detach(edge)
 
-        self.g = self.Graph(vertex_class=Recording)
+        self.Recording = Recording
+        self.g = Recording()
         self.a = self.g.add_vertex([0, 0], name="a")
         self.b = self.g.add_vertex([1, 0], name="b")
         self.c = self.g.add_vertex([2, 0], name="c")
@@ -53,10 +53,8 @@ class _Detach:
         e = self.a.connect(self.b)
         self.g.remove_edge(e)
         self.assertEqual(len(self.calls), 1)
-        v, edge, dest, v1, v2 = self.calls[0]
-        self.assertIs(v, self.a)
+        edge, v1, v2 = self.calls[0]
         self.assertIs(edge, e)
-        self.assertIs(dest, self.b)
         self.assertEqual((v1, v2), (self.a, self.b))
         self.assertEqual(self.g.ne, 0)
         self.assertIsNone(e.v1)
@@ -94,12 +92,12 @@ class _Detach:
         with self.assertRaises(ValueError):
             self.a.remove()  # not in a graph any more, a clear error
         # and it can join another graph
-        self.Graph(vertex_class=type(self.a)).add_vertex(self.a)
+        self.Graph().add_vertex(self.a)
         self.assertEqual(self.g.n, 2)
 
 
 class TestUndirectedDetach(_Detach, unittest.TestCase):
-    Graph, Vertex = UGraph, UVertex
+    Graph = UGraph
 
     def test_both_ends_are_cleared(self):
         e = self.a.connect(self.b)
@@ -114,7 +112,7 @@ class TestUndirectedDetach(_Detach, unittest.TestCase):
 
 
 class TestDirectedDetach(_Detach, unittest.TestCase):
-    Graph, Vertex = DGraph, DVertex
+    Graph = DGraph
 
     def test_only_the_source_held_it(self):
         e = self.a.connect(self.b)

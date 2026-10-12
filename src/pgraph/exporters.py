@@ -132,9 +132,7 @@ def format_from_filename(filename: str | os.PathLike | IO | None) -> str | None:
 
 
 def _is_directed(graph: Graph) -> bool:
-    from .PGraph import DGraph  # not at module level: PGraph imports this module
-
-    return isinstance(graph, DGraph)
+    return graph.directed
 
 
 def _ordered_edges(graph: Graph) -> list[tuple[Edge, Vertex, Vertex]]:

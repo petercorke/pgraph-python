@@ -12,7 +12,7 @@ import unittest
 
 import numpy as np
 
-from pgraph import DGraph, DVertex, Edge, UGraph, UVertex
+from pgraph import DGraph, Vertex, Edge, UGraph
 
 
 def dumps(obj, protocol=None):
@@ -27,14 +27,8 @@ def manhattan(v):
     return float(np.abs(v).sum())
 
 
-class TaggedVertex(UVertex):
+class TaggedVertex(Vertex):
     def __init__(self, tag, coord=None, name=None):  # a different signature
-        super().__init__(coord=coord, name=name)
-        self.tag = tag
-
-
-class TaggedDVertex(DVertex):
-    def __init__(self, tag, coord=None, name=None):
         super().__init__(coord=coord, name=name)
         self.tag = tag
 
@@ -239,7 +233,8 @@ class TestDGraphPickle(_RoundTrip, unittest.TestCase):
 
 class TestSubclasses(unittest.TestCase):
     def test_vertex_and_edge_classes(self):
-        for gcls, vcls in ((UGraph, TaggedVertex), (DGraph, TaggedDVertex)):
+        vcls = TaggedVertex
+        for gcls in (UGraph, DGraph):
             with self.subTest(graph=gcls.__name__):
                 g = gcls(vertex_class=vcls, edge_class=WeightedEdge)
                 a = g.add_vertex([0, 0], name="a")

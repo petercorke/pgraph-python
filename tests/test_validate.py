@@ -12,7 +12,7 @@ is for tests, debugging, and code that reaches into the internals.
 import random
 import unittest
 
-from pgraph import DGraph, Edge, UGraph, UVertex
+from pgraph import DGraph, Edge, UGraph, Vertex
 
 
 def poison(edge, name, value):
@@ -75,7 +75,7 @@ class TestValidGraphs(unittest.TestCase):
                 self.assertEqual(g.validate(), [])
 
     def test_user_vertex_and_edge_classes(self):
-        class V(UVertex):
+        class V(Vertex):
             pass
 
         class E(Edge):
@@ -151,12 +151,12 @@ class TestFindsCorruption(unittest.TestCase):
         self.assertIn("'d'", self.problems(g))
 
     def test_vertex_of_the_wrong_class(self):
-        class V(UVertex):
+        class V(Vertex):
             pass
 
         g = UGraph(vertex_class=V)
         g.add_vertex([0, 0], name="a")
-        g._vertexlist.append(UVertex([1, 0], name="plain"))
+        g._vertexlist.append(Vertex([1, 0], name="plain"))
         g._vertexlist[-1]._graph = g
         g._vertexdict["plain"] = g._vertexlist[-1]
         self.assertIn("plain", self.problems(g))
