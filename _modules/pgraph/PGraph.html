@@ -4153,6 +4153,7 @@
 
 <span class="sd">        :seealso: :meth:`adjacent` :meth:`isadjacent` :meth:`successors`</span>
 <span class="sd">            :meth:`out_edges` :meth:`in_edges` :meth:`predecessors`</span>
+<span class="sd">            :meth:`edgeto` :meth:`edges_to`</span>
 <span class="sd">            :meth:`edges` :meth:`edgeto` :attr:`degree`</span>
 <span class="sd">            :meth:`Graph.adjacency`</span>
 <span class="sd">        """</span>
@@ -4273,11 +4274,11 @@
 <a class="viewcode-back" href="../../modification.html#pgraph.PGraph.Vertex.edgeto">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">edgeto</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dest</span><span class="p">:</span> <span class="n">Vertex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Edge</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Get edge connecting vertex to specific neighbour</span>
+<span class="sd">        The edge from this vertex to an adjacent vertex</span>
 
-<span class="sd">        :param dest: a neigbouring vertex</span>
+<span class="sd">        :param dest: an adjacent vertex</span>
 <span class="sd">        :type dest: ``Vertex`` subclass</span>
-<span class="sd">        :raises ValueError: ``dest`` is not a neighbour</span>
+<span class="sd">        :raises ValueError: ``dest`` is not adjacent to this vertex</span>
 <span class="sd">        :return: the edge from this vertex to ``dest``</span>
 <span class="sd">        :rtype: Edge</span>
 
@@ -4295,8 +4296,10 @@
 <span class="sd">            &gt;&gt;&gt; v2 = g.add_vertex(coord=[1,1], name='v2')</span>
 <span class="sd">            &gt;&gt;&gt; g.add_edge(v1, v2, cost=1.414)</span>
 <span class="sd">            &gt;&gt;&gt; print(v1.edgeto(v2))</span>
+
+<span class="sd">        :seealso: :meth:`edges_to` :meth:`incidences` :meth:`adjacent`</span>
 <span class="sd">        """</span>
-        <span class="n">edges</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">incidences</span><span class="p">()</span> <span class="k">if</span> <span class="n">n</span> <span class="ow">is</span> <span class="n">dest</span><span class="p">]</span>
+        <span class="n">edges</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">edges_to</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">edges</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"dest is not a neighbour"</span><span class="p">)</span>
         <span class="n">costed</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">edges</span> <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">cost</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
@@ -4304,6 +4307,54 @@
             <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="n">costed</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="n">e</span><span class="o">.</span><span class="n">cost</span><span class="p">)</span>  <span class="c1"># type: ignore[arg-type,return-value]</span>
         <span class="k">return</span> <span class="n">edges</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
 
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">edges_to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dest</span><span class="p">:</span> <span class="n">Vertex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Edge</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        All the edges from this vertex to another vertex</span>
+
+<span class="sd">        :param dest: the vertex at the far end</span>
+<span class="sd">        :type dest: ``Vertex`` subclass</span>
+<span class="sd">        :return: every edge from this vertex to ``dest``, in the order they</span>
+<span class="sd">            were connected, which is empty if there are none</span>
+<span class="sd">        :rtype: list of Edge</span>
+
+<span class="sd">        This is how to see parallel edges.  :meth:`edgeto` returns the one</span>
+<span class="sd">        edge that a path would use, the cheapest, whereas this returns them</span>
+<span class="sd">        all.</span>
+
+<span class="sd">        .. note::</span>
+
+<span class="sd">            - For a directed graph only the edges leaving this vertex for</span>
+<span class="sd">              ``dest`` are included, so ``a.edges_to(b)`` and</span>
+<span class="sd">              ``b.edges_to(a)`` are different lists</span>
+<span class="sd">            - For an undirected graph the edges are found from either end,</span>
+<span class="sd">              whichever vertex they were connected from</span>
+<span class="sd">            - A self-loop is listed once, although its vertex holds it twice</span>
+<span class="sd">              (see :meth:`edges`)</span>
+<span class="sd">            - Unlike :meth:`edgeto`, there being no edge is not an error, the</span>
+<span class="sd">              list is empty</span>
+<span class="sd">            - The list is a new one, so changing it does not change the graph</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from pgraph import UGraph</span>
+<span class="sd">            &gt;&gt;&gt; g = UGraph()</span>
+<span class="sd">            &gt;&gt;&gt; v1 = g.add_vertex(coord=[0,0], name='v1')</span>
+<span class="sd">            &gt;&gt;&gt; v2 = g.add_vertex(coord=[1,1], name='v2')</span>
+<span class="sd">            &gt;&gt;&gt; g.add_edge(v1, v2, cost=3)</span>
+<span class="sd">            &gt;&gt;&gt; g.add_edge(v1, v2, cost=1)</span>
+<span class="sd">            &gt;&gt;&gt; print(v1.edges_to(v2))</span>
+<span class="sd">            &gt;&gt;&gt; print(v1.edgeto(v2))</span>
+
+<span class="sd">        :seealso: :meth:`edgeto` :meth:`edges` :meth:`out_edges`</span>
+<span class="sd">            :meth:`incidences` :meth:`adjacent`</span>
+<span class="sd">        """</span>
+        <span class="n">found</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Edge</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">vertex</span><span class="p">,</span> <span class="n">edge</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">incidences</span><span class="p">():</span>
+            <span class="c1"># a self-loop is held twice by its vertex, so is met twice</span>
+            <span class="k">if</span> <span class="n">vertex</span> <span class="ow">is</span> <span class="n">dest</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">edge</span> <span class="ow">is</span> <span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">found</span><span class="p">):</span>
+                <span class="n">found</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">found</span>
 
 <div class="viewcode-block" id="Vertex.edges">
 <a class="viewcode-back" href="../../analysis.html#pgraph.PGraph.Vertex.edges">[docs]</a>
@@ -4334,7 +4385,8 @@
 <span class="sd">            &gt;&gt;&gt; print(v1.edges())</span>
 
 <span class="sd">        :seealso: :meth:`out_edges` :meth:`in_edges` :meth:`adjacent`</span>
-<span class="sd">            :meth:`incidences` :attr:`degree` :meth:`Graph.edges`</span>
+<span class="sd">            :meth:`incidences` :meth:`edges_to` :attr:`degree`</span>
+<span class="sd">            :meth:`Graph.edges`</span>
 <span class="sd">        """</span>
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_edgelist</span><span class="p">)</span></div>
 
@@ -4493,7 +4545,7 @@
 <span class="sd">        graph every incident edge is outgoing.</span>
 
 <span class="sd">        :seealso: :meth:`in_edges` :meth:`edges` :meth:`adjacent` :meth:`successors`</span>
-<span class="sd">            :meth:`incidences` :attr:`out_degree`</span>
+<span class="sd">            :meth:`incidences` :meth:`edges_to` :attr:`out_degree`</span>
 <span class="sd">        """</span>
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_edgelist</span><span class="p">)</span>
 
