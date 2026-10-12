@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import math
 import os
 import sys
 import warnings
@@ -31,15 +32,75 @@ def _L2(v: NDArray) -> float:
     return float(np.linalg.norm(v))
 
 
-def _SE2(v: NDArray) -> float:
-    """Mixed norm for (x, y, theta), the built-in ``"SE2"`` metric"""
-    if len(v) != 3:
-        raise ValueError(
-            f"SE2 metric requires a 3-element (x, y, theta) vector, got length {len(v)}"
-        )
-    # wrap angle to range [-pi, pi)
-    v[2] = (v[2] + np.pi) % (2 * np.pi) - np.pi
-    return float(np.linalg.norm(v))
+class SE2Metric:
+    r"""
+    Distance between planar poses, a weighted mixed norm
+
+    :param weight: length that one radian of turn counts for, defaults to 1
+    :raises ValueError: ``weight`` is negative or not finite
+
+    The metric of a vector :math:`(x, y, \theta)`, the difference between two
+    poses, is
+
+    .. math::
+
+        d = \sqrt{x^2 + y^2 + (w \bar{\theta})^2}
+
+    where :math:`\bar{\theta}` is :math:`\theta` wrapped to the interval
+    :math:`[-\pi, \pi)` and :math:`w` is the ``weight``.
+
+    Distance and angle have different units, so their relative importance is
+    a choice.  The weight is the conversion: it is how much length a turn of one
+    radian is worth, so a turn of :math:`\theta` costs as much as moving
+    :math:`w \theta`.  A weight of 1 treats a radian as a metre, which is what
+    the string ``"SE2"`` means.  A characteristic length of the vehicle, such as
+    its turning radius, is a natural choice.  With a weight of 0 the
+    orientation is ignored and this is the distance in the plane.
+
+    An instance is a metric for a graph, and can be used as its heuristic too::
+
+        g = UGraph(dim=3, metric=SE2Metric(weight=0.5))
+
+    .. runblock:: pycon
+
+        >>> from pgraph import SE2Metric
+        >>> import numpy as np
+        >>> v = np.r_[3, 4, np.pi / 2]   # 3 east, 4 north, a quarter turn
+        >>> SE2Metric()(v)
+        >>> SE2Metric(weight=0.5)(v)
+        >>> SE2Metric(weight=0)(v)
+
+    A metric with a weight is still a metric, so it is a consistent heuristic
+    for A* when the edge costs are computed with it.  If edge costs come from
+    somewhere else, use a weight low enough, or zero, for the heuristic never to
+    exceed the cost to go.
+
+    :seealso: :meth:`Graph.metric` :meth:`Graph.heuristic`
+    """
+
+    def __init__(self, weight: float = 1.0):
+        weight = float(weight)
+        if not math.isfinite(weight) or weight < 0:
+            raise ValueError(f"weight must be finite and not negative, got {weight!r}")
+        self.weight = weight
+
+    def __call__(self, v: NDArray) -> float:
+        if len(v) != 3:
+            raise ValueError(
+                f"SE2 metric requires a 3-element (x, y, theta) vector, got length {len(v)}"
+            )
+        # wrap the angle to the range [-pi, pi), without changing the argument
+        theta = (float(v[2]) + math.pi) % (2 * math.pi) - math.pi
+        return math.sqrt(float(v[0]) ** 2 + float(v[1]) ** 2 + (self.weight * theta) ** 2)
+
+    def __repr__(self) -> str:
+        return f"SE2Metric(weight={self.weight:g})"
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, SE2Metric) and other.weight == self.weight
+
+    def __hash__(self) -> int:
+        return hash(("SE2Metric", self.weight))
 
 
 #: the built-in metrics by name.  They are module level, and pickled by name,
@@ -47,7 +108,7 @@ def _SE2(v: NDArray) -> float:
 _METRICS: dict[str, Callable[[NDArray], float]] = {
     "L1": _L1,
     "L2": _L2,
-    "SE2": _SE2,
+    "SE2": SE2Metric(),
 }
 
 
@@ -796,7 +857,8 @@ class Graph:
         .. note::
 
             - A metric or heuristic given by name (``"L1"``, ``"L2"``,
-              ``"SE2"``) is pickled by name.  A function you supply must be
+              ``"SE2"``) is pickled by name, and an :class:`SE2Metric` with
+              its weight.  A function you supply must be
               importable at module level to be pickled; a ``lambda`` or a
               function defined inside another function can be copied but not
               pickled.
@@ -1556,7 +1618,10 @@ class Graph:
             is :math:`\theta` wrapped to the interval :math:`[-\pi, \pi)`.
             Requires every coordinate involved -- vertex ``coord`` and any
             point passed to :meth:`closest`/:meth:`Vertex.distance` -- to be
-            exactly 3 elements; raises :exc:`ValueError` otherwise.
+            exactly 3 elements; raises :exc:`ValueError` otherwise.  Radians
+            and metres are weighted equally; to change that pass
+            :class:`SE2Metric` with a ``weight``, as in
+            ``g.metric = SE2Metric(weight=0.5)``.
 
         The metric is used by :meth:`closest` and :meth:`distance`
 
@@ -1567,6 +1632,16 @@ class Graph:
             >>> g = UGraph()
             >>> g.metric = 'L1'
             >>> print(g.metric(np.r_[3, -4]))
+
+        A pose metric whose orientation counts for less than its position
+
+        .. runblock:: pycon
+
+            >>> from pgraph import UGraph, SE2Metric
+            >>> import numpy as np
+            >>> g = UGraph(dim=3)
+            >>> g.metric = SE2Metric(weight=0.5)
+            >>> print(g.metric(np.r_[3, 4, np.pi / 2]))
         """
         self._metric = self._metricfunc(metric)
 
@@ -1602,7 +1677,10 @@ class Graph:
             is :math:`\theta` wrapped to the interval :math:`[-\pi, \pi)`.
             Requires every coordinate involved -- vertex ``coord`` and any
             point passed to :meth:`closest`/:meth:`Vertex.distance` -- to be
-            exactly 3 elements; raises :exc:`ValueError` otherwise.
+            exactly 3 elements; raises :exc:`ValueError` otherwise.  Radians
+            and metres are weighted equally; to change that pass
+            :class:`SE2Metric` with a ``weight``, as in
+            ``g.metric = SE2Metric(weight=0.5)``.
 
         The heuristic distance is only used by the A* planner :meth:`path_Astar`.
 
@@ -1613,6 +1691,10 @@ class Graph:
             >>> g = UGraph()
             >>> g.heuristic = 'L2'
             >>> print(g.heuristic(np.r_[3, 4]))
+
+        The heuristic of A* must not exceed the true cost to go.  For poses
+        whose costs are the planar distance travelled, ignore the orientation
+        with ``SE2Metric(weight=0)``.
         """
         self._heuristic = self._metricfunc(heuristic)
 
