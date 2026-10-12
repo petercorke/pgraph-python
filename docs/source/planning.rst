@@ -1,7 +1,9 @@
 Path planning
 =============
 
-These methods find optimal paths from a start vertex to a goal vertex.
+These methods find a path from a start vertex to a goal vertex.  :meth:`~pgraph.PGraph.Graph.path_BFS`
+finds the path with the fewest edges, while :meth:`~pgraph.PGraph.Graph.path_UCS` and
+:meth:`~pgraph.PGraph.Graph.path_Astar` find the path with the lowest total cost.
 
 .. autosummary::
    :nosignatures:
