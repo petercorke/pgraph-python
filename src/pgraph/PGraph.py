@@ -890,6 +890,70 @@ class Graph:
         """
         return copy.deepcopy(self)
 
+    def subgraph(self, vertices: Iterable[Vertex | str]) -> Graph:
+        """
+        Subgraph induced by a set of vertices
+
+        :param vertices: vertices of this graph, or their names
+        :type vertices: iterable of Vertex subclass or str
+        :raises ValueError: a vertex is not in this graph
+        :raises KeyError: a name is not that of a vertex in this graph
+        :raises TypeError: an item is neither a vertex nor a string
+        :return: a new graph of the same kind
+        :rtype: Graph
+
+        The new graph has the given vertices and every edge of this graph that
+        has *both* its end vertices among them.  An edge that has one end
+        outside is removed, so the edges that cross the border of a region
+        are dropped.  Parallel edges and loops are kept.
+
+        Like :meth:`copy` the new graph is independent of this one: its
+        vertices and edges are new objects that keep their class, name,
+        coordinate, cost and any attributes that were added, and the graph
+        keeps its metric, heuristic and vertex and edge classes.  They are in
+        the order of this graph, however ``vertices`` was ordered.  Names are
+        kept, so the vertex ``g[name]`` has its counterpart ``h[name]``.
+
+        .. runblock:: pycon
+
+            >>> from pgraph import UGraph
+            >>> g = UGraph()
+            >>> v = [g.add_vertex(coord=[i, 0], name=f"v{i}") for i in range(4)]
+            >>> for i in range(3):
+            ...     g.add_edge(v[i], v[i + 1])
+            >>> h = g.subgraph([v[1], v[2]])
+            >>> print(h)
+            >>> h.edges()
+
+        It is a single pass over the graph.  The vertices might be a component,
+        the vertices that satisfy a test, or those in a region of an embedded
+        graph from :meth:`within`.
+
+        :seealso: :meth:`copy` :meth:`within` :meth:`component`
+        """
+        wanted = set()
+        for v in vertices:
+            v = self._resolve_vertex(v, "vertex")
+            if v._graph is not self:
+                raise ValueError(f"vertex {v.name!r} is not in this graph")
+            wanted.add(id(v))
+
+        state = self.__getstate__()
+        flat = state["_flat"]
+        keep = [i for i, v in enumerate(self._vertexlist) if id(v) in wanted]
+        renumber = {old: new for new, old in enumerate(keep)}
+        flat["vertices"] = [flat["vertices"][i] for i in keep]
+        flat["edges"] = [
+            (cls, renumber[i], renumber[j], attrs)
+            for cls, i, j, attrs in flat["edges"]
+            if i in renumber and j in renumber
+        ]
+
+        h = type(self).__new__(type(self))
+        h.__setstate__(copy.deepcopy(state))
+        h._connectivitychange = True  # the components are those of the new graph
+        return h
+
     # pickling and copying
 
     #: the graph's own containers, which are saved as a flat description
@@ -1843,6 +1907,98 @@ class Graph:
                 min_which = vertex
 
         return min_which, min_dist
+
+    def within(self, box: ArrayLike) -> list[Vertex]:
+        """
+        Vertices inside a box
+
+        :param box: lower and upper corners of the box
+        :type box: ndarray(2,n)
+        :raises ValueError: ``box`` is not 2 x n, its upper corner is below its
+            lower corner in some dimension, or the coordinate of a vertex does
+            not have n elements
+        :return: the vertices inside the box, in the order of the graph
+        :rtype: list of Vertex subclass
+
+        The first row of ``box`` is the lower corner, the second row the upper
+        corner, so in two dimensions it is ``[[xmin, ymin], [xmax, ymax]]``.
+        The box is closed: a vertex on its boundary is inside.  Vertices
+        without a coordinate are skipped, as they are by :meth:`closest`.
+
+        It is a single pass over the vertices.  Together with
+        :meth:`subgraph` it selects the part of an embedded graph in a region
+
+        .. runblock:: pycon
+
+            >>> from pgraph import UGraph
+            >>> g = UGraph()
+            >>> for i in range(5):
+            ...     g.add_vertex(coord=[i, i], name=f"v{i}")
+            >>> g.within([[1, 1], [3, 3]])
+            >>> g.subgraph(g.within([[1, 1], [3, 3]]))
+
+        :seealso: :meth:`near` :meth:`closest` :meth:`subgraph`
+        """
+        box = np.asarray(box, dtype=float)
+        if box.ndim != 2 or box.shape[0] != 2:
+            raise ValueError(f"box must be 2 x n, not {box.shape}")
+        lower, upper = box
+        if np.any(upper < lower):
+            raise ValueError("the upper corner of the box is below the lower corner")
+
+        found = []
+        for vertex in self:
+            if vertex.coord is None:
+                continue
+            coord = np.asarray(vertex.coord, dtype=float)
+            if coord.shape != lower.shape:
+                raise ValueError(
+                    f"vertex {vertex.name!r} has a coordinate of {coord.size} "
+                    f"elements, the box has {lower.size}"
+                )
+            if np.all(coord >= lower) and np.all(coord <= upper):
+                found.append(vertex)
+        return found
+
+    def near(self, coord: ArrayLike, radius: float) -> list[tuple[Vertex, float]]:
+        """
+        Vertices within a distance of a point
+
+        :param coord: coordinates of a point
+        :type coord: ndarray(n)
+        :param radius: greatest distance, inclusive
+        :raises ValueError: ``radius`` is negative
+        :return: the vertices within ``radius`` of the point with their
+            distances, nearest first
+        :rtype: list of (Vertex subclass, float)
+
+        Distance is computed according to the graph's metric, as it is by
+        :meth:`closest`, of which this is the generalization to every vertex
+        within a radius.  Vertices without a coordinate are skipped, and
+        vertices at equal distance are in the order of the graph.
+
+        .. runblock:: pycon
+
+            >>> from pgraph import UGraph
+            >>> g = UGraph()
+            >>> for i in range(5):
+            ...     g.add_vertex(coord=[i, 0], name=f"v{i}")
+            >>> [(v.name, d) for v, d in g.near([2.2, 0], 1.5)]
+
+        :seealso: :meth:`closest` :meth:`within` :meth:`metric`
+        """
+        if radius < 0:
+            raise ValueError(f"radius must not be negative, got {radius!r}")
+
+        found = []
+        for vertex in self:
+            if vertex.coord is None:
+                continue
+            d = float(self.metric(vertex.coord - coord))
+            if d <= radius:
+                found.append((vertex, d))
+        found.sort(key=lambda pair: pair[1])
+        return found
 
     def edges(self) -> list[Edge]:
         """

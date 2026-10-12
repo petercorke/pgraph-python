@@ -49,10 +49,20 @@ Structure and connectivity
 Geometry and consistency
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
+For a graph whose vertices have coordinates,
+:meth:`~pgraph.PGraph.Graph.closest` finds the nearest vertex to a point,
+:meth:`~pgraph.PGraph.Graph.near` the vertices within a distance of a point and
+:meth:`~pgraph.PGraph.Graph.within` the vertices inside a box.  Passing the
+result of the last to :meth:`~pgraph.PGraph.Graph.subgraph` gives the part of
+the graph in a region, without the edges that cross its border.
+
 .. autosummary::
    :nosignatures:
 
    ~pgraph.PGraph.Graph.closest
+   ~pgraph.PGraph.Graph.near
+   ~pgraph.PGraph.Graph.within
+   ~pgraph.PGraph.Graph.subgraph
    ~pgraph.PGraph.Graph.validate
 
 The matrices of a graph (:meth:`~pgraph.PGraph.Graph.adjacency`,
@@ -154,6 +164,9 @@ Details
 .. automethod:: pgraph.PGraph.Graph.connectivity
 .. automethod:: pgraph.PGraph.Graph.average_degree
 .. automethod:: pgraph.PGraph.Graph.closest
+.. automethod:: pgraph.PGraph.Graph.near
+.. automethod:: pgraph.PGraph.Graph.within
+.. automethod:: pgraph.PGraph.Graph.subgraph
 .. automethod:: pgraph.PGraph.Graph.validate
 
 .. autoproperty:: pgraph.PGraph.Vertex.name
