@@ -108,7 +108,6 @@
   <h1>Source code for pgraph.PGraph</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
@@ -156,12 +155,23 @@
 
 <div class="viewcode-block" id="Graph">
 <a class="viewcode-back" href="../../construction.html#pgraph.PGraph.Graph">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">Graph</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Graph</span><span class="p">:</span>
 
-    <span class="c1">#: concrete vertex type for this graph kind, provided by :class:`UGraph`</span>
-    <span class="c1">#: and :class:`DGraph` -- lets :meth:`add_vertex` and :meth:`vertex_copy`</span>
-    <span class="c1">#: be defined once here rather than duplicated per subclass.</span>
-    <span class="n">_vertex_cls</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">Vertex</span><span class="p">]]</span>
+    <span class="c1">#: whether the edges of this kind of graph are directed, set by</span>
+    <span class="c1">#: :class:`UGraph` and :class:`DGraph`</span>
+    <span class="n">_directed</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">directed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Graph</span><span class="p">:</span>
+        <span class="c1"># Graph(directed=True) is a DGraph and Graph() a UGraph; the classes</span>
+        <span class="c1"># underneath stay honest, so isinstance and the hooks work as usual</span>
+        <span class="k">if</span> <span class="bp">cls</span> <span class="ow">is</span> <span class="n">Graph</span><span class="p">:</span>
+            <span class="bp">cls</span> <span class="o">=</span> <span class="n">DGraph</span> <span class="k">if</span> <span class="n">directed</span> <span class="k">else</span> <span class="n">UGraph</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="s2">"_directed"</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> does not say whether its edges are directed; "</span>
+                <span class="s2">"subclass UGraph or DGraph"</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Graph.__init__">
 <a class="viewcode-back" href="../../construction.html#pgraph.PGraph.Graph.__init__">[docs]</a>
@@ -174,9 +184,10 @@
         <span class="n">dim</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">vertex_class</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">Vertex</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">edge_class</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">Edge</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">directed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Abstract base class for graphs</span>
+<span class="sd">        Graph, undirected or directed</span>
 
 <span class="sd">        :param metric: distance metric, defaults to "L2"</span>
 <span class="sd">        :type metric: callable or str, optional</span>
@@ -190,18 +201,31 @@
 <span class="sd">            length, or none at all)</span>
 <span class="sd">        :type dim: int, optional</span>
 <span class="sd">        :param vertex_class: class of the vertices this graph creates, defaults</span>
-<span class="sd">            to ``UVertex`` for a :class:`UGraph` and ``DVertex`` for a</span>
-<span class="sd">            :class:`DGraph`</span>
-<span class="sd">        :type vertex_class: subclass of ``UVertex`` or ``DVertex``, optional</span>
+<span class="sd">            to :class:`Vertex`</span>
+<span class="sd">        :type vertex_class: subclass of :class:`Vertex`, optional</span>
 <span class="sd">        :param edge_class: class of the edges this graph creates, defaults to</span>
 <span class="sd">            :class:`Edge`</span>
 <span class="sd">        :type edge_class: subclass of ``Edge``, optional</span>
 <span class="sd">        :raises ValueError: ``dim`` is given but is not a positive integer</span>
-<span class="sd">        :raises TypeError: ``vertex_class`` is not a subclass of this graph's</span>
-<span class="sd">            own vertex kind, or ``edge_class`` is not a subclass of ``Edge``</span>
+<span class="sd">        :param directed: whether the edges are directed, defaults to False</span>
+<span class="sd">            for ``Graph`` and is fixed by the class for :class:`UGraph` and</span>
+<span class="sd">            :class:`DGraph`</span>
+<span class="sd">        :type directed: bool, optional</span>
+<span class="sd">        :raises ValueError: ``directed`` contradicts the class, for example</span>
+<span class="sd">            ``UGraph(directed=True)``</span>
+<span class="sd">        :raises TypeError: ``vertex_class`` is not a subclass of</span>
+<span class="sd">            :class:`Vertex`, or ``edge_class`` is not a subclass of ``Edge``</span>
 
-<span class="sd">        This is the common base class of :class:`UGraph` and :class:`DGraph`</span>
-<span class="sd">        and should not be instantiated directly.</span>
+<span class="sd">        ``Graph(directed=True)`` is a :class:`DGraph` and ``Graph()`` a</span>
+<span class="sd">        :class:`UGraph`, so the kind can be chosen by a variable::</span>
+
+<span class="sd">            g = Graph(directed=is_directed)</span>
+
+<span class="sd">        :class:`UGraph` and :class:`DGraph` remain, and are what</span>
+<span class="sd">        ``isinstance`` and the documentation refer to.  Everything else, the</span>
+<span class="sd">        vertices included, is the same for both kinds, so there is one vertex</span>
+<span class="sd">        class, :class:`Vertex`.  A vertex has no direction of its own; the</span>
+<span class="sd">        graph it belongs to decides how an edge is recorded at its ends.</span>
 
 <span class="sd">        All arguments are keyword-only, so ``UGraph(dim=6)`` is correct and</span>
 <span class="sd">        ``UGraph(6)`` raises :exc:`TypeError`.</span>
@@ -230,14 +254,16 @@
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="n">dim</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">dim</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"dim must be a positive integer, got </span><span class="si">{</span><span class="n">dim</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span>
-        <span class="n">kind</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">_vertex_cls</span>
-        <span class="k">if</span> <span class="n">vertex_class</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">vertex_class</span> <span class="o">=</span> <span class="n">kind</span>
-        <span class="k">elif</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">vertex_class</span><span class="p">,</span> <span class="nb">type</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">vertex_class</span><span class="p">,</span> <span class="n">kind</span><span class="p">)):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">"vertex_class must be a subclass of </span><span class="si">{</span><span class="n">kind</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> for a "</span>
-                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">, got </span><span class="si">{</span><span class="n">vertex_class</span><span class="si">!r}</span><span class="s2">"</span>
+        <span class="k">if</span> <span class="n">directed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">bool</span><span class="p">(</span><span class="n">directed</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">_directed</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> is "</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="s1">'directed'</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">_directed</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">'undirected'</span><span class="si">}</span><span class="s2">, "</span>
+                <span class="sa">f</span><span class="s2">"but directed=</span><span class="si">{</span><span class="n">directed</span><span class="si">!r}</span><span class="s2"> was given"</span>
             <span class="p">)</span>
+        <span class="k">if</span> <span class="n">vertex_class</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">vertex_class</span> <span class="o">=</span> <span class="n">Vertex</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">vertex_class</span><span class="p">,</span> <span class="nb">type</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">vertex_class</span><span class="p">,</span> <span class="n">Vertex</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"vertex_class must be a subclass of Vertex, got </span><span class="si">{</span><span class="n">vertex_class</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">edge_class</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">edge_class</span> <span class="o">=</span> <span class="n">Edge</span>
         <span class="k">elif</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">edge_class</span><span class="p">,</span> <span class="nb">type</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">edge_class</span><span class="p">,</span> <span class="n">Edge</span><span class="p">)):</span>
@@ -426,7 +452,7 @@
                 <span class="n">coord</span> <span class="o">=</span> <span class="n">coords</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span>
             <span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">coord</span><span class="o">=</span><span class="n">coord</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">UGraph</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">g</span><span class="o">.</span><span class="n">directed</span><span class="p">:</span>
             <span class="c1"># undirected graph: upper triangle including the diagonal</span>
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">A</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
                 <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">A</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
@@ -442,21 +468,107 @@
         <span class="k">return</span> <span class="n">g</span>
 
     <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">directed</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Test if the graph is directed</span>
+
+<span class="sd">        :return: True for a :class:`DGraph`, False for a :class:`UGraph`</span>
+<span class="sd">        :rtype: bool</span>
+
+<span class="sd">        An undirected edge is recorded at both of its vertices, and is</span>
+<span class="sd">        followed in either direction.  A directed edge is recorded as leaving</span>
+<span class="sd">        its start vertex and entering its end vertex.</span>
+
+<span class="sd">        .. runblock:: pycon</span>
+
+<span class="sd">            &gt;&gt;&gt; from pgraph import Graph</span>
+<span class="sd">            &gt;&gt;&gt; Graph().directed</span>
+<span class="sd">            &gt;&gt;&gt; Graph(directed=True).directed</span>
+
+<span class="sd">        :seealso: :class:`UGraph` :class:`DGraph`</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_directed</span>
+
+    <span class="c1"># the hooks: the one place where undirected and directed graphs differ in</span>
+    <span class="c1"># how an edge is held.  A vertex has no direction of its own, so its</span>
+    <span class="c1"># connect() and the graph's remove_edge() ask the graph.</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_attach</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">edge</span><span class="p">:</span> <span class="n">Edge</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Record a new edge in the edge lists of its vertices (private method)</span>
+
+<span class="sd">        :param edge: the edge just created or supplied to</span>
+<span class="sd">            :meth:`Vertex.connect`, with ``edge.v1`` and ``edge.v2`` set and</span>
+<span class="sd">            already part of the graph</span>
+<span class="sd">        :raises NotImplementedError: not provided by this graph kind</span>
+
+<span class="sd">        This is the hook that :meth:`Vertex.connect` calls once the connection</span>
+<span class="sd">        has been validated and the edge registered with the graph, so it is</span>
+<span class="sd">        never called for a connection that is refused.  :class:`UGraph`</span>
+<span class="sd">        records the edge at both ends and :class:`DGraph` as leaving its start</span>
+<span class="sd">        and entering its end.  It is defined by the graph kind, not by</span>
+<span class="sd">        :meth:`Vertex.connect`.</span>
+<span class="sd">        """</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> does not define how an edge is attached; "</span>
+            <span class="s2">"subclass UGraph or DGraph"</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_detach</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">edge</span><span class="p">:</span> <span class="n">Edge</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Remove an edge from the edge lists of its vertices (private method)</span>
+
+<span class="sd">        :param edge: the edge being removed, with ``edge.v1`` and ``edge.v2``</span>
+<span class="sd">            still set</span>
+<span class="sd">        :raises NotImplementedError: not provided by this graph kind</span>
+
+<span class="sd">        The twin of :meth:`_attach`: it undoes exactly what that recorded.</span>
+<span class="sd">        Called by :meth:`remove_edge` before the edge's endpoints are</span>
+<span class="sd">        cleared.  An edge that is absent from a list is skipped rather than</span>
+<span class="sd">        treated as an error.</span>
+<span class="sd">        """</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> does not define how an edge is detached; "</span>
+            <span class="s2">"subclass UGraph or DGraph"</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_incoming</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vertex</span><span class="p">:</span> <span class="n">Vertex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Edge</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        The edges that end at a vertex (private method)</span>
+
+<span class="sd">        :param vertex: a vertex of this graph</span>
+<span class="sd">        :raises NotImplementedError: not provided by this graph kind</span>
+<span class="sd">        """</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> does not define the incoming edges; "</span>
+            <span class="s2">"subclass UGraph or DGraph"</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_endpoints_match</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">edge</span><span class="p">:</span> <span class="n">Edge</span><span class="p">,</span> <span class="n">v1</span><span class="p">:</span> <span class="n">Vertex</span><span class="p">,</span> <span class="n">v2</span><span class="p">:</span> <span class="n">Vertex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Test if an edge already connects two vertices (private method)</span>
+
+<span class="sd">        A directed edge must run from ``v1`` to ``v2``; see</span>
+<span class="sd">        :meth:`UGraph._endpoints_match` for the undirected relaxation.</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="n">edge</span><span class="o">.</span><span class="n">v1</span> <span class="ow">is</span> <span class="n">v1</span> <span class="ow">and</span> <span class="n">edge</span><span class="o">.</span><span class="n">v2</span> <span class="ow">is</span> <span class="n">v2</span>
+
+    <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">vertex_class</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">[</span><span class="n">Vertex</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Class of the vertices this graph creates</span>
 
 <span class="sd">        :return: vertex class</span>
-<span class="sd">        :rtype: subclass of ``UVertex`` or ``DVertex``</span>
+<span class="sd">        :rtype: subclass of ``Vertex``</span>
 
 <span class="sd">        This is read-only.  It is set by the ``vertex_class`` argument of the</span>
-<span class="sd">        graph constructor, see :meth:`__init__`, and is ``UVertex`` for a</span>
-<span class="sd">        :class:`UGraph` and ``DVertex`` for a :class:`DGraph` if not given.</span>
+<span class="sd">        graph constructor, see :meth:`__init__`, and is :class:`Vertex` if not</span>
+<span class="sd">        given.</span>
 
 <span class="sd">        .. runblock:: pycon</span>
 
-<span class="sd">            &gt;&gt;&gt; from pgraph import UGraph, UVertex</span>
-<span class="sd">            &gt;&gt;&gt; class MyVertex(UVertex):</span>
+<span class="sd">            &gt;&gt;&gt; from pgraph import UGraph, Vertex</span>
+<span class="sd">            &gt;&gt;&gt; class MyVertex(Vertex):</span>
 <span class="sd">            ...     pass</span>
 <span class="sd">            &gt;&gt;&gt; g = UGraph(vertex_class=MyVertex)</span>
 <span class="sd">            &gt;&gt;&gt; print(g.vertex_class.__name__)</span>
@@ -540,7 +652,7 @@
         <span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">Counter</span>
 
         <span class="n">problems</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">directed</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">DGraph</span><span class="p">)</span>
+        <span class="n">directed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">directed</span>
 
         <span class="c1"># ---- the containers themselves must hold the right kind of thing; a</span>
         <span class="c1"># stray object is reported and set aside so the checks below can run</span>
@@ -813,7 +925,7 @@
             <span class="n">v1</span><span class="p">,</span> <span class="n">v2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vertexlist</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vertexlist</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
             <span class="n">e</span><span class="o">.</span><span class="n">_set_endpoints</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_edges</span><span class="p">[</span><span class="n">e</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="n">v1</span><span class="o">.</span><span class="n">_attach</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">v2</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_attach</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Graph.add_vertex">
 <a class="viewcode-back" href="../../modification.html#pgraph.PGraph.Graph.add_vertex">[docs]</a>
@@ -824,8 +936,8 @@
 <span class="sd">        Add a vertex to the graph</span>
 
 <span class="sd">        :param coord: coordinate for an embedded graph, or an existing vertex</span>
-<span class="sd">            of this graph's own kind (``UVertex`` for :class:`UGraph`,</span>
-<span class="sd">            ``DVertex`` for :class:`DGraph`) to add as-is, defaults to None</span>
+<span class="sd">            (an instance of this graph's :attr:`vertex_class`, not belonging</span>
+<span class="sd">            to a graph) to add as-is, defaults to None</span>
 <span class="sd">        :type coord: array-like or Vertex subclass, optional</span>
 <span class="sd">        :param name: name of vertex, defaults to "#i"</span>
 <span class="sd">        :type name: str, optional</span>
@@ -843,8 +955,7 @@
 <span class="sd">        - ``g.add_vertex()`` creates a new vertex with optional ``coord`` and</span>
 <span class="sd">          ``name``.</span>
 <span class="sd">        - ``g.add_vertex(v)`` takes an instance of this graph's</span>
-<span class="sd">          :attr:`vertex_class` (by default any ``UVertex`` for a</span>
-<span class="sd">          :class:`UGraph`, any ``DVertex`` for a :class:`DGraph`) and adds it</span>
+<span class="sd">          :attr:`vertex_class` (by default any :class:`Vertex`) and adds it</span>
 <span class="sd">          to the graph.</span>
 
 <span class="sd">        If the vertex has no name and ``name`` is None give it a default name</span>
@@ -864,13 +975,13 @@
 
 <span class="sd">        .. runblock:: pycon</span>
 
-<span class="sd">            &gt;&gt;&gt; from pgraph import UGraph, UVertex</span>
+<span class="sd">            &gt;&gt;&gt; from pgraph import UGraph, Vertex</span>
 <span class="sd">            &gt;&gt;&gt; g = UGraph()</span>
 <span class="sd">            &gt;&gt;&gt; v1 = g.add_vertex(coord=[0,0])</span>
 <span class="sd">            &gt;&gt;&gt; repr(v1)</span>
 <span class="sd">            &gt;&gt;&gt; print(v1)</span>
 <span class="sd">            &gt;&gt;&gt; print(v1.name)</span>
-<span class="sd">            &gt;&gt;&gt; v2 = g.add_vertex(UVertex(coord=[1,1], name='v2'))</span>
+<span class="sd">            &gt;&gt;&gt; v2 = g.add_vertex(Vertex(coord=[1,1], name='v2'))</span>
 <span class="sd">            &gt;&gt;&gt; print(v2.name)</span>
 <span class="sd">            &gt;&gt;&gt; g['v2']</span>
 
@@ -952,7 +1063,7 @@
 
 <span class="sd">        A vertex can only belong to a single graph, so this method is used to</span>
 <span class="sd">        create a new vertex with the same name and coordinates for inclusion</span>
-<span class="sd">        in a new graph -- of ``cls``'s own vertex kind, per :attr:`_vertex_cls`.</span>
+<span class="sd">        in a new graph.  A vertex is the same for undirected and directed graphs.</span>
 
 <span class="sd">        .. runblock:: pycon</span>
 
@@ -964,7 +1075,7 @@
 
 <span class="sd">        :seealso: :meth:`Vertex.copy`</span>
 <span class="sd">        """</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_vertex_cls</span><span class="p">(</span><span class="n">coord</span><span class="o">=</span><span class="n">vertex</span><span class="o">.</span><span class="n">coord</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">vertex</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">Vertex</span><span class="p">(</span><span class="n">coord</span><span class="o">=</span><span class="n">vertex</span><span class="o">.</span><span class="n">coord</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">vertex</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_resolve_vertex</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="n">Vertex</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span> <span class="n">label</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Vertex</span><span class="p">:</span>
@@ -1175,7 +1286,7 @@
 
         <span class="c1"># how the edge is held differs between undirected and directed</span>
         <span class="c1"># vertices, so the vertex kind undoes what its _attach did</span>
-        <span class="n">v1</span><span class="o">.</span><span class="n">_detach</span><span class="p">(</span><span class="n">edge</span><span class="p">,</span> <span class="n">v2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_detach</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span>
 
         <span class="n">v1</span><span class="o">.</span><span class="n">_connectivitychange</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="n">v2</span><span class="o">.</span><span class="n">_connectivitychange</span> <span class="o">=</span> <span class="kc">True</span>
@@ -1324,7 +1435,6 @@
 <span class="sd">        """</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_edges</span><span class="p">)</span>
 
-    <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_graphcolor</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Color the graph (subclass method)</span>
@@ -1332,7 +1442,12 @@
 <span class="sd">        Concrete graph coloring algorithm, provided by :meth:`UGraph._graphcolor`</span>
 <span class="sd">        and :meth:`DGraph._graphcolor`.</span>
 
+<span class="sd">        :raises NotImplementedError: not provided by this graph kind</span>
 <span class="sd">        """</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> does not define how to color the graph; "</span>
+            <span class="s2">"subclass UGraph or DGraph"</span>
+        <span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">nc</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
@@ -2193,8 +2308,8 @@
 
 <span class="sd">        .. note::</span>
 
-<span class="sd">            - The graph is undirected if it is a subclass of ``UGraph``</span>
-<span class="sd">            - The graph is directed if it is a subclass of ``DGraph``</span>
+<span class="sd">            - The graph is undirected if it is a :class:`UGraph`</span>
+<span class="sd">            - The graph is directed if it is a :class:`DGraph`</span>
 
 <span class="sd">        .. note:: The ``graphviz`` formatters ``dot`` and ``neato`` can be used to render the</span>
 <span class="sd">            graph in various formats including PDF, PNG, JPG, GIF, SVG, etc.  The formmatters are</span>
@@ -2310,7 +2425,7 @@
 <span class="sd">            </span>
 <span class="sd">        :seealso: :meth:`adjacency`</span>
 <span class="sd">        """</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">UGraph</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">directed</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ne</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">nc</span>
 
         <span class="c1"># DGraph: Kahn's algorithm</span>
@@ -2662,7 +2777,7 @@
             <span class="k">assert</span> <span class="n">e</span><span class="o">.</span><span class="n">v1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">e</span><span class="o">.</span><span class="n">v2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
             <span class="n">I</span><span class="p">[</span><span class="n">vdict</span><span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">v1</span><span class="p">],</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
             <span class="n">I</span><span class="p">[</span><span class="n">vdict</span><span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">v2</span><span class="p">],</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
-            <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">v1</span> <span class="ow">is</span> <span class="n">e</span><span class="o">.</span><span class="n">v2</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">UGraph</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">v1</span> <span class="ow">is</span> <span class="n">e</span><span class="o">.</span><span class="n">v2</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">directed</span><span class="p">:</span>
                 <span class="n">I</span><span class="p">[</span><span class="n">vdict</span><span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">v1</span><span class="p">],</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>  <span class="c1"># self-loop, counted at both ends</span>
 
         <span class="k">return</span> <span class="n">I</span></div>
@@ -3168,15 +3283,56 @@
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Class for undirected graphs</span>
 
-<span class="sd">    Vertices are :class:`UVertex` objects, or instances of the subclass given</span>
+<span class="sd">    Vertices are :class:`Vertex` objects, or instances of the subclass given</span>
 <span class="sd">    as ``vertex_class``. Edges are :class:`Edge` objects, or instances of the</span>
 <span class="sd">    subclass given as ``edge_class``; see :class:`Graph` for the</span>
 <span class="sd">    constructor arguments and the exceptions they raise.</span>
+
+<span class="sd">    An edge is recorded at *both* of its vertices, so it is found from either</span>
+<span class="sd">    end, and an edge supplied to :meth:`Vertex.connect` may have its endpoints</span>
+<span class="sd">    in either order.</span>
 
 <span class="sd">    .. inheritance-diagram:: UGraph</span>
 
 <span class="sd">    :seealso: :class:`Graph` :class:`DGraph`</span>
 <span class="sd">    """</span>
+
+    <span class="n">_directed</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_attach</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">edge</span><span class="p">:</span> <span class="n">Edge</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Record an undirected edge at both ends (private method)</span>
+
+<span class="sd">        The edge is added to *both* vertices' edge lists, so it is discovered</span>
+<span class="sd">        from either end.  A self-loop is therefore held twice by its vertex,</span>
+<span class="sd">        which is why it counts 2 towards the degree.</span>
+<span class="sd">        """</span>
+        <span class="k">assert</span> <span class="n">edge</span><span class="o">.</span><span class="n">v1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">edge</span><span class="o">.</span><span class="n">v2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="n">edge</span><span class="o">.</span><span class="n">v1</span><span class="o">.</span><span class="n">_edgelist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span>
+        <span class="n">edge</span><span class="o">.</span><span class="n">v2</span><span class="o">.</span><span class="n">_edgelist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_detach</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">edge</span><span class="p">:</span> <span class="n">Edge</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Remove an undirected edge from both ends (private method)</span>
+
+<span class="sd">        A self-loop was recorded twice by :meth:`_attach`, so it is removed</span>
+<span class="sd">        twice.</span>
+<span class="sd">        """</span>
+        <span class="k">for</span> <span class="n">vertex</span> <span class="ow">in</span> <span class="p">(</span><span class="n">edge</span><span class="o">.</span><span class="n">v1</span><span class="p">,</span> <span class="n">edge</span><span class="o">.</span><span class="n">v2</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">vertex</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">edge</span> <span class="ow">in</span> <span class="n">vertex</span><span class="o">.</span><span class="n">_edgelist</span><span class="p">:</span>
+                <span class="n">vertex</span><span class="o">.</span><span class="n">_edgelist</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_incoming</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vertex</span><span class="p">:</span> <span class="n">Vertex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Edge</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""The edges that end here: for an undirected graph, all of them"""</span>
+        <span class="k">return</span> <span class="n">vertex</span><span class="o">.</span><span class="n">_edgelist</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_endpoints_match</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">edge</span><span class="p">:</span> <span class="n">Edge</span><span class="p">,</span> <span class="n">v1</span><span class="p">:</span> <span class="n">Vertex</span><span class="p">,</span> <span class="n">v2</span><span class="p">:</span> <span class="n">Vertex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Test if an edge already connects two vertices (private method)</span>
+
+<span class="sd">        An undirected edge has no direction, so either order is accepted.</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">edge</span><span class="o">.</span><span class="n">v1</span> <span class="ow">is</span> <span class="n">v1</span> <span class="ow">and</span> <span class="n">edge</span><span class="o">.</span><span class="n">v2</span> <span class="ow">is</span> <span class="n">v2</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">edge</span><span class="o">.</span><span class="n">v1</span> <span class="ow">is</span> <span class="n">v2</span> <span class="ow">and</span> <span class="n">edge</span><span class="o">.</span><span class="n">v2</span> <span class="ow">is</span> <span class="n">v1</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_graphcolor</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
@@ -3230,15 +3386,45 @@
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Class for directed graphs</span>
 
-<span class="sd">    Vertices are :class:`DVertex` objects, or instances of the subclass given</span>
+<span class="sd">    Vertices are :class:`Vertex` objects, or instances of the subclass given</span>
 <span class="sd">    as ``vertex_class``. Edges are :class:`Edge` objects, or instances of the</span>
 <span class="sd">    subclass given as ``edge_class``; see :class:`Graph` for the</span>
 <span class="sd">    constructor arguments and the exceptions they raise.</span>
+
+<span class="sd">    An edge is recorded as leaving its start vertex and entering its end</span>
+<span class="sd">    vertex, and an edge supplied to :meth:`Vertex.connect` must run exactly</span>
+<span class="sd">    from that vertex to the other.</span>
 
 <span class="sd">    .. inheritance-diagram:: DGraph</span>
 
 <span class="sd">    :seealso: :class:`Graph` :class:`UGraph`</span>
 <span class="sd">    """</span>
+
+    <span class="n">_directed</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_attach</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">edge</span><span class="p">:</span> <span class="n">Edge</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Record a directed edge at both ends (private method)</span>
+
+<span class="sd">        The edge goes in the start vertex's list of outgoing edges and in the</span>
+<span class="sd">        end vertex's list of incoming ones.</span>
+<span class="sd">        """</span>
+        <span class="k">assert</span> <span class="n">edge</span><span class="o">.</span><span class="n">v1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">edge</span><span class="o">.</span><span class="n">v2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="n">edge</span><span class="o">.</span><span class="n">v1</span><span class="o">.</span><span class="n">_edgelist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span>
+        <span class="n">edge</span><span class="o">.</span><span class="n">v2</span><span class="o">.</span><span class="n">_inlist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_detach</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">edge</span><span class="p">:</span> <span class="n">Edge</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Remove a directed edge from its start and from its end (private method)</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="n">edge</span><span class="o">.</span><span class="n">v1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">edge</span> <span class="ow">in</span> <span class="n">edge</span><span class="o">.</span><span class="n">v1</span><span class="o">.</span><span class="n">_edgelist</span><span class="p">:</span>
+            <span class="n">edge</span><span class="o">.</span><span class="n">v1</span><span class="o">.</span><span class="n">_edgelist</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">edge</span><span class="o">.</span><span class="n">v2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">edge</span> <span class="ow">in</span> <span class="n">edge</span><span class="o">.</span><span class="n">v2</span><span class="o">.</span><span class="n">_inlist</span><span class="p">:</span>
+            <span class="n">edge</span><span class="o">.</span><span class="n">v2</span><span class="o">.</span><span class="n">_inlist</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_incoming</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vertex</span><span class="p">:</span> <span class="n">Vertex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Edge</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""The edges that end at the vertex"""</span>
+        <span class="k">return</span> <span class="n">vertex</span><span class="o">.</span><span class="n">_inlist</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_graphcolor</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
@@ -3490,9 +3676,9 @@
 
 <span class="sd">        .. runblock:: pycon</span>
 
-<span class="sd">            &gt;&gt;&gt; from pgraph import UVertex, Edge</span>
-<span class="sd">            &gt;&gt;&gt; v1 = UVertex(coord=[1,2], name="A")</span>
-<span class="sd">            &gt;&gt;&gt; v2 = UVertex(coord=[3,4], name="B")</span>
+<span class="sd">            &gt;&gt;&gt; from pgraph import Vertex, Edge</span>
+<span class="sd">            &gt;&gt;&gt; v1 = Vertex(coord=[1,2], name="A")</span>
+<span class="sd">            &gt;&gt;&gt; v2 = Vertex(coord=[3,4], name="B")</span>
 <span class="sd">            &gt;&gt;&gt; e = Edge(v1, v2, cost=5.0, data="A to B")</span>
 <span class="sd">            &gt;&gt;&gt; repr(e)</span>
 
@@ -3509,15 +3695,16 @@
 
 <span class="sd">        .. runblock:: pycon</span>
 
-<span class="sd">            &gt;&gt;&gt; from pgraph import UVertex, Edge</span>
-<span class="sd">            &gt;&gt;&gt; v1 = UVertex(coord=[1,2], name="A")</span>
-<span class="sd">            &gt;&gt;&gt; v2 = UVertex(coord=[3,4], name="B")</span>
+<span class="sd">            &gt;&gt;&gt; from pgraph import Vertex, Edge</span>
+<span class="sd">            &gt;&gt;&gt; v1 = Vertex(coord=[1,2], name="A")</span>
+<span class="sd">            &gt;&gt;&gt; v2 = Vertex(coord=[3,4], name="B")</span>
 <span class="sd">            &gt;&gt;&gt; e = Edge(v1, v2, cost=5.0, data="A to B")</span>
 <span class="sd">            &gt;&gt;&gt; str(e)</span>
 
 <span class="sd">        :seealso: :meth:`__repr__`</span>
 <span class="sd">        """</span>
-        <span class="n">arrow</span> <span class="o">=</span> <span class="s2">"-&gt;"</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">v1</span><span class="p">,</span> <span class="n">DVertex</span><span class="p">)</span> <span class="k">else</span> <span class="s2">"--"</span>
+        <span class="n">graph</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">v1</span><span class="o">.</span><span class="n">_graph</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">v1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">arrow</span> <span class="o">=</span> <span class="s2">"-&gt;"</span> <span class="k">if</span> <span class="n">graph</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">graph</span><span class="o">.</span><span class="n">directed</span> <span class="k">else</span> <span class="s2">"--"</span>
         <span class="n">cost_str</span> <span class="o">=</span> <span class="s2">"None"</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cost</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">cost</span><span class="si">:</span><span class="s2">.4g</span><span class="si">}</span><span class="s2">"</span>
         <span class="n">s</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="se">{{</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">v1</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">arrow</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">v2</span><span class="si">}</span><span class="s2">, cost=</span><span class="si">{</span><span class="n">cost_str</span><span class="si">}</span><span class="se">}}</span><span class="s2">"</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -3549,7 +3736,7 @@
 
 <span class="sd">        .. runblock:: pycon</span>
 
-<span class="sd">            &gt;&gt;&gt; from pgraph import UVertex, Edge, UGraph</span>
+<span class="sd">            &gt;&gt;&gt; from pgraph import Vertex, Edge, UGraph</span>
 <span class="sd">            &gt;&gt;&gt; g = UGraph()</span>
 <span class="sd">            &gt;&gt;&gt; v1 = g.add_vertex(coord=[0,0], name='v1')</span>
 <span class="sd">            &gt;&gt;&gt; v2 = g.add_vertex(coord=[1,1], name='v2')</span>
@@ -3594,9 +3781,9 @@
 
 <span class="sd">        .. runblock:: pycon</span>
 
-<span class="sd">            &gt;&gt;&gt; from pgraph import UVertex, Edge</span>
-<span class="sd">            &gt;&gt;&gt; v1 = UVertex(coord=[1,2], name="A")</span>
-<span class="sd">            &gt;&gt;&gt; v2 = UVertex(coord=[3,4], name="B")</span>
+<span class="sd">            &gt;&gt;&gt; from pgraph import Vertex, Edge</span>
+<span class="sd">            &gt;&gt;&gt; v1 = Vertex(coord=[1,2], name="A")</span>
+<span class="sd">            &gt;&gt;&gt; v2 = Vertex(coord=[3,4], name="B")</span>
 <span class="sd">            &gt;&gt;&gt; e = Edge(v1, v2, cost=5.0, data="A to B")</span>
 <span class="sd">            &gt;&gt;&gt; print(e)</span>
 <span class="sd">            &gt;&gt;&gt; e.next(v1)</span>
@@ -3643,9 +3830,9 @@
 
 <span class="sd">        .. runblock:: pycon</span>
 
-<span class="sd">            &gt;&gt;&gt; from pgraph import UVertex, Edge</span>
-<span class="sd">            &gt;&gt;&gt; v1 = UVertex(coord=[1,2], name="A")</span>
-<span class="sd">            &gt;&gt;&gt; v2 = UVertex(coord=[3,4], name="B")</span>
+<span class="sd">            &gt;&gt;&gt; from pgraph import Vertex, Edge</span>
+<span class="sd">            &gt;&gt;&gt; v1 = Vertex(coord=[1,2], name="A")</span>
+<span class="sd">            &gt;&gt;&gt; v2 = Vertex(coord=[3,4], name="B")</span>
 <span class="sd">            &gt;&gt;&gt; e = Edge(v1, v2, cost=5.0, data="A to B")</span>
 <span class="sd">            &gt;&gt;&gt; print(e)</span>
 <span class="sd">            &gt;&gt;&gt; print(e.endpoints)</span>
@@ -3700,7 +3887,18 @@
 
 <span class="k">class</span><span class="w"> </span><span class="nc">Vertex</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""</span>
-<span class="sd">    Base class for vertices of directed and non-directed graphs.</span>
+<span class="sd">    A vertex of a graph, directed or undirected.</span>
+
+<span class="sd">    A vertex has no direction of its own: how an edge is recorded at its ends</span>
+<span class="sd">    is decided by the graph it belongs to (see :class:`UGraph` and</span>
+<span class="sd">    :class:`DGraph`).  So there is one vertex class, which can be subclassed</span>
+<span class="sd">    to give user objects graph capability and passed to the graph as</span>
+<span class="sd">    ``vertex_class``.</span>
+
+<span class="sd">    .. versionchanged:: 1.0</span>
+<span class="sd">        This replaces ``UVertex`` and ``DVertex``, which are deprecated names</span>
+<span class="sd">        for it.  They differed only in how an edge was recorded, which is now</span>
+<span class="sd">        the graph's decision.</span>
 
 <span class="sd">    Each vertex has:</span>
 <span class="sd">        - ``name`` which is its key in the graph, so renaming a vertex that is</span>
@@ -3712,7 +3910,7 @@
 <span class="sd">    and its edges are available from :meth:`edges`, :meth:`out_edges` and</span>
 <span class="sd">    :meth:`in_edges`.</span>
 
-<span class="sd">    :seealso: :class:`UVertex` :class:`DVertex` :class:`Edge`</span>
+<span class="sd">    :seealso: :class:`Graph` :class:`Edge`</span>
 <span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coord</span><span class="p">:</span> <span class="n">ArrayLike</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
@@ -3729,8 +3927,8 @@
 
 <span class="sd">        .. runblock:: pycon</span>
 
-<span class="sd">            &gt;&gt;&gt; from pgraph import UVertex</span>
-<span class="sd">            &gt;&gt;&gt; v1 = UVertex(coord=[0,0], name='v1')</span>
+<span class="sd">            &gt;&gt;&gt; from pgraph import Vertex</span>
+<span class="sd">            &gt;&gt;&gt; v1 = Vertex(coord=[0,0], name='v1')</span>
 <span class="sd">            &gt;&gt;&gt; print(v1)</span>
 
 <span class="sd">        :seealso: :meth:`Graph.add_vertex`</span>
@@ -3771,8 +3969,8 @@
 
 <span class="sd">        .. runblock:: pycon</span>
 
-<span class="sd">            &gt;&gt;&gt; from pgraph import UVertex</span>
-<span class="sd">            &gt;&gt;&gt; v = UVertex(coord=[1,2], name="A")</span>
+<span class="sd">            &gt;&gt;&gt; from pgraph import Vertex</span>
+<span class="sd">            &gt;&gt;&gt; v = Vertex(coord=[1,2], name="A")</span>
 <span class="sd">            &gt;&gt;&gt; str(v)</span>
 <span class="sd">        """</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">"[</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">:</span><span class="s2">s</span><span class="si">}</span><span class="s2">]"</span>
@@ -3786,8 +3984,8 @@
 
 <span class="sd">        .. runblock:: pycon</span>
 
-<span class="sd">            &gt;&gt;&gt; from pgraph import UVertex</span>
-<span class="sd">            &gt;&gt;&gt; v = UVertex(coord=[1,2], name="A")</span>
+<span class="sd">            &gt;&gt;&gt; from pgraph import Vertex</span>
+<span class="sd">            &gt;&gt;&gt; v = Vertex(coord=[1,2], name="A")</span>
 <span class="sd">            &gt;&gt;&gt; repr(v)</span>
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">coord</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -3812,8 +4010,8 @@
 
 <span class="sd">        .. runblock:: pycon</span>
 
-<span class="sd">            &gt;&gt;&gt; from pgraph import UVertex, DGraph</span>
-<span class="sd">            &gt;&gt;&gt; v = UVertex(coord=[1,2], name='v1')</span>
+<span class="sd">            &gt;&gt;&gt; from pgraph import Vertex, DGraph</span>
+<span class="sd">            &gt;&gt;&gt; v = Vertex(coord=[1,2], name='v1')</span>
 <span class="sd">            &gt;&gt;&gt; v2 = v.copy(cls=DGraph)</span>
 <span class="sd">            &gt;&gt;&gt; print(v2)</span>
 
@@ -3997,19 +4195,16 @@
 
 <span class="sd">        .. note::</span>
 
-<span class="sd">            - If the vertices subclass ``UVertex`` the edge is undirected: it is</span>
-<span class="sd">              recorded in the edge list of *both* vertices, so it is found from</span>
-<span class="sd">              either end. If they subclass ``DVertex`` the edge is directed: it</span>
-<span class="sd">              is recorded only in the edge list of this, the source, vertex.</span>
+<span class="sd">            - In an undirected graph the edge is recorded in the edge list of</span>
+<span class="sd">              *both* vertices, so it is found from either end. In a directed</span>
+<span class="sd">              graph it is recorded as leaving this, the start, vertex and</span>
+<span class="sd">              entering ``dest``.</span>
 <span class="sd">            - A supplied ``edge`` built without vertices has its ``v1`` and</span>
 <span class="sd">              ``v2`` set to the vertices being connected. One built with</span>
 <span class="sd">              vertices must agree with them: in either order if undirected,</span>
 <span class="sd">              exactly ``self`` then ``dest`` if directed.</span>
 <span class="sd">            - Both vertices must already have been added to the same graph,</span>
-<span class="sd">              e.g. via :meth:`Graph.add_vertex` -- since a graph only ever</span>
-<span class="sd">              accepts its own vertex subclass (see :meth:`UGraph.add_vertex`,</span>
-<span class="sd">              :meth:`DGraph.add_vertex`), this also rules out connecting a</span>
-<span class="sd">              ``UVertex`` to a ``DVertex``.</span>
+<span class="sd">              e.g. via :meth:`Graph.add_vertex`.</span>
 
 <span class="sd">        .. runblock:: pycon</span>
 
@@ -4044,60 +4239,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_graph</span><span class="o">.</span><span class="n">_connectivitychange</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_connectivitychange</span> <span class="o">=</span> <span class="kc">True</span>
 
-        <span class="c1"># the one thing that differs between undirected and directed vertices</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_attach</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">dest</span><span class="p">)</span>
+        <span class="c1"># the one thing that differs between undirected and directed graphs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_graph</span><span class="o">.</span><span class="n">_attach</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">e</span></div>
 
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">_attach</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">edge</span><span class="p">:</span> <span class="n">Edge</span><span class="p">,</span> <span class="n">dest</span><span class="p">:</span> <span class="n">Vertex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Record a new edge in the vertices' edge lists (private method)</span>
-
-<span class="sd">        :param edge: the edge just created or supplied by :meth:`connect`, with</span>
-<span class="sd">            ``edge.v1`` and ``edge.v2`` set and already part of the graph</span>
-<span class="sd">        :param dest: the vertex ``connect`` was called with</span>
-<span class="sd">        :raises NotImplementedError: not provided by this vertex kind</span>
-
-<span class="sd">        This is the hook that :meth:`connect` calls once the connection has</span>
-<span class="sd">        been validated and the edge registered with the graph, so it is never</span>
-<span class="sd">        called for a connection that is refused.  :class:`UVertex` records the</span>
-<span class="sd">        edge at both ends and :class:`DVertex` at the source only.  A vertex</span>
-<span class="sd">        kind of your own supplies this, not :meth:`connect`, which is defined</span>
-<span class="sd">        once.</span>
-<span class="sd">        """</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> does not define how an edge is attached; "</span>
-            <span class="s2">"subclass UVertex or DVertex"</span>
-        <span class="p">)</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">_detach</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">edge</span><span class="p">:</span> <span class="n">Edge</span><span class="p">,</span> <span class="n">dest</span><span class="p">:</span> <span class="n">Vertex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Remove an edge from the vertices' edge lists (private method)</span>
-
-<span class="sd">        :param edge: the edge being removed, with ``edge.v1`` and ``edge.v2``</span>
-<span class="sd">            still set</span>
-<span class="sd">        :param dest: the vertex at the other end, ``edge.v2``</span>
-<span class="sd">        :raises NotImplementedError: not provided by this vertex kind</span>
-
-<span class="sd">        The twin of :meth:`_attach`: it undoes exactly what that recorded.</span>
-<span class="sd">        Called by :meth:`Graph.remove_edge` before the edge's endpoints</span>
-<span class="sd">        are cleared.  An edge that is absent from a list is skipped rather</span>
-<span class="sd">        than treated as an error.</span>
-<span class="sd">        """</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> does not define how an edge is detached; "</span>
-            <span class="s2">"subclass UVertex or DVertex"</span>
-        <span class="p">)</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">_endpoints_match</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">edge</span><span class="p">:</span> <span class="n">Edge</span><span class="p">,</span> <span class="n">dest</span><span class="p">:</span> <span class="n">Vertex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Test if an edge already connects this vertex to ``dest`` (private method)</span>
-
-<span class="sd">        A directed edge must run from this vertex to ``dest``; see</span>
-<span class="sd">        :meth:`UVertex._endpoints_match` for the undirected relaxation.</span>
-<span class="sd">        """</span>
-        <span class="k">return</span> <span class="n">edge</span><span class="o">.</span><span class="n">v1</span> <span class="ow">is</span> <span class="bp">self</span> <span class="ow">and</span> <span class="n">edge</span><span class="o">.</span><span class="n">v2</span> <span class="ow">is</span> <span class="n">dest</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_bind_edge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">edge</span><span class="p">:</span> <span class="n">Edge</span><span class="p">,</span> <span class="n">dest</span><span class="p">:</span> <span class="n">Vertex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
@@ -4113,9 +4259,11 @@
 <span class="sd">        changed, rather than leaving the graph holding an edge whose</span>
 <span class="sd">        endpoints disagree with the vertices' edge lists.</span>
 <span class="sd">        """</span>
+        <span class="n">graph</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_graph</span>
+        <span class="k">assert</span> <span class="n">graph</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>  <span class="c1"># connect() has checked</span>
         <span class="k">if</span> <span class="n">edge</span><span class="o">.</span><span class="n">v1</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">edge</span><span class="o">.</span><span class="n">v2</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">edge</span><span class="o">.</span><span class="n">_set_endpoints</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dest</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_endpoints_match</span><span class="p">(</span><span class="n">edge</span><span class="p">,</span> <span class="n">dest</span><span class="p">):</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="n">graph</span><span class="o">.</span><span class="n">_endpoints_match</span><span class="p">(</span><span class="n">edge</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">dest</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">"edge already connects </span><span class="si">{</span><span class="n">edge</span><span class="o">.</span><span class="n">v1</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="n">edge</span><span class="o">.</span><span class="n">v2</span><span class="si">}</span><span class="s2">, "</span>
                 <span class="sa">f</span><span class="s2">"not </span><span class="si">{</span><span class="bp">self</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="n">dest</span><span class="si">}</span><span class="s2">"</span>
@@ -4330,7 +4478,9 @@
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_incoming</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Edge</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">"""The edges that end here (private method)"""</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inlist</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_graph</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inlist</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_graph</span><span class="o">.</span><span class="n">_incoming</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">out_edges</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Edge</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">"""</span>
@@ -4487,8 +4637,8 @@
 
 <span class="sd">        .. runblock:: pycon</span>
 
-<span class="sd">            &gt;&gt;&gt; from pgraph import UVertex</span>
-<span class="sd">            &gt;&gt;&gt; v = UVertex(coord=[1,2], name='v1')</span>
+<span class="sd">            &gt;&gt;&gt; from pgraph import Vertex</span>
+<span class="sd">            &gt;&gt;&gt; v = Vertex(coord=[1,2], name='v1')</span>
 <span class="sd">            &gt;&gt;&gt; print(v.x)</span>
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">coord</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -4506,8 +4656,8 @@
 
 <span class="sd">        .. runblock:: pycon</span>
 
-<span class="sd">            &gt;&gt;&gt; from pgraph import UVertex</span>
-<span class="sd">            &gt;&gt;&gt; v = UVertex(coord=[1,2], name='v1')</span>
+<span class="sd">            &gt;&gt;&gt; from pgraph import Vertex</span>
+<span class="sd">            &gt;&gt;&gt; v = Vertex(coord=[1,2], name='v1')</span>
 <span class="sd">            &gt;&gt;&gt; print(v.y)</span>
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">coord</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -4525,8 +4675,8 @@
 
 <span class="sd">        .. runblock:: pycon</span>
 
-<span class="sd">            &gt;&gt;&gt; from pgraph import UVertex</span>
-<span class="sd">            &gt;&gt;&gt; v = UVertex(coord=[1,2,3], name='v1')</span>
+<span class="sd">            &gt;&gt;&gt; from pgraph import Vertex</span>
+<span class="sd">            &gt;&gt;&gt; v = Vertex(coord=[1,2,3], name='v1')</span>
 <span class="sd">            &gt;&gt;&gt; print(v.z)</span>
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">coord</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -4597,139 +4747,19 @@
 
 
 
-<div class="viewcode-block" id="UVertex">
-<a class="viewcode-back" href="../../uvertex.html#pgraph.PGraph.UVertex">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">UVertex</span><span class="p">(</span><span class="n">Vertex</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">"""</span>
-<span class="sd">    Vertex subclass for undirected graphs</span>
-
-<span class="sd">    This class can be inherited to provide user objects with graph capability.</span>
-
-<span class="sd">    :meth:`~Vertex.connect` adds the new edge to *both* vertices' edge</span>
-<span class="sd">    lists, so it is discovered from either end, and accepts a supplied edge</span>
-<span class="sd">    whose endpoints are the two vertices in either order.</span>
-
-<span class="sd">    .. runblock:: pycon</span>
-
-<span class="sd">        &gt;&gt;&gt; from pgraph import UGraph</span>
-<span class="sd">        &gt;&gt;&gt; g = UGraph()</span>
-<span class="sd">        &gt;&gt;&gt; v1 = g.add_vertex(coord=[0,0], name='v1')</span>
-<span class="sd">        &gt;&gt;&gt; v2 = g.add_vertex(coord=[1,1], name='v2')</span>
-<span class="sd">        &gt;&gt;&gt; v1.connect(v2, cost=1.414)</span>
-<span class="sd">        &gt;&gt;&gt; print(v1.edges())</span>
-<span class="sd">        &gt;&gt;&gt; print(v2.edges())</span>
-
-<span class="sd">    .. inheritance-diagram:: UVertex</span>
-
-<span class="sd">    :seealso: :class:`Vertex` :class:`DVertex`</span>
-<span class="sd">    """</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">_attach</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">edge</span><span class="p">:</span> <span class="n">Edge</span><span class="p">,</span> <span class="n">dest</span><span class="p">:</span> <span class="n">Vertex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Record an undirected edge at both ends (private method)</span>
-
-<span class="sd">        The edge is added to *both* vertices' edge lists, so it is discovered</span>
-<span class="sd">        from either end.  A self-loop is therefore held twice by its vertex,</span>
-<span class="sd">        which is why it counts 2 towards the degree.</span>
-<span class="sd">        """</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_edgelist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span>
-        <span class="n">dest</span><span class="o">.</span><span class="n">_edgelist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">_incoming</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Edge</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">"""The edges that end here: for an undirected vertex, all of them"""</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edgelist</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">_detach</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">edge</span><span class="p">:</span> <span class="n">Edge</span><span class="p">,</span> <span class="n">dest</span><span class="p">:</span> <span class="n">Vertex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Remove an undirected edge from both ends (private method)</span>
-
-<span class="sd">        A self-loop was recorded twice by :meth:`_attach`, so it is removed</span>
-<span class="sd">        twice.</span>
-<span class="sd">        """</span>
-        <span class="k">for</span> <span class="n">vertex</span> <span class="ow">in</span> <span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dest</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">edge</span> <span class="ow">in</span> <span class="n">vertex</span><span class="o">.</span><span class="n">_edgelist</span><span class="p">:</span>
-                <span class="n">vertex</span><span class="o">.</span><span class="n">_edgelist</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">_endpoints_match</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">edge</span><span class="p">:</span> <span class="n">Edge</span><span class="p">,</span> <span class="n">dest</span><span class="p">:</span> <span class="n">Vertex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Test if an edge already connects this vertex and ``dest`` (private method)</span>
-
-<span class="sd">        An undirected edge has no direction, so either order is accepted.</span>
-<span class="sd">        """</span>
-        <span class="k">return</span> <span class="p">(</span><span class="n">edge</span><span class="o">.</span><span class="n">v1</span> <span class="ow">is</span> <span class="bp">self</span> <span class="ow">and</span> <span class="n">edge</span><span class="o">.</span><span class="n">v2</span> <span class="ow">is</span> <span class="n">dest</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span>
-            <span class="n">edge</span><span class="o">.</span><span class="n">v1</span> <span class="ow">is</span> <span class="n">dest</span> <span class="ow">and</span> <span class="n">edge</span><span class="o">.</span><span class="n">v2</span> <span class="ow">is</span> <span class="bp">self</span>
-        <span class="p">)</span></div>
-
-
-
-<div class="viewcode-block" id="DVertex">
-<a class="viewcode-back" href="../../dvertex.html#pgraph.PGraph.DVertex">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">DVertex</span><span class="p">(</span><span class="n">Vertex</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">"""</span>
-<span class="sd">    Vertex subclass for directed graphs</span>
-
-<span class="sd">    This class can be inherited to provide user objects with graph capability.</span>
-
-<span class="sd">    :meth:`~Vertex.connect` adds the new edge only to *this* vertex's edge</span>
-<span class="sd">    list, so it is discoverable only from the start of the directed edge, and a</span>
-<span class="sd">    supplied edge must run exactly from this vertex to the other.</span>
-
-<span class="sd">    .. runblock:: pycon</span>
-
-<span class="sd">        &gt;&gt;&gt; from pgraph import DGraph</span>
-<span class="sd">        &gt;&gt;&gt; g = DGraph()</span>
-<span class="sd">        &gt;&gt;&gt; v1 = g.add_vertex(coord=[0,0], name='v1')</span>
-<span class="sd">        &gt;&gt;&gt; v2 = g.add_vertex(coord=[1,1], name='v2')</span>
-<span class="sd">        &gt;&gt;&gt; v1.connect(v2, cost=1.414)</span>
-<span class="sd">        &gt;&gt;&gt; print(v1.edges())</span>
-<span class="sd">        &gt;&gt;&gt; print(v2.edges())</span>
-
-<span class="sd">    .. inheritance-diagram:: DVertex</span>
-
-<span class="sd">    :seealso: :class:`Vertex` :class:`UVertex`</span>
-<span class="sd">    """</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">_attach</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">edge</span><span class="p">:</span> <span class="n">Edge</span><span class="p">,</span> <span class="n">dest</span><span class="p">:</span> <span class="n">Vertex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Record a directed edge at both ends (private method)</span>
-
-<span class="sd">        The edge goes in this vertex's list of outgoing edges and in</span>
-<span class="sd">        ``dest``'s list of incoming ones.</span>
-<span class="sd">        """</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_edgelist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span>
-        <span class="n">dest</span><span class="o">.</span><span class="n">_inlist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">_detach</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">edge</span><span class="p">:</span> <span class="n">Edge</span><span class="p">,</span> <span class="n">dest</span><span class="p">:</span> <span class="n">Vertex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Remove a directed edge from its source and from where it ends</span>
-<span class="sd">        (private method)</span>
-<span class="sd">        """</span>
-        <span class="k">if</span> <span class="n">edge</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_edgelist</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_edgelist</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">edge</span> <span class="ow">in</span> <span class="n">dest</span><span class="o">.</span><span class="n">_inlist</span><span class="p">:</span>
-            <span class="n">dest</span><span class="o">.</span><span class="n">_inlist</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span></div>
-
-
-
-<span class="c1"># UGraph/DGraph declare their _vertex_cls here, rather than in their own</span>
-<span class="c1"># class body, because UVertex/DVertex are defined later in this file --</span>
-<span class="c1"># _vertex_cls is a real runtime assignment (unlike a type annotation), so it</span>
-<span class="c1"># can't rely on `from __future__ import annotations` to defer it.</span>
-<span class="n">UGraph</span><span class="o">.</span><span class="n">_vertex_cls</span> <span class="o">=</span> <span class="n">UVertex</span>
-<span class="n">DGraph</span><span class="o">.</span><span class="n">_vertex_cls</span> <span class="o">=</span> <span class="n">DVertex</span>
-
-
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
-
-    <span class="n">g</span> <span class="o">=</span> <span class="n">UGraph</span><span class="p">()</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">g</span><span class="p">)</span>
-
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>
-        <span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">()</span>
-
-    <span class="n">g</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">g</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">g</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-
-    <span class="nb">print</span><span class="p">(</span><span class="n">g</span><span class="p">)</span>
+<span class="c1"># UVertex and DVertex were two vertex classes that differed only in how an edge</span>
+<span class="c1"># was recorded at them, which is the graph's decision.  They remain as names</span>
+<span class="c1"># for Vertex, so that existing code that subclasses or constructs them runs.</span>
+<span class="k">def</span><span class="w"> </span><span class="fm">__getattr__</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"UVertex"</span><span class="p">,</span> <span class="s2">"DVertex"</span><span class="p">):</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> is deprecated, use Vertex instead: a vertex has no "</span>
+            <span class="s2">"direction of its own, the graph it belongs to decides"</span><span class="p">,</span>
+            <span class="ne">DeprecationWarning</span><span class="p">,</span>
+            <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">Vertex</span>
+    <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"module </span><span class="si">{</span><span class="vm">__name__</span><span class="si">!r}</span><span class="s2"> has no attribute </span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span>
 </pre></div>
 
            </div>

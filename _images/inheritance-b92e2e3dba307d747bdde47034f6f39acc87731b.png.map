@@ -1,5 +1,0 @@
-<map id="inheritancebe7f53667e" name="inheritancebe7f53667e">
-<area shape="rect" id="node1" href="dvertex.html#pgraph.PGraph.DVertex" target="_top" title="Vertex subclass for directed graphs" alt="" coords="125,5,200,31"/>
-<area shape="rect" id="node2" title="Base class for vertices of directed and non&#45;directed graphs." alt="" coords="5,31,77,56"/>
-<area shape="rect" id="node3" href="uvertex.html#pgraph.PGraph.UVertex" target="_top" title="Vertex subclass for undirected graphs" alt="" coords="125,55,200,80"/>
-</map>

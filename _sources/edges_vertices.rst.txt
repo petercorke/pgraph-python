@@ -22,7 +22,7 @@ and to add them to the graph.
 .. runblock:: pycon
    :session:
 
-   >>> from pgraph import UGraph, UVertex, Edge
+   >>> from pgraph import UGraph, Vertex, Edge
    >>> import numpy as np
    >>> g = UGraph()
 
@@ -31,8 +31,8 @@ Next, we will explicitly create two vertices
 .. runblock:: pycon
    :session:
 
-   >>> v1 = UVertex(np.random.rand(2))
-   >>> v2 = UVertex(np.random.rand(2))
+   >>> v1 = Vertex(np.random.rand(2))
+   >>> v2 = Vertex(np.random.rand(2))
 
 
 and then add them to the graph
@@ -77,7 +77,7 @@ Alternatively, we can create a vertex and *connect* it to an existing vertex, wh
 .. runblock:: pycon
    :session:
 
-   >>> v3 = UVertex(np.random.rand(2))
+   >>> v3 = Vertex(np.random.rand(2))
    >>> g.add_vertex(v3)
    >>> v2.connect(v3)
    >>> print(g)
@@ -88,11 +88,9 @@ The ``connect`` method is available on both the
 directed and undirected vertex classes.
 
 
-.. note:: Where ever a vertex or edge is required, a subclass of the appropriate base class can be used. For example, we can create a subclass of ``UVertex`` called ``MyVertex`` and a subclass of ``Edge`` called ``MyEdge`` and then create a new graph using these classes.
+.. note:: Where ever a vertex or edge is required, a subclass of the appropriate base class can be used. For example, we can create a subclass of ``Vertex`` called ``MyVertex`` and a subclass of ``Edge`` called ``MyEdge`` and then create a new graph using these classes.
 
 .. toctree::
    :maxdepth: 2
 
-   dvertex
-   uvertex
    edge

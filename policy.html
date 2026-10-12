@@ -112,14 +112,14 @@
              
   <section id="object-lifecycle-and-graph-membership-policy">
 <h1>Object lifecycle and graph-membership policy<a class="headerlink" href="#object-lifecycle-and-graph-membership-policy" title="Link to this heading"></a></h1>
-<p><code class="docutils literal notranslate"><span class="pre">Vertex</span></code>, <code class="docutils literal notranslate"><span class="pre">UVertex</span></code>, <code class="docutils literal notranslate"><span class="pre">DVertex</span></code> and <code class="docutils literal notranslate"><span class="pre">Edge</span></code> can all be constructed
+<p><code class="docutils literal notranslate"><span class="pre">Vertex</span></code> and <code class="docutils literal notranslate"><span class="pre">Edge</span></code> can both be constructed
 directly, independent of any graph. This is deliberate – it is not an
 oversight and not a “factory-only” design – but it means the rules for what
 those objects can and can’t do <em>before</em> they belong to a graph need to be
 stated explicitly rather than left implicit.</p>
 <section id="standalone-construction">
 <h2>Standalone construction<a class="headerlink" href="#standalone-construction" title="Link to this heading"></a></h2>
-<p>A vertex or edge built directly, e.g. <code class="docutils literal notranslate"><span class="pre">UVertex(coord=[1,</span> <span class="pre">2],</span> <span class="pre">name=&quot;A&quot;)</span></code> or
+<p>A vertex or edge built directly, e.g. <code class="docutils literal notranslate"><span class="pre">Vertex(coord=[1,</span> <span class="pre">2],</span> <span class="pre">name=&quot;A&quot;)</span></code> or
 <code class="docutils literal notranslate"><span class="pre">Edge(v1,</span> <span class="pre">v2,</span> <span class="pre">cost=5.0)</span></code>, is a fully valid object in its own right. The
 main supported use of this is lightweight, graph-independent work: building a
 couple of vertices purely to demonstrate or test <code class="xref py py-class docutils literal notranslate"><span class="pre">Edge</span></code> cost
@@ -130,16 +130,16 @@ anything (see below) until it is added to a graph via
 </section>
 <section id="adding-a-vertex-to-a-graph">
 <h2>Adding a vertex to a graph<a class="headerlink" href="#adding-a-vertex-to-a-graph" title="Link to this heading"></a></h2>
-<p><code class="xref py py-meth docutils literal notranslate"><span class="pre">UGraph.add_vertex()</span></code> and <code class="xref py py-meth docutils literal notranslate"><span class="pre">DGraph.add_vertex()</span></code> each only accept
-their own matching vertex subclass – a <code class="docutils literal notranslate"><span class="pre">UVertex</span></code> (or coordinate data, from
-which one is built) for <code class="xref py py-class docutils literal notranslate"><span class="pre">UGraph</span></code>, a <code class="docutils literal notranslate"><span class="pre">DVertex</span></code> for <code class="xref py py-class docutils literal notranslate"><span class="pre">DGraph</span></code>.
-Passing the wrong kind of vertex – a plain <code class="docutils literal notranslate"><span class="pre">Vertex</span></code>, or the other
-graph’s subclass – raises <code class="docutils literal notranslate"><span class="pre">TypeError</span></code> rather than being silently accepted
-or converted.</p>
+<p>A vertex is the same for undirected and directed graphs: it has no
+direction of its own, and the graph it belongs to decides how an edge is
+recorded at its ends.  <code class="xref py py-meth docutils literal notranslate"><span class="pre">Graph.add_vertex()</span></code> accepts coordinate data, from
+which a vertex is built, or an existing <code class="docutils literal notranslate"><span class="pre">Vertex</span></code> that does not belong to a
+graph.  A graph given a <code class="docutils literal notranslate"><span class="pre">vertex_class</span></code> only accepts instances of that class;
+passing any other vertex raises <code class="docutils literal notranslate"><span class="pre">TypeError</span></code> rather than being silently
+accepted or converted.  A vertex that already belongs to a graph raises
+<code class="docutils literal notranslate"><span class="pre">ValueError</span></code>; remove it from that graph first.</p>
 <p>This is the mechanism that makes graph membership meaningful: once added, a
-vertex’s <code class="docutils literal notranslate"><span class="pre">._graph</span></code> is fixed to that specific graph instance, and its
-concrete type (<code class="docutils literal notranslate"><span class="pre">UVertex</span></code> or <code class="docutils literal notranslate"><span class="pre">DVertex</span></code>) is guaranteed correct for that
-graph’s edge semantics (undirected vs. directed edge-list bookkeeping).</p>
+vertex’s <code class="docutils literal notranslate"><span class="pre">._graph</span></code> is fixed to that specific graph instance.</p>
 </section>
 <section id="connecting-two-vertices">
 <h2>Connecting two vertices<a class="headerlink" href="#connecting-two-vertices" title="Link to this heading"></a></h2>
@@ -151,12 +151,9 @@ graph’s edge semantics (undirected vs. directed edge-list bookkeeping).</p>
 <li><p>If the two vertices belong to different graph instances, <code class="docutils literal notranslate"><span class="pre">connect()</span></code>
 raises <code class="docutils literal notranslate"><span class="pre">ValueError</span></code>.</p></li>
 </ul>
-<p>There is deliberately no separate check for “same vertex subclass” (e.g.
-rejecting a <code class="docutils literal notranslate"><span class="pre">UVertex</span></code>-to-<code class="docutils literal notranslate"><span class="pre">DVertex</span></code> connection directly). It doesn’t need
-one: since a <code class="docutils literal notranslate"><span class="pre">UVertex</span></code> can only ever belong to a <code class="docutils literal notranslate"><span class="pre">UGraph</span></code> and a
-<code class="docutils literal notranslate"><span class="pre">DVertex</span></code> only to a <code class="docutils literal notranslate"><span class="pre">DGraph</span></code> (enforced by <code class="docutils literal notranslate"><span class="pre">add_vertex()</span></code> above), the
-same-graph check above already makes a <code class="docutils literal notranslate"><span class="pre">UVertex</span></code>-to-<code class="docutils literal notranslate"><span class="pre">DVertex</span></code> connection
-impossible as a structural consequence, not as a separately-maintained rule.</p>
+<p>There is no such thing as connecting an “undirected” vertex to a “directed”
+one, since a vertex is neither: the kind of edge is the graph’s, so the
+same-graph check above is the only one needed.</p>
 </section>
 <section id="constructing-an-edge-directly">
 <h2>Constructing an <code class="docutils literal notranslate"><span class="pre">Edge</span></code> directly<a class="headerlink" href="#constructing-an-edge-directly" title="Link to this heading"></a></h2>
@@ -184,7 +181,7 @@ strictly.</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">UVertex()</span></code> / <code class="docutils literal notranslate"><span class="pre">DVertex()</span></code> / <code class="docutils literal notranslate"><span class="pre">Vertex()</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Vertex()</span></code></p></td>
 <td><p>No</p></td>
 <td><p>–</p></td>
 </tr>
@@ -193,8 +190,10 @@ strictly.</p>
 <td><p>–</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">graph.add_vertex(v)</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">v</span></code> must be the graph’s own vertex subclass, or coordinate data</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">TypeError</span></code> on wrong vertex subclass</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">v</span></code> must be of the graph’s <code class="docutils literal notranslate"><span class="pre">vertex_class</span></code> and not already in a
+graph, or coordinate data</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">TypeError</span></code> on a vertex of another class, <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> if it is
+already in a graph</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">v1.connect(v2)</span></code> / <code class="docutils literal notranslate"><span class="pre">graph.add_edge(v1,</span> <span class="pre">v2)</span></code></p></td>
 <td><p>Both vertices must already belong to the same graph</p></td>

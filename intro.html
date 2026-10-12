@@ -140,25 +140,25 @@ edges, and to plot the graph.</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="c1"># ensure repeatable results</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/builtins/stdtypes.html#range"><span class="nb">range</span></a><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
 <span class="gp">... </span>    <span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
-<span class="go">UVertex[#0, coord=(0.5488, 0.7152)]</span>
-<span class="go">UVertex[#1, coord=(0.6028, 0.5449)]</span>
-<span class="go">UVertex[#2, coord=(0.4237, 0.6459)]</span>
-<span class="go">UVertex[#3, coord=(0.4376, 0.8918)]</span>
-<span class="go">UVertex[#4, coord=(0.9637, 0.3834)]</span>
+<span class="go">Vertex[#0, coord=(0.5488, 0.7152)]</span>
+<span class="go">Vertex[#1, coord=(0.6028, 0.5449)]</span>
+<span class="go">Vertex[#2, coord=(0.4237, 0.6459)]</span>
+<span class="go">Vertex[#3, coord=(0.4376, 0.8918)]</span>
+<span class="go">Vertex[#4, coord=(0.9637, 0.3834)]</span>
 </pre></div>
 </div>
 <p>The method <code class="docutils literal notranslate"><span class="pre">add_vertex</span></code> returns a reference to the newly created vertex object, but
 we can obtain the reference by indexing the graph object. For example vertex 1 is</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">g</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-<span class="go">UVertex[#1, coord=(0.6028, 0.5449)]</span>
+<span class="go">Vertex[#1, coord=(0.6028, 0.5449)]</span>
 </pre></div>
 </div>
-<p>and is an instance of <code class="docutils literal notranslate"><span class="pre">UVertex</span></code>, a vertex in an undirected graph; it has the coordinate
+<p>and is an instance of <code class="docutils literal notranslate"><span class="pre">Vertex</span></code>; it has the coordinate
 <span class="math notranslate nohighlight">\((0.6028, 0.5449)\)</span> and has been assigned a default name <code class="docutils literal notranslate"><span class="pre">"#1"</span></code> but we could specify
 an explicit name to <code class="docutils literal notranslate"><span class="pre">add_vertex</span></code>.
 We can also reference a vertex by its name</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">g</span><span class="p">[</span><span class="s2">"#1"</span><span class="p">]</span>
-<span class="go">UVertex[#1, coord=(0.6028, 0.5449)]</span>
+<span class="go">Vertex[#1, coord=(0.6028, 0.5449)]</span>
 </pre></div>
 </div>
 <p>A summary of the graph can be displayed</p>
@@ -211,7 +211,7 @@ plotted.</p>
 <p>The neighbours of vertex 1 are</p>
 <blockquote>
 <div><div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">g</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">adjacent</span><span class="p">()</span>
-<span class="go">[UVertex[#0, coord=(0.5488, 0.7152)], UVertex[#2, coord=(0.4237, 0.6459)], UVertex[#3, coord=(0.4376, 0.8918)]]</span>
+<span class="go">[Vertex[#0, coord=(0.5488, 0.7152)], Vertex[#2, coord=(0.4237, 0.6459)], Vertex[#3, coord=(0.4376, 0.8918)]]</span>
 </pre></div>
 </div>
 </div></blockquote>
@@ -226,7 +226,7 @@ edge is an object and the edges connecting to vertex 1 are</p>
 <p>and each edge has references to the vertices it connects</p>
 <blockquote>
 <div><div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">g</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">edges</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">endpoints</span>
-<span class="go">[UVertex[#0, coord=(0.5488, 0.7152)], UVertex[#1, coord=(0.6028, 0.5449)]]</span>
+<span class="go">[Vertex[#0, coord=(0.5488, 0.7152)], Vertex[#1, coord=(0.6028, 0.5449)]]</span>
 </pre></div>
 </div>
 </div></blockquote>
@@ -240,7 +240,7 @@ edge is an object and the edges connecting to vertex 1 are</p>
 <p>The vertex closest to the coordinate <span class="math notranslate nohighlight">\((0.5, 0.5)\)</span> is</p>
 <blockquote>
 <div><div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">g</span><span class="o">.</span><span class="n">closest</span><span class="p">((</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">))</span>
-<span class="go">(UVertex[#1, coord=(0.6028, 0.5449)], 0.11213746732281339)</span>
+<span class="go">(Vertex[#1, coord=(0.6028, 0.5449)], 0.11213746732281339)</span>
 </pre></div>
 </div>
 </div></blockquote>
@@ -248,7 +248,7 @@ edge is an object and the edges connecting to vertex 1 are</p>
 <blockquote>
 <div><div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">path</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">path_Astar</span><span class="p">(</span><span class="n">g</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">g</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">path</span>
-<span class="go">[UVertex[#2, coord=(0.4237, 0.6459)], UVertex[#0, coord=(0.5488, 0.7152)], UVertex[#3, coord=(0.4376, 0.8918)], UVertex[#4, coord=(0.9637, 0.3834)]]</span>
+<span class="go">[Vertex[#2, coord=(0.4237, 0.6459)], Vertex[#0, coord=(0.5488, 0.7152)], Vertex[#3, coord=(0.4376, 0.8918)], Vertex[#4, coord=(0.9637, 0.3834)]]</span>
 </pre></div>
 </div>
 </div></blockquote>
@@ -269,11 +269,11 @@ methods exist to convert the graph to these.</p>
 </div>
 </div></blockquote>
 <p>This exploits the flexible nature of Python, but care must be taken to avoid name clashes with existing attributes.</p>
-<p>A more robust and Pythonic approach is to create a subclass of the <code class="docutils literal notranslate"><span class="pre">UVertex</span></code> or <code class="docutils literal notranslate"><span class="pre">DVertex</span></code> classes class and
-declare them at graph creation time. For example, we can create a subclass of <code class="docutils literal notranslate"><span class="pre">UVertex</span></code> called <code class="docutils literal notranslate"><span class="pre">MyVertex</span></code> and a subclass of <code class="docutils literal notranslate"><span class="pre">Edge</span></code> called <code class="docutils literal notranslate"><span class="pre">MyEdge</span></code> and then create a new graph using these classes.</p>
+<p>A more robust and Pythonic approach is to create a subclass of the <code class="docutils literal notranslate"><span class="pre">Vertex</span></code> class and
+declare them at graph creation time. For example, we can create a subclass of <code class="docutils literal notranslate"><span class="pre">Vertex</span></code> called <code class="docutils literal notranslate"><span class="pre">MyVertex</span></code> and a subclass of <code class="docutils literal notranslate"><span class="pre">Edge</span></code> called <code class="docutils literal notranslate"><span class="pre">MyEdge</span></code> and then create a new graph using these classes.</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pgraph</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><a class="sphinx-codeautolink-a" href="https://numpy.org/doc/stable/reference/index.html#module-numpy"><span class="nn">numpy</span></a><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span><span class="w"> </span><span class="nc">MyVertex</span><span class="p">(</span><a class="sphinx-codeautolink-a" href="uvertex.html#pgraph.PGraph.UVertex" title="pgraph.PGraph.UVertex"><span class="n">pgraph</span><span class="o">.</span><span class="n">UVertex</span></a><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span><span class="w"> </span><span class="nc">MyVertex</span><span class="p">(</span><span class="n">pgraph</span><span class="o">.</span><span class="n">Vertex</span><span class="p">):</span>
 <span class="gp">... </span>    <span class="k">pass</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">class</span><span class="w"> </span><span class="nc">MyEdge</span><span class="p">(</span><a class="sphinx-codeautolink-a" href="edge.html#pgraph.PGraph.Edge" title="pgraph.PGraph.Edge"><span class="n">pgraph</span><span class="o">.</span><span class="n">Edge</span></a><span class="p">):</span>
 <span class="gp">... </span>    <span class="k">pass</span>

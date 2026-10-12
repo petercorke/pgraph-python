@@ -104,10 +104,10 @@
 <div itemprop="articleBody">
 <section id="adding-and-removing-vertices-and-edges">
 <h1>Adding and removing vertices and edges<a class="headerlink" href="#adding-and-removing-vertices-and-edges" title="Link to this heading"></a></h1>
-<p>Building up and tearing down a graph’s structure. <code class="docutils literal notranslate"><span class="pre">connect()</span></code> is shown
-here in its base-class form; <a class="reference internal" href="dvertex.html"><span class="doc">DVertex</span></a> and
-<a class="reference internal" href="uvertex.html"><span class="doc">UVertex</span></a> override it with different edge-list bookkeeping
-– see those pages for the concrete behaviour. See <code class="xref py py-class docutils literal notranslate"><span class="pre">Edge</span></code> for
+<p>Building up and tearing down a graph’s structure. <code class="docutils literal notranslate"><span class="pre">connect()</span></code> is the same
+for both kinds of graph: the graph decides how the edge is recorded at its
+vertices, so an undirected edge is found from either end and a directed one
+leaves its start vertex and enters its end vertex. See <code class="xref py py-class docutils literal notranslate"><span class="pre">Edge</span></code> for
 constructing/removing an edge directly rather than via a vertex or graph.</p>
 <section id="graph">
 <h2>Graph<a class="headerlink" href="#graph" title="Link to this heading"></a></h2>
@@ -154,8 +154,8 @@ constructing/removing an edge directly rather than via a vertex or graph.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>coord</strong> (<em>array-like</em><em> or </em><em>Vertex subclass</em><em>, </em><em>optional</em>) – coordinate for an embedded graph, or an existing vertex
-of this graph’s own kind (<code class="docutils literal notranslate"><span class="pre">UVertex</span></code> for <a class="reference internal" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><code class="xref py py-class docutils literal notranslate"><span class="pre">UGraph</span></code></a>,
-<code class="docutils literal notranslate"><span class="pre">DVertex</span></code> for <a class="reference internal" href="construction.html#pgraph.PGraph.DGraph" title="pgraph.PGraph.DGraph"><code class="xref py py-class docutils literal notranslate"><span class="pre">DGraph</span></code></a>) to add as-is, defaults to None</p></li>
+(an instance of this graph’s <a class="reference internal" href="construction.html#pgraph.PGraph.Graph.vertex_class" title="pgraph.PGraph.Graph.vertex_class"><code class="xref py py-attr docutils literal notranslate"><span class="pre">vertex_class</span></code></a>, not belonging
+to a graph) to add as-is, defaults to None</p></li>
 <li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em>, </em><em>optional</em>) – name of vertex, defaults to “#i”</p></li>
 </ul>
 </dd>
@@ -181,8 +181,7 @@ graph, or <code class="docutils literal notranslate"><span class="pre">coord</sp
 <li><p><code class="docutils literal notranslate"><span class="pre">g.add_vertex()</span></code> creates a new vertex with optional <code class="docutils literal notranslate"><span class="pre">coord</span></code> and
 <code class="docutils literal notranslate"><span class="pre">name</span></code>.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">g.add_vertex(v)</span></code> takes an instance of this graph’s
-<a class="reference internal" href="construction.html#pgraph.PGraph.Graph.vertex_class" title="pgraph.PGraph.Graph.vertex_class"><code class="xref py py-attr docutils literal notranslate"><span class="pre">vertex_class</span></code></a> (by default any <code class="docutils literal notranslate"><span class="pre">UVertex</span></code> for a
-<a class="reference internal" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><code class="xref py py-class docutils literal notranslate"><span class="pre">UGraph</span></code></a>, any <code class="docutils literal notranslate"><span class="pre">DVertex</span></code> for a <a class="reference internal" href="construction.html#pgraph.PGraph.DGraph" title="pgraph.PGraph.DGraph"><code class="xref py py-class docutils literal notranslate"><span class="pre">DGraph</span></code></a>) and adds it
+<a class="reference internal" href="construction.html#pgraph.PGraph.Graph.vertex_class" title="pgraph.PGraph.Graph.vertex_class"><code class="xref py py-attr docutils literal notranslate"><span class="pre">vertex_class</span></code></a> (by default any <code class="xref py py-class docutils literal notranslate"><span class="pre">Vertex</span></code>) and adds it
 to the graph.</p></li>
 </ul>
 <p>If the vertex has no name and <code class="docutils literal notranslate"><span class="pre">name</span></code> is None give it a default name
@@ -197,20 +196,20 @@ in the graph but unreachable by name.  A default name could also
 clash with an existing one after a vertex had been removed.</p>
 </div>
 <p>The vertex is placed into the graph’s vertex dictionary with a key equal to its name.</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pgraph</span><span class="w"> </span><span class="kn">import</span> <a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">UGraph</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="uvertex.html#pgraph.PGraph.UVertex" title="pgraph.PGraph.UVertex"><span class="n">UVertex</span></a>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pgraph</span><span class="w"> </span><span class="kn">import</span> <a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">UGraph</span></a><span class="p">,</span> <span class="n">Vertex</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">g</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">UGraph</span></a><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">v1</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="modification.html#pgraph.PGraph.Graph.add_vertex" title="pgraph.PGraph.Graph.add_vertex"><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span></a><span class="p">(</span><span class="n">coord</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/builtins/functions.html#repr"><span class="nb">repr</span></a><span class="p">(</span><span class="n">v1</span><span class="p">)</span>
-<span class="go">'UVertex[#0, coord=(0, 0)]'</span>
+<span class="go">'Vertex[#0, coord=(0, 0)]'</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/builtins/functions.html#print"><span class="nb">print</span></a><span class="p">(</span><span class="n">v1</span><span class="p">)</span>
 <span class="go">[#0]</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/builtins/functions.html#print"><span class="nb">print</span></a><span class="p">(</span><span class="n">v1</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 <span class="go">#0</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">v2</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="modification.html#pgraph.PGraph.Graph.add_vertex" title="pgraph.PGraph.Graph.add_vertex"><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="uvertex.html#pgraph.PGraph.UVertex" title="pgraph.PGraph.UVertex"><span class="n">UVertex</span></a><span class="p">(</span><span class="n">coord</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s1">'v2'</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">v2</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="modification.html#pgraph.PGraph.Graph.add_vertex" title="pgraph.PGraph.Graph.add_vertex"><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span></a><span class="p">(</span><span class="n">Vertex</span><span class="p">(</span><span class="n">coord</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s1">'v2'</span><span class="p">))</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/builtins/functions.html#print"><span class="nb">print</span></a><span class="p">(</span><span class="n">v2</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 <span class="go">v2</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">g</span></a><span class="p">[</span><span class="s1">'v2'</span><span class="p">]</span>
-<span class="go">UVertex[v2, coord=(1, 1)]</span>
+<span class="go">Vertex[v2, coord=(1, 1)]</span>
 </pre></div>
 </div>
 <p>If the graph was constructed with a required <code class="docutils literal notranslate"><span class="pre">dim</span></code> (see
@@ -474,19 +473,16 @@ other vertices</p></li>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <ul class="simple">
-<li><p>If the vertices subclass <code class="docutils literal notranslate"><span class="pre">UVertex</span></code> the edge is undirected: it is
-recorded in the edge list of <em>both</em> vertices, so it is found from
-either end. If they subclass <code class="docutils literal notranslate"><span class="pre">DVertex</span></code> the edge is directed: it
-is recorded only in the edge list of this, the source, vertex.</p></li>
+<li><p>In an undirected graph the edge is recorded in the edge list of
+<em>both</em> vertices, so it is found from either end. In a directed
+graph it is recorded as leaving this, the start, vertex and
+entering <code class="docutils literal notranslate"><span class="pre">dest</span></code>.</p></li>
 <li><p>A supplied <code class="docutils literal notranslate"><span class="pre">edge</span></code> built without vertices has its <code class="docutils literal notranslate"><span class="pre">v1</span></code> and
 <code class="docutils literal notranslate"><span class="pre">v2</span></code> set to the vertices being connected. One built with
 vertices must agree with them: in either order if undirected,
 exactly <code class="docutils literal notranslate"><span class="pre">self</span></code> then <code class="docutils literal notranslate"><span class="pre">dest</span></code> if directed.</p></li>
 <li><p>Both vertices must already have been added to the same graph,
-e.g. via <a class="reference internal" href="#pgraph.PGraph.Graph.add_vertex" title="pgraph.PGraph.Graph.add_vertex"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Graph.add_vertex()</span></code></a> – since a graph only ever
-accepts its own vertex subclass (see <code class="xref py py-meth docutils literal notranslate"><span class="pre">UGraph.add_vertex()</span></code>,
-<code class="xref py py-meth docutils literal notranslate"><span class="pre">DGraph.add_vertex()</span></code>), this also rules out connecting a
-<code class="docutils literal notranslate"><span class="pre">UVertex</span></code> to a <code class="docutils literal notranslate"><span class="pre">DVertex</span></code>.</p></li>
+e.g. via <a class="reference internal" href="#pgraph.PGraph.Graph.add_vertex" title="pgraph.PGraph.Graph.add_vertex"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Graph.add_vertex()</span></code></a>.</p></li>
 </ul>
 </div>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pgraph</span><span class="w"> </span><span class="kn">import</span> <a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">UGraph</span></a>

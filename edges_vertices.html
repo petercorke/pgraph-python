@@ -23,7 +23,7 @@
 <script src="_static/js/theme.js"></script>
 <link href="genindex.html" rel="index" title="Index"/>
 <link href="search.html" rel="search" title="Search"/>
-<link href="dvertex.html" rel="next" title="Directed graph vertex"/>
+<link href="edge.html" rel="next" title="Edge"/>
 <link href="planning.html" rel="prev" title="Path planning"/>
 </head>
 <body class="wy-body-for-nav">
@@ -95,7 +95,7 @@
 </li>
 </ul><div aria-label="Sequential page navigation" class="rst-breadcrumbs-buttons" role="navigation">
 <a accesskey="p" class="btn btn-neutral float-left" href="planning.html" title="Path planning"><span aria-hidden="true" class="fa fa-arrow-circle-left"></span> Previous</a>
-<a accesskey="n" class="btn btn-neutral float-right" href="dvertex.html" title="Directed graph vertex">Next <span aria-hidden="true" class="fa fa-arrow-circle-right"></span></a>
+<a accesskey="n" class="btn btn-neutral float-right" href="edge.html" title="Edge">Next <span aria-hidden="true" class="fa fa-arrow-circle-right"></span></a>
 </div>
 <hr/>
 </div>
@@ -116,21 +116,21 @@ and edges, as well as for querying the graph’s structure.</p>
 <p>In the earlier examples we did not explicitly create vertices or edges, but we
 can do so if we want to. The graph classes provide methods to create vertices and edges,
 and to add them to the graph.</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pgraph</span><span class="w"> </span><span class="kn">import</span> <a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">UGraph</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="uvertex.html#pgraph.PGraph.UVertex" title="pgraph.PGraph.UVertex"><span class="n">UVertex</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="edge.html#pgraph.PGraph.Edge" title="pgraph.PGraph.Edge"><span class="n">Edge</span></a>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pgraph</span><span class="w"> </span><span class="kn">import</span> <a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">UGraph</span></a><span class="p">,</span> <span class="n">Vertex</span><span class="p">,</span> <a class="sphinx-codeautolink-a" href="edge.html#pgraph.PGraph.Edge" title="pgraph.PGraph.Edge"><span class="n">Edge</span></a>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><a class="sphinx-codeautolink-a" href="https://numpy.org/doc/stable/reference/index.html#module-numpy"><span class="nn">numpy</span></a><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">g</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">UGraph</span></a><span class="p">()</span>
 </pre></div>
 </div>
 <p>Next, we will explicitly create two vertices</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">v1</span> <span class="o">=</span> <span class="n">UVertex</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">v2</span> <span class="o">=</span> <span class="n">UVertex</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">v1</span> <span class="o">=</span> <span class="n">Vertex</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">v2</span> <span class="o">=</span> <span class="n">Vertex</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
 </pre></div>
 </div>
 <p>and then add them to the graph</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">(</span><span class="n">v1</span><span class="p">)</span>
-<span class="go">UVertex[#0, coord=(0.7369, 0.766)]</span>
+<span class="go">Vertex[#0, coord=(0.2646, 0.2333)]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">(</span><span class="n">v2</span><span class="p">)</span>
-<span class="go">UVertex[#1, coord=(0.3289, 0.7882)]</span>
+<span class="go">Vertex[#1, coord=(0.2211, 0.7106)]</span>
 </pre></div>
 </div>
 <p>Our graph now has two vertices, but no edges</p>
@@ -144,7 +144,7 @@ and to add them to the graph.</p>
 </div>
 <p>and then add it to the graph</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">g</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
-<span class="go">Edge{[#0] -- [#1], cost=0.4086}</span>
+<span class="go">Edge{[#0] -- [#1], cost=0.4793}</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/builtins/functions.html#print"><span class="nb">print</span></a><span class="p">(</span><span class="n">g</span><span class="p">)</span>
 <span class="go">UGraph: 2 vertices, 1 edge, 1 component</span>
 </pre></div>
@@ -155,11 +155,11 @@ and to add them to the graph.</p>
 </pre></div>
 </div>
 <p>Alternatively, we can create a vertex and <em>connect</em> it to an existing vertex, which will implitically create an edge between the two vertices and add it to the graph.</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">v3</span> <span class="o">=</span> <span class="n">UVertex</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">v3</span> <span class="o">=</span> <span class="n">Vertex</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span><span class="p">(</span><span class="n">v3</span><span class="p">)</span>
-<span class="go">UVertex[#2, coord=(0.7743, 0.1957)]</span>
+<span class="go">Vertex[#2, coord=(0.8296, 0.9733)]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">v2</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">v3</span><span class="p">)</span>
-<span class="go">Edge{[#1] -- [#2], cost=0.7412}</span>
+<span class="go">Edge{[#1] -- [#2], cost=0.6628}</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/builtins/functions.html#print"><span class="nb">print</span></a><span class="p">(</span><span class="n">g</span><span class="p">)</span>
 <span class="go">UGraph: 3 vertices, 2 edges, 1 component</span>
 </pre></div>
@@ -170,18 +170,10 @@ The <code class="docutils literal notranslate"><span class="pre">connect</span><
 directed and undirected vertex classes.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Where ever a vertex or edge is required, a subclass of the appropriate base class can be used. For example, we can create a subclass of <code class="docutils literal notranslate"><span class="pre">UVertex</span></code> called <code class="docutils literal notranslate"><span class="pre">MyVertex</span></code> and a subclass of <code class="docutils literal notranslate"><span class="pre">Edge</span></code> called <code class="docutils literal notranslate"><span class="pre">MyEdge</span></code> and then create a new graph using these classes.</p>
+<p>Where ever a vertex or edge is required, a subclass of the appropriate base class can be used. For example, we can create a subclass of <code class="docutils literal notranslate"><span class="pre">Vertex</span></code> called <code class="docutils literal notranslate"><span class="pre">MyVertex</span></code> and a subclass of <code class="docutils literal notranslate"><span class="pre">Edge</span></code> called <code class="docutils literal notranslate"><span class="pre">MyEdge</span></code> and then create a new graph using these classes.</p>
 </div>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="dvertex.html">Directed graph vertex</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="dvertex.html#pgraph.PGraph.DVertex"><code class="docutils literal notranslate"><span class="pre">DVertex</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="uvertex.html">Undirected graph vertex</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="uvertex.html#pgraph.PGraph.UVertex"><code class="docutils literal notranslate"><span class="pre">UVertex</span></code></a></li>
-</ul>
-</li>
 <li class="toctree-l1"><a class="reference internal" href="edge.html">Edge</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="edge.html#pgraph.PGraph.Edge"><code class="docutils literal notranslate"><span class="pre">Edge</span></code></a></li>
 </ul>
@@ -194,7 +186,7 @@ directed and undirected vertex classes.</p>
 </div>
 <footer><div aria-label="Footer" class="rst-footer-buttons" role="navigation">
 <a accesskey="p" class="btn btn-neutral float-left" href="planning.html" rel="prev" title="Path planning"><span aria-hidden="true" class="fa fa-arrow-circle-left"></span> Previous</a>
-<a accesskey="n" class="btn btn-neutral float-right" href="dvertex.html" rel="next" title="Directed graph vertex">Next <span aria-hidden="true" class="fa fa-arrow-circle-right"></span></a>
+<a accesskey="n" class="btn btn-neutral float-right" href="edge.html" rel="next" title="Edge">Next <span aria-hidden="true" class="fa fa-arrow-circle-right"></span></a>
 </div>
 <hr/>
 <div role="contentinfo">
