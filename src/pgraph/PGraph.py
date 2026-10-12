@@ -1310,6 +1310,7 @@ class Graph:
         self._vertexlist.remove(vertex)
         del self._vertexdict[vertex.name]
         vertex._graph = None  # it is not in any graph now
+        vertex._label = None  # and so not in a component
         self._connectivitychange = True
 
     def remove(self, x: Edge | Vertex) -> None:
@@ -1398,19 +1399,52 @@ class Graph:
         """
         return len(self._edges)
 
-    def _graphcolor(self) -> int | None:
+    def _graphcolor(self) -> None:
         """
-        Color the graph (subclass method)
+        Label the components of the graph (private method)
 
-        Concrete graph coloring algorithm, provided by :meth:`UGraph._graphcolor`
-        and :meth:`DGraph._graphcolor`.
+        Assigns every vertex a ``label``, the number of its component, from 0
+        in the order of the first vertex of each component, and sets the
+        number of components.  Components are *weakly* connected: the
+        direction of an edge is ignored, so a vertex is in the component of
+        every vertex that it has a path to or from.
 
-        :raises NotImplementedError: not provided by this graph kind
+        This is a single pass over the vertices and edges, O(V + E), and is
+        only done again when the graph has changed since, which every
+        operation that adds or removes a vertex or edge records in the graph's
+        ``_connectivitychange``.
+
+        :seealso: :meth:`nc` :meth:`component`
         """
-        raise NotImplementedError(
-            f"{type(self).__name__} does not define how to color the graph; "
-            "subclass UGraph or DGraph"
-        )
+        if not self._connectivitychange:
+            return
+
+        for vertex in self:
+            vertex._label = None
+            vertex._connectivitychange = False
+
+        count = 0
+        for start in self:
+            if start._label is not None:
+                continue
+            start._label = count
+            frontier = [start]
+            while frontier:
+                v = frontier.pop()
+                # an edge may be followed against its direction, so the
+                # vertices that lead to this one count as well as those it
+                # leads to; in an undirected graph they are the same
+                around = v.adjacent()
+                if self.directed:
+                    around = around + v.predecessors()
+                for w in around:
+                    if w._label is None:
+                        w._label = count
+                        frontier.append(w)
+            count += 1
+
+        self._ncomponents = count
+        self._connectivitychange = False
 
     @property
     def nc(self) -> int:
@@ -1421,6 +1455,16 @@ class Graph:
         :rtype: int
 
         Number of components in the graph. Components are labeled from 0 to ``g.nc-1``.
+
+        For a directed graph the components are *weakly* connected: the
+        direction of the edges is ignored, so two vertices are in the same
+        component if there is a path between them that may run against the
+        arrows.  A graph with no vertices has no components.
+
+        .. versionchanged:: 1.0
+            Does not hang.  For many directed graphs, the smallest being the
+            4-cycle, the algorithm of 0.6.5 never finished, which also stopped
+            :meth:`component`, :meth:`samecomponent` and :meth:`plot`.
 
         .. runblock:: pycon
 
@@ -1439,10 +1483,7 @@ class Graph:
 
         :seealso: :meth:`component` :meth:`samecomponent`
         """
-        n = self._graphcolor()
-        if n is not None:
-            self._ncomponents = n
-
+        self._graphcolor()
         return self._ncomponents
 
     def _metricfunc(self, metric: Callable[[NDArray], float] | str) -> Callable[[NDArray], float]:
@@ -2955,10 +2996,11 @@ class Graph:
         :return: true if vertices belong to same graph component
         :rtype: bool
 
-        Test whether vertices belong to the same component.  For a:
-
-        - directed graph this implies a path between them
-        - undirected graph there is not necessarily a path between them
+        Test whether vertices belong to the same component.  A component is a
+        set of vertices that are connected by a path of edges, ignoring their
+        direction, so for a directed graph this does not mean that there is a
+        path from one to the other: ``a -> c <- b`` is one component, but there
+        is no path from ``a`` to ``b``.
 
         .. runblock:: pycon
 
@@ -3402,50 +3444,6 @@ class UGraph(Graph):
         """
         return (edge.v1 is v1 and edge.v2 is v2) or (edge.v1 is v2 and edge.v2 is v1)
 
-    def _graphcolor(self) -> None:
-        """
-        Color the graph
-
-        Performs a depth-first labeling operation, assigning the ``label``
-        attribute of every vertex with a sequential integer starting from 0.
-
-        This method checks the ``_connectivitychange`` attribute of all vertices
-        and if any are True it will perform the coloring operation. This flag
-        is set True by any operation that adds or removes a vertex or edge.
-
-        :seealso: :meth:`nc`
-        """
-        if self._connectivitychange or any([n._connectivitychange for n in self]):
-
-            # color the graph
-
-            # clear all the labels
-            for vertex in self:
-                vertex._label = None
-                vertex._connectivitychange = False
-
-            lastlabel: int | None = None
-            for label in range(self.n):
-                assignment = False
-                for v in self:
-                    # find first vertex with no label
-                    if v.label is None:
-                        # do BFS
-                        q = [v]  # initialize frontier
-                        while len(q) > 0:
-                            v = q.pop()  # expand v
-                            v._label = label
-                            for n in v.adjacent():
-                                if n.label is None:
-                                    q.append(n)
-                        lastlabel = label
-                        assignment = True
-                        break
-                if not assignment:
-                    break
-
-            self._ncomponents = 0 if lastlabel is None else lastlabel + 1
-
 
 class DGraph(Graph):
     """
@@ -3490,79 +3488,6 @@ class DGraph(Graph):
     def _incoming(self, vertex: Vertex) -> list[Edge]:
         """The edges that end at the vertex"""
         return vertex._inlist
-
-    def _graphcolor(self) -> int | None:
-        """
-        Color the graph
-
-        Performs a depth-first labeling operation, assigning the ``label``
-        attribute of every vertex with a sequential integer starting from 0.
-
-        This method checks the ``_connectivitychange`` attribute of all vertices
-        and if any are True it will perform the coloring operation. This flag
-        is set True by any operation that adds or removes a vertex or edge.
-
-        :seealso: :meth:`nc`
-        """
-        if self._connectivitychange or any([n._connectivitychange for n in self]):
-
-            # color the graph
-
-            # clear all the labels
-            for vertex in self:
-                vertex._label = None
-                vertex._connectivitychange = False
-
-            # initial labeling pass
-            merge: dict[int, int] = {}
-            nextlabel = 1
-            for v in self:
-                if v.label is None:
-                    # no label, try to inherit one from a neighbour
-                    for n in v.adjacent():
-                        if n.label is not None:
-                            # neighbour has a label
-                            v._label = n.label
-                            break
-
-                if v.label is None:
-                    # still not labeled, assign a new label
-                    v._label = nextlabel
-                    nextlabel += 1
-
-                label = v.label
-                assert label is not None
-
-                # now look for clashes
-                for n in v.adjacent():
-                    if n.label is None:
-                        # neighbour has no label, give it this one
-                        n._label = label
-                    elif label != n.label:
-                        # label clash, note it for merging
-                        assert n.label is not None
-                        merge[n.label] = label
-
-            # merge labels and find unique labels
-            unique: set[int] = set()
-            for v in self:
-                vlabel = v.label
-                assert vlabel is not None
-                while vlabel in merge:
-                    vlabel = merge[vlabel]
-                v._label = vlabel
-                unique.add(vlabel)
-
-            final = {u: i for i, u in enumerate(unique)}
-            for v in self:
-                vlabel = v.label
-                assert vlabel is not None
-                v._label = final[vlabel]
-
-            return len(unique)
-        else:
-            # no coloring performed
-            return None
 
 
 # ========================================================================== #
@@ -4691,21 +4616,25 @@ class Vertex:
         """
         Number of the graph component that contains the vertex
 
-        :return: component number, counted from 0, or None if the components
-            have not been found yet
+        :return: component number, counted from 0, or None if the vertex is
+            not in a graph
         :rtype: int or None
 
-        Assigned by the graph when its components are found, which happens when
-        :attr:`Graph.nc`, :meth:`Graph.component` or
-        :meth:`Graph.samecomponent` is used after the graph has changed.
-        It is read-only.
+        Assigned by the graph, which finds its components when this is read
+        after the graph has changed, as it does for :attr:`Graph.nc`,
+        :meth:`Graph.component` and :meth:`Graph.samecomponent`.  The numbering
+        is by the first vertex of each component, in the order the vertices
+        were added.  It is read-only.
 
         .. versionchanged:: 1.0
             Read-only.  It was a plain attribute, but it is computed from the
-            graph's structure and meaningless to assign.
+            graph's structure and meaningless to assign.  Reading it finds the
+            components; in 0.6.5 it was ``None`` until something else had.
 
         :seealso: :attr:`Graph.nc` :meth:`Graph.component`
         """
+        if self._graph is not None:
+            self._graph._graphcolor()
         return self._label
 
     @property

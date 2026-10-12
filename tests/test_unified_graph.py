@@ -219,7 +219,6 @@ class TestNotInstantiatedDirectly(unittest.TestCase):
             lambda: Graph._attach(g, e),
             lambda: Graph._detach(g, e),
             lambda: Graph._incoming(g, a),
-            lambda: Graph._graphcolor(g),
         ):
             with self.assertRaises(NotImplementedError):
                 call()
