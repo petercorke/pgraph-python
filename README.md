@@ -71,6 +71,14 @@ g.plot(block=False) # plot it
 g.highlight_path(p)  # overlay the path
 ```
 
+### A bigger example: routing through central London
+
+![route through central London](https://github.com/petercorke/pgraph-python/raw/main/docs/figs/london_route.png)
+
+A directed graph of the road network of central London, taken from [OpenStreetMap](https://www.openstreetmap.org/copyright), and the shortest drive between Buckingham Palace and Tower Bridge, there (solid) and back (dashed).  The two routes differ in length, 5,515 m and 5,948 m, because of the one-way streets.  The notebook [`examples/london.ipynb`](https://github.com/petercorke/pgraph-python/blob/main/examples/london.ipynb) builds the graph from the map data, keeps the part of it that can be driven around in, and plans with A*.
+
+Map data © OpenStreetMap contributors, available under the Open Database License.
+
 ### Properties and methods of the graph
 Graphs belong to the class `UGraph` or `DGraph` for undirected or directed graphs respectively.  The graph is essentially a container for the vertices.
 
