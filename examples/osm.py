@@ -8,10 +8,11 @@ lives here, so that the notebook can concentrate on pgraph:
 * the choice of which ``highway`` classes a car may use, and which ways are
   closed to it,
 * the rules for which direction a way may be driven in,
+* a projection from latitude and longitude to metres,
 * a compact JSON file as a cache, so the data is fetched once and the notebook
   then runs offline.
 
-Standard library only.
+The standard library and numpy only.
 
 The data are © OpenStreetMap contributors, available under the Open Database
 License (https://www.openstreetmap.org/copyright).  An extract saved by this
@@ -26,7 +27,11 @@ import urllib.error
 import urllib.parse
 import urllib.request
 from pathlib import Path
+from collections.abc import Callable
 from typing import Any
+
+import numpy as np
+from numpy.typing import ArrayLike, NDArray
 
 OVERPASS = "https://overpass-api.de/api/interpreter"
 USER_AGENT = "pgraph-python-example/1.0 (https://github.com/petercorke/pgraph-python)"
@@ -131,3 +136,74 @@ def fetch_roads(
     }
     cache.write_text(json.dumps(data, separators=(",", ":"), ensure_ascii=False))
     return data
+
+
+# ---------------------------------------------------------------------------
+# projection
+# ---------------------------------------------------------------------------
+
+_A = 6378137.0  # WGS84 semi-major axis, m
+_F = 1 / 298.257223563  # WGS84 flattening
+
+
+def local_projection(
+    lat0: float, lon0: float
+) -> Callable[[ArrayLike, ArrayLike], NDArray]:
+    r"""A map projection to metres, centred on a point
+
+    :param lat0: latitude of the origin, degrees
+    :param lon0: longitude of the origin, degrees, which is also the central
+        meridian
+    :return: a function ``project(lat, lon)`` that returns metres east and
+        north of the origin, as an array with a trailing dimension of 2
+
+    This is a function that makes a function, so the constants of the
+    projection are worked out once.  The projection is the transverse Mercator
+    on the WGS84 ellipsoid, with a scale of 1 on the central meridian, by the
+    series in the third flattening :math:`n` of Krüger, to fourth order
+    (Karney, "Transverse Mercator with an accuracy of a few nanometers", 2011).
+    Its error is well below a millimetre, and the scale is within 1e-6 of 1,
+    for a few tens of kilometres around the origin, so that distances in it are
+    distances on the ground.
+
+    Some people use the UTM grid instead.  It is the same projection, but with
+    the central meridian at the centre of a six degree zone and a scale of
+    0.9996 there, so distances in London are wrong by about 1 part in 10,000,
+    which is half a metre over 5 km.
+    """
+    n = _F / (2 - _F)
+    n2, n3, n4 = n**2, n**3, n**4
+    rect = _A / (1 + n) * (1 + n2 / 4 + n4 / 64)  # rectifying radius
+    alpha = (
+        n / 2 - 2 * n2 / 3 + 5 * n3 / 16 + 41 * n4 / 180,
+        13 * n2 / 48 - 3 * n3 / 5 + 557 * n4 / 1440,
+        61 * n3 / 240 - 103 * n4 / 140,
+        49561 * n4 / 161280,
+    )
+    e = 2 * np.sqrt(n) / (1 + n)  # the first eccentricity-like term
+    lam0 = np.radians(lon0)
+
+    def conformal(phi: NDArray) -> NDArray:
+        """Tangent of the conformal latitude, as a sinh"""
+        s = np.sin(phi)
+        return np.sinh(np.arctanh(s) - e * np.arctanh(e * s))
+
+    def xi_eta(lat: ArrayLike, lon: ArrayLike) -> tuple[NDArray, NDArray]:
+        phi = np.radians(np.asarray(lat, dtype=float))
+        dlam = np.radians(np.asarray(lon, dtype=float)) - lam0
+        t = conformal(phi)
+        xi = np.arctan2(t, np.cos(dlam))
+        eta = np.arctanh(np.sin(dlam) / np.sqrt(1 + t**2))
+        xi_s, eta_s = xi.copy(), eta.copy()
+        for j, a in enumerate(alpha, start=1):
+            xi_s = xi_s + a * np.sin(2 * j * xi) * np.cosh(2 * j * eta)
+            eta_s = eta_s + a * np.cos(2 * j * xi) * np.sinh(2 * j * eta)
+        return xi_s, eta_s
+
+    xi0 = float(xi_eta(lat0, lon0)[0])
+
+    def project(lat: ArrayLike, lon: ArrayLike) -> NDArray:
+        xi, eta = xi_eta(lat, lon)
+        return np.stack([rect * eta, rect * (xi - xi0)], axis=-1)
+
+    return project
