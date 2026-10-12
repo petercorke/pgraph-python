@@ -17,7 +17,13 @@ Examples::
     python benchmark.py                 # undirected graphs
     python benchmark.py --directed      # directed graphs
     python benchmark.py --quick         # skip the largest graph
+    python benchmark.py --md            # table as MarkDown, to paste into a README
     python benchmark.py --rst           # table as reST, to paste into the docs
+
+The table is made with ``ansitable``, which also writes it as MarkDown or reST.
+With ``--md`` or ``--rst`` only the table is written to standard output, so it
+can be redirected to a file, and the description of the run goes to standard
+error.
 """
 
 from __future__ import annotations
@@ -35,6 +41,7 @@ from importlib import metadata
 from typing import Any
 
 import numpy as np
+from ansitable import ANSITable, Column
 
 from pgraph import DGraph, Graph, UGraph
 
@@ -261,8 +268,14 @@ def fmt(value: float | None) -> str:
 
 def make_table(
     results: dict[int, dict[str, float | None]], sizes: list[int]
-) -> list[list[str]]:
-    rows = [["Operation", "per"] + [f"N={n:,}" for n in sizes] + ["growth"]]
+) -> ANSITable:
+    table = ANSITable(
+        Column("Operation", colalign="<", headalign="<"),
+        Column("per", colalign="<", headalign="<"),
+        *[Column(f"N={n:,}") for n in sizes],
+        Column("growth exponent"),
+        border="thin",
+    )
     for key, text, scale, unit in ROWS:
         if key not in results[sizes[0]]:
             continue
@@ -270,30 +283,8 @@ def make_table(
             None if results[n][key] is None else results[n][key] * scale  # type: ignore[operator]
             for n in sizes
         ]
-        rows.append([text, unit] + [fmt(v) for v in vals] + [growth(sizes, vals)])
-    return rows
-
-
-def print_text(rows: list[list[str]]) -> None:
-    widths = [max(len(r[i]) for r in rows) for i in range(len(rows[0]))]
-    for k, row in enumerate(rows):
-        cells = [
-            c.ljust(w) if i < 2 else c.rjust(w)
-            for i, (c, w) in enumerate(zip(row, widths))
-        ]
-        print("  ".join(cells))
-        if k == 0:
-            print("  ".join("-" * w for w in widths))
-
-
-def print_rst(rows: list[list[str]], title: str) -> None:
-    print(f".. list-table:: {title}")
-    print("   :header-rows: 1")
-    print("   :align: left")
-    print()
-    for row in rows:
-        for i, cell in enumerate(row):
-            print(f"   {'*' if i == 0 else ' '} - {cell}")
+        table.row(text, unit, *[fmt(v) for v in vals], growth(sizes, vals))
+    return table
 
 
 def main() -> None:
@@ -311,7 +302,9 @@ def main() -> None:
         help="largest N for the dense matrix rows (default %(default)s)",
     )
     parser.add_argument("--plot", action="store_true", help="also time plot() (needs matplotlib)")
-    parser.add_argument("--rst", action="store_true", help="print the table as reST")
+    output = parser.add_mutually_exclusive_group()
+    output.add_argument("--md", action="store_true", help="print the table as MarkDown")
+    output.add_argument("--rst", action="store_true", help="print the table as reST")
     args = parser.parse_args()
 
     sizes = sorted(args.sizes)[:-1] if args.quick and len(args.sizes) > 1 else sorted(args.sizes)
@@ -329,7 +322,7 @@ def main() -> None:
         f"  * {NQUERIES} random connected start/goal pairs per size, median reported,\n"
         f"  * running on {cpu_name()}, Python {platform.python_version()}, "
         f"numpy {np.__version__}.\n",
-        file=sys.stderr if args.rst else sys.stdout,
+        file=sys.stderr if (args.md or args.rst) else sys.stdout,
     )
 
     results: dict[int, dict[str, float | None]] = {}
@@ -338,11 +331,13 @@ def main() -> None:
         results[n] = run_size(cls, n, args.seed, args.matrix_max, args.plot)
         print("done", file=sys.stderr)
 
-    rows = make_table(results, sizes)
-    if args.rst:
-        print_rst(rows, f"Performance of {cls.__name__} (pgraph {version})")
+    table = make_table(results, sizes)
+    if args.md:
+        print(table.markdown(), end="")
+    elif args.rst:
+        print(table.rest(), end="")
     else:
-        print_text(rows)
+        table.print()
 
 
 if __name__ == "__main__":
