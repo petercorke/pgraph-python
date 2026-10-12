@@ -53,6 +53,7 @@
 <li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="intro.html#what-is-a-graph">What is a graph?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="intro.html#creating-a-graph-using-the-pgraph-package">Creating a graph using the <code class="docutils literal notranslate"><span class="pre">pgraph</span></code> package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="intro.html#creating-directed-and-undirected-graphs">Creating directed and undirected graphs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="intro.html#history">History</a></li>
 </ul>
 </li>
@@ -70,6 +71,8 @@
 <li class="toctree-l2"><a class="reference internal" href="edges_vertices.html">Edges &amp; Vertices</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="edges_vertices.html#underlying-data-structures">Underlying data structures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="edges_vertices.html#working-with-vertices-and-edges-directly">Working with vertices and edges directly</a></li>
+<li class="toctree-l3"><a class="reference internal" href="edges_vertices.html#the-vertex-class">The Vertex class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="edges_vertices.html#the-edge-class">The Edge class</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="policy.html">Object lifecycle and graph-membership policy</a><ul>
@@ -116,24 +119,21 @@
 <h1>Common methods<a class="headerlink" href="#common-methods" title="Link to this heading"></a></h1>
 <p>The package supports both directed (prefix <code class="docutils literal notranslate"><span class="pre">D</span></code>) and undirected graphs (prefix <code class="docutils literal notranslate"><span class="pre">U</span></code>), and the classes for these
 share a common interface.</p>
-<p>The graph classes represent a single graph, either directed or undirected, and they share <code class="xref py py-class docutils literal notranslate"><span class="pre">Graph</span></code>:</p>
-<div class="graphviz"><img src="_images/inheritance-d794d56cdbec820819e5b4bf7ef97880f6a869e3.png" alt="Inheritance diagram of pgraph.PGraph.UGraph, pgraph.PGraph.DGraph" usemap="#inheritance170d93d6ca" class="inheritance graphviz" /></div>
+<p>The graph classes represent a single graph, either directed or undirected, and they share <a class="reference internal" href="construction.html#pgraph.PGraph.Graph" title="pgraph.PGraph.Graph"><code class="xref py py-class docutils literal notranslate"><span class="pre">Graph</span></code></a>:</p>
+<div class="graphviz"><img src="_images/inheritance-7443cda27b76d1a35e072ddc5e5bb97abd7a92f8.png" alt="Inheritance diagram of pgraph.PGraph.UGraph, pgraph.PGraph.DGraph" usemap="#inheritance170d93d6ca" class="inheritance graphviz" /></div>
 <map id="inheritance170d93d6ca" name="inheritance170d93d6ca">
 <area shape="rect" id="node1" href="construction.html#pgraph.PGraph.DGraph" target="_top" title="Class for directed graphs" alt="" coords="125,5,197,31"/>
-<area shape="rect" id="node2" href="construction.html#pgraph.PGraph.Graph" target="_top" title="Graph" alt="" coords="5,31,77,56"/>
+<area shape="rect" id="node2" href="construction.html#pgraph.PGraph.Graph" target="_top" title="Base class for all graphs" alt="" coords="5,31,77,56"/>
 <area shape="rect" id="node3" href="construction.html#pgraph.PGraph.UGraph" target="_top" title="Class for undirected graphs" alt="" coords="125,55,197,80"/>
-</map><p>The vertices of both kinds of graph are <code class="xref py py-class docutils literal notranslate"><span class="pre">Vertex</span></code> objects: a vertex has
-no direction of its own, the graph it belongs to decides how an edge is
-recorded at its ends.</p>
+</map><p>The vertices of both kinds of graph are <a class="reference internal" href="edges_vertices.html#pgraph.PGraph.Vertex" title="pgraph.PGraph.Vertex"><code class="xref py py-class docutils literal notranslate"><span class="pre">Vertex</span></code></a> objects.  A vertex has
+no direction of its own: the graph it belongs to decides how an edge is recorded
+in the edge lists of its vertices.
+Edges are represented by the <a class="reference internal" href="edges_vertices.html#pgraph.PGraph.Edge" title="pgraph.PGraph.Edge"><code class="xref py py-class docutils literal notranslate"><span class="pre">Edge</span></code></a> class, which is used by both directed and undirected graphs.</p>
 <p>The graph classes share almost their entire interface, defined once on their
-common base class <code class="xref py py-class docutils literal notranslate"><span class="pre">Graph</span></code>. This section documents that shared interface
-by task rather than by class; see <a class="reference internal" href="construction.html"><span class="doc">Construction and basic usage</span></a> for the <code class="xref py py-class docutils literal notranslate"><span class="pre">DGraph</span></code>
-and <code class="xref py py-class docutils literal notranslate"><span class="pre">UGraph</span></code> classes and <a class="reference internal" href="edges_vertices.html"><span class="doc">Edges &amp; Vertices</span></a> for vertices and edges.</p>
-<p>Edges are represented by the <code class="xref py py-class docutils literal notranslate"><span class="pre">Edge</span></code> class, which is used by both directed and undirected graphs.</p>
-<div class="graphviz"><img src="_images/inheritance-c3f25db07bc9583095b14653d072f9d12106e387.png" alt="Inheritance diagram of pgraph.PGraph.Edge" usemap="#inheritance459a6ffc5b" class="inheritance graphviz" /></div>
-<map id="inheritance459a6ffc5b" name="inheritance459a6ffc5b">
-<area shape="rect" id="node1" href="edge.html#pgraph.PGraph.Edge" target="_top" title="Edge class" alt="" coords="5,5,77,31"/>
-</map><p>The following sections describe the common methods.</p>
+common base class <a class="reference internal" href="construction.html#pgraph.PGraph.Graph" title="pgraph.PGraph.Graph"><code class="xref py py-class docutils literal notranslate"><span class="pre">Graph</span></code></a>. This section documents that shared interface
+by task rather than by class; see <a class="reference internal" href="construction.html"><span class="doc">Construction and basic usage</span></a> for the <a class="reference internal" href="construction.html#pgraph.PGraph.DGraph" title="pgraph.PGraph.DGraph"><code class="xref py py-class docutils literal notranslate"><span class="pre">DGraph</span></code></a>
+and <a class="reference internal" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><code class="xref py py-class docutils literal notranslate"><span class="pre">UGraph</span></code></a> classes and <a class="reference internal" href="edges_vertices.html"><span class="doc">Edges &amp; Vertices</span></a> for vertices and edges.</p>
+<p>The following sections describe the common methods.</p>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="construction.html">Construction and basic usage</a><ul>
@@ -142,17 +142,20 @@ and <code class="xref py py-class docutils literal notranslate"><span class="pre
 <li class="toctree-l2"><a class="reference internal" href="construction.html#pgraph.PGraph.Graph.Adjacency"><code class="docutils literal notranslate"><span class="pre">Adjacency</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="construction.html#pgraph.PGraph.Graph.Dict"><code class="docutils literal notranslate"><span class="pre">Dict</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="construction.html#inherited-methods-for-all-graph-types">Inherited methods for all graph types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="construction.html#copying-a-vertex">Copying a vertex</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="modification.html">Adding and removing vertices and edges</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="modification.html#graph">Graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="modification.html#vertex">Vertex</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modification.html#edge">Edge</a></li>
 <li class="toctree-l2"><a class="reference internal" href="modification.html#details">Details</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="analysis.html">Graph analysis</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="analysis.html#graph">Graph</a></li>
 <li class="toctree-l2"><a class="reference internal" href="analysis.html#vertex">Vertex</a></li>
+<li class="toctree-l2"><a class="reference internal" href="analysis.html#edge">Edge</a></li>
 <li class="toctree-l2"><a class="reference internal" href="analysis.html#details">Details</a></li>
 </ul>
 </li>
@@ -166,6 +169,7 @@ and <code class="xref py py-class docutils literal notranslate"><span class="pre
 </li>
 <li class="toctree-l1"><a class="reference internal" href="export.html">Exporting a graph</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="export.html#details">Details</a></li>
+<li class="toctree-l2"><a class="reference internal" href="export.html#the-exporters">The exporters</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="planning.html">Path planning</a><ul>

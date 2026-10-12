@@ -1,14 +1,14 @@
 Adding and removing vertices and edges
 ========================================
 
-Building up and tearing down a graph's structure. ``connect()`` is the same
-for both kinds of graph: the graph decides how the edge is recorded at its
-vertices, so an undirected edge is found from either end and a directed one
-leaves its start vertex and enters its end vertex. See :class:`Edge` for
-constructing/removing an edge directly rather than via a vertex or graph.
+Building up and tearing down a graph's structure can be achieved by methods on the graph, vertex, and edge classes.
+These methods work for directed and undirected graphs.
+
 
 Graph
 -----
+
+The graph class provides methods for adding and removing vertices and edges.
 
 .. autosummary::
    :nosignatures:
@@ -21,12 +21,26 @@ Graph
 Vertex
 ------
 
+The vertex class provides methods for connecting a vertex to another vertex and for removing
+a vertex, and its edges, from the graph.
+
 .. autosummary::
    :nosignatures:
 
    ~pgraph.PGraph.Vertex.connect
-   ~pgraph.PGraph.Vertex.edgeto
    ~pgraph.PGraph.Vertex.remove
+
+Edge
+------
+
+The edge class provides methods for attaching an edge to a pair of vertices and for removing
+an edge from the graph.  They are described on the :doc:`edges_vertices` page.
+
+.. autosummary::
+   :nosignatures:
+
+   ~pgraph.PGraph.Edge.connect
+   ~pgraph.PGraph.Edge.remove
 
 Details
 -------
@@ -38,5 +52,4 @@ Details
 .. automethod:: pgraph.PGraph.Graph.remove
 
 .. automethod:: pgraph.PGraph.Vertex.connect
-.. automethod:: pgraph.PGraph.Vertex.edgeto
 .. automethod:: pgraph.PGraph.Vertex.remove

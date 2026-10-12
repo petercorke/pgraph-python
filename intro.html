@@ -47,6 +47,7 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Introduction</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#what-is-a-graph">What is a graph?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#creating-a-graph-using-the-pgraph-package">Creating a graph using the <code class="docutils literal notranslate"><span class="pre">pgraph</span></code> package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#creating-directed-and-undirected-graphs">Creating directed and undirected graphs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#history">History</a></li>
 </ul>
 </li>
@@ -64,6 +65,8 @@
 <li class="toctree-l2"><a class="reference internal" href="edges_vertices.html">Edges &amp; Vertices</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="edges_vertices.html#underlying-data-structures">Underlying data structures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="edges_vertices.html#working-with-vertices-and-edges-directly">Working with vertices and edges directly</a></li>
+<li class="toctree-l3"><a class="reference internal" href="edges_vertices.html#the-vertex-class">The Vertex class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="edges_vertices.html#the-edge-class">The Edge class</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="policy.html">Object lifecycle and graph-membership policy</a><ul>
@@ -103,7 +106,7 @@
 <div itemprop="articleBody">
 <section id="introduction">
 <h1>Introduction<a class="headerlink" href="#introduction" title="Link to this heading"></a></h1>
-<p>This package provides classes for directed and undirected graphs: vertices
+<p>This pure-Python package provides classes for directed and undirected graphs: vertices
 connected by edges, with edge costs and path planning.  Self-loops and
 parallel edges are permitted.</p>
 <p>Vertices can optionally be <em>embedded</em>: given a coordinate in a space of any
@@ -117,21 +120,27 @@ be plotted, or exported with its layout preserved.</p>
 depicted visually as shown below. Graphs can be
 used to represent transport, communications or social networks, and this branch of
 mathematics is graph theory.</p>
+<p>(<a class="reference download internal" download="" href="_downloads/41edb80dbfa59bb1144b9289003c9df6/intro-1.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="_downloads/9aef6ed4884fe673893e382a98601e8e/intro-1.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="_downloads/222c845b1a631534c3bc36d9b8059cb3/intro-1.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="_downloads/c18d8805e0ef6b22b833fea547aa2d57/intro-1.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
+<figure class="align-default">
+<img alt="two small graphs on the same five vertices, one undirected and one directed, each with parallel edges and a loop" class="plot-directive" src="_images/intro-1.png"/>
+</figure>
 <p>Mathematically, a graph is denoted by
 <span class="math notranslate nohighlight">\(G(V, E)\)</span> where <span class="math notranslate nohighlight">\(V\)</span> are the vertices or nodes, and <span class="math notranslate nohighlight">\(E\)</span> are the links that connect pairs
-of vertices and are called edges or arcs. Edges can be directed (shown as arrows) or
-undirected (shown as line segments) as in this case. Edges can have an associated
+of vertices and are called edges or arcs. Edges can be directed (shown as arrows, as in the graph
+on the right) or undirected (shown as line segments, as in the graph on the left). Edges can have an associated
 weight or cost associated with moving from one vertex to another. A sequence of
 edges from one vertex to another is a path, and a sequence that starts and ends at
-the same vertex is a cycle. An edge from a vertex to itself is a loop.</p>
+the same vertex is a cycle. An edge from a vertex to itself is a loop, and edges that join the same pair
+of vertices are parallel edges: B and D on the left are joined by two edges, as are A and B on the right.
+On the right, B and C are also joined by edges in opposite directions.</p>
 </section>
 <section id="creating-a-graph-using-the-pgraph-package">
 <h2>Creating a graph using the <code class="docutils literal notranslate"><span class="pre">pgraph</span></code> package<a class="headerlink" href="#creating-a-graph-using-the-pgraph-package" title="Link to this heading"></a></h2>
 <p>To create a new graph using the <code class="docutils literal notranslate"><span class="pre">pgraph</span></code> package, we first import the package and create
-a new instance of the <code class="docutils literal notranslate"><span class="pre">UGraph</span></code> class, which represents an undirected graph. By default, the vertices of the graph exist in 2-dimensional space.</p>
-<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pgraph</span>
+a new instance of the <code class="docutils literal notranslate"><span class="pre">UGraph</span></code> class, which represents an undirected graph with vertices that exist in 2-dimensional space.</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pgraph</span><span class="w"> </span><span class="kn">import</span> <a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">UGraph</span></a>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><a class="sphinx-codeautolink-a" href="https://numpy.org/doc/stable/reference/index.html#module-numpy"><span class="nn">numpy</span></a><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">g</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">pgraph</span><span class="o">.</span><span class="n">UGraph</span></a><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">g</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">UGraph</span></a><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Next, we add some vertices to the graph, each with a random 2D coordinate which is
@@ -147,8 +156,8 @@ edges, and to plot the graph.</p>
 <span class="go">Vertex[#4, coord=(0.9637, 0.3834)]</span>
 </pre></div>
 </div>
-<p>The method <code class="docutils literal notranslate"><span class="pre">add_vertex</span></code> returns a reference to the newly created vertex object, but
-we can obtain the reference by indexing the graph object. For example vertex 1 is</p>
+<p>The method <code class="docutils literal notranslate"><span class="pre">add_vertex</span></code> returns a reference to the newly created vertex object, and
+a vertex can also be obtained by indexing the graph object. For example vertex 1 is</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">g</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 <span class="go">Vertex[#1, coord=(0.6028, 0.5449)]</span>
 </pre></div>
@@ -194,28 +203,28 @@ be overridden by a third argument to <code class="docutils literal notranslate">
 </pre></div>
 </div>
 </div></blockquote>
-<p>and we see that it has 5 vertices, six edges and one component, that is, all the vertices are connected into one net-
-work.</p>
+<p>and we see that it has 5 vertices, six edges and one component, that is, all the vertices are connected into one
+network.</p>
 <p>The graph can be plotted by</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">g</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>(<a class="reference download internal" download="" href="_downloads/41edb80dbfa59bb1144b9289003c9df6/intro-1.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="_downloads/9aef6ed4884fe673893e382a98601e8e/intro-1.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="_downloads/222c845b1a631534c3bc36d9b8059cb3/intro-1.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="_downloads/c18d8805e0ef6b22b833fea547aa2d57/intro-1.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
+<p>(<a class="reference download internal" download="" href="_downloads/f89763754836be186fe0969e059c026e/intro-2.py"><code class="xref download docutils literal notranslate"><span class="pre">Source</span> <span class="pre">code</span></code></a>, <a class="reference download internal" download="" href="_downloads/c898b1131cb8ba19d859e1f1f578ec4f/intro-2.png"><code class="xref download docutils literal notranslate"><span class="pre">png</span></code></a>, <a class="reference download internal" download="" href="_downloads/d83c028839d60596b5ca8fd4694cddce/intro-2.hires.png"><code class="xref download docutils literal notranslate"><span class="pre">hires.png</span></code></a>, <a class="reference download internal" download="" href="_downloads/7b2f7c3dfca79506dd7c64aed041d146/intro-2.pdf"><code class="xref download docutils literal notranslate"><span class="pre">pdf</span></code></a>)</p>
 <figure class="align-default">
-<img alt="_images/intro-1.png" class="plot-directive" src="_images/intro-1.png"/>
+<img alt="_images/intro-2.png" class="plot-directive" src="_images/intro-2.png"/>
 </figure>
 <p>The vertices are shown as blue circles, and the edges are
-shown as lines joining vertices. Many options exist to change default plotting be-
-havior. Note that only graphs embedded in 2- and 3-dimensional space can be
+shown as lines joining vertices. Many options exist to change default plotting
+behavior. Note that only graphs embedded in 2- and 3-dimensional space can be
 plotted.</p>
-<p>The neighbours of vertex 1 are</p>
+<p>The vertices adjacent to vertex 1 are</p>
 <blockquote>
 <div><div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">g</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">adjacent</span><span class="p">()</span>
 <span class="go">[Vertex[#0, coord=(0.5488, 0.7152)], Vertex[#2, coord=(0.4237, 0.6459)], Vertex[#3, coord=(0.4376, 0.8918)]]</span>
 </pre></div>
 </div>
 </div></blockquote>
-<p>which is a list of neighboring vertex objects, those connected to it by an edge. Each
+<p>which is a list of adjacent vertex objects, those connected to it by an edge. Each
 edge is an object and the edges connecting to vertex 1 are</p>
 <blockquote>
 <div><div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">g</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">edges</span><span class="p">()</span>
@@ -244,7 +253,7 @@ edge is an object and the edges connecting to vertex 1 are</p>
 </pre></div>
 </div>
 </div></blockquote>
-<p>The minimum-distance path between any two vertices in the graph can be computed using well-known algorithms such as A (Hart et al. 1968)</p>
+<p>The minimum-distance path between any two vertices in the graph can be computed using well-known algorithms such as <code class="docutils literal notranslate"><span class="pre">A*</span></code> (Hart et al. 1968)</p>
 <blockquote>
 <div><div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">path</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">path_Astar</span><span class="p">(</span><span class="n">g</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">g</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">path</span>
@@ -255,7 +264,7 @@ edge is an object and the edges connecting to vertex 1 are</p>
 <p>which is a list of vertices representing a total path length of</p>
 <blockquote>
 <div><div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">length</span>
-<span class="go">1.0832988437645115</span>
+<span class="go">1.0832988437645112</span>
 </pre></div>
 </div>
 </div></blockquote>
@@ -270,17 +279,17 @@ methods exist to convert the graph to these.</p>
 </div></blockquote>
 <p>This exploits the flexible nature of Python, but care must be taken to avoid name clashes with existing attributes.</p>
 <p>A more robust and Pythonic approach is to create a subclass of the <code class="docutils literal notranslate"><span class="pre">Vertex</span></code> class and
-declare them at graph creation time. For example, we can create a subclass of <code class="docutils literal notranslate"><span class="pre">Vertex</span></code> called <code class="docutils literal notranslate"><span class="pre">MyVertex</span></code> and a subclass of <code class="docutils literal notranslate"><span class="pre">Edge</span></code> called <code class="docutils literal notranslate"><span class="pre">MyEdge</span></code> and then create a new graph using these classes.</p>
+pass them to the graph constructor. For example, we can create a subclass of <code class="docutils literal notranslate"><span class="pre">Vertex</span></code> called <code class="docutils literal notranslate"><span class="pre">MyVertex</span></code> and a subclass of <code class="docutils literal notranslate"><span class="pre">Edge</span></code> called <code class="docutils literal notranslate"><span class="pre">MyEdge</span></code> and then create a new graph using these classes.</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pgraph</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><a class="sphinx-codeautolink-a" href="https://numpy.org/doc/stable/reference/index.html#module-numpy"><span class="nn">numpy</span></a><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span><span class="w"> </span><span class="nc">MyVertex</span><span class="p">(</span><span class="n">pgraph</span><span class="o">.</span><span class="n">Vertex</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span><span class="w"> </span><span class="nc">MyVertex</span><span class="p">(</span><a class="sphinx-codeautolink-a" href="edges_vertices.html#pgraph.PGraph.Vertex" title="pgraph.PGraph.Vertex"><span class="n">pgraph</span><span class="o">.</span><span class="n">Vertex</span></a><span class="p">):</span>
 <span class="gp">... </span>    <span class="k">pass</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span><span class="w"> </span><span class="nc">MyEdge</span><span class="p">(</span><a class="sphinx-codeautolink-a" href="edge.html#pgraph.PGraph.Edge" title="pgraph.PGraph.Edge"><span class="n">pgraph</span><span class="o">.</span><span class="n">Edge</span></a><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span><span class="w"> </span><span class="nc">MyEdge</span><span class="p">(</span><a class="sphinx-codeautolink-a" href="edges_vertices.html#pgraph.PGraph.Edge" title="pgraph.PGraph.Edge"><span class="n">pgraph</span><span class="o">.</span><span class="n">Edge</span></a><span class="p">):</span>
 <span class="gp">... </span>    <span class="k">pass</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">g</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">pgraph</span><span class="o">.</span><span class="n">UGraph</span></a><span class="p">(</span><span class="n">vertex_class</span><span class="o">=</span><span class="n">MyVertex</span><span class="p">,</span> <span class="n">edge_class</span><span class="o">=</span><span class="n">MyEdge</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="https://numpy.org/doc/stable/reference/random/generated/numpy.random.seed.html#numpy.random.seed" title="numpy.random.seed"><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span></a><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="c1"># ensure repeatable results</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/builtins/stdtypes.html#range"><span class="nb">range</span></a><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
-<span class="gp">... </span>    <span class="n">v</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="modification.html#pgraph.PGraph.Graph.add_vertex" title="pgraph.PGraph.Graph.add_vertex"><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="https://numpy.org/doc/stable/reference/random/generated/numpy.random.rand.html#numpy.random.rand" title="numpy.random.rand"><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span></a><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+<span class="gp">... </span>    <a class="sphinx-codeautolink-a" href="edges_vertices.html#pgraph.PGraph.Vertex" title="pgraph.PGraph.Vertex"><span class="n">v</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="modification.html#pgraph.PGraph.Graph.add_vertex" title="pgraph.PGraph.Graph.add_vertex"><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="https://numpy.org/doc/stable/reference/random/generated/numpy.random.rand.html#numpy.random.rand" title="numpy.random.rand"><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span></a><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="modification.html#pgraph.PGraph.Graph.add_edge" title="pgraph.PGraph.Graph.add_edge"><span class="n">g</span><span class="o">.</span><span class="n">add_edge</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">g</span></a><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">g</span></a><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 <span class="go">MyEdge{[#0] -- [#1], cost=0.1786}</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="modification.html#pgraph.PGraph.Graph.add_edge" title="pgraph.PGraph.Graph.add_edge"><span class="n">g</span><span class="o">.</span><span class="n">add_edge</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">g</span></a><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">g</span></a><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
@@ -302,6 +311,28 @@ declare them at graph creation time. For example, we can create a subclass of <c
 <span class="go">&lt;class '__console__.MyVertex'&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/builtins/functions.html#type"><span class="nb">type</span></a><span class="p">(</span><span class="n">g</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">edges</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
 <span class="go">&lt;class '__console__.MyEdge'&gt;</span>
+</pre></div>
+</div>
+</section>
+<section id="creating-directed-and-undirected-graphs">
+<h2>Creating directed and undirected graphs<a class="headerlink" href="#creating-directed-and-undirected-graphs" title="Link to this heading"></a></h2>
+<p>The example above illustrates an undirected graph, but a directed graph can be created by using
+the <code class="docutils literal notranslate"><span class="pre">DGraph</span></code> class instead of <code class="docutils literal notranslate"><span class="pre">UGraph</span></code>. The methods are the same, but the edges are
+directed and the path-finding algorithms take this into account.</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pgraph</span><span class="w"> </span><span class="kn">import</span> <a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.DGraph" title="pgraph.PGraph.DGraph"><span class="n">DGraph</span></a>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.DGraph" title="pgraph.PGraph.DGraph"><span class="n">g</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.DGraph" title="pgraph.PGraph.DGraph"><span class="n">DGraph</span></a><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/builtins/functions.html#type"><span class="nb">type</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.DGraph" title="pgraph.PGraph.DGraph"><span class="n">g</span></a><span class="p">)</span>
+<span class="go">&lt;class 'pgraph.PGraph.DGraph'&gt;</span>
+</pre></div>
+</div>
+<p>Alternatively, we can make the decision at runtime by using the <code class="docutils literal notranslate"><span class="pre">directed</span></code> argument to the <code class="docutils literal notranslate"><span class="pre">Graph</span></code> constructor</p>
+<div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pgraph</span><span class="w"> </span><span class="kn">import</span> <a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.Graph" title="pgraph.PGraph.Graph"><span class="n">Graph</span></a>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.Graph" title="pgraph.PGraph.Graph"><span class="n">g</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.Graph" title="pgraph.PGraph.Graph"><span class="n">Graph</span></a><span class="p">(</span><span class="n">directed</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/builtins/functions.html#type"><span class="nb">type</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.Graph" title="pgraph.PGraph.Graph"><span class="n">g</span></a><span class="p">)</span>
+<span class="go">&lt;class 'pgraph.PGraph.DGraph'&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.Graph" title="pgraph.PGraph.Graph"><span class="n">g</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.Graph" title="pgraph.PGraph.Graph"><span class="n">Graph</span></a><span class="p">(</span><span class="n">directed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/builtins/functions.html#type"><span class="nb">type</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.Graph" title="pgraph.PGraph.Graph"><span class="n">g</span></a><span class="p">)</span>
+<span class="go">&lt;class 'pgraph.PGraph.UGraph'&gt;</span>
 </pre></div>
 </div>
 </section>

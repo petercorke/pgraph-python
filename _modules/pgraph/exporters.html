@@ -1,0 +1,684 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pgraph.exporters &mdash; Graphs for Python  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sphinx-codeautolink.css?v=b2176991" />
+      <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=83abaecb" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=ccdb6887"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Graphs for Python
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../intro.html">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../intro.html#what-is-a-graph">What is a graph?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../intro.html#creating-a-graph-using-the-pgraph-package">Creating a graph using the <code class="docutils literal notranslate"><span class="pre">pgraph</span></code> package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../intro.html#creating-directed-and-undirected-graphs">Creating directed and undirected graphs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../intro.html#history">History</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API details</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../common.html">Common methods</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../construction.html">Construction and basic usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../modification.html">Adding and removing vertices and edges</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../analysis.html">Graph analysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../representations.html">Transformations to matrix representations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../visualization.html">Visualization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../export.html">Exporting a graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../planning.html">Path planning</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../edges_vertices.html">Edges &amp; Vertices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../edges_vertices.html#underlying-data-structures">Underlying data structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../edges_vertices.html#working-with-vertices-and-edges-directly">Working with vertices and edges directly</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../edges_vertices.html#the-vertex-class">The Vertex class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../edges_vertices.html#the-edge-class">The Edge class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../policy.html">Object lifecycle and graph-membership policy</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../policy.html#standalone-construction">Standalone construction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../policy.html#adding-a-vertex-to-a-graph">Adding a vertex to a graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../policy.html#connecting-two-vertices">Connecting two vertices</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../policy.html#constructing-an-edge-directly">Constructing an <code class="docutils literal notranslate"><span class="pre">Edge</span></code> directly</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../policy.html#summary">Summary</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Graphs for Python</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pgraph.exporters</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pgraph.exporters</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""</span>
+<span class="sd">Export a graph as text (GraphViz DOT, Mermaid, GraphML, ELK JSON) or as a</span>
+<span class="sd">rendered image (via the GraphViz command line tools).</span>
+
+<span class="sd">This module is reached through :meth:`~pgraph.PGraph.Graph.export`, which</span>
+<span class="sd">dispatches on the format name or the file extension.  Each text exporter is a</span>
+<span class="sd">plain function ``f(graph, **options) -&gt; str``, registered with</span>
+<span class="sd">:func:`register_exporter`, so a user can add a format without touching the</span>
+<span class="sd">package::</span>
+
+<span class="sd">    from pgraph.exporters import register_exporter</span>
+
+<span class="sd">    @register_exporter("gexf", ".gexf")</span>
+<span class="sd">    def gexf(graph, *, version="1.3") -&gt; str:</span>
+<span class="sd">        ...</span>
+
+<span class="sd">None of the text formats needs a dependency beyond the standard library.  Only</span>
+<span class="sd">the rendered formats (:data:`RENDER_FORMATS`) need the GraphViz executables.</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>  <span class="c1"># nosec B404 - GraphViz is run without a shell, see render()</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">IO</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.PGraph</span><span class="w"> </span><span class="kn">import</span> <span class="n">Vertex</span><span class="p">,</span> <span class="n">Edge</span><span class="p">,</span> <span class="n">Graph</span>
+
+<span class="n">TextExporter</span> <span class="o">=</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
+
+<span class="n">_TEXT</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">TextExporter</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">_EXTENSIONS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+<span class="c1">#: GraphViz layout programs that may be run to render an image</span>
+<span class="n">ENGINES</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"dot"</span><span class="p">,</span> <span class="s2">"neato"</span><span class="p">,</span> <span class="s2">"fdp"</span><span class="p">,</span> <span class="s2">"sfdp"</span><span class="p">,</span> <span class="s2">"twopi"</span><span class="p">,</span> <span class="s2">"circo"</span><span class="p">,</span> <span class="s2">"osage"</span><span class="p">,</span> <span class="s2">"patchwork"</span><span class="p">)</span>
+
+<span class="c1">#: image formats produced by running the GraphViz ``dot``/``neato`` executable,</span>
+<span class="c1">#: mapped to whether the result is text (``True``) or binary (``False``)</span>
+<span class="n">RENDER_FORMATS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"svg"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="s2">"ps"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="s2">"pdf"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="s2">"png"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="s2">"jpg"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="s2">"jpeg"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="s2">"gif"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="register_exporter">
+<a class="viewcode-back" href="../../export.html#pgraph.exporters.register_exporter">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">register_exporter</span><span class="p">(</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="n">extensions</span><span class="p">:</span> <span class="nb">str</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">TextExporter</span><span class="p">],</span> <span class="n">TextExporter</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Register a text exporter (decorator)</span>
+
+<span class="sd">    :param name: format name used as ``export(format=name)``</span>
+<span class="sd">    :param extensions: file extensions, with the leading dot, that select this</span>
+<span class="sd">        format when ``format`` is not given</span>
+<span class="sd">    :return: the decorator</span>
+
+<span class="sd">    The decorated function is called as ``f(graph, **options)`` and returns the</span>
+<span class="sd">    text.  Declare its options as keyword-only parameters so that an unknown</span>
+<span class="sd">    option is a ``TypeError``.</span>
+<span class="sd">    """</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">decorator</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">TextExporter</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TextExporter</span><span class="p">:</span>
+        <span class="n">_TEXT</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">func</span>
+        <span class="k">for</span> <span class="n">ext</span> <span class="ow">in</span> <span class="n">extensions</span><span class="p">:</span>
+            <span class="n">_EXTENSIONS</span><span class="p">[</span><span class="n">ext</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="k">return</span> <span class="n">func</span>
+
+    <span class="k">return</span> <span class="n">decorator</span></div>
+
+
+
+<div class="viewcode-block" id="get_exporter">
+<a class="viewcode-back" href="../../export.html#pgraph.exporters.get_exporter">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_exporter</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TextExporter</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Look up a text exporter by format name</span>
+
+<span class="sd">    :param name: format name, eg. ``"dot"``</span>
+<span class="sd">    :return: the function ``f(graph, **options) -&gt; str``</span>
+<span class="sd">    :raises ValueError: no text exporter has that name; the message lists those</span>
+<span class="sd">        that do</span>
+<span class="sd">    """</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_TEXT</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"unknown export format </span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s2">, expected one of </span><span class="si">{</span><span class="n">formats</span><span class="p">()</span><span class="si">}</span><span class="s2">"</span>
+        <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span></div>
+
+
+
+<div class="viewcode-block" id="formats">
+<a class="viewcode-back" href="../../export.html#pgraph.exporters.formats">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">formats</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Names of all supported export formats</span>
+
+<span class="sd">    :return: text formats followed by rendered image formats</span>
+<span class="sd">    :rtype: list of str</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">_TEXT</span><span class="p">)</span> <span class="o">+</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">RENDER_FORMATS</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="format_from_filename">
+<a class="viewcode-back" href="../../export.html#pgraph.exporters.format_from_filename">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">format_from_filename</span><span class="p">(</span><span class="n">filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span> <span class="o">|</span> <span class="n">IO</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Infer an export format from a file name's extension</span>
+
+<span class="sd">    :param filename: path, or a file object with a ``name`` attribute</span>
+<span class="sd">    :return: the format name, or None if it cannot be decided</span>
+<span class="sd">    :rtype: str or None</span>
+
+<span class="sd">    Compound extensions such as ``.elk.json`` are tried before the plain</span>
+<span class="sd">    suffix.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">)):</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">fspath</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">"name"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">lower</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">ext</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">_EXTENSIONS</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="nb">len</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">lower</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">ext</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">_EXTENSIONS</span><span class="p">[</span><span class="n">ext</span><span class="p">]</span>
+    <span class="n">suffix</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">lower</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">"."</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">suffix</span> <span class="k">if</span> <span class="n">suffix</span> <span class="ow">in</span> <span class="n">RENDER_FORMATS</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+
+
+<span class="c1"># --------------------------------------------------------------------------- #</span>
+<span class="c1"># helpers shared by the exporters</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_is_directed</span><span class="p">(</span><span class="n">graph</span><span class="p">:</span> <span class="n">Graph</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">graph</span><span class="o">.</span><span class="n">directed</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_ordered_edges</span><span class="p">(</span><span class="n">graph</span><span class="p">:</span> <span class="n">Graph</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">Edge</span><span class="p">,</span> <span class="n">Vertex</span><span class="p">,</span> <span class="n">Vertex</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Edges in a reproducible order</span>
+
+<span class="sd">    Walk the vertices in creation order and each vertex's own outgoing edges,</span>
+<span class="sd">    keeping the first sight of every edge, so that edges are grouped by the</span>
+<span class="sd">    vertex they leave.  Identity is by object, not by endpoints, so parallel</span>
+<span class="sd">    edges are all kept, and an undirected edge (held by both ends, twice for a</span>
+<span class="sd">    self-loop) is listed once.</span>
+
+<span class="sd">    Each item is ``(edge, start, end)``.</span>
+<span class="sd">    """</span>
+    <span class="n">seen</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="n">edges</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">Edge</span><span class="p">,</span> <span class="n">Vertex</span><span class="p">,</span> <span class="n">Vertex</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">vertex</span> <span class="ow">in</span> <span class="n">graph</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">vertex</span><span class="o">.</span><span class="n">out_edges</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">id</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="ow">in</span> <span class="n">seen</span> <span class="ow">or</span> <span class="n">e</span><span class="o">.</span><span class="n">v1</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">e</span><span class="o">.</span><span class="n">v2</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">seen</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="nb">id</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+            <span class="n">edges</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">e</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">v1</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">v2</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">edges</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_component_colors</span><span class="p">(</span><span class="n">graph</span><span class="p">:</span> <span class="n">Graph</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Vertex</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Map each vertex to a ``#rrggbb`` color for its component, as plot() does</span>
+<span class="sd">    """</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+    <span class="n">nc</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">nc</span>  <span class="c1"># refreshes vertex.label</span>
+    <span class="n">cmap</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">coolwarm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="n">nc</span><span class="p">,</span> <span class="mi">1</span><span class="p">)))</span>
+    <span class="n">colors</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">vertex</span> <span class="ow">in</span> <span class="n">graph</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">vertex</span><span class="o">.</span><span class="n">label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">r</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">cmap</span><span class="p">[</span><span class="n">vertex</span><span class="o">.</span><span class="n">label</span><span class="p">]</span>
+            <span class="n">colors</span><span class="p">[</span><span class="n">vertex</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"#</span><span class="si">{:02x}{:02x}{:02x}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="nb">int</span><span class="p">(</span><span class="n">r</span> <span class="o">*</span> <span class="mi">255</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">g</span> <span class="o">*</span> <span class="mi">255</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">b</span> <span class="o">*</span> <span class="mi">255</span><span class="p">)</span>
+            <span class="p">)</span>
+    <span class="k">return</span> <span class="n">colors</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_xml_text</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Escape a value for XML element content or a double-quoted attribute</span>
+
+<span class="sd">    Characters that XML 1.0 cannot represent at all (most control characters)</span>
+<span class="sd">    are replaced with U+FFFD, since escaping cannot make them valid.</span>
+<span class="sd">    """</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="s2">""</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="n">c</span> <span class="k">if</span> <span class="n">c</span> <span class="ow">in</span> <span class="s2">"</span><span class="se">\t\n\r</span><span class="s2">"</span> <span class="ow">or</span> <span class="nb">ord</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mh">0x20</span> <span class="k">else</span> <span class="s2">"</span><span class="se">\ufffd</span><span class="s2">"</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">text</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">text</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"&amp;"</span><span class="p">,</span> <span class="s2">"&amp;amp;"</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"&lt;"</span><span class="p">,</span> <span class="s2">"&amp;lt;"</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"&gt;"</span><span class="p">,</span> <span class="s2">"&amp;gt;"</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">'"'</span><span class="p">,</span> <span class="s2">"&amp;quot;"</span><span class="p">)</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_dot_quote</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Quote a string for use as a DOT identifier or attribute value"""</span>
+    <span class="n">escaped</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"</span><span class="se">\\</span><span class="s2">"</span><span class="p">,</span> <span class="s2">"</span><span class="se">\\\\</span><span class="s2">"</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">'"'</span><span class="p">,</span> <span class="s1">'</span><span class="se">\\</span><span class="s1">"'</span><span class="p">)</span>
+    <span class="k">return</span> <span class="s1">'"'</span> <span class="o">+</span> <span class="n">escaped</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"</span><span class="se">\r\n</span><span class="s2">"</span><span class="p">,</span> <span class="s2">"</span><span class="se">\\</span><span class="s2">n"</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">,</span> <span class="s2">"</span><span class="se">\\</span><span class="s2">n"</span><span class="p">)</span> <span class="o">+</span> <span class="s1">'"'</span>
+
+
+<span class="c1"># --------------------------------------------------------------------------- #</span>
+<span class="c1"># text exporters</span>
+
+
+<div class="viewcode-block" id="dot">
+<a class="viewcode-back" href="../../export.html#pgraph.exporters.dot">[docs]</a>
+<span class="nd">@register_exporter</span><span class="p">(</span><span class="s2">"dot"</span><span class="p">,</span> <span class="s2">".dot"</span><span class="p">,</span> <span class="s2">".gv"</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">dot</span><span class="p">(</span>
+    <span class="n">graph</span><span class="p">:</span> <span class="n">Graph</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">direction</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">colorcomponents</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">costs</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    GraphViz DOT text</span>
+
+<span class="sd">    :param direction: layout direction, ``rankdir`` in DOT, eg. ``"LR"``</span>
+<span class="sd">    :param colorcomponents: fill vertices by connected component</span>
+<span class="sd">    :param costs: label edges with their cost</span>
+<span class="sd">    """</span>
+    <span class="n">directed</span> <span class="o">=</span> <span class="n">_is_directed</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span>
+    <span class="n">link</span> <span class="o">=</span> <span class="s2">"-&gt;"</span> <span class="k">if</span> <span class="n">directed</span> <span class="k">else</span> <span class="s2">"--"</span>
+    <span class="n">colors</span> <span class="o">=</span> <span class="n">_component_colors</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span> <span class="k">if</span> <span class="n">colorcomponents</span> <span class="k">else</span> <span class="p">{}</span>
+
+    <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"digraph {"</span> <span class="k">if</span> <span class="n">directed</span> <span class="k">else</span> <span class="s2">"graph {"</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">direction</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  rankdir=</span><span class="si">{</span><span class="n">_dot_quote</span><span class="p">(</span><span class="n">direction</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">vertex</span> <span class="ow">in</span> <span class="n">graph</span><span class="p">:</span>
+        <span class="n">attrs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">vertex</span><span class="o">.</span><span class="n">coord</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">vertex</span><span class="o">.</span><span class="n">coord</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="c1"># the "!" pins the position when the neato engine is used</span>
+            <span class="n">attrs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="s1">'pos="</span><span class="si">{:g}</span><span class="s1">,</span><span class="si">{:g}</span><span class="s1">!"'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">vertex</span><span class="o">.</span><span class="n">coord</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">vertex</span><span class="o">.</span><span class="n">coord</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">vertex</span> <span class="ow">in</span> <span class="n">colors</span><span class="p">:</span>
+            <span class="n">attrs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">'style="filled"'</span><span class="p">)</span>
+            <span class="n">attrs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'fillcolor="</span><span class="si">{</span><span class="n">colors</span><span class="p">[</span><span class="n">vertex</span><span class="p">]</span><span class="si">}</span><span class="s1">"'</span><span class="p">)</span>
+        <span class="n">suffix</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">" [</span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">attrs</span><span class="p">)</span><span class="si">}</span><span class="s2">]"</span> <span class="k">if</span> <span class="n">attrs</span> <span class="k">else</span> <span class="s2">""</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  </span><span class="si">{</span><span class="n">_dot_quote</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">vertex</span><span class="o">.</span><span class="n">name</span><span class="p">))</span><span class="si">}{</span><span class="n">suffix</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">e</span><span class="p">,</span> <span class="n">v1</span><span class="p">,</span> <span class="n">v2</span> <span class="ow">in</span> <span class="n">_ordered_edges</span><span class="p">(</span><span class="n">graph</span><span class="p">):</span>
+        <span class="n">attrs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">costs</span> <span class="ow">and</span> <span class="n">e</span><span class="o">.</span><span class="n">cost</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">attrs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'label="</span><span class="si">{</span><span class="n">e</span><span class="o">.</span><span class="n">cost</span><span class="si">:</span><span class="s1">.4g</span><span class="si">}</span><span class="s1">"'</span><span class="p">)</span>
+        <span class="n">suffix</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">" [</span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">attrs</span><span class="p">)</span><span class="si">}</span><span class="s2">]"</span> <span class="k">if</span> <span class="n">attrs</span> <span class="k">else</span> <span class="s2">""</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"  </span><span class="si">{</span><span class="n">_dot_quote</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">v1</span><span class="o">.</span><span class="n">name</span><span class="p">))</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">link</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">_dot_quote</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">v2</span><span class="o">.</span><span class="n">name</span><span class="p">))</span><span class="si">}{</span><span class="n">suffix</span><span class="si">}</span><span class="s2">"</span>
+        <span class="p">)</span>
+
+    <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"}"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span> <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span></div>
+
+
+
+<div class="viewcode-block" id="mermaid">
+<a class="viewcode-back" href="../../export.html#pgraph.exporters.mermaid">[docs]</a>
+<span class="nd">@register_exporter</span><span class="p">(</span><span class="s2">"mermaid"</span><span class="p">,</span> <span class="s2">".mmd"</span><span class="p">,</span> <span class="s2">".mermaid"</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">mermaid</span><span class="p">(</span>
+    <span class="n">graph</span><span class="p">:</span> <span class="n">Graph</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">direction</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"TB"</span><span class="p">,</span>
+    <span class="n">colorcomponents</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">costs</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">fence</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Mermaid flowchart text</span>
+
+<span class="sd">    :param direction: ``"TB"``, ``"BT"``, ``"LR"`` or ``"RL"``</span>
+<span class="sd">    :param colorcomponents: fill vertices by connected component</span>
+<span class="sd">    :param costs: label edges with their cost</span>
+<span class="sd">    :param fence: wrap in a Markdown code fence, three backticks followed by</span>
+<span class="sd">        ``mermaid``</span>
+
+<span class="sd">    Mermaid flowcharts are laid out automatically and cannot pin node</span>
+<span class="sd">    positions, so vertex coordinates are not represented.  Vertices are given</span>
+<span class="sd">    generated ids (``n0``, ``n1``, ...) with the real name as the label, since</span>
+<span class="sd">    names are arbitrary strings but Mermaid ids are not.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">direction</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"TB"</span><span class="p">,</span> <span class="s2">"TD"</span><span class="p">,</span> <span class="s2">"BT"</span><span class="p">,</span> <span class="s2">"LR"</span><span class="p">,</span> <span class="s2">"RL"</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"direction must be TB, BT, LR or RL, got </span><span class="si">{</span><span class="n">direction</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span>
+
+    <span class="n">arrow</span> <span class="o">=</span> <span class="s2">"--&gt;"</span> <span class="k">if</span> <span class="n">_is_directed</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span> <span class="k">else</span> <span class="s2">"---"</span>
+    <span class="n">ids</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Vertex</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"flowchart </span><span class="si">{</span><span class="n">direction</span><span class="si">}</span><span class="s2">"</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">vertex</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">graph</span><span class="p">):</span>
+        <span class="n">ids</span><span class="p">[</span><span class="n">vertex</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"n</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">"</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">vertex</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">'"'</span><span class="p">,</span> <span class="s2">"#quot;"</span><span class="p">)</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'    n</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">["</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s1">"]'</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">e</span><span class="p">,</span> <span class="n">v1</span><span class="p">,</span> <span class="n">v2</span> <span class="ow">in</span> <span class="n">_ordered_edges</span><span class="p">(</span><span class="n">graph</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">costs</span> <span class="ow">and</span> <span class="n">e</span><span class="o">.</span><span class="n">cost</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'    </span><span class="si">{</span><span class="n">ids</span><span class="p">[</span><span class="n">v1</span><span class="p">]</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">arrow</span><span class="si">}</span><span class="s1">|"</span><span class="si">{</span><span class="n">e</span><span class="o">.</span><span class="n">cost</span><span class="si">:</span><span class="s1">.4g</span><span class="si">}</span><span class="s1">"| </span><span class="si">{</span><span class="n">ids</span><span class="p">[</span><span class="n">v2</span><span class="p">]</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"    </span><span class="si">{</span><span class="n">ids</span><span class="p">[</span><span class="n">v1</span><span class="p">]</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">arrow</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">ids</span><span class="p">[</span><span class="n">v2</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">colorcomponents</span><span class="p">:</span>
+        <span class="n">colors</span> <span class="o">=</span> <span class="n">_component_colors</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">vertex</span><span class="p">,</span> <span class="n">color</span> <span class="ow">in</span> <span class="n">colors</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"    style </span><span class="si">{</span><span class="n">ids</span><span class="p">[</span><span class="n">vertex</span><span class="p">]</span><span class="si">}</span><span class="s2"> fill:</span><span class="si">{</span><span class="n">color</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+    <span class="n">text</span> <span class="o">=</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span> <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span>
+    <span class="k">if</span> <span class="n">fence</span><span class="p">:</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"```mermaid</span><span class="se">\n</span><span class="si">{</span><span class="n">text</span><span class="si">}</span><span class="s2">```</span><span class="se">\n</span><span class="s2">"</span>
+    <span class="k">return</span> <span class="n">text</span></div>
+
+
+
+<div class="viewcode-block" id="graphml">
+<a class="viewcode-back" href="../../export.html#pgraph.exporters.graphml">[docs]</a>
+<span class="nd">@register_exporter</span><span class="p">(</span><span class="s2">"graphml"</span><span class="p">,</span> <span class="s2">".graphml"</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">graphml</span><span class="p">(</span><span class="n">graph</span><span class="p">:</span> <span class="n">Graph</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    GraphML XML text</span>
+
+<span class="sd">    Name, component, coordinate (``x``, ``y`` and the full ``coord`` string for</span>
+<span class="sd">    higher dimensions) and edge cost are written as ``&lt;data&gt;`` elements with</span>
+<span class="sd">    ``&lt;key&gt;`` declarations.  ``edgedefault`` follows the graph kind.  GraphML</span>
+<span class="sd">    has no standard node position outside the proprietary yFiles extension,</span>
+<span class="sd">    which is not used.</span>
+<span class="sd">    """</span>
+    <span class="n">graph</span><span class="o">.</span><span class="n">nc</span>  <span class="c1"># refresh vertex.label</span>
+    <span class="n">has_coords</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">coord</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">graph</span><span class="p">)</span>
+    <span class="n">edges</span> <span class="o">=</span> <span class="n">_ordered_edges</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span>
+    <span class="n">has_cost</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">cost</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">e</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">edges</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">key</span><span class="p">(</span><span class="n">key_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">domain</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">type_</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s1">'  &lt;key id="</span><span class="si">{</span><span class="n">key_id</span><span class="si">}</span><span class="s1">" for="</span><span class="si">{</span><span class="n">domain</span><span class="si">}</span><span class="s1">" '</span>
+            <span class="sa">f</span><span class="s1">'attr.name="</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">" attr.type="</span><span class="si">{</span><span class="n">type_</span><span class="si">}</span><span class="s1">"/&gt;'</span>
+        <span class="p">)</span>
+
+    <span class="n">kind</span> <span class="o">=</span> <span class="s2">"directed"</span> <span class="k">if</span> <span class="n">_is_directed</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span> <span class="k">else</span> <span class="s2">"undirected"</span>
+    <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s1">'&lt;?xml version="1.0" encoding="UTF-8"?&gt;'</span><span class="p">,</span>
+        <span class="s1">'&lt;graphml xmlns="http://graphml.graphdrawing.org/xmlns"&gt;'</span><span class="p">,</span>
+        <span class="n">key</span><span class="p">(</span><span class="s2">"node_label"</span><span class="p">,</span> <span class="s2">"node"</span><span class="p">,</span> <span class="s2">"label"</span><span class="p">,</span> <span class="s2">"string"</span><span class="p">),</span>
+        <span class="n">key</span><span class="p">(</span><span class="s2">"component"</span><span class="p">,</span> <span class="s2">"node"</span><span class="p">,</span> <span class="s2">"component"</span><span class="p">,</span> <span class="s2">"int"</span><span class="p">),</span>
+    <span class="p">]</span>
+    <span class="k">if</span> <span class="n">has_coords</span><span class="p">:</span>
+        <span class="n">lines</span> <span class="o">+=</span> <span class="p">[</span>
+            <span class="n">key</span><span class="p">(</span><span class="s2">"x"</span><span class="p">,</span> <span class="s2">"node"</span><span class="p">,</span> <span class="s2">"x"</span><span class="p">,</span> <span class="s2">"double"</span><span class="p">),</span>
+            <span class="n">key</span><span class="p">(</span><span class="s2">"y"</span><span class="p">,</span> <span class="s2">"node"</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">,</span> <span class="s2">"double"</span><span class="p">),</span>
+            <span class="n">key</span><span class="p">(</span><span class="s2">"coord"</span><span class="p">,</span> <span class="s2">"node"</span><span class="p">,</span> <span class="s2">"coord"</span><span class="p">,</span> <span class="s2">"string"</span><span class="p">),</span>
+        <span class="p">]</span>
+    <span class="k">if</span> <span class="n">has_cost</span><span class="p">:</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key</span><span class="p">(</span><span class="s2">"edge_cost"</span><span class="p">,</span> <span class="s2">"edge"</span><span class="p">,</span> <span class="s2">"cost"</span><span class="p">,</span> <span class="s2">"double"</span><span class="p">))</span>
+    <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'  &lt;graph id="G" edgedefault="</span><span class="si">{</span><span class="n">kind</span><span class="si">}</span><span class="s1">"&gt;'</span><span class="p">)</span>
+
+    <span class="n">ids</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Vertex</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">vertex</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">graph</span><span class="p">):</span>
+        <span class="n">ids</span><span class="p">[</span><span class="n">vertex</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"n</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">"</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'    &lt;node id="n</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">"&gt;'</span><span class="p">)</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'      &lt;data key="node_label"&gt;</span><span class="si">{</span><span class="n">_xml_text</span><span class="p">(</span><span class="n">vertex</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="si">}</span><span class="s1">&lt;/data&gt;'</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">vertex</span><span class="o">.</span><span class="n">label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'      &lt;data key="component"&gt;</span><span class="si">{</span><span class="n">vertex</span><span class="o">.</span><span class="n">label</span><span class="si">}</span><span class="s1">&lt;/data&gt;'</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">vertex</span><span class="o">.</span><span class="n">coord</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">vertex</span><span class="o">.</span><span class="n">coord</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'      &lt;data key="x"&gt;</span><span class="si">{</span><span class="n">vertex</span><span class="o">.</span><span class="n">coord</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s1">.6g</span><span class="si">}</span><span class="s1">&lt;/data&gt;'</span><span class="p">)</span>
+                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'      &lt;data key="y"&gt;</span><span class="si">{</span><span class="n">vertex</span><span class="o">.</span><span class="n">coord</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s1">.6g</span><span class="si">}</span><span class="s1">&lt;/data&gt;'</span><span class="p">)</span>
+            <span class="n">coord</span> <span class="o">=</span> <span class="s2">","</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">c</span><span class="si">:</span><span class="s2">.6g</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">vertex</span><span class="o">.</span><span class="n">coord</span><span class="p">)</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'      &lt;data key="coord"&gt;</span><span class="si">{</span><span class="n">coord</span><span class="si">}</span><span class="s1">&lt;/data&gt;'</span><span class="p">)</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"    &lt;/node&gt;"</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">edges</span><span class="p">):</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'    &lt;edge id="e</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">" source="</span><span class="si">{</span><span class="n">ids</span><span class="p">[</span><span class="n">v1</span><span class="p">]</span><span class="si">}</span><span class="s1">" target="</span><span class="si">{</span><span class="n">ids</span><span class="p">[</span><span class="n">v2</span><span class="p">]</span><span class="si">}</span><span class="s1">"&gt;'</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">cost</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'      &lt;data key="edge_cost"&gt;</span><span class="si">{</span><span class="n">e</span><span class="o">.</span><span class="n">cost</span><span class="si">:</span><span class="s1">.6g</span><span class="si">}</span><span class="s1">&lt;/data&gt;'</span><span class="p">)</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"    &lt;/edge&gt;"</span><span class="p">)</span>
+
+    <span class="n">lines</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">"  &lt;/graph&gt;"</span><span class="p">,</span> <span class="s2">"&lt;/graphml&gt;"</span><span class="p">]</span>
+    <span class="k">return</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span> <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span></div>
+
+
+
+<div class="viewcode-block" id="elk">
+<a class="viewcode-back" href="../../export.html#pgraph.exporters.elk">[docs]</a>
+<span class="nd">@register_exporter</span><span class="p">(</span><span class="s2">"elk"</span><span class="p">,</span> <span class="s2">".elk.json"</span><span class="p">,</span> <span class="s2">".elk"</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">elk</span><span class="p">(</span>
+    <span class="n">graph</span><span class="p">:</span> <span class="n">Graph</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">size</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">60</span><span class="p">,</span> <span class="mi">40</span><span class="p">),</span>
+    <span class="n">layout_options</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Eclipse Layout Kernel (ELK) JSON graph text</span>
+
+<span class="sd">    :param size: width and height given to every node, which ELK requires</span>
+<span class="sd">    :param layout_options: ELK layout options, merged over the defaults</span>
+
+<span class="sd">    Unlike GraphML, ELK has native ``x`` and ``y`` node fields.  If any vertex</span>
+<span class="sd">    has a coordinate the ``fixed`` algorithm is selected so that a consumer</span>
+<span class="sd">    keeps the positions; otherwise ``layered`` computes a layout.</span>
+<span class="sd">    """</span>
+    <span class="n">graph</span><span class="o">.</span><span class="n">nc</span>  <span class="c1"># refresh vertex.label</span>
+    <span class="n">has_coords</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">coord</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">graph</span><span class="p">)</span>
+
+    <span class="n">ids</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Vertex</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">children</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">vertex</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">graph</span><span class="p">):</span>
+        <span class="n">ids</span><span class="p">[</span><span class="n">vertex</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"n</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">"</span>
+        <span class="n">node</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">"id"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"n</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+            <span class="s2">"labels"</span><span class="p">:</span> <span class="p">[{</span><span class="s2">"text"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">vertex</span><span class="o">.</span><span class="n">name</span><span class="p">)}],</span>
+            <span class="s2">"width"</span><span class="p">:</span> <span class="n">size</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="s2">"height"</span><span class="p">:</span> <span class="n">size</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+        <span class="p">}</span>
+        <span class="n">properties</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">vertex</span><span class="o">.</span><span class="n">coord</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">vertex</span><span class="o">.</span><span class="n">coord</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">node</span><span class="p">[</span><span class="s2">"x"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">vertex</span><span class="o">.</span><span class="n">coord</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">node</span><span class="p">[</span><span class="s2">"y"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">vertex</span><span class="o">.</span><span class="n">coord</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">properties</span><span class="p">[</span><span class="s2">"coord"</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">vertex</span><span class="o">.</span><span class="n">coord</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">vertex</span><span class="o">.</span><span class="n">label</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">properties</span><span class="p">[</span><span class="s2">"component"</span><span class="p">]</span> <span class="o">=</span> <span class="n">vertex</span><span class="o">.</span><span class="n">label</span>
+        <span class="k">if</span> <span class="n">properties</span><span class="p">:</span>
+            <span class="n">node</span><span class="p">[</span><span class="s2">"properties"</span><span class="p">]</span> <span class="o">=</span> <span class="n">properties</span>
+        <span class="n">children</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+
+    <span class="n">edges</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">_ordered_edges</span><span class="p">(</span><span class="n">graph</span><span class="p">)):</span>
+        <span class="n">edge</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">"id"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"e</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+            <span class="s2">"sources"</span><span class="p">:</span> <span class="p">[</span><span class="n">ids</span><span class="p">[</span><span class="n">v1</span><span class="p">]],</span>
+            <span class="s2">"targets"</span><span class="p">:</span> <span class="p">[</span><span class="n">ids</span><span class="p">[</span><span class="n">v2</span><span class="p">]],</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">cost</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">edge</span><span class="p">[</span><span class="s2">"labels"</span><span class="p">]</span> <span class="o">=</span> <span class="p">[{</span><span class="s2">"text"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">e</span><span class="o">.</span><span class="n">cost</span><span class="si">:</span><span class="s2">.4g</span><span class="si">}</span><span class="s2">"</span><span class="p">}]</span>
+            <span class="n">edge</span><span class="p">[</span><span class="s2">"properties"</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"cost"</span><span class="p">:</span> <span class="n">e</span><span class="o">.</span><span class="n">cost</span><span class="p">}</span>
+        <span class="n">edges</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span>
+
+    <span class="n">options</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">"org.eclipse.elk.algorithm"</span><span class="p">:</span> <span class="s2">"fixed"</span> <span class="k">if</span> <span class="n">has_coords</span> <span class="k">else</span> <span class="s2">"layered"</span><span class="p">,</span>
+        <span class="s2">"org.eclipse.elk.direction"</span><span class="p">:</span> <span class="s2">"DOWN"</span> <span class="k">if</span> <span class="n">_is_directed</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span> <span class="k">else</span> <span class="s2">"UNDEFINED"</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="n">options</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">layout_options</span> <span class="ow">or</span> <span class="p">{})</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">"id"</span><span class="p">:</span> <span class="s2">"root"</span><span class="p">,</span>
+                <span class="s2">"layoutOptions"</span><span class="p">:</span> <span class="n">options</span><span class="p">,</span>
+                <span class="s2">"children"</span><span class="p">:</span> <span class="n">children</span><span class="p">,</span>
+                <span class="s2">"edges"</span><span class="p">:</span> <span class="n">edges</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span>
+    <span class="p">)</span></div>
+
+
+
+<span class="c1"># --------------------------------------------------------------------------- #</span>
+<span class="c1"># rendered images</span>
+
+
+<div class="viewcode-block" id="render">
+<a class="viewcode-back" href="../../export.html#pgraph.exporters.render">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">render</span><span class="p">(</span>
+    <span class="n">graph</span><span class="p">:</span> <span class="n">Graph</span><span class="p">,</span>
+    <span class="n">fmt</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">engine</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">direction</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">colorcomponents</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">costs</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Render the graph to an image with the GraphViz executables</span>
+
+<span class="sd">    :param fmt: one of :data:`RENDER_FORMATS`</span>
+<span class="sd">    :param engine: GraphViz layout program, one of :data:`ENGINES`.  Defaults</span>
+<span class="sd">        to ``neato`` if any vertex has a coordinate, since it honours pinned</span>
+<span class="sd">        positions, else ``dot``</span>
+<span class="sd">    :return: the image</span>
+<span class="sd">    :rtype: bytes</span>
+<span class="sd">    :raises ValueError: ``fmt`` or ``engine`` is not a known name</span>
+<span class="sd">    :raises RuntimeError: the layout program is not installed, or failed</span>
+
+<span class="sd">    Both names are checked against fixed lists and the program is run with an</span>
+<span class="sd">    argument list and no shell, so neither can carry a command.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">fmt</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">RENDER_FORMATS</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"unknown image format </span><span class="si">{</span><span class="n">fmt</span><span class="si">!r}</span><span class="s2">, expected one of </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">RENDER_FORMATS</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">engine</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">engine</span> <span class="o">=</span> <span class="s2">"neato"</span> <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">coord</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">graph</span><span class="p">)</span> <span class="k">else</span> <span class="s2">"dot"</span>
+    <span class="k">if</span> <span class="n">engine</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ENGINES</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"unknown GraphViz engine </span><span class="si">{</span><span class="n">engine</span><span class="si">!r}</span><span class="s2">, expected one of </span><span class="si">{</span><span class="n">ENGINES</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="n">exe</span> <span class="o">=</span> <span class="n">shutil</span><span class="o">.</span><span class="n">which</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">exe</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"GraphViz layout program </span><span class="si">{</span><span class="n">engine</span><span class="si">!r}</span><span class="s2"> was not found on PATH; "</span>
+            <span class="s2">"install GraphViz (https://graphviz.org/download/) to render "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">fmt</span><span class="si">}</span><span class="s2"> output, or export the text with format='dot'"</span>
+        <span class="p">)</span>
+
+    <span class="n">text</span> <span class="o">=</span> <span class="n">dot</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="n">direction</span><span class="p">,</span> <span class="n">colorcomponents</span><span class="o">=</span><span class="n">colorcomponents</span><span class="p">,</span> <span class="n">costs</span><span class="o">=</span><span class="n">costs</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>  <span class="c1"># nosec B603 nosemgrep - allow-listed program and format, no shell</span>
+        <span class="p">[</span><span class="n">exe</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"-T</span><span class="si">{</span><span class="n">fmt</span><span class="si">}</span><span class="s2">"</span><span class="p">],</span>
+        <span class="nb">input</span><span class="o">=</span><span class="n">text</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">"utf-8"</span><span class="p">),</span>
+        <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span>
+        <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">returncode</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">engine</span><span class="si">}</span><span class="s2"> failed with exit code </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">returncode</span><span class="si">}</span><span class="s2">: "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">'utf-8'</span><span class="p">,</span><span class="w"> </span><span class="s1">'replace'</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="si">}</span><span class="s2">"</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span><span class="o">.</span><span class="n">stdout</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+  <p>Copyright &#169; 2020-present, Peter Corke: built 2026-10-12.
+  </p>
+  <a href="https://github.com/petercorke/pgraph-python" class="footer-github-link">GitHub</a>
+
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+    <!-- Theme Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-11Q6WJM565"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-11Q6WJM565', {
+          'anonymize_ip': false,
+      });
+    </script> 
+
+</body>
+</html>

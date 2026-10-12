@@ -1,4 +1,4 @@
 <map id="inheritance55b8aa88e1" name="inheritance55b8aa88e1">
 <area shape="rect" id="node1" href="#pgraph.PGraph.DGraph" target="_top" title="Class for directed graphs" alt="" coords="215,5,385,31"/>
-<area shape="rect" id="node2" href="#pgraph.PGraph.Graph" target="_top" title="pgraph.PGraph.Graph" alt="" coords="5,5,167,31"/>
+<area shape="rect" id="node2" href="#pgraph.PGraph.Graph" target="_top" title="Base class for all graphs" alt="" coords="5,5,167,31"/>
 </map>

@@ -46,6 +46,7 @@
 <li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="intro.html#what-is-a-graph">What is a graph?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="intro.html#creating-a-graph-using-the-pgraph-package">Creating a graph using the <code class="docutils literal notranslate"><span class="pre">pgraph</span></code> package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="intro.html#creating-directed-and-undirected-graphs">Creating directed and undirected graphs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="intro.html#history">History</a></li>
 </ul>
 </li>
@@ -63,6 +64,8 @@
 <li class="toctree-l2"><a class="reference internal" href="edges_vertices.html">Edges &amp; Vertices</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="edges_vertices.html#underlying-data-structures">Underlying data structures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="edges_vertices.html#working-with-vertices-and-edges-directly">Working with vertices and edges directly</a></li>
+<li class="toctree-l3"><a class="reference internal" href="edges_vertices.html#the-vertex-class">The Vertex class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="edges_vertices.html#the-edge-class">The Edge class</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="policy.html">Object lifecycle and graph-membership policy</a><ul>
@@ -120,7 +123,7 @@
 <td><p>Convert graph to an incidence matrix</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pgraph.PGraph.Graph.laplacian" title="pgraph.PGraph.Graph.laplacian"><code class="xref py py-obj docutils literal notranslate"><span class="pre">laplacian</span></code></a></p></td>
-<td><p>Convert the graph to a Laplacian matrix</p></td>
+<td><p>Convert graph to a Laplacian matrix</p></td>
 </tr>
 </tbody>
 </table>
@@ -375,7 +378,7 @@ single 1.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pgraph.PGraph.Graph.laplacian">
 <span class="sig-prename descclassname"><span class="pre">Graph.</span></span><span class="sig-name descname"><span class="pre">laplacian</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pgraph/PGraph.html#Graph.laplacian"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pgraph.PGraph.Graph.laplacian" title="Link to this definition"></a></dt>
-<dd><p>Convert the graph to a Laplacian matrix</p>
+<dd><p>Convert graph to a Laplacian matrix</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Laplacian matrix</p>
@@ -439,7 +442,7 @@ of the Laplacian entirely.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p><code class="docutils literal notranslate"><span class="pre">D_out</span></code> is the diagonal matrix of
-<code class="xref py py-attr docutils literal notranslate"><span class="pre">Vertex.out_degree</span></code>.  For an undirected graph that is
+<a class="reference internal" href="analysis.html#pgraph.PGraph.Vertex.out_degree" title="pgraph.PGraph.Vertex.out_degree"><code class="xref py py-attr docutils literal notranslate"><span class="pre">Vertex.out_degree</span></code></a>.  For an undirected graph that is
 <a class="reference internal" href="#pgraph.PGraph.Graph.degree" title="pgraph.PGraph.Graph.degree"><code class="xref py py-meth docutils literal notranslate"><span class="pre">degree()</span></code></a>, but for a directed graph <a class="reference internal" href="#pgraph.PGraph.Graph.degree" title="pgraph.PGraph.Graph.degree"><code class="xref py py-meth docutils literal notranslate"><span class="pre">degree()</span></code></a> is in plus
 out, so the Laplacian does <em>not</em> use it.</p>
 </div>

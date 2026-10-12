@@ -46,6 +46,7 @@
 <li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="intro.html#what-is-a-graph">What is a graph?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="intro.html#creating-a-graph-using-the-pgraph-package">Creating a graph using the <code class="docutils literal notranslate"><span class="pre">pgraph</span></code> package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="intro.html#creating-directed-and-undirected-graphs">Creating directed and undirected graphs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="intro.html#history">History</a></li>
 </ul>
 </li>
@@ -63,6 +64,8 @@
 <li class="toctree-l2"><a class="reference internal" href="edges_vertices.html">Edges &amp; Vertices</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="edges_vertices.html#underlying-data-structures">Underlying data structures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="edges_vertices.html#working-with-vertices-and-edges-directly">Working with vertices and edges directly</a></li>
+<li class="toctree-l3"><a class="reference internal" href="edges_vertices.html#the-vertex-class">The Vertex class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="edges_vertices.html#the-edge-class">The Edge class</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="policy.html">Object lifecycle and graph-membership policy</a><ul>
@@ -105,8 +108,8 @@
 <section id="exporting-a-graph">
 <h1>Exporting a graph<a class="headerlink" href="#exporting-a-graph" title="Link to this heading"></a></h1>
 <p>Graphs can be exported to a number of different formats, including dot (used by
-<a class="reference external" href="https://graphviz.org">GraphViz</a>) mermaid (a JavaScript-based graph
-visualization tool that can be used in MarkDown documents), GraphML (an
+<a class="reference external" href="https://graphviz.org">GraphViz</a>), Mermaid (a JavaScript-based graph
+visualization tool that can be used in Markdown documents), GraphML (an
 XML-based format for representing graphs), ELK (a graph
 layout engine), as well as various image formats (e.g., PNG, SVG, PDF).</p>
 <p>See <a class="reference internal" href="visualization.html"><span class="doc">Visualization</span></a> for rendering the graph using Matplotlib itself rather than exporting
@@ -193,9 +196,9 @@ installed, or fails</p></li>
 formats run the GraphViz <code class="docutils literal notranslate"><span class="pre">dot</span></code> or <code class="docutils literal notranslate"><span class="pre">neato</span></code> executable.</p>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pgraph</span><span class="w"> </span><span class="kn">import</span> <a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">UGraph</span></a>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">g</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">UGraph</span></a><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">v1</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="modification.html#pgraph.PGraph.Graph.add_vertex" title="pgraph.PGraph.Graph.add_vertex"><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span></a><span class="p">(</span><span class="n">coord</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s1">'v1'</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">v2</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="modification.html#pgraph.PGraph.Graph.add_vertex" title="pgraph.PGraph.Graph.add_vertex"><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span></a><span class="p">(</span><span class="n">coord</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s1">'v2'</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="modification.html#pgraph.PGraph.Graph.add_edge" title="pgraph.PGraph.Graph.add_edge"><span class="n">g</span><span class="o">.</span><span class="n">add_edge</span></a><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">,</span> <span class="n">cost</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="edges_vertices.html#pgraph.PGraph.Vertex" title="pgraph.PGraph.Vertex"><span class="n">v1</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="modification.html#pgraph.PGraph.Graph.add_vertex" title="pgraph.PGraph.Graph.add_vertex"><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span></a><span class="p">(</span><span class="n">coord</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s1">'v1'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="edges_vertices.html#pgraph.PGraph.Vertex" title="pgraph.PGraph.Vertex"><span class="n">v2</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="modification.html#pgraph.PGraph.Graph.add_vertex" title="pgraph.PGraph.Graph.add_vertex"><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span></a><span class="p">(</span><span class="n">coord</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s1">'v2'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="modification.html#pgraph.PGraph.Graph.add_edge" title="pgraph.PGraph.Graph.add_edge"><span class="n">g</span><span class="o">.</span><span class="n">add_edge</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="edges_vertices.html#pgraph.PGraph.Vertex" title="pgraph.PGraph.Vertex"><span class="n">v1</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="edges_vertices.html#pgraph.PGraph.Vertex" title="pgraph.PGraph.Vertex"><span class="n">v2</span></a><span class="p">,</span> <span class="n">cost</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 <span class="go">Edge{[v1] -- [v2], cost=2}</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="https://docs.python.org/3/builtins/functions.html#print"><span class="nb">print</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="export.html#pgraph.PGraph.Graph.export" title="pgraph.PGraph.Graph.export"><span class="n">g</span><span class="o">.</span><span class="n">export</span></a><span class="p">(</span><span class="nb">format</span><span class="o">=</span><span class="s2">"mermaid"</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="s2">"LR"</span><span class="p">))</span>
 <span class="go">flowchart LR</span>
@@ -221,7 +224,7 @@ repeated lines (DOT, Mermaid) or distinct <code class="docutils literal notransl
 ELK).  A self-loop is written once, as an edge from a vertex to itself.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Seealso<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#pgraph.PGraph.Graph.dotfile" title="pgraph.PGraph.Graph.dotfile"><code class="xref py py-meth docutils literal notranslate"><span class="pre">dotfile()</span></code></a> <a class="reference internal" href="visualization.html#pgraph.PGraph.Graph.showgraph" title="pgraph.PGraph.Graph.showgraph"><code class="xref py py-meth docutils literal notranslate"><span class="pre">showgraph()</span></code></a> <code class="xref py py-mod docutils literal notranslate"><span class="pre">pgraph.exporters</span></code></p>
+<dd class="field-odd"><p><a class="reference internal" href="#pgraph.PGraph.Graph.dotfile" title="pgraph.PGraph.Graph.dotfile"><code class="xref py py-meth docutils literal notranslate"><span class="pre">dotfile()</span></code></a> <a class="reference internal" href="visualization.html#pgraph.PGraph.Graph.showgraph" title="pgraph.PGraph.Graph.showgraph"><code class="xref py py-meth docutils literal notranslate"><span class="pre">showgraph()</span></code></a> <a class="reference internal" href="#module-pgraph.exporters" title="pgraph.exporters"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pgraph.exporters</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -255,15 +258,15 @@ formats or for edge labels.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">graphviz</span></code> formatters <code class="docutils literal notranslate"><span class="pre">dot</span></code> and <code class="docutils literal notranslate"><span class="pre">neato</span></code> can be used to render the
-graph in various formats including PDF, PNG, JPG, GIF, SVG, etc.  The formmatters are
+graph in various formats including PDF, PNG, JPG, GIF, SVG, etc.  The formatters are
 similar, but <code class="docutils literal notranslate"><span class="pre">dot</span></code> is better suited for directed graphs while <code class="docutils literal notranslate"><span class="pre">neato</span></code> is better
 suited for undirected graphs.</p>
 </div>
 <div class="highlight-pycon notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pgraph</span><span class="w"> </span><span class="kn">import</span> <a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">UGraph</span></a>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">g</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="construction.html#pgraph.PGraph.UGraph" title="pgraph.PGraph.UGraph"><span class="n">UGraph</span></a><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">v1</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="modification.html#pgraph.PGraph.Graph.add_vertex" title="pgraph.PGraph.Graph.add_vertex"><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span></a><span class="p">(</span><span class="n">coord</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s1">'v1'</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">v2</span> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="modification.html#pgraph.PGraph.Graph.add_vertex" title="pgraph.PGraph.Graph.add_vertex"><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span></a><span class="p">(</span><span class="n">coord</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s1">'v2'</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="modification.html#pgraph.PGraph.Graph.add_edge" title="pgraph.PGraph.Graph.add_edge"><span class="n">g</span><span class="o">.</span><span class="n">add_edge</span></a><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="edges_vertices.html#pgraph.PGraph.Vertex" title="pgraph.PGraph.Vertex"><span class="n">v1</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="modification.html#pgraph.PGraph.Graph.add_vertex" title="pgraph.PGraph.Graph.add_vertex"><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span></a><span class="p">(</span><span class="n">coord</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s1">'v1'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="edges_vertices.html#pgraph.PGraph.Vertex" title="pgraph.PGraph.Vertex"><span class="n">v2</span></a> <span class="o">=</span> <a class="sphinx-codeautolink-a" href="modification.html#pgraph.PGraph.Graph.add_vertex" title="pgraph.PGraph.Graph.add_vertex"><span class="n">g</span><span class="o">.</span><span class="n">add_vertex</span></a><span class="p">(</span><span class="n">coord</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s1">'v2'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="modification.html#pgraph.PGraph.Graph.add_edge" title="pgraph.PGraph.Graph.add_edge"><span class="n">g</span><span class="o">.</span><span class="n">add_edge</span></a><span class="p">(</span><a class="sphinx-codeautolink-a" href="edges_vertices.html#pgraph.PGraph.Vertex" title="pgraph.PGraph.Vertex"><span class="n">v1</span></a><span class="p">,</span> <a class="sphinx-codeautolink-a" href="edges_vertices.html#pgraph.PGraph.Vertex" title="pgraph.PGraph.Vertex"><span class="n">v2</span></a><span class="p">)</span>
 <span class="go">Edge{[v1] -- [v2], cost=1.414}</span>
 <span class="gp">&gt;&gt;&gt; </span><a class="sphinx-codeautolink-a" href="export.html#pgraph.PGraph.Graph.dotfile" title="pgraph.PGraph.Graph.dotfile"><span class="n">g</span><span class="o">.</span><span class="n">dotfile</span></a><span class="p">()</span>
 <span class="go">graph {</span>
@@ -288,6 +291,217 @@ be closed after the GraphViz model is written. Safe for use with <code class="do
 <dd class="field-odd"><p><a class="reference internal" href="#pgraph.PGraph.Graph.export" title="pgraph.PGraph.Graph.export"><code class="xref py py-meth docutils literal notranslate"><span class="pre">export()</span></code></a> <a class="reference internal" href="visualization.html#pgraph.PGraph.Graph.showgraph" title="pgraph.PGraph.Graph.showgraph"><code class="xref py py-meth docutils literal notranslate"><span class="pre">showgraph()</span></code></a></p>
 </dd>
 </dl>
+</dd></dl>
+</section>
+<section id="the-exporters">
+<h2>The exporters<a class="headerlink" href="#the-exporters" title="Link to this heading"></a></h2>
+<p><a class="reference internal" href="#pgraph.PGraph.Graph.export" title="pgraph.PGraph.Graph.export"><code class="xref py py-meth docutils literal notranslate"><span class="pre">export()</span></code></a> hands the work to the functions of
+<a class="reference internal" href="#module-pgraph.exporters" title="pgraph.exporters"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pgraph.exporters</span></code></a>.  The options of each format are the keyword arguments
+of its function, which are passed through <code class="docutils literal notranslate"><span class="pre">export(...,</span> <span class="pre">**options)</span></code>.  The
+module also provides the means to add a format of your own.</p>
+<p id="module-pgraph.exporters">Export a graph as text (GraphViz DOT, Mermaid, GraphML, ELK JSON) or as a
+rendered image (via the GraphViz command line tools).</p>
+<p>This module is reached through <a class="reference internal" href="#pgraph.PGraph.Graph.export" title="pgraph.PGraph.Graph.export"><code class="xref py py-meth docutils literal notranslate"><span class="pre">export()</span></code></a>, which
+dispatches on the format name or the file extension.  Each text exporter is a
+plain function <code class="docutils literal notranslate"><span class="pre">f(graph,</span> <span class="pre">**options)</span> <span class="pre">-&gt;</span> <span class="pre">str</span></code>, registered with
+<a class="reference internal" href="#pgraph.exporters.register_exporter" title="pgraph.exporters.register_exporter"><code class="xref py py-func docutils literal notranslate"><span class="pre">register_exporter()</span></code></a>, so a user can add a format without touching the
+package:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><a class="sphinx-codeautolink-a" href="export.html#module-pgraph.exporters"><span class="nn">pgraph.exporters</span></a><span class="w"> </span><span class="kn">import</span> <a class="sphinx-codeautolink-a" href="export.html#pgraph.exporters.register_exporter" title="pgraph.exporters.register_exporter"><span class="n">register_exporter</span></a>
+
+<a class="sphinx-codeautolink-a" href="export.html#pgraph.exporters.register_exporter" title="pgraph.exporters.register_exporter"><span class="nd">@register_exporter</span></a><span class="p">(</span><span class="s2">"gexf"</span><span class="p">,</span> <span class="s2">".gexf"</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">gexf</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="s2">"1.3"</span><span class="p">)</span> <span class="o">-&gt;</span> <a class="sphinx-codeautolink-a" href="https://docs.python.org/3/builtins/stdtypes.html#str"><span class="nb">str</span></a><span class="p">:</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+<p>None of the text formats needs a dependency beyond the standard library.  Only
+the rendered formats (<a class="reference internal" href="#pgraph.exporters.RENDER_FORMATS" title="pgraph.exporters.RENDER_FORMATS"><code class="xref py py-data docutils literal notranslate"><span class="pre">RENDER_FORMATS</span></code></a>) need the GraphViz executables.</p>
+<dl class="py data">
+<dt class="sig sig-object py" id="pgraph.exporters.ENGINES">
+<span class="sig-name descname"><span class="pre">ENGINES</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('dot',</span> <span class="pre">'neato',</span> <span class="pre">'fdp',</span> <span class="pre">'sfdp',</span> <span class="pre">'twopi',</span> <span class="pre">'circo',</span> <span class="pre">'osage',</span> <span class="pre">'patchwork')</span></span><a class="headerlink" href="#pgraph.exporters.ENGINES" title="Link to this definition"></a></dt>
+<dd><p>GraphViz layout programs that may be run to render an image</p>
+</dd></dl>
+<dl class="py data">
+<dt class="sig sig-object py" id="pgraph.exporters.RENDER_FORMATS">
+<span class="sig-name descname"><span class="pre">RENDER_FORMATS</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><span class="pre">bool</span></a><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'gif':</span> <span class="pre">False,</span> <span class="pre">'jpeg':</span> <span class="pre">False,</span> <span class="pre">'jpg':</span> <span class="pre">False,</span> <span class="pre">'pdf':</span> <span class="pre">False,</span> <span class="pre">'png':</span> <span class="pre">False,</span> <span class="pre">'ps':</span> <span class="pre">True,</span> <span class="pre">'svg':</span> <span class="pre">True}</span></span><a class="headerlink" href="#pgraph.exporters.RENDER_FORMATS" title="Link to this definition"></a></dt>
+<dd><p>image formats produced by running the GraphViz <code class="docutils literal notranslate"><span class="pre">dot</span></code>/<code class="docutils literal notranslate"><span class="pre">neato</span></code> executable,
+mapped to whether the result is text (<code class="docutils literal notranslate"><span class="pre">True</span></code>) or binary (<code class="docutils literal notranslate"><span class="pre">False</span></code>)</p>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="pgraph.exporters.register_exporter">
+<span class="sig-name descname"><span class="pre">register_exporter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">extensions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pgraph/exporters.html#register_exporter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pgraph.exporters.register_exporter" title="Link to this definition"></a></dt>
+<dd><p>Register a text exporter (decorator)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – format name used as <code class="docutils literal notranslate"><span class="pre">export(format=name)</span></code></p></li>
+<li><p><strong>extensions</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – file extensions, with the leading dot, that select this
+format when <code class="docutils literal notranslate"><span class="pre">format</span></code> is not given</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.15)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code></a>[[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.15)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/constants.html#Ellipsis" title="(in Python v3.15)"><code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code></a>, <a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>]], <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.15)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/constants.html#Ellipsis" title="(in Python v3.15)"><code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code></a>, <a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>]]</span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>the decorator</p>
+</dd>
+</dl>
+<p>The decorated function is called as <code class="docutils literal notranslate"><span class="pre">f(graph,</span> <span class="pre">**options)</span></code> and returns the
+text.  Declare its options as keyword-only parameters so that an unknown
+option is a <code class="docutils literal notranslate"><span class="pre">TypeError</span></code>.</p>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="pgraph.exporters.get_exporter">
+<span class="sig-name descname"><span class="pre">get_exporter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pgraph/exporters.html#get_exporter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pgraph.exporters.get_exporter" title="Link to this definition"></a></dt>
+<dd><p>Look up a text exporter by format name</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – format name, eg. <code class="docutils literal notranslate"><span class="pre">"dot"</span></code></p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.15)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/constants.html#Ellipsis" title="(in Python v3.15)"><code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code></a>, <a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>]</span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>the function <code class="docutils literal notranslate"><span class="pre">f(graph,</span> <span class="pre">**options)</span> <span class="pre">-&gt;</span> <span class="pre">str</span></code></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.15)"><strong>ValueError</strong></a> – no text exporter has that name; the message lists those
+that do</p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="pgraph.exporters.formats">
+<span class="sig-name descname"><span class="pre">formats</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pgraph/exporters.html#formats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pgraph.exporters.formats" title="Link to this definition"></a></dt>
+<dd><p>Names of all supported export formats</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>text formats followed by rendered image formats</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.15)">list</a> of <a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="pgraph.exporters.format_from_filename">
+<span class="sig-name descname"><span class="pre">format_from_filename</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pgraph/exporters.html#format_from_filename"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pgraph.exporters.format_from_filename" title="Link to this definition"></a></dt>
+<dd><p>Infer an export format from a file name’s extension</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filename</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/os.html#os.PathLike" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">PathLike</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.IO" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">IO</span></code></a> | <a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>) – path, or a file object with a <code class="docutils literal notranslate"><span class="pre">name</span></code> attribute</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the format name, or None if it cannot be decided</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)">str</a> or None</p>
+</dd>
+</dl>
+<p>Compound extensions such as <code class="docutils literal notranslate"><span class="pre">.elk.json</span></code> are tried before the plain
+suffix.</p>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="pgraph.exporters.dot">
+<span class="sig-name descname"><span class="pre">dot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">direction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colorcomponents</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">costs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pgraph/exporters.html#dot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pgraph.exporters.dot" title="Link to this definition"></a></dt>
+<dd><p>GraphViz DOT text</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>direction</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> | <a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>) – layout direction, <code class="docutils literal notranslate"><span class="pre">rankdir</span></code> in DOT, eg. <code class="docutils literal notranslate"><span class="pre">"LR"</span></code></p></li>
+<li><p><strong>colorcomponents</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span>) – fill vertices by connected component</p></li>
+<li><p><strong>costs</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span>) – label edges with their cost</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="pgraph.exporters.mermaid">
+<span class="sig-name descname"><span class="pre">mermaid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">direction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'TB'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colorcomponents</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">costs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fence</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pgraph/exporters.html#mermaid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pgraph.exporters.mermaid" title="Link to this definition"></a></dt>
+<dd><p>Mermaid flowchart text</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>direction</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – <code class="docutils literal notranslate"><span class="pre">"TB"</span></code>, <code class="docutils literal notranslate"><span class="pre">"BT"</span></code>, <code class="docutils literal notranslate"><span class="pre">"LR"</span></code> or <code class="docutils literal notranslate"><span class="pre">"RL"</span></code></p></li>
+<li><p><strong>colorcomponents</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span>) – fill vertices by connected component</p></li>
+<li><p><strong>costs</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span>) – label edges with their cost</p></li>
+<li><p><strong>fence</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span>) – wrap in a Markdown code fence, three backticks followed by
+<code class="docutils literal notranslate"><span class="pre">mermaid</span></code></p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span></p>
+</dd>
+</dl>
+<p>Mermaid flowcharts are laid out automatically and cannot pin node
+positions, so vertex coordinates are not represented.  Vertices are given
+generated ids (<code class="docutils literal notranslate"><span class="pre">n0</span></code>, <code class="docutils literal notranslate"><span class="pre">n1</span></code>, …) with the real name as the label, since
+names are arbitrary strings but Mermaid ids are not.</p>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="pgraph.exporters.graphml">
+<span class="sig-name descname"><span class="pre">graphml</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pgraph/exporters.html#graphml"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pgraph.exporters.graphml" title="Link to this definition"></a></dt>
+<dd><p>GraphML XML text</p>
+<p>Name, component, coordinate (<code class="docutils literal notranslate"><span class="pre">x</span></code>, <code class="docutils literal notranslate"><span class="pre">y</span></code> and the full <code class="docutils literal notranslate"><span class="pre">coord</span></code> string for
+higher dimensions) and edge cost are written as <code class="docutils literal notranslate"><span class="pre">&lt;data&gt;</span></code> elements with
+<code class="docutils literal notranslate"><span class="pre">&lt;key&gt;</span></code> declarations.  <code class="docutils literal notranslate"><span class="pre">edgedefault</span></code> follows the graph kind.  GraphML
+has no standard node position outside the proprietary yFiles extension,
+which is not used.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="pgraph.exporters.elk">
+<span class="sig-name descname"><span class="pre">elk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(60,</span> <span class="pre">40)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layout_options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pgraph/exporters.html#elk"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pgraph.exporters.elk" title="Link to this definition"></a></dt>
+<dd><p>Eclipse Layout Kernel (ELK) JSON graph text</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>size</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>]</span>) – width and height given to every node, which ELK requires</p></li>
+<li><p><strong>layout_options</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>] | <a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>) – ELK layout options, merged over the defaults</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span></p>
+</dd>
+</dl>
+<p>Unlike GraphML, ELK has native <code class="docutils literal notranslate"><span class="pre">x</span></code> and <code class="docutils literal notranslate"><span class="pre">y</span></code> node fields.  If any vertex
+has a coordinate the <code class="docutils literal notranslate"><span class="pre">fixed</span></code> algorithm is selected so that a consumer
+keeps the positions; otherwise <code class="docutils literal notranslate"><span class="pre">layered</span></code> computes a layout.</p>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="pgraph.exporters.render">
+<span class="sig-name descname"><span class="pre">render</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmt</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">engine</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">direction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colorcomponents</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">costs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pgraph/exporters.html#render"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pgraph.exporters.render" title="Link to this definition"></a></dt>
+<dd><p>Render the graph to an image with the GraphViz executables</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fmt</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – one of <a class="reference internal" href="#pgraph.exporters.RENDER_FORMATS" title="pgraph.exporters.RENDER_FORMATS"><code class="xref py py-data docutils literal notranslate"><span class="pre">RENDER_FORMATS</span></code></a></p></li>
+<li><p><strong>engine</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> | <a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>) – GraphViz layout program, one of <a class="reference internal" href="#pgraph.exporters.ENGINES" title="pgraph.exporters.ENGINES"><code class="xref py py-data docutils literal notranslate"><span class="pre">ENGINES</span></code></a>.  Defaults
+to <code class="docutils literal notranslate"><span class="pre">neato</span></code> if any vertex has a coordinate, since it honours pinned
+positions, else <code class="docutils literal notranslate"><span class="pre">dot</span></code></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the image</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#bytes" title="(in Python v3.15)">bytes</a></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.15)"><strong>ValueError</strong></a> – <code class="docutils literal notranslate"><span class="pre">fmt</span></code> or <code class="docutils literal notranslate"><span class="pre">engine</span></code> is not a known name</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#RuntimeError" title="(in Python v3.15)"><strong>RuntimeError</strong></a> – the layout program is not installed, or failed</p></li>
+</ul>
+</dd>
+</dl>
+<p>Both names are checked against fixed lists and the program is run with an
+argument list and no shell, so neither can carry a command.</p>
 </dd></dl>
 </section>
 </section>

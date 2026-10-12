@@ -1,9 +1,9 @@
 Visualization
 ==============
 
-Rendering the graph itself, with matplotlib or via GraphViz. See
-:doc:`representations` for exporting the graph as data (a matrix or dot
-file) rather than displaying it.
+Rendering the graph itself, with matplotlib or via GraphViz.  See
+:doc:`export` for exporting the graph as data or an image file (dot, Mermaid,
+GraphML, ELK, PNG, ...) and :doc:`representations` for its matrices.
 
 .. autosummary::
    :nosignatures:

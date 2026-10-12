@@ -50,6 +50,7 @@
 <li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="intro.html#what-is-a-graph">What is a graph?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="intro.html#creating-a-graph-using-the-pgraph-package">Creating a graph using the <code class="docutils literal notranslate"><span class="pre">pgraph</span></code> package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="intro.html#creating-directed-and-undirected-graphs">Creating directed and undirected graphs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="intro.html#history">History</a></li>
 </ul>
 </li>
@@ -67,6 +68,8 @@
 <li class="toctree-l2"><a class="reference internal" href="edges_vertices.html">Edges &amp; Vertices</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="edges_vertices.html#underlying-data-structures">Underlying data structures</a></li>
 <li class="toctree-l3"><a class="reference internal" href="edges_vertices.html#working-with-vertices-and-edges-directly">Working with vertices and edges directly</a></li>
+<li class="toctree-l3"><a class="reference internal" href="edges_vertices.html#the-vertex-class">The Vertex class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="edges_vertices.html#the-edge-class">The Edge class</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="policy.html">Object lifecycle and graph-membership policy</a><ul>
@@ -113,12 +116,14 @@
  | <a href="#C"><strong>C</strong></a>
  | <a href="#D"><strong>D</strong></a>
  | <a href="#E"><strong>E</strong></a>
+ | <a href="#F"><strong>F</strong></a>
  | <a href="#G"><strong>G</strong></a>
  | <a href="#H"><strong>H</strong></a>
  | <a href="#I"><strong>I</strong></a>
  | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
  | <a href="#N"><strong>N</strong></a>
+ | <a href="#O"><strong>O</strong></a>
  | <a href="#P"><strong>P</strong></a>
  | <a href="#R"><strong>R</strong></a>
  | <a href="#S"><strong>S</strong></a>
@@ -132,23 +137,25 @@
 <h2 id="_">_</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="construction.html#pgraph.PGraph.Graph.__contains__">__contains__() (pgraph.PGraph.Graph method)</a>
+      <li><a href="construction.html#pgraph.PGraph.Graph.__contains__">__contains__() (Graph method)</a>
 </li>
-      <li><a href="construction.html#pgraph.PGraph.Graph.__getitem__">__getitem__() (pgraph.PGraph.Graph method)</a>
+      <li><a href="construction.html#pgraph.PGraph.Graph.__getitem__">__getitem__() (Graph method)</a>
 </li>
-      <li><a href="edge.html#pgraph.PGraph.Edge.__init__">__init__() (pgraph.PGraph.Edge method)</a>
+      <li><a href="edges_vertices.html#pgraph.PGraph.Edge.__init__">__init__() (Edge method)</a>
 
       <ul>
-        <li><a href="construction.html#pgraph.PGraph.Graph.__init__">(pgraph.PGraph.Graph method)</a>
+        <li><a href="construction.html#pgraph.PGraph.Graph.__init__">(Graph method)</a>
+</li>
+        <li><a href="edges_vertices.html#pgraph.PGraph.Vertex.__init__">(Vertex method)</a>
 </li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="construction.html#pgraph.PGraph.Graph.__iter__">__iter__() (pgraph.PGraph.Graph method)</a>
+      <li><a href="construction.html#pgraph.PGraph.Graph.__iter__">__iter__() (Graph method)</a>
 </li>
-      <li><a href="construction.html#pgraph.PGraph.Graph.__repr__">__repr__() (pgraph.PGraph.Graph method)</a>
+      <li><a href="construction.html#pgraph.PGraph.Graph.__repr__">__repr__() (Graph method)</a>
 </li>
-      <li><a href="construction.html#pgraph.PGraph.Graph.__str__">__str__() (pgraph.PGraph.Graph method)</a>
+      <li><a href="construction.html#pgraph.PGraph.Graph.__str__">__str__() (Graph method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -156,19 +163,19 @@
 <h2 id="A">A</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="modification.html#pgraph.PGraph.Graph.add_edge">add_edge() (pgraph.PGraph.Graph method)</a>
+      <li><a href="modification.html#pgraph.PGraph.Graph.add_edge">add_edge() (Graph method)</a>
 </li>
-      <li><a href="modification.html#pgraph.PGraph.Graph.add_vertex">add_vertex() (pgraph.PGraph.Graph method)</a>
+      <li><a href="modification.html#pgraph.PGraph.Graph.add_vertex">add_vertex() (Graph method)</a>
 </li>
       <li><a href="construction.html#pgraph.PGraph.Graph.Adjacency">Adjacency (class in pgraph.PGraph.Graph)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="representations.html#pgraph.PGraph.Graph.adjacency">adjacency() (pgraph.PGraph.Graph method)</a>
+      <li><a href="representations.html#pgraph.PGraph.Graph.adjacency">adjacency() (Graph method)</a>
 </li>
-      <li><a href="analysis.html#pgraph.PGraph.Vertex.adjacent">adjacent() (pgraph.PGraph.Vertex method)</a>
+      <li><a href="analysis.html#pgraph.PGraph.Vertex.adjacent">adjacent() (Vertex method)</a>
 </li>
-      <li><a href="analysis.html#pgraph.PGraph.Graph.average_degree">average_degree() (pgraph.PGraph.Graph method)</a>
+      <li><a href="analysis.html#pgraph.PGraph.Graph.average_degree">average_degree() (Graph method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -176,21 +183,31 @@
 <h2 id="C">C</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="analysis.html#pgraph.PGraph.Graph.closest">closest() (pgraph.PGraph.Graph method)</a>
-</li>
-      <li><a href="analysis.html#pgraph.PGraph.Graph.component">component() (pgraph.PGraph.Graph method)</a>
-</li>
-      <li><a href="edge.html#pgraph.PGraph.Edge.connect">connect() (pgraph.PGraph.Edge method)</a>
+      <li><a href="analysis.html#pgraph.PGraph.Graph.closest">closest() (Graph method)</a>
 
       <ul>
-        <li><a href="modification.html#pgraph.PGraph.Vertex.connect">(pgraph.PGraph.Vertex method)</a>
+        <li><a href="analysis.html#pgraph.PGraph.Vertex.closest">(Vertex method)</a>
+</li>
+      </ul></li>
+      <li><a href="analysis.html#pgraph.PGraph.Graph.component">component() (Graph method)</a>
+</li>
+      <li><a href="edges_vertices.html#pgraph.PGraph.Edge.connect">connect() (Edge method)</a>
+
+      <ul>
+        <li><a href="modification.html#pgraph.PGraph.Vertex.connect">(Vertex method)</a>
 </li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="analysis.html#pgraph.PGraph.Graph.connectivity">connectivity() (pgraph.PGraph.Graph method)</a>
+      <li><a href="analysis.html#pgraph.PGraph.Graph.connectivity">connectivity() (Graph method)</a>
 </li>
-      <li><a href="construction.html#pgraph.PGraph.Graph.copy">copy() (pgraph.PGraph.Graph method)</a>
+      <li><a href="construction.html#pgraph.PGraph.Graph.copy">copy() (Graph method)</a>
+
+      <ul>
+        <li><a href="construction.html#pgraph.PGraph.Vertex.copy">(Vertex method)</a>
+</li>
+      </ul></li>
+      <li><a href="edges_vertices.html#pgraph.PGraph.Edge.cost">cost (Edge attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -198,23 +215,29 @@
 <h2 id="D">D</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="analysis.html#pgraph.PGraph.Vertex.degree">degree (pgraph.PGraph.Vertex property)</a>
+      <li><a href="edges_vertices.html#pgraph.PGraph.Edge.data">data (Edge attribute)</a>
 </li>
-      <li><a href="representations.html#pgraph.PGraph.Graph.degree">degree() (pgraph.PGraph.Graph method)</a>
+      <li><a href="analysis.html#pgraph.PGraph.Vertex.degree">degree (Vertex property)</a>
+</li>
+      <li><a href="representations.html#pgraph.PGraph.Graph.degree">degree() (Graph method)</a>
 </li>
       <li><a href="construction.html#pgraph.PGraph.DGraph">DGraph (class in pgraph.PGraph)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="construction.html#pgraph.PGraph.Graph.Dict">Dict (class in pgraph.PGraph.Graph)</a>
 </li>
-      <li><a href="representations.html#pgraph.PGraph.Graph.distance">distance() (pgraph.PGraph.Graph method)</a>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="analysis.html#pgraph.PGraph.Graph.directed">directed (Graph property)</a>
+</li>
+      <li><a href="representations.html#pgraph.PGraph.Graph.distance">distance() (Graph method)</a>
 
       <ul>
-        <li><a href="analysis.html#pgraph.PGraph.Vertex.distance">(pgraph.PGraph.Vertex method)</a>
+        <li><a href="analysis.html#pgraph.PGraph.Vertex.distance">(Vertex method)</a>
 </li>
       </ul></li>
-      <li><a href="export.html#pgraph.PGraph.Graph.dotfile">dotfile() (pgraph.PGraph.Graph method)</a>
+      <li><a href="export.html#pgraph.exporters.dot">dot() (in module pgraph.exporters)</a>
+</li>
+      <li><a href="export.html#pgraph.PGraph.Graph.dotfile">dotfile() (Graph method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -222,23 +245,41 @@
 <h2 id="E">E</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="edge.html#pgraph.PGraph.Edge">Edge (class in pgraph.PGraph)</a>
+      <li><a href="edges_vertices.html#pgraph.PGraph.Edge">Edge (class in pgraph.PGraph)</a>
 </li>
-      <li><a href="construction.html#pgraph.PGraph.Graph.edge_class">edge_class (pgraph.PGraph.Graph property)</a>
+      <li><a href="construction.html#pgraph.PGraph.Graph.edge_class">edge_class (Graph property)</a>
 </li>
-      <li><a href="analysis.html#pgraph.PGraph.Graph.edges">edges() (pgraph.PGraph.Graph method)</a>
+      <li><a href="analysis.html#pgraph.PGraph.Graph.edges">edges() (Graph method)</a>
 
       <ul>
-        <li><a href="analysis.html#pgraph.PGraph.Vertex.edges">(pgraph.PGraph.Vertex method)</a>
+        <li><a href="analysis.html#pgraph.PGraph.Vertex.edges">(Vertex method)</a>
 </li>
       </ul></li>
+      <li><a href="analysis.html#pgraph.PGraph.Vertex.edges_to">edges_to() (Vertex method)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="modification.html#pgraph.PGraph.Vertex.edgeto">edgeto() (pgraph.PGraph.Vertex method)</a>
+      <li><a href="analysis.html#pgraph.PGraph.Vertex.edgeto">edgeto() (Vertex method)</a>
 </li>
-      <li><a href="edge.html#pgraph.PGraph.Edge.endpoints">endpoints (pgraph.PGraph.Edge property)</a>
+      <li><a href="export.html#pgraph.exporters.elk">elk() (in module pgraph.exporters)</a>
 </li>
-      <li><a href="export.html#pgraph.PGraph.Graph.export">export() (pgraph.PGraph.Graph method)</a>
+      <li><a href="edges_vertices.html#pgraph.PGraph.Edge.endpoints">endpoints (Edge property)</a>
+</li>
+      <li><a href="export.html#pgraph.exporters.ENGINES">ENGINES (in module pgraph.exporters)</a>
+</li>
+      <li><a href="export.html#pgraph.PGraph.Graph.export">export() (Graph method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="F">F</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="export.html#pgraph.exporters.format_from_filename">format_from_filename() (in module pgraph.exporters)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="export.html#pgraph.exporters.formats">formats() (in module pgraph.exporters)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -246,7 +287,13 @@
 <h2 id="G">G</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="export.html#pgraph.exporters.get_exporter">get_exporter() (in module pgraph.exporters)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="construction.html#pgraph.PGraph.Graph">Graph (class in pgraph.PGraph)</a>
+</li>
+      <li><a href="export.html#pgraph.exporters.graphml">graphml() (in module pgraph.exporters)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -254,17 +301,17 @@
 <h2 id="H">H</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="construction.html#pgraph.PGraph.Graph.heuristic">heuristic (pgraph.PGraph.Graph property)</a>
+      <li><a href="construction.html#pgraph.PGraph.Graph.heuristic">heuristic (Graph property)</a>
 </li>
-      <li><a href="analysis.html#pgraph.PGraph.Vertex.heuristic_distance">heuristic_distance() (pgraph.PGraph.Vertex method)</a>
+      <li><a href="analysis.html#pgraph.PGraph.Vertex.heuristic_distance">heuristic_distance() (Vertex method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="visualization.html#pgraph.PGraph.Graph.highlight_edge">highlight_edge() (pgraph.PGraph.Graph method)</a>
+      <li><a href="visualization.html#pgraph.PGraph.Graph.highlight_edge">highlight_edge() (Graph method)</a>
 </li>
-      <li><a href="visualization.html#pgraph.PGraph.Graph.highlight_path">highlight_path() (pgraph.PGraph.Graph method)</a>
+      <li><a href="visualization.html#pgraph.PGraph.Graph.highlight_path">highlight_path() (Graph method)</a>
 </li>
-      <li><a href="visualization.html#pgraph.PGraph.Graph.highlight_vertex">highlight_vertex() (pgraph.PGraph.Graph method)</a>
+      <li><a href="visualization.html#pgraph.PGraph.Graph.highlight_vertex">highlight_vertex() (Graph method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -272,15 +319,19 @@
 <h2 id="I">I</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="representations.html#pgraph.PGraph.Graph.incidence">incidence() (pgraph.PGraph.Graph method)</a>
+      <li><a href="analysis.html#pgraph.PGraph.Vertex.in_degree">in_degree (Vertex property)</a>
 </li>
-      <li><a href="analysis.html#pgraph.PGraph.Vertex.incidences">incidences() (pgraph.PGraph.Vertex method)</a>
+      <li><a href="analysis.html#pgraph.PGraph.Vertex.in_edges">in_edges() (Vertex method)</a>
+</li>
+      <li><a href="representations.html#pgraph.PGraph.Graph.incidence">incidence() (Graph method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="analysis.html#pgraph.PGraph.Vertex.isadjacent">isadjacent() (pgraph.PGraph.Vertex method)</a>
+      <li><a href="analysis.html#pgraph.PGraph.Vertex.incidences">incidences() (Vertex method)</a>
 </li>
-      <li><a href="analysis.html#pgraph.PGraph.Graph.iscyclic">iscyclic() (pgraph.PGraph.Graph method)</a>
+      <li><a href="analysis.html#pgraph.PGraph.Vertex.isadjacent">isadjacent() (Vertex method)</a>
+</li>
+      <li><a href="analysis.html#pgraph.PGraph.Graph.iscyclic">iscyclic() (Graph method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -288,7 +339,11 @@
 <h2 id="L">L</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="representations.html#pgraph.PGraph.Graph.laplacian">laplacian() (pgraph.PGraph.Graph method)</a>
+      <li><a href="analysis.html#pgraph.PGraph.Vertex.label">label (Vertex property)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="representations.html#pgraph.PGraph.Graph.laplacian">laplacian() (Graph method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -296,23 +351,48 @@
 <h2 id="M">M</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="construction.html#pgraph.PGraph.Graph.metric">metric (pgraph.PGraph.Graph property)</a>
+      <li><a href="export.html#pgraph.exporters.mermaid">mermaid() (in module pgraph.exporters)</a>
 </li>
+      <li><a href="construction.html#pgraph.PGraph.Graph.metric">metric (Graph property)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    module
+
+      <ul>
+        <li><a href="export.html#module-pgraph.exporters">pgraph.exporters</a>
+</li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
 <h2 id="N">N</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="analysis.html#pgraph.PGraph.Graph.n">n (pgraph.PGraph.Graph property)</a>
+      <li><a href="analysis.html#pgraph.PGraph.Graph.n">n (Graph property)</a>
 </li>
-      <li><a href="analysis.html#pgraph.PGraph.Graph.nc">nc (pgraph.PGraph.Graph property)</a>
+      <li><a href="analysis.html#pgraph.PGraph.Vertex.name">name (Vertex property)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="analysis.html#pgraph.PGraph.Graph.ne">ne (pgraph.PGraph.Graph property)</a>
+      <li><a href="analysis.html#pgraph.PGraph.Graph.nc">nc (Graph property)</a>
 </li>
-      <li><a href="edge.html#pgraph.PGraph.Edge.next">next() (pgraph.PGraph.Edge method)</a>
+      <li><a href="analysis.html#pgraph.PGraph.Graph.ne">ne (Graph property)</a>
+</li>
+      <li><a href="edges_vertices.html#pgraph.PGraph.Edge.next">next() (Edge method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="O">O</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="analysis.html#pgraph.PGraph.Vertex.out_degree">out_degree (Vertex property)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="analysis.html#pgraph.PGraph.Vertex.out_edges">out_edges() (Vertex method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -320,15 +400,24 @@
 <h2 id="P">P</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="planning.html#pgraph.PGraph.Graph.path_Astar">path_Astar() (pgraph.PGraph.Graph method)</a>
+      <li><a href="planning.html#pgraph.PGraph.Graph.path_Astar">path_Astar() (Graph method)</a>
 </li>
-      <li><a href="planning.html#pgraph.PGraph.Graph.path_BFS">path_BFS() (pgraph.PGraph.Graph method)</a>
+      <li><a href="planning.html#pgraph.PGraph.Graph.path_BFS">path_BFS() (Graph method)</a>
+</li>
+      <li><a href="planning.html#pgraph.PGraph.Graph.path_UCS">path_UCS() (Graph method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="planning.html#pgraph.PGraph.Graph.path_UCS">path_UCS() (pgraph.PGraph.Graph method)</a>
+      <li>
+    pgraph.exporters
+
+      <ul>
+        <li><a href="export.html#module-pgraph.exporters">module</a>
 </li>
-      <li><a href="visualization.html#pgraph.PGraph.Graph.plot">plot() (pgraph.PGraph.Graph method)</a>
+      </ul></li>
+      <li><a href="visualization.html#pgraph.PGraph.Graph.plot">plot() (Graph method)</a>
+</li>
+      <li><a href="analysis.html#pgraph.PGraph.Vertex.predecessors">predecessors() (Vertex method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -336,19 +425,25 @@
 <h2 id="R">R</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="edge.html#pgraph.PGraph.Edge.remove">remove() (pgraph.PGraph.Edge method)</a>
+      <li><a href="export.html#pgraph.exporters.register_exporter">register_exporter() (in module pgraph.exporters)</a>
+</li>
+      <li><a href="edges_vertices.html#pgraph.PGraph.Edge.remove">remove() (Edge method)</a>
 
       <ul>
-        <li><a href="modification.html#pgraph.PGraph.Graph.remove">(pgraph.PGraph.Graph method)</a>
+        <li><a href="modification.html#pgraph.PGraph.Graph.remove">(Graph method)</a>
 </li>
-        <li><a href="modification.html#pgraph.PGraph.Vertex.remove">(pgraph.PGraph.Vertex method)</a>
+        <li><a href="modification.html#pgraph.PGraph.Vertex.remove">(Vertex method)</a>
 </li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="modification.html#pgraph.PGraph.Graph.remove_edge">remove_edge() (pgraph.PGraph.Graph method)</a>
+      <li><a href="modification.html#pgraph.PGraph.Graph.remove_edge">remove_edge() (Graph method)</a>
 </li>
-      <li><a href="modification.html#pgraph.PGraph.Graph.remove_vertex">remove_vertex() (pgraph.PGraph.Graph method)</a>
+      <li><a href="modification.html#pgraph.PGraph.Graph.remove_vertex">remove_vertex() (Graph method)</a>
+</li>
+      <li><a href="export.html#pgraph.exporters.render">render() (in module pgraph.exporters)</a>
+</li>
+      <li><a href="export.html#pgraph.exporters.RENDER_FORMATS">RENDER_FORMATS (in module pgraph.exporters)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -356,13 +451,15 @@
 <h2 id="S">S</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="analysis.html#pgraph.PGraph.Graph.samecomponent">samecomponent() (pgraph.PGraph.Graph method)</a>
+      <li><a href="analysis.html#pgraph.PGraph.Graph.samecomponent">samecomponent() (Graph method)</a>
+</li>
+      <li><a href="construction.html#pgraph.PGraph.Graph.show">show() (Graph method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="construction.html#pgraph.PGraph.Graph.show">show() (pgraph.PGraph.Graph method)</a>
+      <li><a href="visualization.html#pgraph.PGraph.Graph.showgraph">showgraph() (Graph method)</a>
 </li>
-      <li><a href="visualization.html#pgraph.PGraph.Graph.showgraph">showgraph() (pgraph.PGraph.Graph method)</a>
+      <li><a href="analysis.html#pgraph.PGraph.Vertex.successors">successors() (Vertex method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -378,17 +475,21 @@
 <h2 id="V">V</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="edge.html#pgraph.PGraph.Edge.v1">v1 (pgraph.PGraph.Edge property)</a>
+      <li><a href="edges_vertices.html#pgraph.PGraph.Edge.v1">v1 (Edge property)</a>
 </li>
-      <li><a href="edge.html#pgraph.PGraph.Edge.v2">v2 (pgraph.PGraph.Edge property)</a>
+      <li><a href="edges_vertices.html#pgraph.PGraph.Edge.v2">v2 (Edge property)</a>
+</li>
+      <li><a href="analysis.html#pgraph.PGraph.Graph.validate">validate() (Graph method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="construction.html#pgraph.PGraph.Graph.vertex_class">vertex_class (pgraph.PGraph.Graph property)</a>
+      <li><a href="edges_vertices.html#pgraph.PGraph.Vertex">Vertex (class in pgraph.PGraph)</a>
 </li>
-      <li><a href="construction.html#pgraph.PGraph.Graph.vertex_copy">vertex_copy() (pgraph.PGraph.Graph class method)</a>
+      <li><a href="construction.html#pgraph.PGraph.Graph.vertex_class">vertex_class (Graph property)</a>
 </li>
-      <li><a href="edge.html#pgraph.PGraph.Edge.vertices">vertices() (pgraph.PGraph.Edge method)</a>
+      <li><a href="construction.html#pgraph.PGraph.Graph.vertex_copy">vertex_copy() (Graph class method)</a>
+</li>
+      <li><a href="edges_vertices.html#pgraph.PGraph.Edge.vertices">vertices() (Edge method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -396,7 +497,7 @@
 <h2 id="X">X</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="analysis.html#pgraph.PGraph.Vertex.x">x (pgraph.PGraph.Vertex property)</a>
+      <li><a href="analysis.html#pgraph.PGraph.Vertex.x">x (Vertex property)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -404,7 +505,7 @@
 <h2 id="Y">Y</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="analysis.html#pgraph.PGraph.Vertex.y">y (pgraph.PGraph.Vertex property)</a>
+      <li><a href="analysis.html#pgraph.PGraph.Vertex.y">y (Vertex property)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -412,7 +513,7 @@
 <h2 id="Z">Z</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="analysis.html#pgraph.PGraph.Vertex.z">z (pgraph.PGraph.Vertex property)</a>
+      <li><a href="analysis.html#pgraph.PGraph.Vertex.z">z (Vertex property)</a>
 </li>
   </ul></td>
 </tr></table>
