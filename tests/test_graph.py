@@ -592,10 +592,9 @@ class TestUGraph(unittest.TestCase):
         expected_L = np.diag([2, 1, 1, 0]) - expected_A
         nt.assert_array_equal(L, expected_L)
 
-        # edge order (columns) is not deterministic -- self.edges() is a
-        # set -- so check incidence structurally rather than by position:
-        # each column (edge) touches exactly 2 vertices, and each row
-        # (vertex)'s total matches its degree
+        # the structure: each column (edge) touches exactly 2 vertices, and
+        # each row (vertex)'s total matches its degree.  Cell by cell is in
+        # test_incidence.py
         I = g.incidence()
         self.assertEqual(I.shape, (g.n, g.ne))
         nt.assert_array_equal(I.sum(axis=0), np.full(g.ne, 2))
