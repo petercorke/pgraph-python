@@ -3902,6 +3902,7 @@ class Vertex:
 
         :seealso: :meth:`adjacent` :meth:`isadjacent` :meth:`successors`
             :meth:`out_edges` :meth:`in_edges` :meth:`predecessors`
+            :meth:`edgeto` :meth:`edges_to`
             :meth:`edges` :meth:`edgeto` :attr:`degree`
             :meth:`Graph.adjacency`
         """
@@ -4016,11 +4017,11 @@ class Vertex:
 
     def edgeto(self, dest: Vertex) -> Edge:
         """
-        Get edge connecting vertex to specific neighbour
+        The edge from this vertex to an adjacent vertex
 
-        :param dest: a neigbouring vertex
+        :param dest: an adjacent vertex
         :type dest: ``Vertex`` subclass
-        :raises ValueError: ``dest`` is not a neighbour
+        :raises ValueError: ``dest`` is not adjacent to this vertex
         :return: the edge from this vertex to ``dest``
         :rtype: Edge
 
@@ -4038,14 +4039,64 @@ class Vertex:
             >>> v2 = g.add_vertex(coord=[1,1], name='v2')
             >>> g.add_edge(v1, v2, cost=1.414)
             >>> print(v1.edgeto(v2))
+
+        :seealso: :meth:`edges_to` :meth:`incidences` :meth:`adjacent`
         """
-        edges = [e for n, e in self.incidences() if n is dest]
+        edges = self.edges_to(dest)
         if not edges:
             raise ValueError("dest is not a neighbour")
         costed = [e for e in edges if e.cost is not None]
         if costed:
             return min(costed, key=lambda e: e.cost)  # type: ignore[arg-type,return-value]
         return edges[0]
+
+    def edges_to(self, dest: Vertex) -> list[Edge]:
+        """
+        All the edges from this vertex to another vertex
+
+        :param dest: the vertex at the far end
+        :type dest: ``Vertex`` subclass
+        :return: every edge from this vertex to ``dest``, in the order they
+            were connected, which is empty if there are none
+        :rtype: list of Edge
+
+        This is how to see parallel edges.  :meth:`edgeto` returns the one
+        edge that a path would use, the cheapest, whereas this returns them
+        all.
+
+        .. note::
+
+            - For a directed graph only the edges leaving this vertex for
+              ``dest`` are included, so ``a.edges_to(b)`` and
+              ``b.edges_to(a)`` are different lists
+            - For an undirected graph the edges are found from either end,
+              whichever vertex they were connected from
+            - A self-loop is listed once, although its vertex holds it twice
+              (see :meth:`edges`)
+            - Unlike :meth:`edgeto`, there being no edge is not an error, the
+              list is empty
+            - The list is a new one, so changing it does not change the graph
+
+        .. runblock:: pycon
+
+            >>> from pgraph import UGraph
+            >>> g = UGraph()
+            >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+            >>> v2 = g.add_vertex(coord=[1,1], name='v2')
+            >>> g.add_edge(v1, v2, cost=3)
+            >>> g.add_edge(v1, v2, cost=1)
+            >>> print(v1.edges_to(v2))
+            >>> print(v1.edgeto(v2))
+
+        :seealso: :meth:`edgeto` :meth:`edges` :meth:`out_edges`
+            :meth:`incidences` :meth:`adjacent`
+        """
+        found: list[Edge] = []
+        for vertex, edge in self.incidences():
+            # a self-loop is held twice by its vertex, so is met twice
+            if vertex is dest and not any(edge is e for e in found):
+                found.append(edge)
+        return found
 
     def edges(self) -> list[Edge]:
         """
@@ -4074,7 +4125,8 @@ class Vertex:
             >>> print(v1.edges())
 
         :seealso: :meth:`out_edges` :meth:`in_edges` :meth:`adjacent`
-            :meth:`incidences` :attr:`degree` :meth:`Graph.edges`
+            :meth:`incidences` :meth:`edges_to` :attr:`degree`
+            :meth:`Graph.edges`
         """
         return list(self._edgelist)
 
@@ -4226,7 +4278,7 @@ class Vertex:
         graph every incident edge is outgoing.
 
         :seealso: :meth:`in_edges` :meth:`edges` :meth:`adjacent` :meth:`successors`
-            :meth:`incidences` :attr:`out_degree`
+            :meth:`incidences` :meth:`edges_to` :attr:`out_degree`
         """
         return list(self._edgelist)
 
