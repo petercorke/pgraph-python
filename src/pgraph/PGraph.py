@@ -10,6 +10,8 @@ from matplotlib.path import Path
 from matplotlib.transforms import Affine2D, ScaledTranslation
 from mpl_toolkits.mplot3d import proj3d
 import copy
+import heapq
+from collections import deque
 from collections.abc import Iterable, Iterator
 import tempfile
 import webbrowser
@@ -3072,7 +3074,10 @@ class Graph:
 
         # we use lists not sets since the order is instructive in verbose
         # mode, really need ordered sets...
-        frontier: list[Vertex] = [S]
+        # the frontier is a queue; ``seen`` is everything that has been on it,
+        # so that "frontier or explored" is a set lookup, not a list scan
+        frontier: deque[Vertex] = deque([S])
+        seen: set[Vertex] = {S}
         explored: list[Vertex] = []
         parent: dict[Vertex, Vertex] = {}
         done = False
@@ -3083,7 +3088,7 @@ class Graph:
                 print("FRONTIER:", ", ".join([str(v.name) for v in frontier]))
                 print("EXPLORED:", ", ".join([str(v.name) for v in explored]))
 
-            x = frontier.pop(0)
+            x = frontier.popleft()
             if verbose:
                 print("   expand", x.name)
 
@@ -3097,8 +3102,9 @@ class Graph:
                     parent[n] = x
                     done = True
                     break
-                if n not in frontier and n not in explored:
+                if n not in seen:
                     # add it to the frontier
+                    seen.add(n)
                     frontier.append(n)
                     if verbose:
                         print("      add", n.name, "to the frontier")
@@ -3120,8 +3126,9 @@ class Graph:
         while x is not S:
             p = parent[x]
             length += self._require_cost(p.edgeto(x))
-            path.insert(0, p)
+            path.append(p)
             x = p
+        path.reverse()
 
         if summary or verbose:
             print(
@@ -3182,8 +3189,14 @@ class Graph:
         S = self._resolve_vertex(S, "start")
         G = self._resolve_vertex(G, "goal")
 
-        frontier: list[Vertex] = [S]
-        explored: list[Vertex] = []
+        # The frontier is a dict, used as an ordered set: its order is the order
+        # vertices first joined it, which breaks ties between equal ``f``, and
+        # its value is that position.  ``heap`` finds the minimum ``f``; a
+        # vertex that is reparented is pushed again, and the older entry is
+        # recognised as stale when it is popped.
+        frontier: dict[Vertex, int] = {S: 0}
+        heap: list[tuple[float, int, Vertex]] = [(0, 0, S)]
+        explored: dict[Vertex, None] = {}
         parent: dict[Vertex, Vertex] = {}
         f: dict[Vertex, float] = {S: 0}  # evaluation function
 
@@ -3195,8 +3208,11 @@ class Graph:
                 )
                 print("EXPLORED:", ", ".join([str(v.name) for v in explored]))
 
-            i = np.argmin([f[n] for n in frontier])  # minimum f in frontier
-            x = frontier.pop(i)
+            while True:  # minimum f in frontier, skipping stale heap entries
+                fx, _, x = heapq.heappop(heap)
+                if x in frontier and f[x] == fx:
+                    break
+            del frontier[x]
             if verbose:
                 print("   expand", x.name)
             if x is G:
@@ -3210,7 +3226,8 @@ class Graph:
                     # add it to the frontier
                     parent[n] = x
                     f[n] = fnew
-                    frontier.append(n)
+                    frontier[n] = len(parent)  # one entry per vertex added so far
+                    heapq.heappush(heap, (fnew, frontier[n], n))
                     if verbose:
                         print("      add", n.name, "to the frontier")
 
@@ -3224,8 +3241,9 @@ class Graph:
                             )
                         f[n] = fnew
                         parent[n] = x
+                        heapq.heappush(heap, (fnew, frontier[n], n))
 
-            explored.append(x)
+            explored[x] = None
             if verbose:
                 print("     move", x.name, "to the explored list")
         else:
@@ -3240,8 +3258,9 @@ class Graph:
         while x is not S:
             p = parent[x]
             length += self._require_cost(p.edgeto(x))
-            path.insert(0, p)
+            path.append(p)
             x = p
+        path.reverse()
 
         parent_names: dict[str, str] = {}
         for v, p in parent.items():
@@ -3308,8 +3327,10 @@ class Graph:
         S = self._resolve_vertex(S, "start")
         G = self._resolve_vertex(G, "goal")
 
-        frontier: list[Vertex] = [S]
-        explored: list[Vertex] = []
+        # see path_UCS for the frontier and heap
+        frontier: dict[Vertex, int] = {S: 0}
+        heap: list[tuple[float, int, Vertex]] = [(0, 0, S)]
+        explored: dict[Vertex, None] = {}
         parent: dict[Vertex, Vertex] = {}
         g: dict[Vertex, float] = {S: 0}  # cost to come
         f: dict[Vertex, float] = {S: 0}  # evaluation function
@@ -3322,8 +3343,11 @@ class Graph:
                 )
                 print("EXPLORED:", ", ".join([str(v.name) for v in explored]))
 
-            i = np.argmin([f[n] for n in frontier])  # minimum f in frontier
-            x = frontier.pop(i)
+            while True:  # minimum f in frontier, skipping stale heap entries
+                fx, _, x = heapq.heappop(heap)
+                if x in frontier and f[x] == fx:
+                    break
+            del frontier[x]
             if verbose:
                 print("   expand", x.name)
             if x is G:
@@ -3334,10 +3358,11 @@ class Graph:
                     continue  # self-loop, never part of a shortest path
                 if n not in frontier and n not in explored:
                     # add it to the frontier
-                    frontier.append(n)
                     parent[n] = x
+                    frontier[n] = len(parent)  # one entry per vertex added so far
                     g[n] = g[x] + self._require_cost(e)  # update cost to come
                     f[n] = g[n] + n.heuristic_distance(G)  # heuristic
+                    heapq.heappush(heap, (f[n], frontier[n], n))
                     if verbose:
                         print("      add", n.name, "to the frontier")
                 elif n in frontier:
@@ -3353,8 +3378,9 @@ class Graph:
                         f[n] = g[n] + n.heuristic_distance(G)  # heuristic
 
                         parent[n] = x  # reparent
+                        heapq.heappush(heap, (f[n], frontier[n], n))
 
-            explored.append(x)
+            explored[x] = None
             if verbose:
                 print("     move", x.name, "to the explored list")
 
@@ -3370,8 +3396,9 @@ class Graph:
         while x is not S:
             p = parent[x]
             length += self._require_cost(p.edgeto(x))
-            path.insert(0, p)
+            path.append(p)
             x = p
+        path.reverse()
 
         parent_names: dict[str, str] = {}
         for v, p in parent.items():
