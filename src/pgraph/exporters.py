@@ -211,19 +211,19 @@ def dot(
     graph: Graph,
     *,
     direction: str | None = None,
-    colorcomponents: bool = False,
+    color_components: bool = False,
     costs: bool = True,
 ) -> str:
     """
     GraphViz DOT text
 
     :param direction: layout direction, ``rankdir`` in DOT, eg. ``"LR"``
-    :param colorcomponents: fill vertices by connected component
+    :param color_components: fill vertices by connected component
     :param costs: label edges with their cost
     """
     directed = _is_directed(graph)
     link = "->" if directed else "--"
-    colors = _component_colors(graph) if colorcomponents else {}
+    colors = _component_colors(graph) if color_components else {}
 
     lines = ["digraph {" if directed else "graph {"]
     if direction is not None:
@@ -260,7 +260,7 @@ def mermaid(
     graph: Graph,
     *,
     direction: str = "TB",
-    colorcomponents: bool = False,
+    color_components: bool = False,
     costs: bool = True,
     fence: bool = False,
 ) -> str:
@@ -268,7 +268,7 @@ def mermaid(
     Mermaid flowchart text
 
     :param direction: ``"TB"``, ``"BT"``, ``"LR"`` or ``"RL"``
-    :param colorcomponents: fill vertices by connected component
+    :param color_components: fill vertices by connected component
     :param costs: label edges with their cost
     :param fence: wrap in a Markdown code fence, three backticks followed by
         ``mermaid``
@@ -295,7 +295,7 @@ def mermaid(
         else:
             lines.append(f"    {ids[v1]} {arrow} {ids[v2]}")
 
-    if colorcomponents:
+    if color_components:
         colors = _component_colors(graph)
         for vertex, color in colors.items():
             lines.append(f"    style {ids[vertex]} fill:{color}")
@@ -453,7 +453,7 @@ def render(
     *,
     engine: str | None = None,
     direction: str | None = None,
-    colorcomponents: bool = False,
+    color_components: bool = False,
     costs: bool = True,
 ) -> bytes:
     """
@@ -487,7 +487,7 @@ def render(
             f"{fmt} output, or export the text with format='dot'"
         )
 
-    text = dot(graph, direction=direction, colorcomponents=colorcomponents, costs=costs)
+    text = dot(graph, direction=direction, color_components=color_components, costs=costs)
     result = subprocess.run(  # nosec B603 nosemgrep - allow-listed program and format, no shell
         [exe, f"-T{fmt}"],
         input=text.encode("utf-8"),

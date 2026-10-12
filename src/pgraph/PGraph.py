@@ -5,6 +5,10 @@ import sys
 import warnings
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.patches import FancyArrowPatch
+from matplotlib.path import Path
+from matplotlib.transforms import Affine2D, ScaledTranslation
+from mpl_toolkits.mplot3d import proj3d
 import copy
 from collections.abc import Iterable, Iterator
 import tempfile
@@ -43,6 +47,94 @@ _METRICS: dict[str, Callable[[NDArray], float]] = {
     "L2": _L2,
     "SE2": _SE2,
 }
+
+
+#: curvature, as the ``rad`` of an ``arc3`` connection style, between successive
+#: edges that join the same pair of vertices
+_ARC_STEP = 0.35
+#: radius in points of the first loop at a vertex, and the growth for each next
+_LOOP_RADIUS = 20.0
+_LOOP_GROWTH = 6.0
+#: angle in degrees at which the first loop leaves a vertex, and the turn for each next
+_LOOP_ANGLE = 60.0
+_LOOP_TURN = 75.0
+
+
+def _renamed(
+    func: str, old_name: str, old: Any, new_name: str, new: Any, stacklevel: int = 3
+) -> Any:
+    """
+    Resolve an option that has been renamed (private function)
+
+    Returns ``new`` if the old name was not used.  Using the old name is still
+    accepted, with a :exc:`DeprecationWarning` that names its replacement.
+    Using both is a :exc:`TypeError`, since it is not clear which is meant.
+    """
+    if old is None:
+        return new
+    if new is not None:
+        raise TypeError(
+            f"{func}() got both {old_name} and {new_name}; "
+            f"{old_name} is deprecated, use {new_name} only"
+        )
+    warnings.warn(
+        f"{func}(): {old_name} is deprecated, use {new_name}",
+        DeprecationWarning,
+        stacklevel=stacklevel,
+    )
+    return old
+
+
+def _loop_path(angle: float, radius: float, markersize: float) -> Path:
+    """
+    The path of a loop at a vertex, in points from the vertex (private function)
+
+    A circle of ``radius`` whose centre is that far from the vertex, in the
+    direction ``angle`` degrees, less the part inside the vertex's marker.  It
+    is counter-clockwise, so a directed loop has its head where it returns.
+    """
+    m = markersize / 2
+    phi = np.degrees(np.arccos(np.clip(1 - m * m / (2 * radius * radius), -1, 1)))
+    arc = Path.arc(angle + 180 + phi, angle + 540 - phi)
+    centre = radius * np.array([np.cos(np.radians(angle)), np.sin(np.radians(angle))])
+    return Path(np.asarray(arc.vertices) * radius + centre, arc.codes)
+
+
+class _Arrow3D(FancyArrowPatch):
+    """An edge between two points of a 3D plot, which follows a rotation"""
+
+    def __init__(self, p1: ArrayLike, p2: ArrayLike, **kwargs: Any):
+        super().__init__((0, 0), (0, 0), **kwargs)
+        self._p1, self._p2 = np.asarray(p1, float), np.asarray(p2, float)
+
+    def do_3d_projection(self, renderer: Any = None) -> float:
+        ax: Any = self.axes
+        xs, ys, zs = proj3d.proj_transform(
+            [self._p1[0], self._p2[0]],
+            [self._p1[1], self._p2[1]],
+            [self._p1[2], self._p2[2]],
+            ax.M,
+        )
+        self.set_positions((xs[0], ys[0]), (xs[1], ys[1]))
+        return float(np.min(zs))
+
+
+class _Loop3D(FancyArrowPatch):
+    """A loop at a vertex of a 3D plot, which follows a rotation"""
+
+    def __init__(self, anchor: ArrayLike, path: Path, **kwargs: Any):
+        super().__init__(path=path, **kwargs)
+        self._anchor = np.asarray(anchor, float)
+
+    def do_3d_projection(self, renderer: Any = None) -> float:
+        ax: Any = self.axes
+        x, y, z = proj3d.proj_transform(*self._anchor, ax.M)
+        self.set_transform(
+            Affine2D().scale(1 / 72)
+            + ax.figure.dpi_scale_trans
+            + ScaledTranslation(x, y, ax.transData)
+        )
+        return float(z)
 
 
 class Graph:
@@ -1709,57 +1801,177 @@ class Graph:
         """
         return list(self._edges)
 
+    def _edge_layout(self) -> tuple[dict[Edge, float], dict[Edge, int]]:
+        """
+        How each edge is to be drawn, apart from its end points (private method)
+
+        :return: the curvature of every edge that joins two vertices, and the
+            number of every loop among the loops at its vertex
+
+        Edges that join the same pair of vertices, whichever way they point,
+        are drawn as arcs that bow to either side, so that parallel and
+        antiparallel edges can all be seen.  A single edge is straight, with
+        curvature 0.  Loops are numbered from 0 at each vertex.
+        """
+        index = {v: i for i, v in enumerate(self)}
+        groups: dict[frozenset[int], list[Edge]] = {}
+        loops: dict[Vertex, list[Edge]] = {}
+        for e in self._edges:
+            assert e.v1 is not None and e.v2 is not None
+            if e.v1 is e.v2:
+                loops.setdefault(e.v1, []).append(e)
+            else:
+                groups.setdefault(frozenset((index[e.v1], index[e.v2])), []).append(e)
+        rads: dict[Edge, float] = {}
+        for edges in groups.values():
+            n = len(edges)
+            for k, e in enumerate(edges):
+                assert e.v1 is not None and e.v2 is not None
+                offset = (k - (n - 1) / 2) * _ARC_STEP
+                # the same side in space for an edge drawn the other way round
+                rads[e] = offset if index[e.v1] < index[e.v2] else -offset
+        loopno = {e: k for edges in loops.values() for k, e in enumerate(edges)}
+        return rads, loopno
+
+    def _edge_artist(
+        self,
+        ax: Any,
+        edge: Edge,
+        rad: float,
+        loopno: int,
+        markersize: float,
+        ndim: int,
+        **kwargs: Any,
+    ) -> Any:
+        """
+        The matplotlib artist for one edge (private method)
+
+        :param rad: curvature of an edge that is not a loop, see
+            :meth:`_edge_layout`
+        :param loopno: number of this edge among the loops at its vertex
+        :param markersize: size in points of a vertex marker, so that the edge
+            stops at the rim of the marker, not at the center of the vertex
+        :param ndim: 2 for a 2D axes, 3 for a 3D axes
+        :param kwargs: options of the patch: color, linewidth, arrowstyle, ...
+        :return: the artist, to be added to ``ax``
+        """
+        v1, v2 = edge.v1, edge.v2
+        assert v1 is not None and v2 is not None
+        shrink = markersize / 2 + 1
+        if v1 is v2:
+            radius = _LOOP_RADIUS + _LOOP_GROWTH * loopno
+            path = _loop_path(_LOOP_ANGLE + _LOOP_TURN * loopno, radius, markersize)
+            # a loop is a size in points, so it can reach beyond the limits of
+            # the axes, which are in data units: do not clip it there
+            options = {**dict(shrinkA=0, shrinkB=0, clip_on=False), **kwargs}
+            if ndim == 3:
+                return _Loop3D((v1.x, v1.y, v1.z), path, **options)
+            transform = (
+                Affine2D().scale(1 / 72)
+                + ax.figure.dpi_scale_trans
+                + ScaledTranslation(v1.x, v1.y, ax.transData)
+            )
+            return FancyArrowPatch(path=path, transform=transform, **options)
+
+        options = {
+            **dict(
+                shrinkA=shrink, shrinkB=shrink, connectionstyle=f"arc3,rad={rad}"
+            ),
+            **kwargs,
+        }
+        if ndim == 3:
+            return _Arrow3D((v1.x, v1.y, v1.z), (v2.x, v2.y, v2.z), **options)
+        return FancyArrowPatch((v1.x, v1.y), (v2.x, v2.y), **options)
+
     def plot(
         self,
-        colorcomponents: bool = True,
-        force2d: bool = False,
+        colorcomponents: bool | None = None,
+        force2d: bool | None = None,
         vopt: dict | None = None,
         eopt: dict | None = None,
         text: dict | bool | None = None,
         block: bool | None = False,
         grid: bool = True,
         ax: Any = None,
+        *,
+        vertex_opt: dict | None = None,
+        edge_opt: dict | None = None,
+        arrow_opt: dict | None = None,
+        text_opt: dict | None = None,
+        labels: bool | None = None,
+        color_components: bool | None = None,
+        force_2d: bool | None = None,
     ) -> None:
         """
         Plot graph as a vertex/edge diagram using Matplotlib
 
-        :param vopt: vertex format, defaults to 12pt o-marker
-        :type vopt: dict, optional
-        :param eopt: edge format, defaults to 3pt line width
-        :type eopt: dict, optional
-        :param text: text label format, defaults to None
-        :type text: dict, bool or None, optional
-        :param colorcomponents: color vertices and edges by component, defaults to True
-        :type colorcomponents: bool, optional
-        :param force2d: plot only the first two coordinates of each vertex
+        :param vertex_opt: vertex format, a dict of Matplotlib ``plot``
+            options, defaults to a 12 point circle marker
+        :type vertex_opt: dict, optional
+        :param edge_opt: edge format, a dict of Matplotlib patch options such as
+            ``color``, ``linewidth`` and ``linestyle``, defaults to a line width
+            of 3
+        :type edge_opt: dict, optional
+        :param arrow_opt: arrowhead and path format, a dict of Matplotlib
+            ``FancyArrowPatch`` options such as ``arrowstyle``,
+            ``mutation_scale`` and ``connectionstyle``, defaults to
+            ``dict(arrowstyle="-|>", mutation_scale=15)`` for a directed graph
+            and ``dict(arrowstyle="-")``, no head, for an undirected graph
+        :type arrow_opt: dict, optional
+        :param labels: label each vertex with its name, defaults to True
+        :type labels: bool, optional
+        :param text_opt: format of the labels, a dict of Matplotlib ``text``
+            options
+        :type text_opt: dict, optional
+        :param color_components: color vertices and edges by component,
+            defaults to True
+        :type color_components: bool, optional
+        :param force_2d: plot only the first two coordinates of each vertex
             even if they have more, defaults to False
-        :type force2d: bool, optional
+        :type force_2d: bool, optional
+        :param grid: show a grid, defaults to True
+        :type grid: bool, optional
+        :param ax: axes to draw in, defaults to the current axes or a new figure
+        :type ax: Axes or Axes3D, optional
         :param block: block until figure is dismissed, defaults to False. If
             None the figure is not shown at all, which is useful when
             adding to the plot or saving it.
         :type block: bool or None, optional
         :raises ValueError: the graph is empty, or a vertex has no coordinate
             or fewer than two coordinate values
+        :raises TypeError: an option is given by both its old and new name
 
         The graph is plotted using Matplotlib according to the dimensionality of the vertex
         coordinates (set by the `dim` parameter to graph constructor).  If the dimensionality is
-         
+
         - 2, then a 2D plot is generated.
         - 3, then a 3D plot is generated.
         - 4 or more, then a 3D plot is generated using the first three coordinates.
 
         If a vertex has no coordinate or fewer than two values, a ValueError is raised.
 
-        If ``colorcomponents`` is True then all edges and vertices within a component are assigned a unique
-        color.
+        Every edge is drawn once.  In a directed graph it ends in an arrowhead
+        at its end vertex.  Edges that join the same pair of vertices, whichever
+        way they point, are drawn as arcs that bow to either side so that
+        parallel and antiparallel edges can all be seen, and a loop is drawn as
+        a circle at its vertex.
 
-        If ``text`` is a dict it is used to format text labels for the vertices
-        which are the vertex names.  If ``text`` is None or True default
-        formatting is used.  If ``text`` is False no labels are added.
+        If ``color_components`` is True then all edges and vertices within a component are assigned a unique
+        color.
 
         .. note:: Only embedded graphs can be plotted: every vertex must have
             a coordinate of at least two values.  A coordinate of more than
             two values is drawn in 3D, using the first three.
+
+        .. versionchanged:: 1.0
+            A directed graph is drawn with arrowheads.  In 0.6.5 it was
+            indistinguishable from an undirected one, parallel edges were
+            drawn on top of each other and loops were not visible.  The
+            options are named ``vertex_opt``, ``edge_opt``, ``arrow_opt`` and
+            ``text_opt``.  ``vopt``, ``eopt``, ``text``, ``colorcomponents``
+            and ``force2d`` are deprecated: they still work and give a
+            :exc:`DeprecationWarning`.  ``text=False`` is ``labels=False`` and
+            a ``text`` dict is ``text_opt``.
 
         .. runblock:: pycon
 
@@ -1785,8 +1997,50 @@ class Graph:
             ...     g.add_edge(g[i], g[j]);
             >>> g.plot(block=None)
 
-        :seealso: :meth:`highlight_path`
+        A directed graph, with a pair of antiparallel edges, a pair of parallel
+        edges and a loop
+
+        .. plot::
+
+            >>> from pgraph import DGraph
+            >>> g = DGraph()
+            >>> for name, xy in dict(A=(0, 1), B=(2, 1.7), C=(3.3, 0.3), D=(1.2, -0.5)).items():
+            ...     g.add_vertex(xy, name=name);
+            >>> for a, b in ["AB", "AB", "AD", "BC", "CB", "DC", "CC"]:
+            ...     g.add_edge(a, b);
+            >>> g.plot(block=None)
+
+        :seealso: :meth:`highlight_path` :meth:`highlight_edge`
         """
+        # the options that have been renamed
+        vertex_opt = _renamed("plot", "vopt", vopt, "vertex_opt", vertex_opt)
+        edge_opt = _renamed("plot", "eopt", eopt, "edge_opt", edge_opt)
+        color_components = _renamed(
+            "plot", "colorcomponents", colorcomponents, "color_components", color_components
+        )
+        force_2d = _renamed("plot", "force2d", force2d, "force_2d", force_2d)
+        if text is not None:
+            if labels is not None or text_opt is not None:
+                raise TypeError(
+                    "plot() got both text and labels or text_opt; "
+                    "text is deprecated, use labels and text_opt only"
+                )
+            warnings.warn(
+                "plot(): text is deprecated, use labels=False or text_opt=dict(...)",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            if text is False:
+                labels = False
+            elif isinstance(text, dict):
+                text_opt = text
+        if color_components is None:
+            color_components = True
+        if force_2d is None:
+            force_2d = False
+        if labels is None:
+            labels = True
+
         if self.n == 0:
             raise ValueError("cannot plot an empty graph")
         ndim = 0  # number of coordinate values, taken from the first vertex
@@ -1799,75 +2053,87 @@ class Graph:
             if i == 0:
                 ndim = len(vertex.coord)
 
-        vopt = {**dict(marker="o", markersize=12), **(vopt or {})}
-        eopt = {**dict(linewidth=3), **(eopt or {})}
-        # text labels: None or True is default formatting, False is no labels
-        textopt: dict | None = None
-        if text is not False:
-            textopt = text if isinstance(text, dict) else {}
+        # without component colors every vertex and edge is the first color of
+        # the cycle, rather than each in turn
+        same = {} if color_components else dict(color="C0")
+        vertex_opt = {**dict(marker="o", markersize=12), **same, **(vertex_opt or {})}
+        arrow_opt = {
+            **dict(
+                arrowstyle="-|>" if self.directed else "-", mutation_scale=15
+            ),
+            **(arrow_opt or {}),
+        }
+        # the edge options are Line2D options in 0.6.5: keep those that a patch
+        # also has, and say so about the rest
+        patch_opt: dict[str, Any] = {}
+        for key, value in {**dict(linewidth=3), **same, **(edge_opt or {})}.items():
+            if hasattr(FancyArrowPatch, "set_" + key):
+                patch_opt[key] = value
+            else:
+                warnings.warn(
+                    f"plot(): edge_opt {key!r} does not apply to an edge and is ignored",
+                    UserWarning,
+                    stacklevel=2,
+                )
+        edge_kwargs = {**patch_opt, **arrow_opt}
 
-        if colorcomponents:
+        if color_components:
             color = plt.cm.coolwarm(np.linspace(0, 1, self.nc))
 
-        if ndim == 2 or force2d:
-            # 2D plotting
-            if ax is None:
-                ax = axes_logic(ax, 2)
-            for c in range(self.nc):
-                # for each component
-                for vertex in self.component(c):
-                    if textopt is not None:
-                        ax.text(vertex.x, vertex.y, f"  {vertex.name}", **textopt)
-                    if colorcomponents:
-                        ax.plot(vertex.x, vertex.y, color=color[c, :], **vopt)
-                        for v in vertex.adjacent():
-                            ax.plot(
-                                [vertex.x, v.x],
-                                [vertex.y, v.y],
-                                color=color[c, :],
-                                **eopt,
-                            )
-                    else:
-                        ax.plot(vertex.x, vertex.y, **vopt)
-                        for v in vertex.adjacent():
-                            ax.plot([vertex.x, v.x], [vertex.y, v.y], **eopt)
+        draw3d = not (ndim == 2 or force_2d)
+        if draw3d:
+            ax = axes_logic(ax, 3)
         else:
-            # 3D or higher plotting, just do (x, y, z)
-            if ax is None:
-                ax = axes_logic(ax, 3)
-            for c in range(self.nc):
-                # for each component
-                for vertex in self.component(c):
-                    if textopt is not None:
-                        ax.text(
-                            vertex.x, vertex.y, vertex.z, f"  {vertex.name}", **textopt
-                        )
-                    if colorcomponents:
-                        ax.plot(
-                            vertex.x,
-                            vertex.y,
-                            vertex.z,
-                            **{**dict(color=color[c, :]), **vopt},
-                        )
-                        for v in vertex.adjacent():
-                            ax.plot(
-                                [vertex.x, v.x],
-                                [vertex.y, v.y],
-                                [vertex.z, v.z],
-                                **{**dict(color=color[c, :]), **eopt},
-                            )
-                    else:
-                        ax.plot(vertex.x, vertex.y, vertex.z, **vopt)
-                        for v in vertex.adjacent():
-                            ax.plot(
-                                [vertex.x, v.x],
-                                [vertex.y, v.y],
-                                [vertex.z, v.z],
-                                **eopt,
-                            )
-        # if nc > 1:
-        #     # add a colorbar
-        #     plt.colorbar()
+            ax = axes_logic(ax, 2)
+
+        # the vertices, and their labels
+        for vertex in self:
+            coords = (vertex.x, vertex.y, vertex.z) if draw3d else (vertex.x, vertex.y)
+            opt = dict(vertex_opt)
+            if color_components:
+                opt = {**dict(color=color[vertex.label, :]), **opt}
+            ax.plot(*coords, **opt)
+            if labels:
+                ax.text(*coords, f"  {vertex.name}", **(text_opt or {}))
+
+        # the edges, each once
+        rads, loopno = self._edge_layout()
+        for e in self._edges:
+            assert e.v1 is not None
+            kwargs = dict(edge_kwargs)
+            if color_components:
+                kwargs = {**dict(color=color[e.v1.label, :]), **kwargs}
+            artist = self._edge_artist(
+                ax,
+                e,
+                rads.get(e, 0.0),
+                loopno.get(e, 0),
+                vertex_opt["markersize"],
+                3 if draw3d else 2,
+                **kwargs,
+            )
+            if draw3d:
+                ax.add_artist(artist)
+            else:
+                ax.add_patch(artist)
+
+        if loopno and not draw3d:
+            # a loop is a size in points from its vertex, which matplotlib does
+            # not count in the limits of the axes, so make room for the largest
+            ax.autoscale_view()
+            reach = 2 * (_LOOP_RADIUS + _LOOP_GROWTH * max(loopno.values()))
+            pixels = (reach + vertex_opt["markersize"]) * ax.figure.dpi / 72
+            (x0, y0), (x1, y1) = ax.transData.inverted().transform(
+                [(0, 0), (pixels, pixels)]
+            )
+            dx, dy = abs(x1 - x0), abs(y1 - y0)
+            for e in loopno:
+                assert e.v1 is not None
+                ax.update_datalim(
+                    [(e.v1.x - dx, e.v1.y - dy), (e.v1.x + dx, e.v1.y + dy)]
+                )
+            ax.autoscale_view()
+
         ax.grid(grid)
         if block is not None:
             plt.show(block=block)
@@ -1977,12 +2243,24 @@ class Graph:
 
         :seealso: :meth:`plot` :meth:`highlight_vertex` :meth:`highlight_path`
         """
-        p1 = edge.v1
-        p2 = edge.v2
-        if p1 is None or p2 is None:
+        if edge.v1 is None or edge.v2 is None:
             raise ValueError("edge does not connect two vertices")
-        plt.plot(
-            [p1.x, p2.x], [p1.y, p2.y], color=color, linewidth=3 * scale, alpha=alpha
+        # over the edge as plot() draws it, so that it follows an arc
+        ax = plt.gca()
+        rads, loopno = self._edge_layout()
+        ax.add_patch(
+            self._edge_artist(
+                ax,
+                edge,
+                rads.get(edge, 0.0),
+                loopno.get(edge, 0),
+                12,
+                2,
+                arrowstyle="-",
+                color=color,
+                linewidth=3 * scale,
+                alpha=alpha,
+            )
         )
 
     def highlight_vertex(
@@ -2077,11 +2355,11 @@ class Graph:
             * - ``"dot"``
               - ``.dot`` ``.gv``
               - ``pos="x,y!"``
-              - ``direction``, ``colorcomponents``, ``costs``
+              - ``direction``, ``color_components``, ``costs``
             * - ``"mermaid"``
               - ``.mmd`` ``.mermaid``
               - no
-              - ``direction``, ``colorcomponents``, ``costs``, ``fence``
+              - ``direction``, ``color_components``, ``costs``, ``fence``
             * - ``"graphml"``
               - ``.graphml``
               - ``x``, ``y``, ``coord``
@@ -2093,7 +2371,7 @@ class Graph:
             * - ``"svg"`` ``"pdf"`` ``"png"`` ...
               - the same
               - yes, via ``neato``
-              - ``engine``, ``direction``, ``colorcomponents``, ``costs``
+              - ``engine``, ``direction``, ``color_components``, ``costs``
 
         The text formats need nothing beyond the standard library.  The image
         formats run the GraphViz ``dot`` or ``neato`` executable.
@@ -2226,7 +2504,7 @@ class Graph:
         Display graph as a vertex/edge diagram in a browser tab
 
         :param display: open the rendered PDF in a browser tab, defaults to True
-        :param options: ``engine``, ``direction``, ``colorcomponents`` and
+        :param options: ``engine``, ``direction``, ``color_components`` and
             ``costs``, passed to :meth:`export`
         :raises RuntimeError: GraphViz is not installed, or fails
         :return: path of the rendered PDF if ``display`` is False, else None

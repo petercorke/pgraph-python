@@ -172,11 +172,11 @@ class TestDot(unittest.TestCase):
         # every line is balanced: no raw newline inside a quoted name
         self.assertEqual(len(text.strip().splitlines()), 5)
 
-    def test_colorcomponents(self):
+    def test_color_components(self):
         g = UGraph()
         a, b, c = (g.add_vertex(name=n) for n in "abc")
         g.add_edge(a, b)  # c is a second component
-        text = g.export(format="dot", colorcomponents=True)
+        text = g.export(format="dot", color_components=True)
         colors = {
             line.split('fillcolor="')[1].split('"')[0]
             for line in text.splitlines()
@@ -224,11 +224,11 @@ class TestMermaid(unittest.TestCase):
         self.assertIn('n1["x y-z]"]', text)
         self.assertIn("n0 --- n1", text)
 
-    def test_colorcomponents(self):
+    def test_color_components(self):
         g = UGraph()
         g.add_vertex(name="a")
         g.add_vertex(name="b")
-        text = g.export(format="mermaid", colorcomponents=True)
+        text = g.export(format="mermaid", color_components=True)
         self.assertEqual(sum(1 for l in text.splitlines() if "fill:#" in l), 2)
 
 
@@ -465,7 +465,7 @@ class TestRender(unittest.TestCase):
         g, *_ = line_graph(DGraph)
         pdf, png = io.BytesIO(), io.BytesIO()
         g.export(pdf, format="pdf", direction="LR")
-        g.export(png, format="png", colorcomponents=True)
+        g.export(png, format="png", color_components=True)
         self.assertEqual(pdf.getvalue()[:5], b"%PDF-")
         self.assertEqual(png.getvalue()[:4], b"\x89PNG")
 
