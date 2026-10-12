@@ -290,6 +290,8 @@ class Graph:
         :return: one-line summary of vertex/edge/component counts
         :rtype: str
 
+        Counts of 1,000 or more have thousands separators.
+
         .. runblock:: pycon
 
             >>> from pgraph import UGraph
@@ -303,7 +305,7 @@ class Graph:
 
         :seealso: :meth:`show`
         """
-        s = f"{self.__class__.__name__}: {self.n} {'vertex' if self.n==1 else 'vertices'}, {self.ne} edge{'s'[:self.ne^1]}, {self.nc} component{'s'[:self.nc^1]}"
+        s = f"{self.__class__.__name__}: {self.n:,} {'vertex' if self.n==1 else 'vertices'}, {self.ne:,} edge{'s'[:self.ne^1]}, {self.nc:,} component{'s'[:self.nc^1]}"
         return s
 
     def __repr__(self) -> str:
