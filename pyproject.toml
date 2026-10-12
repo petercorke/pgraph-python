@@ -2,7 +2,7 @@
 name = "pgraph-python"
 version = "1.0.0"
 authors = [{ name = "Peter Corke", email = "rvc@petercorke.com" }]
-description = "Mathematical graphs for Python"
+description = "Graphs for Python"
 readme = "README.md"
 requires-python = ">=3.9"
 classifiers = [
@@ -32,7 +32,7 @@ keywords = [
     "optimal path",
 ]
 
-dependencies = ["spatialmath-python", "numpy>=2.0", "scipy", "matplotlib"]
+dependencies = ["spatialmath-python", "numpy>=2.0", "matplotlib"]
 
 [project.urls]
 
@@ -76,7 +76,6 @@ target-version = ['py311']
 omit = []
 
 [tool.mypy]
-python_version = "3.9"
 ignore_missing_imports = true
 warn_unused_ignores = true
 warn_redundant_casts = true

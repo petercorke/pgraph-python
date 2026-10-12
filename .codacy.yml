@@ -1,0 +1,7 @@
+---
+exclude_paths:
+  # Developer scripts that regenerate documentation assets (e.g. the README
+  # logo), not part of the installed package. They shell out to fixed
+  # commands like rsvg-convert, which Bandit flags (B404/B603/B607) even
+  # though no untrusted input is involved.
+  - "docs/figs/**"

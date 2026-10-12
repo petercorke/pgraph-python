@@ -1,25 +1,48 @@
 # PGraph: graphs for Python
 
+<div align="center">
+  <img src="https://raw.githubusercontent.com/petercorke/pgraph-python/main/docs/figs/pgraph_logo.png" width="450" alt="pgraph logo">
+  <br>
+  <strong>Graphs for Python</strong>
+  <br><br>
+
+[![PyPI version](https://img.shields.io/pypi/v/pgraph-python?style=for-the-badge&color=blue)](https://pypi.org/project/pgraph-python/)
+  [![Documentation](https://img.shields.io/badge/Docs-View_Online-blue?style=for-the-badge)](https://petercorke.github.io/pgraph-python)
+
+  <p>
+    <a href="https://github.com/petercorke/pgraph-python">GitHub</a> •
+    <a href="https://github.com/petercorke/pgraph-python/wiki">Wiki</a> •
+    <a href="https://github.com/petercorke/pgraph-python/blob/main/CHANGELOG.md">Changelog</a>
+  </p>
+</div>
+
+---
+
+### Status & Project Health
+[![Build Status](https://github.com/petercorke/pgraph-python/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/petercorke/pgraph-python/actions/workflows/ci.yml)
+[![Downloads](https://static.pepy.tech/badge/pgraph-python/month)](https://pepy.tech/projects/pgraph-python)
+![Python Version](https://img.shields.io/pypi/pyversions/pgraph-python.svg)
+[![Coverage](https://codecov.io/gh/petercorke/pgraph-python/branch/main/graph/badge.svg)](https://codecov.io/gh/petercorke/pgraph-python)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/728d19eca33946fa8cfe5ae536c52bc0)](https://app.codacy.com/gh/petercorke/pgraph-python/dashboard)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+### Ecosystem & Dependencies
 [![A Python Robotics Package](https://raw.githubusercontent.com/petercorke/robotics-toolbox-python/main/.github/svg/py_collection.min.svg)](https://github.com/petercorke/robotics-toolbox-python)
-[![Powered by Spatial Maths](https://raw.githubusercontent.com/petercorke/spatialmath-python/master/.github/svg/sm_powered.min.svg)](https://github.com/petercorke/spatialmath-python)
 [![QUT Centre for Robotics Open Source](https://github.com/qcr/qcr.github.io/raw/master/misc/badge.svg)](https://qcr.github.io)
 
-[![PyPI version fury.io](https://badge.fury.io/py/pgraph-python.svg)](https://pypi.python.org/pypi/pgraph-python/)
-[![PyPI pyversions](https://img.shields.io/pypi/pyversions/pgraph-python)](https://pypi.python.org/pypi/pgraph-python/)
-[![GitHub license](https://img.shields.io/github/license/Naereen/StrapDown.js.svg)](https://github.com/petercorke/pgraph-python/blob/main/LICENSE)
+[![powered by NumPy](https://img.shields.io/badge/powered_by-NumPy-013243?logo=numpy&logoColor=white)](https://numpy.org)
+[![powered by Matplotlib](https://img.shields.io/badge/powered_by-Matplotlib-11557c?logo=matplotlib&logoColor=white)](https://matplotlib.org)
+[![Powered by Spatial Maths](https://raw.githubusercontent.com/petercorke/spatialmath-python/master/.github/svg/sm_powered.min.svg)](https://github.com/petercorke/spatialmath-python)
 
-[![Build Status](https://github.com/petercorke/pgraph-python/actions/workflows/ci.yml/badge.svg)](https://github.com/petercorke/pgraph-python/actions?query=workflow%3ACI)
-[![Coverage](https://codecov.io/gh/petercorke/pgraph-python/branch/main/graph/badge.svg)](https://codecov.io/gh/petercorke/pgraph-python)
-![pypi downloads](https://img.shields.io/pypi/dw/pgraph-python)
+This pure-Python package provides classes for directed and undirected graphs: vertices
+connected by edges, with edge costs and path planning.  Self-loops and
+parallel edges are permitted.
 
-- [GitHub repository](https://github.com/petercorke/pgraph-python)
-- [Wiki (examples and details)](https://github.com/petercorke/pgraph-python/wiki)
-- [Documentation](https://petercorke.github.io/pgraph-python)
-- [Changelog](https://github.com/petercorke/pgraph-python/blob/main/CHANGELOG.md)
-- Dependencies: [`numpy`](https://numpy.org) [`spatialmath`](https://github.com/bdaiinstitute/spatialmath-python)
-
-
-This Python package allows the manipulation of directed and non-directed graphs.  Also supports embedded graphs.  It is suitable for graphs with thousands of nodes.
+Vertices can optionally be *embedded*: given a coordinate in a space of any
+dimension.  Edge costs are then computed from the vertex positions using a
+distance metric (Euclidean, Manhattan, SE(2), or your own), the vertex nearest
+a point can be found, `A*` uses the metric as its heuristic, and the graph can
+be plotted, or exported with its layout preserved.
 
 ![road network](https://github.com/petercorke/pgraph-python/raw/main/examples/roads.png)
 
@@ -43,7 +66,7 @@ for route in routes:
     g.add_edge(route[0], route[1], cost=route[2])
 
 # plan a path from Hughenden to Brisbane
-p = g.path_Astar('Hughenden', 'Brisbane')
+p, length, _ = g.path_Astar('Hughenden', 'Brisbane')
 g.plot(block=False) # plot it
 g.highlight_path(p)  # overlay the path
 ```
@@ -62,6 +85,7 @@ Graphs belong to the class `UGraph` or `DGraph` for undirected or directed graph
 - `g.plot()` plots the vertices and edges
 - `g.nc` the number of graph components, 1 if fully connected
 - `g.component(v)` the component that vertex `v` belongs to
+- `g.samecomponent(v1, v2)` predicate for vertices belonging to the same component
 
     ***
 - `g.path_BFS()` breadth-first search
@@ -69,22 +93,21 @@ Graphs belong to the class `UGraph` or `DGraph` for undirected or directed graph
 
     ***
 - `g.adjacency()` adjacency matrix
-- `g.Laplacian()` Laplacian matrix
+- `g.laplacian()` Laplacian matrix
 - `g.incidence()` incidence matrix
 
 ### Properties and methods of a vertex
-Vertices belong to the class `UVertex` (for undirected graphs) or `DVertex` (for directed graphs), which are each subclasses of `Vertex`.
+Vertices are instances of the class `Vertex`, for both undirected and directed graphs.
 
 - `v.coord` the coordinate vector for embedded graph (optional)
 - `v.name` the name of the vertex (optional)
-- `v.neighbours()` is a list of the neighbouring vertices
-- `v1.samecomponent(v2)` predicate for vertices belonging to the same component
+- `v.adjacent()` is a list of the adjacent vertices (`neighbours()` and `neighbors()` are the same)
 
 Vertices can be named and referenced by name.
 
 ### Properties and methods of an edge
 Edges are instances of the class `Edge`.
-Edges are not referenced by the graph object, each edge references a pair of vertices, and the vertices reference the edges.  For a directed graph only the start vertex of an edge references the edge object, whereas for an undirected graph both vertices reference the edge object.
+Each edge references a pair of vertices, the graph lists all of its edges in `g.edges()`, and the vertices reference the edges.
 
 - `e.cost` cost of edge for planning methods
 - `e.next(v)` vertex on edge `e` that is not `v`
@@ -92,19 +115,19 @@ Edges are not referenced by the graph object, each edge references a pair of ver
 
 ## Modifying a graph
 
-- `g.remove(v)` remove vertex `v`
-- `e.remove()` remove edge `e`
+- `g.remove_vertex(v)` or `v.remove()` remove vertex `v`
+- `g.remove_edge(e)` or `e.remove()` remove edge `e`
 
-## Subclasing pgraph classes
+## Subclassing pgraph classes
 
-Consider a user class `Foo` that we would like to connect using a graph _overlay_, ie.
-instances of `Foo` becomes vertices in a graph.
+Consider a user class `Foo` that we would like to connect using a graph _overlay_, i.e.
+instances of `Foo` become vertices in a graph.
 
-- Have it subclass either `DVertex` or `UVertex` depending on graph type
+- Have it subclass `Vertex`
 - Then place instances of `Foo` into the graph using `add_vertex` and create edges as required
 
 ```
-class Foo(UVertex):
+class Foo(Vertex):
   # foo stuff goes here
   
 f1 = Foo(...)
@@ -115,15 +138,9 @@ g.add_vertex(f1)
 g.add_vertex(f2)
 
 f1.connect(f2, cost=3)
-for f in f1.neighbours():
-    # say hi to the neighbours
+for f in f1.adjacent():
+    f.say_hi()  # say hi to the neighbours
 ```
-
-## Under the hood
-
-The key objects and their interactions are shown below.
-
-![data structures](https://github.com/petercorke/pgraph-python/raw/main/docs/source/datastructures.png)
 
 ## MATLAB version
 

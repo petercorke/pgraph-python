@@ -14,15 +14,15 @@ class TestUGraph(unittest.TestCase):
         v1 = g.add_vertex()
         v2 = g.add_vertex()
         self.assertEqual(g.n, 2)
-        self.assertIsInstance(v1, UVertex)
-        self.assertIsInstance(v2, UVertex)
+        self.assertIsInstance(v1, Vertex)
+        self.assertIsInstance(v2, Vertex)
 
     def test_constructor2(self):
 
         g = UGraph()
 
         v = g.add_vertex([1,2,3])
-        self.assertIsInstance(v, UVertex)
+        self.assertIsInstance(v, Vertex)
         self.assertEqual(v.x, 1)
         self.assertEqual(v.y, 2)
         self.assertEqual(v.z, 3)
@@ -74,7 +74,7 @@ class TestUGraph(unittest.TestCase):
         self.assertIs(g[0], v1)
         self.assertIs(g[0], v1)
 
-        class MyNode(UVertex):
+        class MyNode(Vertex):
             def __init__(self, a):
                 super().__init__()
                 self.a = a
@@ -152,18 +152,6 @@ class TestUGraph(unittest.TestCase):
         self.assertFalse(v2.isneighbour(v1))
         self.assertFalse(v1.isneighbour(v3))
         self.assertFalse(v3.isneighbour(v1))
-
-    def test_adjacent_deprecated(self):
-        # adjacent() must still work (same result as neighbours()) but
-        # emit a DeprecationWarning, not a hard failure
-        g = UGraph()
-        v1 = g.add_vertex(name='v1')
-        v2 = g.add_vertex(name='v2')
-        v1.connect(v2)
-
-        with self.assertWarns(DeprecationWarning):
-            n = v1.adjacent()
-        self.assertEqual(n, v1.neighbours())
 
     def test_getitem(self):
         g = UGraph()
@@ -351,7 +339,7 @@ class TestUGraph(unittest.TestCase):
 
         g = UGraph()
 
-        v = UVertex()
+        v = Vertex()
 
         g.add_vertex(v)
         self.assertEqual(v.name, '#0')
@@ -405,7 +393,8 @@ class TestUGraph(unittest.TestCase):
 
         self.assertEqual(g.n, 4)
         self.assertEqual(g.ne, 2)
-        self.assertEqual(g.average_degree(), 0.5)
+        # degrees sum to twice the edges for either kind of graph: 4 / 4
+        self.assertEqual(g.average_degree(), 1.0)
 
     def test_contains(self):
 
@@ -422,10 +411,10 @@ class TestUGraph(unittest.TestCase):
 
     def test_Dict(self):
 
-        v1 = UVertex(name='v1')
-        v2 = UVertex(name='v2')
-        v3 = UVertex(name='v3')
-        v4 = UVertex(name='v4')
+        v1 = Vertex(name='v1')
+        v2 = Vertex(name='v2')
+        v3 = Vertex(name='v3')
+        v4 = Vertex(name='v4')
 
         parent = {}
         parent[v2] = v1
@@ -599,7 +588,7 @@ class TestUGraph(unittest.TestCase):
         D = g.degree()
         nt.assert_array_equal(D, np.diag([2, 1, 1, 0]))
 
-        L = g.Laplacian()
+        L = g.laplacian()
         expected_L = np.diag([2, 1, 1, 0]) - expected_A
         nt.assert_array_equal(L, expected_L)
 
@@ -840,18 +829,18 @@ class TestDGraph(unittest.TestCase):
         v1 = g.add_vertex()
         v2 = g.add_vertex()
         self.assertEqual(g.n, 2)
-        self.assertIsInstance(v1, DVertex)
-        self.assertIsInstance(v2, DVertex)
+        self.assertIsInstance(v1, Vertex)
+        self.assertIsInstance(v2, Vertex)
 
     def test_Dict(self):
-        # regression test: Dict() used to hardcode UVertex() regardless of
+        # regression test: Dict() used to hardcode Vertex() regardless of
         # the graph type, silently producing wrong-typed vertices in a DGraph
         g = DGraph.Dict({'child': 'parent'})
 
         self.assertIsInstance(g, DGraph)
         self.assertEqual(g.n, 2)
         for v in g:
-            self.assertIsInstance(v, DVertex)
+            self.assertIsInstance(v, Vertex)
 
     def test_iscyclic(self):
 
@@ -906,17 +895,20 @@ class TestDGraph(unittest.TestCase):
         nt.assert_array_equal(A, expected_A)
         self.assertFalse(np.array_equal(A, A.T))  # not symmetric, directed
 
-        # out-degree only: v0 has 2 outgoing, v1 has 1, v2 has 0 (even
-        # though v2 has two *incoming* edges)
+        # degree is in + out: v0 has 2 out and 0 in, v1 has 1 and 1, v2 has
+        # 0 and 2 -- two edge ends each
         D = g.degree()
-        nt.assert_array_equal(D, np.diag([2, 1, 0]))
+        nt.assert_array_equal(D, np.diag([2, 2, 2]))
 
-        L = g.Laplacian()
+        # the directed Laplacian uses the OUT-degree, D_out - A, whose rows
+        # sum to zero; it is not degree() - A for a directed graph
+        L = g.laplacian()
         expected_L = np.diag([2, 1, 0]) - expected_A
         nt.assert_array_equal(L, expected_L)
+        nt.assert_array_equal(L.sum(axis=1), np.zeros(3))
 
-        # incidence marks both endpoints regardless of direction, so unlike
-        # degree() every vertex here touches exactly 2 edges
+        # incidence marks both endpoints regardless of direction, so it
+        # agrees with the total degree: every vertex touches exactly 2 edges
         I = g.incidence()
         self.assertEqual(I.shape, (g.n, g.ne))
         nt.assert_array_equal(I.sum(axis=0), np.full(g.ne, 2))
@@ -934,7 +926,7 @@ class TestDGraph(unittest.TestCase):
     def test_remove_edge(self):
         # regression test: removing a directed edge used to always crash,
         # since it assumed both endpoints track the edge in their own
-        # _edgelist, but a DVertex only tracks outgoing edges
+        # _edgelist, but a Vertex only tracks outgoing edges
         g = DGraph()
         v1 = g.add_vertex(name='1')
         v2 = g.add_vertex(name='2')
@@ -978,7 +970,7 @@ class TestDGraph(unittest.TestCase):
             g.remove_vertex(v1)  # no longer belongs to this graph
 
     def test_remove_via_instance_methods(self):
-        # Edge.remove() / BaseVertex.remove(), the ergonomic wrappers
+        # Edge.remove() / Vertex.remove(), the ergonomic wrappers
         g = DGraph()
         v0 = g.add_vertex(name='0')
         v1 = g.add_vertex(name='1')
