@@ -1,7 +1,7 @@
 Object lifecycle and graph-membership policy
 =============================================
 
-``BaseVertex``, ``UVertex``, ``DVertex`` and ``Edge`` can all be constructed
+``Vertex``, ``UVertex``, ``DVertex`` and ``Edge`` can all be constructed
 directly, independent of any graph. This is deliberate -- it is not an
 oversight and not a "factory-only" design -- but it means the rules for what
 those objects can and can't do *before* they belong to a graph need to be
@@ -26,7 +26,7 @@ Adding a vertex to a graph
 :meth:`UGraph.add_vertex` and :meth:`DGraph.add_vertex` each only accept
 their own matching vertex subclass -- a ``UVertex`` (or coordinate data, from
 which one is built) for :class:`UGraph`, a ``DVertex`` for :class:`DGraph`.
-Passing the wrong kind of vertex -- a plain ``BaseVertex``, or the other
+Passing the wrong kind of vertex -- a plain ``Vertex``, or the other
 graph's subclass -- raises ``TypeError`` rather than being silently accepted
 or converted.
 
@@ -79,7 +79,7 @@ Summary
    * - Operation
      - Requires graph membership?
      - Failure mode
-   * - ``UVertex()`` / ``DVertex()`` / ``BaseVertex()``
+   * - ``UVertex()`` / ``DVertex()`` / ``Vertex()``
      - No
      - --
    * - ``Edge(v1, v2)``

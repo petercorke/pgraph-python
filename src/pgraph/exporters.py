@@ -2,7 +2,7 @@
 Export a graph as text (GraphViz DOT, Mermaid, GraphML, ELK JSON) or as a
 rendered image (via the GraphViz command line tools).
 
-This module is reached through :meth:`pgraph.PGraph.BaseGraph.export`, which
+This module is reached through :meth:`pgraph.PGraph.Graph.export`, which
 dispatches on the format name or the file extension.  Each text exporter is a
 plain function ``f(graph, **options) -> str``, registered with
 :func:`register_exporter`, so a user can add a format without touching the
@@ -27,7 +27,7 @@ import subprocess  # nosec B404 - GraphViz is run without a shell, see render()
 from typing import IO, TYPE_CHECKING, Any, Callable
 
 if TYPE_CHECKING:
-    from .PGraph import BaseVertex, Edge, BaseGraph
+    from .PGraph import Vertex, Edge, Graph
 
 TextExporter = Callable[..., str]
 
@@ -131,13 +131,13 @@ def format_from_filename(filename: str | os.PathLike | IO | None) -> str | None:
 # helpers shared by the exporters
 
 
-def _is_directed(graph: BaseGraph) -> bool:
+def _is_directed(graph: Graph) -> bool:
     from .PGraph import DGraph  # not at module level: PGraph imports this module
 
     return isinstance(graph, DGraph)
 
 
-def _ordered_edges(graph: BaseGraph) -> list[tuple[Edge, BaseVertex, BaseVertex]]:
+def _ordered_edges(graph: Graph) -> list[tuple[Edge, Vertex, Vertex]]:
     """
     Edges in a reproducible order
 
@@ -150,7 +150,7 @@ def _ordered_edges(graph: BaseGraph) -> list[tuple[Edge, BaseVertex, BaseVertex]
     Each item is ``(edge, start, end)``.
     """
     seen: set[int] = set()
-    edges: list[tuple[Edge, BaseVertex, BaseVertex]] = []
+    edges: list[tuple[Edge, Vertex, Vertex]] = []
     for vertex in graph:
         for e in vertex.out_edges():
             if id(e) in seen or e.v1 is None or e.v2 is None:
@@ -160,7 +160,7 @@ def _ordered_edges(graph: BaseGraph) -> list[tuple[Edge, BaseVertex, BaseVertex]
     return edges
 
 
-def _component_colors(graph: BaseGraph) -> dict[BaseVertex, str]:
+def _component_colors(graph: Graph) -> dict[Vertex, str]:
     """
     Map each vertex to a ``#rrggbb`` colour for its component, as plot() does
     """
@@ -210,7 +210,7 @@ def _dot_quote(text: str) -> str:
 
 @register_exporter("dot", ".dot", ".gv")
 def dot(
-    graph: BaseGraph,
+    graph: Graph,
     *,
     direction: str | None = None,
     colorcomponents: bool = False,
@@ -259,7 +259,7 @@ def dot(
 
 @register_exporter("mermaid", ".mmd", ".mermaid")
 def mermaid(
-    graph: BaseGraph,
+    graph: Graph,
     *,
     direction: str = "TB",
     colorcomponents: bool = False,
@@ -283,7 +283,7 @@ def mermaid(
         raise ValueError(f"direction must be TB, BT, LR or RL, got {direction!r}")
 
     arrow = "-->" if _is_directed(graph) else "---"
-    ids: dict[BaseVertex, str] = {}
+    ids: dict[Vertex, str] = {}
     lines = [f"flowchart {direction}"]
     for i, vertex in enumerate(graph):
         ids[vertex] = f"n{i}"
@@ -308,7 +308,7 @@ def mermaid(
 
 
 @register_exporter("graphml", ".graphml")
-def graphml(graph: BaseGraph) -> str:
+def graphml(graph: Graph) -> str:
     """
     GraphML XML text
 
@@ -346,7 +346,7 @@ def graphml(graph: BaseGraph) -> str:
         lines.append(key("edge_cost", "edge", "cost", "double"))
     lines.append(f'  <graph id="G" edgedefault="{kind}">')
 
-    ids: dict[BaseVertex, str] = {}
+    ids: dict[Vertex, str] = {}
     for i, vertex in enumerate(graph):
         ids[vertex] = f"n{i}"
         lines.append(f'    <node id="n{i}">')
@@ -373,7 +373,7 @@ def graphml(graph: BaseGraph) -> str:
 
 @register_exporter("elk", ".elk.json", ".elk")
 def elk(
-    graph: BaseGraph,
+    graph: Graph,
     *,
     size: tuple[float, float] = (60, 40),
     layout_options: dict[str, str] | None = None,
@@ -391,7 +391,7 @@ def elk(
     graph.nc  # refresh vertex.label
     has_coords = any(v.coord is not None for v in graph)
 
-    ids: dict[BaseVertex, str] = {}
+    ids: dict[Vertex, str] = {}
     children = []
     for i, vertex in enumerate(graph):
         ids[vertex] = f"n{i}"
@@ -449,7 +449,7 @@ def elk(
 
 
 def render(
-    graph: BaseGraph,
+    graph: Graph,
     fmt: str,
     *,
     engine: str | None = None,

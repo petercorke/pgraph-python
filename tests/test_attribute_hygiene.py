@@ -5,7 +5,7 @@ corrupt a graph.
 - ``label`` is the component number, computed by the graph: read-only
 - ``name`` is the key in the graph's name table: renaming a vertex that is in a
   graph updates the table, and refuses a name that is already taken
-- ``BaseGraph`` is the public name of the common base class (it appears in
+- ``Graph`` is the public name of the common base class (it appears in
   every signature and in users' type hints)
 - the exporters use the public vertex API, and look formats up through a
   function rather than reaching into a private table
@@ -13,7 +13,7 @@ corrupt a graph.
 
 import unittest
 
-from pgraph import BaseGraph, BaseVertex, DGraph, UGraph, UVertex, exporters
+from pgraph import Graph, Vertex, DGraph, UGraph, UVertex, exporters
 
 
 class TestLabelIsReadOnly(unittest.TestCase):
@@ -119,12 +119,12 @@ class TestValidateAndRename(unittest.TestCase):
 
 class TestPublicBaseNames(unittest.TestCase):
     def test_basegraph_is_exported(self):
-        self.assertTrue(issubclass(UGraph, BaseGraph))
-        self.assertTrue(issubclass(DGraph, BaseGraph))
-        self.assertIsInstance(UGraph(), BaseGraph)
+        self.assertTrue(issubclass(UGraph, Graph))
+        self.assertTrue(issubclass(DGraph, Graph))
+        self.assertIsInstance(UGraph(), Graph)
 
     def test_basevertex_is_exported(self):
-        self.assertTrue(issubclass(UVertex, BaseVertex))
+        self.assertTrue(issubclass(UVertex, Vertex))
 
     def test_the_unreleased_private_name_is_gone(self):
         import pgraph.PGraph as module
@@ -132,10 +132,10 @@ class TestPublicBaseNames(unittest.TestCase):
         self.assertFalse(hasattr(module, "_BaseGraph"))
 
     def test_the_class_reports_its_public_name(self):
-        self.assertEqual(BaseGraph.__name__, "BaseGraph")
+        self.assertEqual(Graph.__name__, "Graph")
 
     def test_a_private_attribute_is_not_documented_as_api(self):
-        self.assertNotIn("_edgelist", BaseVertex.__doc__ or "")
+        self.assertNotIn("_edgelist", Vertex.__doc__ or "")
 
 
 class TestExporters(unittest.TestCase):

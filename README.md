@@ -96,7 +96,7 @@ Graphs belong to the class `UGraph` or `DGraph` for undirected or directed graph
 - `g.incidence()` incidence matrix
 
 ### Properties and methods of a vertex
-Vertices belong to the class `UVertex` (for undirected graphs) or `DVertex` (for directed graphs), which are each subclasses of `BaseVertex`.
+Vertices belong to the class `UVertex` (for undirected graphs) or `DVertex` (for directed graphs), which are each subclasses of `Vertex`.
 
 - `v.coord` the coordinate vector for embedded graph (optional)
 - `v.name` the name of the vertex (optional)

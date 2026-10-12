@@ -10,12 +10,12 @@ import unittest
 import warnings
 
 from pgraph import DGraph, UGraph, DVertex, UVertex
-from pgraph.PGraph import BaseVertex
+from pgraph.PGraph import Vertex
 
 
 class TestAliases(unittest.TestCase):
     def test_aliases_are_the_same_function(self):
-        for cls in (BaseVertex, UVertex, DVertex):
+        for cls in (Vertex, UVertex, DVertex):
             with self.subTest(cls=cls.__name__):
                 self.assertIs(cls.neighbours, cls.adjacent)
                 self.assertIs(cls.neighbors, cls.adjacent)
@@ -34,7 +34,7 @@ class TestAliases(unittest.TestCase):
                 self.assertTrue(getattr(a, name)(b))
 
     def test_docstring_names_the_aliases(self):
-        doc = BaseVertex.adjacent.__doc__
+        doc = Vertex.adjacent.__doc__
         for name in ("neighbours", "neighbors"):
             self.assertIn(name, doc)
 

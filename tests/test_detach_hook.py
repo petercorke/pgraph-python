@@ -8,17 +8,17 @@ vertex kind states how an edge enters and leaves its lists once, and
 import unittest
 
 from pgraph import DGraph, DVertex, Edge, UGraph, UVertex
-from pgraph.PGraph import BaseVertex
+from pgraph.PGraph import Vertex
 
 
 class TestHookIsDefinedPerKind(unittest.TestCase):
     def test_kinds_supply_it(self):
-        self.assertIsNot(UVertex._detach, BaseVertex._detach)
-        self.assertIsNot(DVertex._detach, BaseVertex._detach)
+        self.assertIsNot(UVertex._detach, Vertex._detach)
+        self.assertIsNot(DVertex._detach, Vertex._detach)
         self.assertIsNot(UVertex._detach, DVertex._detach)
 
     def test_base_hook_is_not_implemented(self):
-        a, b = BaseVertex(name="a"), BaseVertex(name="b")
+        a, b = Vertex(name="a"), Vertex(name="b")
         with self.assertRaises(NotImplementedError):
             a._detach(Edge(a, b), b)
 

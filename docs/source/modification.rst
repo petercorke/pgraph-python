@@ -13,10 +13,10 @@ Graph
 .. autosummary::
    :nosignatures:
 
-   ~pgraph.PGraph.BaseGraph.add_vertex
-   ~pgraph.PGraph.BaseGraph.add_edge
-   ~pgraph.PGraph.BaseGraph.remove_edge
-   ~pgraph.PGraph.BaseGraph.remove_vertex
+   ~pgraph.PGraph.Graph.add_vertex
+   ~pgraph.PGraph.Graph.add_edge
+   ~pgraph.PGraph.Graph.remove_edge
+   ~pgraph.PGraph.Graph.remove_vertex
 
 Vertex
 ------
@@ -24,19 +24,19 @@ Vertex
 .. autosummary::
    :nosignatures:
 
-   ~pgraph.PGraph.BaseVertex.connect
-   ~pgraph.PGraph.BaseVertex.edgeto
-   ~pgraph.PGraph.BaseVertex.remove
+   ~pgraph.PGraph.Vertex.connect
+   ~pgraph.PGraph.Vertex.edgeto
+   ~pgraph.PGraph.Vertex.remove
 
 Details
 -------
 
-.. automethod:: pgraph.PGraph.BaseGraph.add_vertex
-.. automethod:: pgraph.PGraph.BaseGraph.add_edge
-.. automethod:: pgraph.PGraph.BaseGraph.remove_edge
-.. automethod:: pgraph.PGraph.BaseGraph.remove_vertex
-.. automethod:: pgraph.PGraph.BaseGraph.remove
+.. automethod:: pgraph.PGraph.Graph.add_vertex
+.. automethod:: pgraph.PGraph.Graph.add_edge
+.. automethod:: pgraph.PGraph.Graph.remove_edge
+.. automethod:: pgraph.PGraph.Graph.remove_vertex
+.. automethod:: pgraph.PGraph.Graph.remove
 
-.. automethod:: pgraph.PGraph.BaseVertex.connect
-.. automethod:: pgraph.PGraph.BaseVertex.edgeto
-.. automethod:: pgraph.PGraph.BaseVertex.remove
+.. automethod:: pgraph.PGraph.Vertex.connect
+.. automethod:: pgraph.PGraph.Vertex.edgeto
+.. automethod:: pgraph.PGraph.Vertex.remove

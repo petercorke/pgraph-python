@@ -8,17 +8,17 @@ file) rather than displaying it.
 .. autosummary::
    :nosignatures:
 
-   ~pgraph.PGraph.BaseGraph.plot
-   ~pgraph.PGraph.BaseGraph.showgraph
-   ~pgraph.PGraph.BaseGraph.highlight_path
-   ~pgraph.PGraph.BaseGraph.highlight_edge
-   ~pgraph.PGraph.BaseGraph.highlight_vertex
+   ~pgraph.PGraph.Graph.plot
+   ~pgraph.PGraph.Graph.showgraph
+   ~pgraph.PGraph.Graph.highlight_path
+   ~pgraph.PGraph.Graph.highlight_edge
+   ~pgraph.PGraph.Graph.highlight_vertex
 
 Details
 -------
 
-.. automethod:: pgraph.PGraph.BaseGraph.plot
-.. automethod:: pgraph.PGraph.BaseGraph.showgraph
-.. automethod:: pgraph.PGraph.BaseGraph.highlight_path
-.. automethod:: pgraph.PGraph.BaseGraph.highlight_edge
-.. automethod:: pgraph.PGraph.BaseGraph.highlight_vertex
+.. automethod:: pgraph.PGraph.Graph.plot
+.. automethod:: pgraph.PGraph.Graph.showgraph
+.. automethod:: pgraph.PGraph.Graph.highlight_path
+.. automethod:: pgraph.PGraph.Graph.highlight_edge
+.. automethod:: pgraph.PGraph.Graph.highlight_vertex

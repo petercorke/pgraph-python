@@ -1,5 +1,5 @@
 """
-``BaseVertex.connect()`` is the one public method; what differs between an
+``Vertex.connect()`` is the one public method; what differs between an
 undirected and a directed vertex is a single bookkeeping hook, ``_attach``,
 that ``connect()`` calls once the connection has been validated and the edge
 registered with the graph.
@@ -11,34 +11,34 @@ kind supplies, and nothing is attached when validation fails.
 import unittest
 
 from pgraph import DGraph, Edge, UGraph, DVertex, UVertex
-from pgraph.PGraph import BaseVertex
+from pgraph.PGraph import Vertex
 
 
 class TestConnectIsDefinedOnce(unittest.TestCase):
     def test_subclasses_inherit_connect(self):
-        self.assertIs(UVertex.connect, BaseVertex.connect)
-        self.assertIs(DVertex.connect, BaseVertex.connect)
+        self.assertIs(UVertex.connect, Vertex.connect)
+        self.assertIs(DVertex.connect, Vertex.connect)
 
     def test_subclasses_supply_the_hook(self):
-        self.assertIsNot(UVertex._attach, BaseVertex._attach)
-        self.assertIsNot(DVertex._attach, BaseVertex._attach)
+        self.assertIsNot(UVertex._attach, Vertex._attach)
+        self.assertIsNot(DVertex._attach, Vertex._attach)
         self.assertIsNot(UVertex._attach, DVertex._attach)
 
     def test_base_hook_is_not_implemented(self):
-        a, b = BaseVertex(name="a"), BaseVertex(name="b")
+        a, b = Vertex(name="a"), Vertex(name="b")
         with self.assertRaises(NotImplementedError):
             a._attach(Edge(a, b), b)
 
 
-class TestBareBaseVertex(unittest.TestCase):
-    """BaseVertex stays constructible (see policy.rst) but can never join a graph"""
+class TestBareVertex(unittest.TestCase):
+    """Vertex stays constructible (see policy.rst) but can never join a graph"""
 
     def test_instantiable(self):
-        v = BaseVertex([1, 2], name="v")
+        v = Vertex([1, 2], name="v")
         self.assertEqual(v.name, "v")
 
     def test_cannot_connect_or_be_added(self):
-        a, b = BaseVertex(name="a"), BaseVertex(name="b")
+        a, b = Vertex(name="a"), Vertex(name="b")
         with self.assertRaises(ValueError):
             a.connect(b)
         with self.assertRaises(TypeError):
