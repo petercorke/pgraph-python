@@ -1,7 +1,7 @@
 Object lifecycle and graph-membership policy
 =============================================
 
-``Vertex``, ``UVertex``, ``DVertex`` and ``Edge`` can all be constructed
+``Vertex`` and ``Edge`` can both be constructed
 directly, independent of any graph. This is deliberate -- it is not an
 oversight and not a "factory-only" design -- but it means the rules for what
 those objects can and can't do *before* they belong to a graph need to be
@@ -10,7 +10,7 @@ stated explicitly rather than left implicit.
 Standalone construction
 ------------------------
 
-A vertex or edge built directly, e.g. ``UVertex(coord=[1, 2], name="A")`` or
+A vertex or edge built directly, e.g. ``Vertex(coord=[1, 2], name="A")`` or
 ``Edge(v1, v2, cost=5.0)``, is a fully valid object in its own right. The
 main supported use of this is lightweight, graph-independent work: building a
 couple of vertices purely to demonstrate or test :class:`Edge` cost
@@ -23,17 +23,17 @@ anything (see below) until it is added to a graph via
 Adding a vertex to a graph
 ---------------------------
 
-:meth:`UGraph.add_vertex` and :meth:`DGraph.add_vertex` each only accept
-their own matching vertex subclass -- a ``UVertex`` (or coordinate data, from
-which one is built) for :class:`UGraph`, a ``DVertex`` for :class:`DGraph`.
-Passing the wrong kind of vertex -- a plain ``Vertex``, or the other
-graph's subclass -- raises ``TypeError`` rather than being silently accepted
-or converted.
+A vertex is the same for undirected and directed graphs: it has no
+direction of its own, and the graph it belongs to decides how an edge is
+recorded at its ends.  :meth:`Graph.add_vertex` accepts coordinate data, from
+which a vertex is built, or an existing ``Vertex`` that does not belong to a
+graph.  A graph given a ``vertex_class`` only accepts instances of that class;
+passing any other vertex raises ``TypeError`` rather than being silently
+accepted or converted.  A vertex that already belongs to a graph raises
+``ValueError``; remove it from that graph first.
 
 This is the mechanism that makes graph membership meaningful: once added, a
-vertex's ``._graph`` is fixed to that specific graph instance, and its
-concrete type (``UVertex`` or ``DVertex``) is guaranteed correct for that
-graph's edge semantics (undirected vs. directed edge-list bookkeeping).
+vertex's ``._graph`` is fixed to that specific graph instance.
 
 Connecting two vertices
 -------------------------
@@ -46,12 +46,9 @@ Connecting two vertices
 - If the two vertices belong to different graph instances, ``connect()``
   raises ``ValueError``.
 
-There is deliberately no separate check for "same vertex subclass" (e.g.
-rejecting a ``UVertex``-to-``DVertex`` connection directly). It doesn't need
-one: since a ``UVertex`` can only ever belong to a ``UGraph`` and a
-``DVertex`` only to a ``DGraph`` (enforced by ``add_vertex()`` above), the
-same-graph check above already makes a ``UVertex``-to-``DVertex`` connection
-impossible as a structural consequence, not as a separately-maintained rule.
+There is no such thing as connecting an "undirected" vertex to a "directed"
+one, since a vertex is neither: the kind of edge is the graph's, so the
+same-graph check above is the only one needed.
 
 Constructing an ``Edge`` directly
 -----------------------------------
@@ -79,15 +76,17 @@ Summary
    * - Operation
      - Requires graph membership?
      - Failure mode
-   * - ``UVertex()`` / ``DVertex()`` / ``Vertex()``
+   * - ``Vertex()``
      - No
      - --
    * - ``Edge(v1, v2)``
      - No (cost falls back to ``None`` if ungraphed/cross-graph)
      - --
    * - ``graph.add_vertex(v)``
-     - ``v`` must be the graph's own vertex subclass, or coordinate data
-     - ``TypeError`` on wrong vertex subclass
+     - ``v`` must be of the graph's ``vertex_class`` and not already in a
+       graph, or coordinate data
+     - ``TypeError`` on a vertex of another class, ``ValueError`` if it is
+       already in a graph
    * - ``v1.connect(v2)`` / ``graph.add_edge(v1, v2)``
      - Both vertices must already belong to the same graph
      - ``ValueError`` if either is ungraphed or they belong to different

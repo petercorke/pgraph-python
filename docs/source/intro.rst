@@ -60,7 +60,7 @@ we can obtain the reference by indexing the graph object. For example vertex 1 i
 
    >>> g[1]
 
-and is an instance of ``UVertex``, a vertex in an undirected graph; it has the coordinate
+and is an instance of ``Vertex``; it has the coordinate
 :math:`(0.6028, 0.5449)` and has been assigned a default name ``"#1"`` but we could specify
 an explicit name to ``add_vertex``.
 We can also reference a vertex by its name
@@ -201,15 +201,15 @@ Arbitrary data can be attached to any vertex or edge by assigning values to attr
 
 This exploits the flexible nature of Python, but care must be taken to avoid name clashes with existing attributes.
 
-A more robust and Pythonic approach is to create a subclass of the ``UVertex`` or ``DVertex`` classes class and
-declare them at graph creation time. For example, we can create a subclass of ``UVertex`` called ``MyVertex`` and a subclass of ``Edge`` called ``MyEdge`` and then create a new graph using these classes.
+A more robust and Pythonic approach is to create a subclass of the ``Vertex`` class and
+declare them at graph creation time. For example, we can create a subclass of ``Vertex`` called ``MyVertex`` and a subclass of ``Edge`` called ``MyEdge`` and then create a new graph using these classes.
 
 .. runblock:: pycon
    :session:
 
    >>> import pgraph
    >>> import numpy as np
-   >>> class MyVertex(pgraph.UVertex):
+   >>> class MyVertex(pgraph.Vertex):
    ...     pass
    >>> class MyEdge(pgraph.Edge):
    ...     pass

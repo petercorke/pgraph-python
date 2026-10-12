@@ -11,18 +11,14 @@ The graph classes represent a single graph, either directed or undirected, and t
    :private-bases:
    :top-classes: pgraph.PGraph.Graph
 
-The vertices in a directed graph (``DGraph``) inherit from :class:`DVertex` and the
-vertices in an undirected graph (``UGraph``) inherit from :class:`UVertex`. 
+The vertices of both kinds of graph are :class:`Vertex` objects: a vertex has
+no direction of its own, the graph it belongs to decides how an edge is
+recorded at its ends.
 
-.. inheritance-diagram:: pgraph.PGraph.UVertex pgraph.PGraph.DVertex
-   :parts: 1
-
-The vertex classes share
-almost their entire interface, defined once on their common base classes
-(:class:`Graph`, :class:`Vertex`). This section documents that
-shared interface by task rather than by class; see :doc:`construction` for
-the :class:`DGraph` and :class:`UGraph` classes and :doc:`edges_vertices` for
-what's specific to directed vs. undirected vertices.
+The graph classes share almost their entire interface, defined once on their
+common base class :class:`Graph`. This section documents that shared interface
+by task rather than by class; see :doc:`construction` for the :class:`DGraph`
+and :class:`UGraph` classes and :doc:`edges_vertices` for vertices and edges.
 
 Edges are represented by the :class:`Edge` class, which is used by both directed and undirected graphs.
 

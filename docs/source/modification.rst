@@ -1,10 +1,10 @@
 Adding and removing vertices and edges
 ========================================
 
-Building up and tearing down a graph's structure. ``connect()`` is shown
-here in its base-class form; :doc:`DVertex <dvertex>` and
-:doc:`UVertex <uvertex>` override it with different edge-list bookkeeping
--- see those pages for the concrete behaviour. See :class:`Edge` for
+Building up and tearing down a graph's structure. ``connect()`` is the same
+for both kinds of graph: the graph decides how the edge is recorded at its
+vertices, so an undirected edge is found from either end and a directed one
+leaves its start vertex and enters its end vertex. See :class:`Edge` for
 constructing/removing an edge directly rather than via a vertex or graph.
 
 Graph
