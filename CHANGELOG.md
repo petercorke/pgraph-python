@@ -26,7 +26,8 @@ Breaking changes (from 0.6.5)
   `graph.edges()` and `vertex.edges()` return a new list, so changing the result
   cannot corrupt the graph.  Use `set(g.edges())` for set operations.
 - `Edge.v1` and `Edge.v2` are read-only, and so is `Vertex.label` (the graph
-  assigns it).  Assigning an endpoint of an edge that was in a graph left the
+  assigns it, and reading it now finds the components, where 0.6.5 gave `None`
+  until `nc` had been asked for).  Assigning an endpoint of an edge that was in a graph left the
   graph inconsistent and the edge impossible to remove.  Give the vertices to
   `Edge(v1, v2)` or connect the edge with `v1.connect(v2, edge=e)`.
 - Assigning `Vertex.name` renames it in the graph (so `g[new]` works) and
@@ -54,12 +55,22 @@ Deprecated (still work, with a `DeprecationWarning`)
   builds a graph, like `Adjacency()` and `Dict()`.
 - `UVertex` and `DVertex` are `Vertex`.
 - `remove()` is `remove_vertex()` or `remove_edge()`, which say which they do.
+- The options of `plot()` are named for what they are: `vopt` is `vertex_opt`,
+  `eopt` is `edge_opt`, `text` is `labels` and `text_opt`, `colorcomponents` is
+  `color_components` and `force2d` is `force_2d`.  The positional order is
+  unchanged; giving both an old name and its new one is a `TypeError`.
 
 Added
 
 - `adjacent()` and `isadjacent()`, the graph-theory names, which have one
   spelling.  `neighbours()`, `neighbors()` and `isneighbour()` from 0.6.5 are
   kept as aliases, with `isneighbor()` added, and none of them warn.
+- `plot()` draws each edge once.  A directed graph has arrowheads, which
+  `arrow_opt` styles; edges that join the same pair of vertices, in either
+  direction, are arcs that bow apart; and a loop is a circle at its vertex.  In
+  0.6.5 a directed graph looked like an undirected one, parallel edges lay
+  exactly on top of each other and a loop was a line of no length.  `plot()`
+  does the same in 3D, and `highlight_edge()` follows an arc.
 - `Graph(directed=...)`, the `directed` property, and `vertex_class` and
   `edge_class` constructor arguments, so that user subclasses of `Vertex` and
   `Edge` are built by the graph.
@@ -89,6 +100,12 @@ Fixed
   type of the start vertex twice and never the goal; and `distance()` and the
   planners packed `nan` or `None` into their results for edges with no cost
   instead of raising.
+- `nc` never returned for many directed graphs, the smallest a 4-cycle, and
+  neither did `component()`, `samecomponent()` or `plot()`, which ask for it.
+  Components of a directed graph are weakly connected, as they were meant to
+  be, and are numbered from 0 by the first vertex of each, for both kinds of
+  graph.  They are also no longer found again by every call once the graph has
+  changed.
 - `Edge.vertices()` raised `DeprecationWarning` as an exception; it now warns
   and returns the endpoints, as `Edge.endpoints` does.
 - `incidence()` returned the wrong matrix for every graph with an edge: a loop
@@ -105,8 +122,6 @@ Fixed
 
 Known limitations
 
-- `plot()` draws no arrowheads for a directed graph, and parallel edges and
-  self-loops are not visible in it.
 - A graph whose metric is a `lambda` or a locally defined function can be copied
   but not pickled; the built-in `"L1"`, `"L2"` and `"SE2"` and module-level
   functions can be.
