@@ -51,6 +51,21 @@ class TestUGraph(unittest.TestCase):
         self.assertEqual(len(lines), 3)  # class-name header + one line per vertex
         self.assertEqual(lines[0], "DGraph:")
 
+
+    def test_str_has_thousands_separators(self):
+        # counts of 1,000 or more are easier to read with separators
+        g = UGraph()
+        vs = [g.add_vertex() for _ in range(1001)]
+        self.assertEqual(str(g), "UGraph: 1,001 vertices, 0 edges, 1,001 components")
+        for a, b in zip(vs, vs[1:]):
+            g.add_edge(a, b)
+        self.assertEqual(str(g), "UGraph: 1,001 vertices, 1,000 edges, 1 component")
+        # below a thousand it is as before
+        h = UGraph()
+        for _ in range(999):
+            h.add_vertex()
+        self.assertEqual(str(h), "UGraph: 999 vertices, 0 edges, 999 components")
+
     def test_attr(self):
 
         g = UGraph()
