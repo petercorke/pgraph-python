@@ -46,6 +46,17 @@ _METRICS: dict[str, Callable[[NDArray], float]] = {
 
 
 class Graph:
+    """
+    Base class for all graphs
+
+    A graph is a set of :class:`Vertex` objects joined by :class:`Edge`
+    objects, which are directed or not according to the kind of graph:
+    :class:`UGraph` is undirected and :class:`DGraph` is directed.  This
+    class holds everything they share, and ``Graph(directed=flag)`` makes one
+    or the other.  The constructor arguments are described below.
+
+    :seealso: :class:`UGraph` :class:`DGraph` :class:`Vertex` :class:`Edge`
+    """
 
     #: whether the edges of this kind of graph are directed, set by
     #: :class:`UGraph` and :class:`DGraph`
@@ -218,7 +229,7 @@ class Graph:
         :param kwargs: optional arguments passed to the graph constructor, for
             example ``vertex_class`` or ``edge_class``
         :raises TypeError: ``vertex_class`` or ``edge_class`` is not a
-            suitable class, see :meth:`Graph.__init__`
+            suitable class, see :class:`~pgraph.PGraph.Graph`
         :return: graph
         :rtype: UGraph or DGraph
 
@@ -290,7 +301,7 @@ class Graph:
         :raises ValueError: ``A`` is not square, or the length of ``names`` or
             the number of rows of ``coords`` does not match ``A``
         :raises TypeError: ``vertex_class`` or ``edge_class`` is not a
-            suitable class, see :meth:`Graph.__init__`
+            suitable class, see :class:`~pgraph.PGraph.Graph`
         :return: graph
         :rtype: UGraph or DGraph
 
@@ -446,7 +457,7 @@ class Graph:
         :rtype: subclass of ``Vertex``
 
         This is read-only.  It is set by the ``vertex_class`` argument of the
-        graph constructor, see :meth:`__init__`, and is :class:`Vertex` if not
+        graph constructor, see :class:`Graph`, and is :class:`Vertex` if not
         given.
 
         .. runblock:: pycon
@@ -470,7 +481,7 @@ class Graph:
         :rtype: subclass of ``Edge``
 
         This is read-only.  It is set by the ``edge_class`` argument of the
-        graph constructor, see :meth:`__init__`, and is :class:`Edge` if not
+        graph constructor, see :class:`Graph`, and is :class:`Edge` if not
         given.
 
         .. runblock:: pycon
@@ -865,7 +876,7 @@ class Graph:
             >>> g['v2']
 
         If the graph was constructed with a required ``dim`` (see
-        :meth:`Graph.__init__`), every embedded vertex must have a
+        :class:`Graph`), every embedded vertex must have a
         coordinate of exactly that length -- adding one of the wrong length
         raises ``ValueError``:
 
@@ -1079,7 +1090,7 @@ class Graph:
             >>> e = g.add_edge(MyEdge(v1, v2, data="a road"))
             >>> print(type(e).__name__, e.data)
 
-        .. note:: Vertices have coordinates and the edge ``cost`` defaults to the distance between them, but if the vertices have no coordinates the edge cost must be set explicitly, otherwise it will be ``None`` and path planning will fail with a ``ValueError``.  See :meth:`_require_cost` for details.
+        .. note:: Vertices have coordinates and the edge ``cost`` defaults to the distance between them, but if the vertices have no coordinates the edge cost must be set explicitly, otherwise it will be ``None`` and path planning will fail with a ``ValueError``.
       
         .. note:: To supply an edge that does not yet have vertices use
             ``g.add_edge(v1, v2, edge=e)`` or ``e.connect(v1, v2)``.
@@ -1616,7 +1627,7 @@ class Graph:
 
     def edges(self) -> list[Edge]:
         """
-        Return a set of all edges in graph (base class method)
+        All edges in the graph, in the order they were added
 
         :return: All edges in the graph
         :rtype: list of Edge references
@@ -2137,7 +2148,7 @@ class Graph:
             - The graph is directed if it is a :class:`DGraph`
 
         .. note:: The ``graphviz`` formatters ``dot`` and ``neato`` can be used to render the
-            graph in various formats including PDF, PNG, JPG, GIF, SVG, etc.  The formmatters are
+            graph in various formats including PDF, PNG, JPG, GIF, SVG, etc.  The formatters are
             similar, but ``dot`` is better suited for directed graphs while ``neato`` is better
             suited for undirected graphs.
 
@@ -2304,7 +2315,7 @@ class Graph:
 
     def laplacian(self) -> NDArray:
         """
-        Convert the graph to a Laplacian matrix
+        Convert graph to a Laplacian matrix
 
         :return: Laplacian matrix
         :rtype: NumPy ndarray
@@ -2652,7 +2663,7 @@ class Graph:
 
         :seealso: :attr:`nc` :meth:`samecomponent`
         """
-        self._graphcolor()  # ensure labels are uptodate
+        self._graphcolor()  # ensure labels are up to date
         return [v for v in self if v.label == c]
 
     def samecomponent(self, v1: Vertex, v2: Vertex) -> bool:
@@ -2684,7 +2695,7 @@ class Graph:
 
         :seealso: :meth:`component` :attr:`nc`
         """
-        self._graphcolor()  # ensure labels are uptodate
+        self._graphcolor()  # ensure labels are up to date
 
         return v1.label == v2.label
 
@@ -3289,13 +3300,21 @@ class Edge:
     """
     Edge class
 
-    Is used to represent directed directed and undirected edges.
+    Is used to represent directed and undirected edges.
 
-    Each edge has:
-    - ``cost`` cost of traversing this edge, required for planning methods
-    - ``data`` reference to arbitrary data associated with the edge
-    - ``v1`` first vertex, start vertex for a directed edge (read-only)
-    - ``v2`` second vertex, end vertex for a directed edge (read-only)
+    Each edge has a cost, arbitrary data, and two vertices :attr:`v1` and
+    :attr:`v2`, which are read-only: the start and end vertex for a directed
+    edge.
+
+    .. attribute:: cost
+        :type: float | None
+
+        cost of traversing this edge, required for planning methods
+
+    .. attribute:: data
+        :type: Any
+
+        reference to arbitrary data associated with the edge
 
     .. note::
 
@@ -3326,9 +3345,9 @@ class Edge:
         Create an edge object
 
         :param v1: start of the edge, defaults to None
-        :type v1: Vertex subclass, optional
+        :type v1: :class:`Vertex`, optional
         :param v2: end of the edge, defaults to None
-        :type v2: Vertex subclass, optional
+        :type v2: :class:`Vertex`, optional
         :param cost: edge cost, defaults to None
         :type cost: any, optional
         :param data: edge data, defaults to None
@@ -3563,7 +3582,7 @@ class Edge:
             assert self.v1 is not None
             return self.v1
         else:
-            raise ValueError("shouldnt happen")
+            raise ValueError("should not happen")
 
     def vertices(self) -> list[Vertex]:
         """
@@ -3772,7 +3791,7 @@ class Vertex:
             >>> v2 = v.copy(cls=DGraph)
             >>> print(v2)
 
-        :seealso: :meth:`UGraph.vertex_copy` :meth:`DGraph.vertex_copy`
+        :seealso: :meth:`Graph.vertex_copy`
         """
         if cls is not None:
             return cls.vertex_copy(self)
@@ -4100,7 +4119,7 @@ class Vertex:
 
     def edges(self) -> list[Edge]:
         """
-        Return a list of the edges for vertex
+        The edges at the vertex, in the order they were connected
 
         :return: the edges at this vertex
         :rtype: list of ``Edge``
@@ -4180,7 +4199,7 @@ class Vertex:
             >>> v2 = g.add_vertex(coord=[3,4], name='v2')
             >>> print(v1.distance(v2))
 
-        :seealso: :meth:`metric`
+        :seealso: :attr:`Graph.metric`
         """
         if self._graph is None:
             raise ValueError("vertex is not connected to a graph")
