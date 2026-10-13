@@ -7,6 +7,8 @@ the attributes, the name table, and that moving a vertex that is in a graph is
 still seen.
 """
 
+import contextlib
+import io
 import unittest
 
 import numpy as np
@@ -98,6 +100,17 @@ class TestInAGraph(unittest.TestCase):
         v = g.add_vertex()
         with self.assertRaises(ValueError):
             h.add_vertex(v)
+
+    def test_a_verbose_graph_says_what_it_adds(self):
+        g = UGraph(dim=2, verbose=True)
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            g.add_vertex([1.0, 2.0], name="a")
+            g.add_vertex([3.0, 4.0])
+        lines = buf.getvalue().splitlines()
+        self.assertEqual(len(lines), 2)
+        self.assertTrue(lines[0].startswith("New vertex a: "))
+        self.assertTrue(lines[1].startswith("New vertex #1: "))
 
     def test_assigning_a_coordinate_is_still_seen(self):
         g = UGraph(dim=2)
