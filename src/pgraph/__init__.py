@@ -7,6 +7,7 @@ from pgraph.PGraph import (
     UGraph,
     DGraph,
     Edge,
+    SE2Metric,
 )
 
 __all__ = [
@@ -15,6 +16,7 @@ __all__ = [
     "UGraph",
     "DGraph",
     "Edge",
+    "SE2Metric",
 ]
 
 

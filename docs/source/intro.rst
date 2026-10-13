@@ -7,7 +7,7 @@ parallel edges are permitted.
 
 Vertices can optionally be *embedded*: given a coordinate in a space of any
 dimension.  Edge costs are then computed from the vertex positions using a
-distance metric (Euclidean, Manhattan, SE(2), or your own), the vertex nearest
+distance metric (Euclidean, Manhattan, SE(2) with a weight on the angle, or your own), the vertex nearest
 a point can be found, ``A*`` uses the metric as its heuristic, and the graph can
 be plotted, or exported with its layout preserved.
 
@@ -300,5 +300,5 @@ Alternatively, we can make the decision at runtime by using the ``directed`` arg
 History
 --------
 
-``pgaph-python`` is based on ``PGraph.m`` which is part of the
+``pgraph-python`` is based on ``PGraph.m`` which is part of the
 earlier `Spatial Math Toolbox for MATLAB <https://github.com/petercorke/spatialmath-matlab>`_.
