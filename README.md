@@ -91,7 +91,7 @@ Map data © OpenStreetMap contributors, available under the [Open Database Licen
 
 ## Using pgraph
 
-Full details are given in the [online documentation](https://petercorke.github.io/pgraph-python).
+Full details are given in the [online documentation](https://petercorke.github.io/pgraph-python).  For an AI assistant there is a short summary, [llms.txt](https://petercorke.github.io/pgraph-python/llms.txt), and the complete documentation as one file, [llms-full.txt](https://petercorke.github.io/pgraph-python/llms-full.txt).
 
 ### Properties and methods of the graph
 
