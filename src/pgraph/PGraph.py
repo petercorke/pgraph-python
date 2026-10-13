@@ -1624,39 +1624,56 @@ class Graph:
         direction of an edge is ignored, so a vertex is in the component of
         every vertex that it has a path to or from.
 
-        This is a single pass over the vertices and edges, O(V + E), and is
-        only done again when the graph has changed since, which every
+        This is a single pass over the edges with a union-find, nearly O(E),
+        and is only done again when the graph has changed since, which every
         operation that adds or removes a vertex or edge records in the graph's
         ``_connectivitychange``.
+
+        Looking at the two ends of each edge, rather than walking the
+        neighbours of each vertex, makes the direction of an edge irrelevant
+        and avoids a call per incident edge to find the far end, which is most
+        of the time of a traversal.  The root of a component is its first
+        vertex, so numbering the roots in order of the vertices gives the
+        numbering described above.
 
         :seealso: :meth:`nc` :meth:`component`
         """
         if not self._connectivitychange:
             return
 
-        for vertex in self:
-            vertex._label = None
-            vertex._connectivitychange = False
+        vertices = self._vertexlist
+        index = {v: i for i, v in enumerate(vertices)}
+        parent = list(range(len(vertices)))
+
+        for edge in self._edges:
+            a = index[edge._v1]  # type: ignore[index]
+            b = index[edge._v2]  # type: ignore[index]
+            while parent[a] != a:  # find the root, halving the path as we go
+                parent[a] = parent[parent[a]]
+                a = parent[a]
+            while parent[b] != b:
+                parent[b] = parent[parent[b]]
+                b = parent[b]
+            if a < b:  # the smaller index is the root, so the first vertex
+                parent[b] = a
+            elif b < a:
+                parent[a] = b
 
         count = 0
-        for start in self:
-            if start._label is not None:
-                continue
-            start._label = count
-            frontier = [start]
-            while frontier:
-                v = frontier.pop()
-                # an edge may be followed against its direction, so the
-                # vertices that lead to this one count as well as those it
-                # leads to; in an undirected graph they are the same
-                around = v.adjacent()
-                if self.directed:
-                    around = around + v.predecessors()
-                for w in around:
-                    if w._label is None:
-                        w._label = count
-                        frontier.append(w)
-            count += 1
+        label = [0] * len(vertices)
+        for i, vertex in enumerate(vertices):
+            root = i
+            while parent[root] != root:
+                parent[root] = parent[parent[root]]
+                root = parent[root]
+            if root == i:  # the first vertex of a component
+                label[i] = count
+                count += 1
+            # the graph-level flag is what is consulted; writing the
+            # attributes directly avoids the hook of ``Vertex.__setattr__``
+            attrs = vertex.__dict__
+            attrs["_label"] = label[root]
+            attrs["_connectivitychange"] = False
 
         self._ncomponents = count
         self._connectivitychange = False

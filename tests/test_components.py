@@ -199,38 +199,108 @@ class _Components:
 
 
 class TestNotRecomputed(unittest.TestCase):
-    """The traversal runs once, and again only after the graph has changed"""
+    """The labels are found once, and again only after the graph has changed
 
-    def traversals(self, g, ask):
-        calls = []
-        original = type(g[0]).adjacent
+    Recomputing would write every vertex's label, so the labels are replaced by
+    a marker that nothing else could produce, and a recomputation shows as the
+    marker being overwritten.
+    """
 
-        def spy(vertex, *args, **kwargs):
-            calls.append(vertex)
-            return original(vertex, *args, **kwargs)
+    MARK = -7
 
-        with unittest.mock.patch.object(type(g[0]), "adjacent", spy):
-            ask()
-        return len(calls)
+    def poison(self, g):
+        for v in g:
+            v.__dict__["_label"] = self.MARK
+
+    def marks(self, g):
+        return [v.__dict__["_label"] for v in g]
 
     def check(self, cls):
         g = build(cls, 4, [(0, 1), (2, 3)])
-        ask = lambda: (g.nc, g.component(g[0]), g.samecomponent(g[0], g[1]), g[2].label)
+        self.assertEqual(g.nc, 2)  # the first time: does the work
+        self.poison(g)
 
-        self.assertGreater(self.traversals(g, ask), 0)  # first time: does the work
-        self.assertEqual(self.traversals(g, ask), 0)  # nothing changed: none
-        self.assertEqual(self.traversals(g, ask), 0)
+        # nothing has changed: asked for again, in each way, nothing is redone
+        self.assertEqual(g.nc, 2)
+        g.component(0)
+        g.samecomponent(g[0], g[1])
+        self.assertEqual(self.marks(g), [self.MARK] * 4)
 
         g.add_edge(g[1], g[2])  # a change: once more, and the answer is new
-        self.assertGreater(self.traversals(g, ask), 0)
         self.assertEqual(g.nc, 1)
-        self.assertEqual(self.traversals(g, ask), 0)
+        self.assertEqual([v.label for v in g], [0, 0, 0, 0])
+
+        self.poison(g)
+        self.assertEqual(g.nc, 1)
+        self.assertEqual(self.marks(g), [self.MARK] * 4)
 
     def test_undirected(self):
         self.check(UGraph)
 
     def test_directed(self):
         self.check(DGraph)
+
+    def test_removals_and_additions_are_changes(self):
+        for cls in (UGraph, DGraph):
+            with self.subTest(cls=cls.__name__):
+                g = build(cls, 4, [(0, 1), (1, 2), (2, 3)])
+                self.assertEqual(g.nc, 1)
+                g.remove_edge(g.edges()[1])  # splits 0-1 from 2-3
+                self.assertEqual(g.nc, 2)
+                self.assertEqual([v.label for v in g], [0, 0, 1, 1])
+                g.remove_vertex(g[1])
+                self.assertEqual(g.nc, 2)
+                self.assertEqual([v.label for v in g], [0, 1, 1])
+                g.add_vertex(name="new")
+                self.assertEqual(g.nc, 3)
+                self.assertEqual([v.label for v in g], [0, 1, 1, 2])
+
+
+class TestLabelNumbering(unittest.TestCase):
+    """Components are numbered from 0 in the order of their first vertex"""
+
+    def test_numbering_follows_the_first_vertex_not_the_edges(self):
+        for cls in (UGraph, DGraph):
+            with self.subTest(cls=cls.__name__):
+                # the edges are added last-component-first and end to end the
+                # wrong way round, but 0 is still the component of vertex 0
+                g = build(cls, 7, [(6, 5), (4, 3), (3, 2), (1, 0)])
+                self.assertEqual([v.label for v in g], [0, 0, 1, 1, 1, 2, 2])
+                self.assertEqual(g.nc, 3)
+
+    def test_loops_and_parallel_edges(self):
+        for cls in (UGraph, DGraph):
+            with self.subTest(cls=cls.__name__):
+                g = build(cls, 3, [(0, 0), (1, 2), (1, 2), (2, 1), (2, 2)])
+                self.assertEqual([v.label for v in g], [0, 1, 1])
+
+    def test_agrees_with_a_traversal_written_out_in_full(self):
+        rng = np.random.default_rng(11)
+        for trial in range(30):
+            n = int(rng.integers(1, 40))
+            edges = [tuple(int(x) for x in rng.integers(0, n, 2)) for _ in range(int(rng.integers(0, 2 * n)))]
+            for cls in (UGraph, DGraph):
+                with self.subTest(trial=trial, cls=cls.__name__):
+                    g = build(cls, n, edges)
+                    # neighbours of either end, by the edge list, from vertex 0 up
+                    around = {i: set() for i in range(n)}
+                    for a, b in edges:
+                        around[a].add(b)
+                        around[b].add(a)
+                    expected, count = [None] * n, 0
+                    for s in range(n):
+                        if expected[s] is not None:
+                            continue
+                        expected[s], stack = count, [s]
+                        while stack:
+                            x = stack.pop()
+                            for y in around[x]:
+                                if expected[y] is None:
+                                    expected[y] = count
+                                    stack.append(y)
+                        count += 1
+                    self.assertEqual([v.label for v in g], expected)
+                    self.assertEqual(g.nc, count)
 
 
 class TestUndirectedComponents(_Components, unittest.TestCase):
