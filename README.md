@@ -195,39 +195,39 @@ Timings of the key operations on random geometric graphs, each vertex joined to 
 
 | Operation                            | per         |  N=100 | N=1,000 | N=10,000 | growth exponent |
 | :----------------------------------- | :---------- | -----: | ------: | -------: | --------------: |
-| add a vertex                         | µs / vertex |   2.41 |    2.45 |     2.35 |             0.0 |
-| add an edge (cost from the metric)   | µs / edge   |   1.69 |    1.76 |     1.77 |             0.0 |
-| copy the graph                       | ms          |  0.847 |    8.69 |      142 |             1.1 |
-| pickle and unpickle the graph        | ms          |  0.488 |    4.99 |      109 |             1.2 |
-| number of components, after a change | ms          | 0.0824 |    0.83 |     10.6 |             1.1 |
+| add a vertex                         | µs / vertex |   1.52 |    1.65 |     1.59 |             0.0 |
+| add an edge (cost from the metric)   | µs / edge   |   1.55 |    1.58 |     1.85 |             0.0 |
+| copy the graph                       | ms          |  0.823 |    8.17 |      151 |             1.1 |
+| pickle and unpickle the graph        | ms          |  0.456 |    4.76 |      113 |             1.2 |
+| number of components, after a change | ms          | 0.0292 |   0.319 |     3.86 |             1.1 |
 | number of components, unchanged      | µs          |  0.083 |   0.083 |    0.083 |             0.0 |
-| remove a vertex                      | µs          |   6.29 |    12.5 |     55.8 |             0.5 |
-| closest vertex to a point            | µs / query  |   71.2 |     724 |    6,994 |             1.0 |
-| adjacency matrix                     | ms          |  0.107 |     1.7 |        – |             1.2 |
-| Laplacian matrix                     | ms          |   0.12 |    3.69 |        – |             1.5 |
-| incidence matrix                     | ms          | 0.0558 |    1.63 |        – |             1.5 |
-| path, breadth-first                  | ms / query  | 0.0375 |   0.319 |     4.31 |             1.0 |
-| path, uniform cost                   | ms / query  | 0.0841 |    0.82 |     9.24 |             1.0 |
-| path, A*                             | ms / query  | 0.0517 |   0.301 |     2.42 |             0.8 |
+| remove a vertex                      | µs          |   6.19 |    11.6 |     56.5 |             0.5 |
+| closest vertex to a point            | µs / query  |   69.9 |     708 |    7,056 |             1.0 |
+| adjacency matrix                     | ms          |  0.107 |    1.46 |        – |             1.1 |
+| Laplacian matrix                     | ms          |  0.121 |    2.76 |        – |             1.4 |
+| incidence matrix                     | ms          | 0.0565 |    1.44 |        – |             1.4 |
+| path, breadth-first                  | ms / query  |  0.038 |   0.317 |      5.4 |             1.1 |
+| path, uniform cost                   | ms / query  | 0.0822 |   0.806 |     11.7 |             1.1 |
+| path, A*                             | ms / query  | 0.0498 |   0.295 |     2.48 |             0.8 |
 
 ### Directed graphs
 
 | Operation                            | per         |  N=100 | N=1,000 | N=10,000 | growth exponent |
 | :----------------------------------- | :---------- | -----: | ------: | -------: | --------------: |
-| add a vertex                         | µs / vertex |   2.36 |    2.48 |      2.4 |             0.0 |
-| add an edge (cost from the metric)   | µs / edge   |   1.66 |    1.72 |     1.83 |             0.0 |
-| copy the graph                       | ms          |   1.12 |      12 |      200 |             1.1 |
-| pickle and unpickle the graph        | ms          |  0.583 |    6.44 |      151 |             1.2 |
-| number of components, after a change | ms          |  0.124 |    1.26 |       17 |             1.1 |
+| add a vertex                         | µs / vertex |   1.53 |    1.58 |     1.59 |             0.0 |
+| add an edge (cost from the metric)   | µs / edge   |   1.56 |    1.64 |     1.84 |             0.0 |
+| copy the graph                       | ms          |   1.12 |    12.1 |      227 |             1.2 |
+| pickle and unpickle the graph        | ms          |  0.573 |    6.58 |      151 |             1.2 |
+| number of components, after a change | ms          | 0.0405 |   0.485 |     5.87 |             1.1 |
 | number of components, unchanged      | µs          |  0.083 |   0.083 |    0.083 |             0.0 |
-| remove a vertex                      | µs          |   8.42 |    16.6 |     69.2 |             0.5 |
-| closest vertex to a point            | µs / query  |   70.6 |     692 |    6,909 |             1.0 |
-| adjacency matrix                     | ms          | 0.0822 |    1.24 |        – |             1.2 |
-| Laplacian matrix                     | ms          | 0.0964 |    2.67 |        – |             1.4 |
-| incidence matrix                     | ms          | 0.0889 |    2.34 |        – |             1.4 |
-| path, breadth-first                  | ms / query  | 0.0232 |   0.403 |     3.09 |             1.1 |
-| path, uniform cost                   | ms / query  |  0.055 |   0.931 |     6.94 |             1.1 |
-| path, A*                             | ms / query  | 0.0479 |   0.745 |     3.67 |             0.9 |
+| remove a vertex                      | µs          |   8.04 |    15.7 |       70 |             0.5 |
+| closest vertex to a point            | µs / query  |   70.2 |     711 |    6,921 |             1.0 |
+| adjacency matrix                     | ms          | 0.0815 |    1.21 |        – |             1.2 |
+| Laplacian matrix                     | ms          | 0.0928 |    2.64 |        – |             1.5 |
+| incidence matrix                     | ms          | 0.0871 |    2.41 |        – |             1.4 |
+| path, breadth-first                  | ms / query  | 0.0225 |   0.386 |     3.87 |             1.1 |
+| path, uniform cost                   | ms / query  | 0.0536 |   0.936 |     8.06 |             1.1 |
+| path, A*                             | ms / query  |  0.046 |   0.721 |     3.68 |             1.0 |
 
 ## MATLAB version
 
