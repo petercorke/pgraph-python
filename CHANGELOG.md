@@ -114,12 +114,12 @@ Faster
 
 - `path_BFS`, `path_UCS` and `path_Astar` scaled badly: they searched lists with
   `in`, and took the minimum of the whole frontier at every step.  Results and
-  the verbose output are identical.  For one query on 10,000 vertices,
-  breadth-first search takes 3 ms where it took 145 ms, uniform cost 7 ms
-  where it took 160 ms, and A* 3 ms where it took 17 ms.
-- The components are found by a union-find over the edges: 4 ms for 10,000
-  vertices where it was 9 ms, and 40 ms for 100,000 where it was 136 ms.
-- Creating a vertex is about 20% faster.
+  the verbose output are identical.  On a random graph of 10,000 vertices and
+  30,000 edges, the mean of six random queries is 3 ms for breadth-first search
+  where 0.6.5 took 172 ms, 18 ms for uniform cost where it took 1,500 ms, and
+  13 ms for A* where it took 410 ms.
+- The components are found by a union-find over the edges, 4 ms for that graph
+  where 0.6.5 took 15 ms after a change.
 - `str(g)` separates thousands: `DGraph: 4,881 vertices, 8,392 edges, 14
   components`.
 
@@ -153,6 +153,8 @@ Fixed
 
 Known limitations
 
+- Adding a vertex takes about 2 µs, where 0.6.5 took 1.3 µs: it now checks the
+  name, the dimension and that the vertex is in no graph.
 - A graph whose metric is a `lambda` or a locally defined function can be copied
   but not pickled; the built-in `"L1"`, `"L2"` and `"SE2"` and module-level
   functions can be.
