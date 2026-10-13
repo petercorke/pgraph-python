@@ -1232,12 +1232,14 @@ class Graph:
             name = f"#{n}"
         elif name in self._vertexdict:
             raise ValueError(f"the graph already has a vertex named {name!r}")
-        vertex.name = name
+        # the vertex is in no graph yet, so the name table and the spatial index
+        # have nothing to be told; skip the property and ``__setattr__``
+        vertex.__dict__["_name"] = name
         self._vertexlist.append(vertex)
-        self._vertexdict[vertex.name] = vertex
+        self._vertexdict[name] = vertex
         if self._verbose:
-            print(f"New vertex {vertex.name}: {vertex.coord}")
-        vertex._graph = self
+            print(f"New vertex {name}: {vertex.coord}")
+        vertex.__dict__["_graph"] = self
         self._connectivitychange = True
         self._spatialchange = True
         return vertex
@@ -4466,6 +4468,14 @@ class Vertex:
     :seealso: :class:`Graph` :class:`Edge`
     """
 
+    coord: NDArray | None
+    _name: str | None
+    _label: int | None
+    _connectivitychange: bool
+    _edgelist: list[Edge]
+    _inlist: list[Edge]
+    _graph: Graph | None
+
     def __init__(self, coord: ArrayLike | None = None, name: str | None = None):
         """
         Create a vertex object
@@ -4486,20 +4496,21 @@ class Vertex:
 
         :seealso: :meth:`Graph.add_vertex`
         """
-        self._edgelist: list[Edge] = []
-        if coord is None:
-            self.coord = None
-        else:
-            self.coord = np.r_[coord]
-        self._name = name
-        self._label: int | None = None
-        self._connectivitychange = True
-        self._edgelist = []
-        #: edges ending at this vertex.  Only a directed vertex fills it: an
-        #: undirected edge is already in ``_edgelist`` at both of its ends.
-        self._inlist: list[Edge] = []
-        self._graph: Graph | None = None  # reference to owning graph
-        # print('Vertex init', type(self))
+        # A vertex that is being made is in no graph, so there is no spatial
+        # index (Graph.build_kdtree) for the assignment of its coordinate to
+        # invalidate; writing the attributes directly avoids the cost of
+        # ``__setattr__`` on each of them.
+        self.__dict__.update(
+            coord=None if coord is None else np.r_[coord],
+            _name=name,
+            _label=None,
+            _connectivitychange=True,
+            _edgelist=[],  # edges leaving the vertex, or incident on it if undirected
+            # edges ending at this vertex.  Only a directed vertex fills it: an
+            # undirected edge is already in ``_edgelist`` at both of its ends.
+            _inlist=[],
+            _graph=None,  # reference to owning graph
+        )
 
     def __setattr__(self, name: str, value: Any) -> None:
         # a vertex that moves makes its graph's spatial index (build_kdtree)
