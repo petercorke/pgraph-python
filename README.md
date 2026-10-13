@@ -56,7 +56,7 @@ This needs Python 3.9 or later.  The dependencies, NumPy, Matplotlib and Spatial
 
 ### A small example: routing through towns in Queensland
 
-![road network](https://github.com/petercorke/pgraph-python/raw/main/examples/roads.png)
+![Map of 20 towns in Queensland as blue circles joined by roads, with the shortest route from Hughenden to Brisbane, 1,659 km via Barcaldine, Blackall, Charleville and Roma, highlighted in red](https://github.com/petercorke/pgraph-python/raw/main/examples/roads.png)
 
 ```python
 from pgraph import UGraph
@@ -83,7 +83,7 @@ The data file and the complete example are in the notebook [`examples/roads.ipyn
 
 ### A bigger example: routing through central London
 
-![route through central London](https://github.com/petercorke/pgraph-python/raw/main/docs/figs/london_route.png)
+![Map of central London as a network of grey streets, with two routes between Buckingham Palace and Tower Bridge: a solid blue route of 5,515 m via Big Ben, and a dashed orange route of 5,948 m back through the north of the area, with five landmarks labelled](https://github.com/petercorke/pgraph-python/raw/main/docs/figs/london_route.png)
 
 A directed graph of the road network of central London, taken from [OpenStreetMap](https://www.openstreetmap.org/copyright), and the shortest drive between Buckingham Palace and Tower Bridge, there (solid) and back (dashed).  The two routes differ in length, 5,515 m and 5,948 m, because of the one-way streets.  The notebook [`examples/london.ipynb`](https://github.com/petercorke/pgraph-python/blob/main/examples/london.ipynb) builds the graph from the map data, keeps the part of it that can be driven around in, and plans with `A*`.
 
