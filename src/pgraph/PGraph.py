@@ -5,11 +5,6 @@ import os
 import sys
 import warnings
 import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib.patches import FancyArrowPatch
-from matplotlib.path import Path
-from matplotlib.transforms import Affine2D, ScaledTranslation
-from mpl_toolkits.mplot3d import proj3d
 import copy
 import heapq
 import importlib
@@ -20,7 +15,8 @@ import webbrowser
 from typing import IO, Any, Callable, ClassVar, overload
 from numpy.typing import ArrayLike, NDArray
 
-from spatialmath.base.graphics import axes_logic
+# matplotlib and spatialmath are imported by the methods that plot, and by
+# pgraph._plot, so that importing pgraph does not load them.
 
 
 def _L1(v: NDArray) -> float:
@@ -157,58 +153,6 @@ def _renamed(
         stacklevel=stacklevel,
     )
     return old
-
-
-def _loop_path(angle: float, radius: float, markersize: float) -> Path:
-    """
-    The path of a loop at a vertex, in points from the vertex (private function)
-
-    A circle of ``radius`` whose centre is that far from the vertex, in the
-    direction ``angle`` degrees, less the part inside the vertex's marker.  It
-    is counter-clockwise, so a directed loop has its head where it returns.
-    """
-    m = markersize / 2
-    phi = np.degrees(np.arccos(np.clip(1 - m * m / (2 * radius * radius), -1, 1)))
-    arc = Path.arc(angle + 180 + phi, angle + 540 - phi)
-    centre = radius * np.array([np.cos(np.radians(angle)), np.sin(np.radians(angle))])
-    return Path(np.asarray(arc.vertices) * radius + centre, arc.codes)
-
-
-class _Arrow3D(FancyArrowPatch):
-    """An edge between two points of a 3D plot, which follows a rotation"""
-
-    def __init__(self, p1: ArrayLike, p2: ArrayLike, **kwargs: Any):
-        super().__init__((0, 0), (0, 0), **kwargs)
-        self._p1, self._p2 = np.asarray(p1, float), np.asarray(p2, float)
-
-    def do_3d_projection(self, renderer: Any = None) -> float:
-        ax: Any = self.axes
-        xs, ys, zs = proj3d.proj_transform(
-            [self._p1[0], self._p2[0]],
-            [self._p1[1], self._p2[1]],
-            [self._p1[2], self._p2[2]],
-            ax.M,
-        )
-        self.set_positions((xs[0], ys[0]), (xs[1], ys[1]))
-        return float(np.min(zs))
-
-
-class _Loop3D(FancyArrowPatch):
-    """A loop at a vertex of a 3D plot, which follows a rotation"""
-
-    def __init__(self, anchor: ArrayLike, path: Path, **kwargs: Any):
-        super().__init__(path=path, **kwargs)
-        self._anchor = np.asarray(anchor, float)
-
-    def do_3d_projection(self, renderer: Any = None) -> float:
-        ax: Any = self.axes
-        x, y, z = proj3d.proj_transform(*self._anchor, ax.M)
-        self.set_transform(
-            Affine2D().scale(1 / 72)
-            + ax.figure.dpi_scale_trans
-            + ScaledTranslation(x, y, ax.transData)
-        )
-        return float(z)
 
 
 class Graph:
@@ -2423,6 +2367,9 @@ class Graph:
         :param kwargs: options of the patch: color, linewidth, arrowstyle, ...
         :return: the artist, to be added to ``ax``
         """
+        from matplotlib.patches import FancyArrowPatch
+        from matplotlib.transforms import Affine2D, ScaledTranslation
+        from ._plot import _Arrow3D, _Loop3D, _loop_path
         v1, v2 = edge.v1, edge.v2
         assert v1 is not None and v2 is not None
         shrink = markersize / 2 + 1
@@ -2580,6 +2527,9 @@ class Graph:
 
         :seealso: :meth:`highlight_path` :meth:`highlight_edge`
         """
+        import matplotlib.pyplot as plt
+        from matplotlib.patches import FancyArrowPatch
+        from spatialmath.base.graphics import axes_logic
         # the options that have been renamed
         vertex_opt = _renamed("plot", "vopt", vopt, "vertex_opt", vertex_opt)
         edge_opt = _renamed("plot", "eopt", eopt, "edge_opt", edge_opt)
@@ -2753,6 +2703,7 @@ class Graph:
 
         :seealso: :meth:`highlight_vertex` :meth:`highlight_edge`
         """
+        import matplotlib.pyplot as plt
         for i in range(len(path)):
             if i < len(path) - 1:
                 e = path[i].edgeto(path[i + 1])
@@ -2811,10 +2762,13 @@ class Graph:
 
         :seealso: :meth:`plot` :meth:`highlight_vertex` :meth:`highlight_path`
         """
+        import matplotlib.pyplot as plt
         if edge.v1 is None or edge.v2 is None:
             raise ValueError("edge does not connect two vertices")
-        # over the edge as plot() draws it, so that it follows an arc
+        # over the edge as plot() draws it, so that it follows an arc, and in
+        # three dimensions if that is what the axes are
         ax = plt.gca()
+        ndim = 3 if getattr(ax, "name", None) == "3d" else 2
         rads, loopno = self._edge_layout()
         ax.add_patch(
             self._edge_artist(
@@ -2823,7 +2777,7 @@ class Graph:
                 rads.get(edge, 0.0),
                 loopno.get(edge, 0),
                 12,
-                2,
+                ndim,
                 arrowstyle="-",
                 color=color,
                 linewidth=3 * scale,
@@ -2879,15 +2833,21 @@ class Graph:
             >>> g.highlight_vertex(g[2])
 
         """
-        if isinstance(vertex, Iterable):
-            for n in vertex:
-                if isinstance(n, str):
-                    n = self[n]
-                plt.plot(n.x, n.y, "o", color=color, markersize=12 * scale, alpha=alpha)
-        else:
-            plt.plot(
-                vertex.x, vertex.y, "o", color=color, markersize=12 * scale, alpha=alpha
+        import matplotlib.pyplot as plt
+
+        ax = plt.gca()
+        is3d = getattr(ax, "name", None) == "3d"
+        vertices = vertex if isinstance(vertex, Iterable) else [vertex]
+        for n in vertices:
+            if isinstance(n, str):
+                n = self[n]
+            style: dict[str, Any] = dict(
+                color=color, markersize=12 * scale, alpha=alpha
             )
+            if is3d:
+                ax.plot([n.x], [n.y], [n.z], "o", **style)
+            else:
+                ax.plot(n.x, n.y, "o", **style)
 
     def export(
         self,
