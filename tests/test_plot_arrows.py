@@ -19,7 +19,7 @@ import numpy as np
 from matplotlib.patches import ArrowStyle, ConnectionStyle, FancyArrowPatch
 
 from pgraph import DGraph, UGraph
-from pgraph.PGraph import _Arrow3D, _Loop3D
+from pgraph._plot import _Arrow3D, _Loop3D
 
 
 def build(cls, edges, loops=(), dim=2):
