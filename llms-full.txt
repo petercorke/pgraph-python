@@ -1,0 +1,4995 @@
+# pgraph-python: Graphs for Python
+
+Documentation: https://petercorke.github.io/pgraph-python/
+
+pgraph is a pure-Python package of graph classes: directed and undirected graphs of vertices connected by edges, with edge costs and path planning (breadth-first, uniform-cost and A*). Vertices can be *embedded*, given a coordinate in a space of any dimension; edge costs then come from a distance metric (L2, L1, SE2 or your own), and the graph can be queried spatially, plotted and exported. Self-loops and parallel edges are allowed. It requires Python 3.9 or later and depends on NumPy, Matplotlib and spatialmath-python. Install with `pip install pgraph-python`; import it as `pgraph`.
+
+## Quick start
+
+```python
+from pgraph import UGraph
+
+g = UGraph(dim=2)                       # DGraph for directed; Graph(directed=flag) chooses
+a = g.add_vertex([0, 0], name="a")      # returns the Vertex
+b = g.add_vertex([3, 4], name="b")
+c = g.add_vertex([6, 0], name="c")
+g.add_edge(a, b)                        # cost defaults to the metric distance, 5.0
+g.add_edge("b", "c", cost=7)            # vertices or their names; or give the cost
+
+path, length, _ = g.path_Astar("a", "c")        # None if there is no path
+print([v.name for v in path], length)           # ['a', 'b', 'c'] 12.0
+g.plot()
+g.highlight_path(path)
+```
+
+## Key points
+
+- **Classes.** `UGraph` (undirected) and `DGraph` (directed) share the base class `Graph`, which is concrete: `Graph(directed=True)` is a `DGraph`. There is one `Vertex` class for both and one `Edge` class. `UVertex` and `DVertex` are deprecated aliases of `Vertex`. Constructor arguments are keyword-only: `UGraph(dim=2, metric="L2", heuristic=None, vertex_class=None, edge_class=None, verbose=False)`; `UGraph(2)` is a `TypeError`.
+- **Vertices.** `g.add_vertex(coord=None, name=None)` returns the vertex. Default names are `"#0"`, `"#1"`, ..., names are unique, and `g["a"]` or `g[0]` finds a vertex. `for v in g` iterates in the order added; `g.n`, `g.ne` and `g.nc` are the numbers of vertices, edges and components. `g.remove_vertex(v)` and `g.remove_edge(e)` remove them, with their edges.
+- **Edges.** `g.add_edge(v1, v2, cost=None)`; with no `cost` it is the metric distance between the coordinates, and `None` if the vertices have none (planning then raises `ValueError`). `g.edges()` and `v.edges()` return new lists in the order added. `e.v1` and `e.v2` are read-only. `v.adjacent()` is the neighbours, `v.successors()` and `v.predecessors()` are the directed ones, `v.edgeto(w)` the cheapest edge to `w` and `v.edges_to(w)` all of them. A self-loop of an undirected vertex is in `v.edges()` twice and counts 2 in its degree.
+- **Directed graphs.** `degree` is in plus out (`in_degree`, `out_degree`); `nc` and `component` are weakly connected, ignoring direction.
+- **Planning.** `path_BFS(S, G)` returns `(path, length)` with the fewest edges; `path_UCS(S, G)` and `path_Astar(S, G)` return `(path, length, parents)` of least cost. `S` and `G` are vertices or names, and all three return `None` when there is no path, so check before unpacking.
+- **Metrics.** `"L2"` (default), `"L1"`, `"SE2"` for `(x, y, theta)` poses, `SE2Metric(weight)` to weight the angle, or a function of one difference vector. A* uses `heuristic` (default: the metric), which must be in the same units as the edge costs and must not exceed the true cost to go, or the path is not the shortest.
+- **Spatial queries** on an embedded graph: `closest(point)` returns `(vertex, distance)`, `near(point, radius)`, `within(box)` with `box` a 2 x n array of lower and upper corner, `coordinates()` the `(dim, n)` matrix of coordinates, and `subgraph(vertices)`, which takes vertices, names or a boolean mask and returns a new graph. `build_kdtree()` is an optional index (it needs scipy) that `closest` and `near` then use.
+- **Components and matrices.** `g.component(c)` is the vertices in component number `c`, `v.label` is the component of a vertex, `g.samecomponent(v1, v2)`. `adjacency()`, `incidence()`, `laplacian()`, `degree()` and `connectivity()` return dense NumPy arrays.
+- **Output.** `g.plot()` (arrowheads for a directed graph, arcs for parallel edges, circles for loops), `highlight_path(path)`, and `g.export(file)` for GraphViz dot, Mermaid, GraphML, ELK JSON or an image (images need the GraphViz executables).
+- **Subclassing.** `class Foo(Vertex)` and `UGraph(vertex_class=Foo, edge_class=Bar)` make the graph build them; a subclass `__init__` must pass `coord` and `name` (vertices) or `v1, v2, cost, data` (edges) to its parent.
+- **Copying.** `g.copy()` and `pickle` work for a whole graph; a vertex or edge cannot be copied or pickled on its own, and a graph whose metric is a `lambda` cannot be pickled.
+
+## Common mistakes
+
+- `UGraph(6)` raises `TypeError`: write `UGraph(dim=6)`.
+- Unpacking the result of a planner without checking for `None`.
+- Coordinates in one unit and costs in another (metres against kilometres): the A* heuristic is then too large and the path found is not the shortest.
+- `g.component(v)` takes a component *number*; use `v.label` for the component of a vertex.
+- Assigning `e.v1 = ...` fails, they are read-only; `add_vertex` raises `ValueError` for a name already used or a vertex that is already in a graph.
+- After `build_kdtree()`, change a coordinate by assigning (`v.coord = x`, `v.coord += x`), not in place (`v.coord[0] = x`), which the index cannot see.
+- `g.edges()` is a copy: changing the list does not change the graph.
+
+========================================================================
+Page: https://petercorke.github.io/pgraph-python/index.html
+========================================================================
+
+Graphs for Python
+*****************
+
+* Introduction
+
+  * What is a graph?
+
+  * Creating a graph using the "pgraph" package
+
+  * Creating directed and undirected graphs
+
+  * History
+
+* API details
+
+  * Common methods
+
+    * Construction and basic usage
+
+    * Adding and removing vertices and edges
+
+    * Graph analysis
+
+    * Transformations to matrix representations
+
+    * Visualization
+
+    * Exporting a graph
+
+    * Path planning
+
+  * Edges & Vertices
+
+    * Underlying data structures
+
+    * Working with vertices and edges directly
+
+    * The Vertex class
+
+    * The Edge class
+
+  * Object lifecycle and graph-membership policy
+
+    * Standalone construction
+
+    * Adding a vertex to a graph
+
+    * Connecting two vertices
+
+    * Constructing an "Edge" directly
+
+    * Summary
+
+Indices and tables
+==================
+
+* Index
+
+* Search Page
+
+========================================================================
+Page: https://petercorke.github.io/pgraph-python/intro.html
+========================================================================
+
+Introduction
+************
+
+This pure-Python package provides classes for directed and undirected
+graphs: vertices connected by edges, with edge costs and path
+planning.  Self-loops and parallel edges are permitted.
+
+Vertices can optionally be *embedded*: given a coordinate in a space
+of any dimension.  Edge costs are then computed from the vertex
+positions using a distance metric (Euclidean, Manhattan, SE(2) with a
+weight on the angle, or your own), the vertex nearest a point can be
+found, "A*" uses the metric as its heuristic, and the graph can be
+plotted, or exported with its layout preserved.
+
+What is a graph?
+================
+
+A graph is an abstract representation of a set of objects connected by
+links and depicted visually as shown below. Graphs can be used to
+represent transport, communications or social networks, and this
+branch of mathematics is graph theory.
+
+   [image: two small graphs on the same five vertices, one undirected
+   and one directed, each with parallel edges and a loop][image]
+
+Mathematically, a graph is denoted by G(V, E) where V are the vertices
+or nodes, and E are the links that connect pairs of vertices and are
+called edges or arcs. Edges can be directed (shown as arrows, as in
+the graph on the right) or undirected (shown as line segments, as in
+the graph on the left). Edges can have an associated weight or cost
+associated with moving from one vertex to another. A sequence of edges
+from one vertex to another is a path, and a sequence that starts and
+ends at the same vertex is a cycle. An edge from a vertex to itself is
+a loop, and edges that join the same pair of vertices are parallel
+edges: B and D on the left are joined by two edges, as are A and B on
+the right. On the right, B and C are also joined by edges in opposite
+directions.
+
+Creating a graph using the "pgraph" package
+===========================================
+
+To create a new graph using the "pgraph" package, we first import the
+package and create a new instance of the "UGraph" class, which
+represents an undirected graph with vertices that exist in
+2-dimensional space.
+
+   >>> from pgraph import UGraph
+   >>> import numpy as np
+   >>> g = UGraph(dim=2)
+
+Next, we add some vertices to the graph, each with a random 2D
+coordinate which is specified as a 2-element array. The coordinates
+can be used to compute the cost of edges, and to plot the graph.
+
+   >>> np.random.seed(0) # ensure repeatable results
+   >>> for i in range(5):
+   ...     g.add_vertex(np.random.rand(2))
+   Vertex[#0, coord=(0.5488, 0.7152)]
+   Vertex[#1, coord=(0.6028, 0.5449)]
+   Vertex[#2, coord=(0.4237, 0.6459)]
+   Vertex[#3, coord=(0.4376, 0.8918)]
+   Vertex[#4, coord=(0.9637, 0.3834)]
+
+The method "add_vertex" returns a reference to the newly created
+vertex object, and a vertex can also be obtained by indexing the graph
+object. For example vertex 1 is
+
+   >>> g[1]
+   Vertex[#1, coord=(0.6028, 0.5449)]
+
+and is an instance of "Vertex"; it has the coordinate (0.6028, 0.5449)
+and has been assigned a default name ""#1"" but we could specify an
+explicit name to "add_vertex". We can also reference a vertex by its
+name
+
+   >>> g["#1"]
+   Vertex[#1, coord=(0.6028, 0.5449)]
+
+A summary of the graph can be displayed
+
+   >>> print(g)
+   UGraph: 5 vertices, 0 edges, 5 components
+
+and we see that it has 5 vertices, no edges and 5 components, that is,
+each vertex is isolated.
+
+Next, we add edges to connect specific pairs of vertices
+
+      >>> g.add_edge(g[0], g[1])
+      Edge{[#0] -- [#1], cost=0.1786}
+      >>> g.add_edge(g[0], g[2])
+      Edge{[#0] -- [#2], cost=0.1431}
+      >>> g.add_edge(g[0], g[3])
+      Edge{[#0] -- [#3], cost=0.2087}
+      >>> g.add_edge(g[1], g[2])
+      Edge{[#1] -- [#2], cost=0.2056}
+      >>> g.add_edge(g[1], g[3])
+      Edge{[#1] -- [#3], cost=0.3842}
+      >>> g.add_edge(g[3], g[4])
+      Edge{[#3] -- [#4], cost=0.7315}
+
+The "add_edge" method returns a reference to the edge object just
+created. By default, the edge cost is the Euclidean distance between
+the vertices, but this can be overridden by a third argument to
+"add_edge".
+
+A summary of the graph can be displayed
+
+      >>> print(g)
+      UGraph: 5 vertices, 6 edges, 1 component
+
+and we see that it has 5 vertices, six edges and one component, that
+is, all the vertices are connected into one network.
+
+The graph can be plotted by
+
+   >>> g.plot()
+
+   [image]
+
+The vertices are shown as blue circles, and the edges are shown as
+lines joining vertices. Many options exist to change default plotting
+behavior. Note that only graphs embedded in 2- and 3-dimensional space
+can be plotted.
+
+The vertices adjacent to vertex 1 are
+
+      >>> g[1].adjacent()
+      [Vertex[#0, coord=(0.5488, 0.7152)], Vertex[#2, coord=(0.4237, 0.6459)], Vertex[#3, coord=(0.4376, 0.8918)]]
+
+which is a list of adjacent vertex objects, those connected to it by
+an edge. Each edge is an object and the edges connecting to vertex 1
+are
+
+      >>> g[1].edges()
+      [Edge{[#0] -- [#1], cost=0.1786}, Edge{[#1] -- [#2], cost=0.2056}, Edge{[#1] -- [#3], cost=0.3842}]
+
+and each edge has references to the vertices it connects
+
+      >>> g[1].edges()[0].endpoints
+      [Vertex[#0, coord=(0.5488, 0.7152)], Vertex[#1, coord=(0.6028, 0.5449)]]
+
+The cost or length of an edge is
+
+      >>> g[1].edges()[0].cost
+      0.1786470956951876
+
+The vertex closest to the coordinate (0.5, 0.5) is
+
+      >>> g.closest((0.5, 0.5))
+      (Vertex[#1, coord=(0.6028, 0.5449)], 0.11213746732281339)
+
+The minimum-distance path between any two vertices in the graph can be
+computed using well-known algorithms such as "A*" (Hart et al. 1968)
+
+      >>> path, length, _ = g.path_Astar(g[2], g[4])
+      >>> path
+      [Vertex[#2, coord=(0.4237, 0.6459)], Vertex[#0, coord=(0.5488, 0.7152)], Vertex[#3, coord=(0.4376, 0.8918)], Vertex[#4, coord=(0.9637, 0.3834)]]
+
+which is a list of vertices representing a total path length of
+
+      >>> length
+      1.0832988437645112
+
+Graphs can also be represented in other ways, such as adjacency,
+incidence, degree and Laplacian matrices, and methods exist to convert
+the graph to these.
+
+Arbitrary data can be attached to any vertex or edge by assigning
+values to attributes
+
+      >>> g[1].data = "this is vertex 1"
+      >>> g[1].edges()[0].data = "this is the edge from vertex 0 to vertex 1"
+
+This exploits the flexible nature of Python, but care must be taken to
+avoid name clashes with existing attributes.
+
+A more robust and Pythonic approach is to create a subclass of the
+"Vertex" class and pass them to the graph constructor. For example, we
+can create a subclass of "Vertex" called "MyVertex" and a subclass of
+"Edge" called "MyEdge" and then create a new graph using these
+classes.
+
+   >>> import pgraph
+   >>> import numpy as np
+   >>> class MyVertex(pgraph.Vertex):
+   ...     pass
+   >>> class MyEdge(pgraph.Edge):
+   ...     pass
+   >>> g = pgraph.UGraph(vertex_class=MyVertex, edge_class=MyEdge)
+   >>> np.random.seed(0) # ensure repeatable results
+   >>> for i in range(5):
+   ...     v = g.add_vertex(np.random.rand(2))
+   >>> g.add_edge(g[0], g[1])
+   MyEdge{[#0] -- [#1], cost=0.1786}
+   >>> g.add_edge(g[0], g[2])
+   MyEdge{[#0] -- [#2], cost=0.1431}
+   >>> g.add_edge(g[0], g[3])
+   MyEdge{[#0] -- [#3], cost=0.2087}
+   >>> g.add_edge(g[1], g[2])
+   MyEdge{[#1] -- [#2], cost=0.2056}
+   >>> g.add_edge(g[1], g[3])
+   MyEdge{[#1] -- [#3], cost=0.3842}
+   >>> g.add_edge(g[3], g[4])
+   MyEdge{[#3] -- [#4], cost=0.7315}
+   >>> print(g)
+   UGraph: 5 vertices, 6 edges, 1 component
+
+we can see that the type of the vertices and edges is now the user-
+defined classes
+
+   >>> type(g[0])
+   <class '__console__.MyVertex'>
+   >>> type(g[0].edges()[0])
+   <class '__console__.MyEdge'>
+
+Creating directed and undirected graphs
+=======================================
+
+The example above illustrates an undirected graph, but a directed
+graph can be created by using the "DGraph" class instead of "UGraph".
+The methods are the same, but the edges are directed and the path-
+finding algorithms take this into account.
+
+   >>> from pgraph import DGraph
+   >>> g = DGraph(dim=2)
+   >>> type(g)
+   <class 'pgraph.PGraph.DGraph'>
+
+Alternatively, we can make the decision at runtime by using the
+"directed" argument to the "Graph" constructor
+
+   >>> from pgraph import Graph
+   >>> g = Graph(directed=True, dim=2)
+   >>> type(g)
+   <class 'pgraph.PGraph.DGraph'>
+   >>> g = Graph(directed=False, dim=2)
+   >>> type(g)
+   <class 'pgraph.PGraph.UGraph'>
+
+History
+=======
+
+"pgraph-python" is based on "PGraph.m" which is part of the earlier
+Spatial Math Toolbox for MATLAB.
+
+========================================================================
+Page: https://petercorke.github.io/pgraph-python/api.html
+========================================================================
+
+API details
+***********
+
+* Common methods
+
+  * Construction and basic usage
+
+  * Adding and removing vertices and edges
+
+  * Graph analysis
+
+  * Transformations to matrix representations
+
+  * Visualization
+
+  * Exporting a graph
+
+  * Path planning
+
+* Edges & Vertices
+
+  * Underlying data structures
+
+  * Working with vertices and edges directly
+
+  * The Vertex class
+
+  * The Edge class
+
+* Object lifecycle and graph-membership policy
+
+  * Standalone construction
+
+  * Adding a vertex to a graph
+
+  * Connecting two vertices
+
+  * Constructing an "Edge" directly
+
+  * Summary
+
+========================================================================
+Page: https://petercorke.github.io/pgraph-python/common.html
+========================================================================
+
+Common methods
+**************
+
+The package supports both directed (prefix "D") and undirected graphs
+(prefix "U"), and the classes for these share a common interface.
+
+The graph classes represent a single graph, either directed or
+undirected, and they share "Graph":
+
+The vertices of both kinds of graph are "Vertex" objects.  A vertex
+has no direction of its own: the graph it belongs to decides how an
+edge is recorded in the edge lists of its vertices. Edges are
+represented by the "Edge" class, which is used by both directed and
+undirected graphs.
+
+The graph classes share almost their entire interface, defined once on
+their common base class "Graph". This section documents that shared
+interface by task rather than by class; see Construction and basic
+usage for the "DGraph" and "UGraph" classes and Edges & Vertices for
+vertices and edges.
+
+The following sections describe the common methods.
+
+* Construction and basic usage
+
+  * "DGraph"
+
+  * "UGraph"
+
+  * "Adjacency"
+
+  * "Dict"
+
+  * Inherited methods for all graph types
+
+  * Copying a vertex
+
+  * Distance metrics
+
+* Adding and removing vertices and edges
+
+  * Graph
+
+  * Vertex
+
+  * Edge
+
+  * Details
+
+* Graph analysis
+
+  * Graph
+
+  * Vertex
+
+  * Edge
+
+  * Details
+
+* Transformations to matrix representations
+
+  * Details
+
+* Visualization
+
+  * Details
+
+* Exporting a graph
+
+  * Details
+
+  * The exporters
+
+* Path planning
+
+  * Details
+
+========================================================================
+Page: https://petercorke.github.io/pgraph-python/construction.html
+========================================================================
+
+Construction and basic usage
+****************************
+
+There are a number of ways to build a "UGraph" (undirected) or
+"DGraph" (directed): a plain constructor, or from a dictionary or an
+adjacency matrix.  "Graph" is their common base class, used in type
+hints, and "Graph(directed=flag)" chooses the kind from a value.
+
+See Object lifecycle and graph-membership policy for the rules around
+constructing vertices/edges standalone, independent of a graph.
+
++------------+--------------------------------------------------------------------------------------------+
+| "Graph"    | Base class for all graphs                                                                  |
++------------+--------------------------------------------------------------------------------------------+
+| "DGraph"   | Class for directed graphs                                                                  |
++------------+--------------------------------------------------------------------------------------------+
+| "UGraph"   | Class for undirected graphs                                                                |
++------------+--------------------------------------------------------------------------------------------+
+| "Dict"     | Create graph from parent/child dictionary                                                  |
++------------+--------------------------------------------------------------------------------------------+
+| "Adjacency | Create graph from adjacency matrix                                                         |
+| "          |                                                                                            |
++------------+--------------------------------------------------------------------------------------------+
+
+class DGraph(*, metric=None, heuristic=None, verbose=False, dim=None, vertex_class=None, edge_class=None, directed=None)
+
+   Bases: "Graph"
+
+   Class for directed graphs
+
+   Vertices are "Vertex" objects, or instances of the subclass given
+   as "vertex_class". Edges are "Edge" objects, or instances of the
+   subclass given as "edge_class"; see "Graph" for the constructor
+   arguments and the exceptions they raise.
+
+   An edge is recorded as leaving its start vertex and entering its
+   end vertex, and an edge supplied to "Vertex.connect()" must run
+   exactly from that vertex to the other.
+
+   Seealso:
+      "Graph" "UGraph"
+
+class UGraph(*, metric=None, heuristic=None, verbose=False, dim=None, vertex_class=None, edge_class=None, directed=None)
+
+   Bases: "Graph"
+
+   Class for undirected graphs
+
+   Vertices are "Vertex" objects, or instances of the subclass given
+   as "vertex_class". Edges are "Edge" objects, or instances of the
+   subclass given as "edge_class"; see "Graph" for the constructor
+   arguments and the exceptions they raise.
+
+   An edge is recorded at *both* of its vertices, so it is found from
+   either end, and an edge supplied to "Vertex.connect()" may have its
+   endpoints in either order.
+
+   Seealso:
+      "Graph" "DGraph"
+
+class Adjacency(A, coords=None, names=None, **kwargs)
+
+   Bases:
+
+   Create graph from adjacency matrix
+
+   Parameters:
+      * **A** (*ndarray**(**N**,**N**)*) -- adjacency matrix
+
+      * **coords** (*ndarray**(**N**,**M**)**, **optional*) --
+        coordinates of vertices, defaults to None
+
+      * **names** (*list**(**N**) of **str**, **optional*) -- names of
+        vertices, defaults to None
+
+      * **kwargs** ("Any") -- optional arguments passed to the graph
+        constructor, for example "vertex_class" or "edge_class"
+
+   Raises:
+      * **ValueError** -- "A" is not square, or the length of "names"
+        or the number of rows of "coords" does not match "A"
+
+      * **TypeError** -- "vertex_class" or "edge_class" is not a
+        suitable class, see "Graph"
+
+   Returns:
+      graph
+
+   Return type:
+      UGraph or DGraph
+
+   Behaves like a constructor for a "DGraph" or "UGraph" creating the
+   graph from an adjacency matrix "A". Here non-zero elements "A[i,j]"
+   correspond to edges from vertex "i" to vertex "j".
+
+   A non-zero diagonal element "A[i,i]" is a self-loop on vertex "i",
+   for both kinds of graph.
+
+   Warning:
+
+     For an undirected graph "A" should be symmetric but this is not
+     checked.  Only the upper triangular part, including the diagonal,
+     is used. Elements are costs, not edge counts: a non-zero element
+     is a single edge with that element as its cost, so parallel edges
+     cannot be created this way.
+
+      >>> from pgraph import UGraph
+      >>> import numpy as np
+      >>> A = np.array([[0, 1, 0], [1, 0, 1], [0, 1, 0]])
+      >>> g = UGraph.Adjacency(A)
+      >>> print(g)
+      UGraph: 3 vertices, 2 edges, 1 component
+
+   Seealso:
+      "Dict()" "adjacency()"
+
+class Dict(d, reverse=False, **kwargs)
+
+   Bases:
+
+   Create graph from parent/child dictionary
+
+   Parameters:
+      * **d** (*dict*) -- dictionary that maps from "Vertex" subclass
+        to "Vertex" subclass
+
+      * **reverse** ("bool") -- reverse link direction, defaults to
+        False
+
+      * **kwargs** ("Any") -- optional arguments passed to the graph
+        constructor, for example "vertex_class" or "edge_class"
+
+   Raises:
+      **TypeError** -- "vertex_class" or "edge_class" is not a
+      suitable class, see "Graph"
+
+   Returns:
+      graph
+
+   Return type:
+      UGraph or DGraph
+
+   Behaves like a constructor for a "DGraph" or "UGraph" from a
+   dictionary that maps vertices to parents.  From this information it
+   can create a graph that is a tree or forest.
+
+   By default parent vertices are linked their children. If "reverse"
+   is True then children are linked to their parents.
+
+      >>> from pgraph import UGraph
+      >>> d = {'b': 'a', 'c': 'a', 'd': 'b'}
+      >>> g = UGraph.Dict(d)
+      >>> print(g)
+      UGraph: 4 vertices, 3 edges, 1 component
+
+   Seealso:
+      "Adjacency()"
+
+Inherited methods for all graph types
+=====================================
+
+class Graph(*, metric=None, heuristic=None, verbose=False, dim=None, vertex_class=None, edge_class=None, directed=None)
+
+   Base class for all graphs
+
+   A graph is a set of "Vertex" objects joined by "Edge" objects,
+   which are directed or not according to the kind of graph: "UGraph"
+   is undirected and "DGraph" is directed.  This class holds
+   everything they share, and "Graph(directed=flag)" makes one or the
+   other.  The constructor arguments are described below.
+
+   Seealso:
+      "UGraph" "DGraph" "Vertex" "Edge"
+
+   __contains__(item)
+
+      Test if vertex in graph
+
+      Parameters:
+         **item** (*Vertex subclass** or **str*) -- vertex or name of
+         vertex
+
+      Returns:
+         true if vertex exists in the graph
+
+      Return type:
+         bool
+
+      * "'name' in graph" is true if a vertex named "'name'" exists in
+        the graph.
+
+      * "v in graph" is true if the vertex reference "v" exists in the
+        graph.
+
+   __getitem__(i)
+
+      Get vertex (base class method)
+
+      Parameters:
+         **i** (*int**, **str** or **Vertex subclass*) -- vertex
+         description
+
+      Raises:
+         * **IndexError** -- "i" is an integer outside the range of
+           vertices
+
+         * **KeyError** -- "i" is a name that is not in the graph
+
+         * **TypeError** -- "i" is none of the types above
+
+      Returns:
+         the referenced vertex
+
+      Return type:
+         Vertex subclass
+
+      Retrieve a vertex by index or name:
+
+      * "g[i]" is the i'th vertex in the graph.  This reflects the
+        order of addition to the graph.  "i" can be any integer,
+        including a NumPy integer such as the result of "np.argmin()",
+        and a negative "i" counts from the last vertex.
+
+      * "g[s]" is vertex named "s"
+
+      * "g[v]" is "v" where "v" is a "Vertex" subclass
+
+      This method also supports iteration over the vertices in a
+      graph:
+
+         for v in g:
+             print(v)
+
+      will iterate over all the vertices.
+
+   __init__(*, metric=None, heuristic=None, verbose=False, dim=None, vertex_class=None, edge_class=None, directed=None)
+
+      Graph, undirected or directed
+
+      Parameters:
+         * **metric** (*callable** or **str**, **optional*) --
+           distance metric, defaults to "L2"
+
+         * **heuristic** (*callable** or **str**, **optional*) --
+           heuristic distance metric for A*, defaults to the same as
+           "metric"
+
+         * **verbose** ("bool") -- print diagnostic information as
+           vertices/edges are added, defaults to False
+
+         * **dim** (*int**, **optional*) -- required length of every
+           vertex's "coord", defaults to None (unconstrained --
+           vertices may have coordinates of any length, or none at
+           all)
+
+         * **vertex_class** (subclass of "Vertex", optional) -- class
+           of the vertices this graph creates, defaults to "Vertex"
+
+         * **edge_class** (subclass of "Edge", optional) -- class of
+           the edges this graph creates, defaults to "Edge"
+
+         * **directed** (*bool**, **optional*) -- whether the edges
+           are directed, defaults to False for "Graph" and is fixed by
+           the class for "UGraph" and "DGraph"
+
+      Raises:
+         * **ValueError** -- "dim" is given but is not a positive
+           integer
+
+         * **ValueError** -- "directed" contradicts the class, for
+           example "UGraph(directed=True)"
+
+         * **TypeError** -- "vertex_class" is not a subclass of
+           "Vertex", or "edge_class" is not a subclass of "Edge"
+
+      "Graph(directed=True)" is a "DGraph" and "Graph()" a "UGraph",
+      so the kind can be chosen by a variable:
+
+         g = Graph(directed=is_directed)
+
+      "UGraph" and "DGraph" remain, and are what "isinstance" and the
+      documentation refer to.  Everything else, the vertices included,
+      is the same for both kinds, so there is one vertex class,
+      "Vertex".  A vertex has no direction of its own; the graph it
+      belongs to decides how an edge is recorded at its ends.
+
+      All arguments are keyword-only, so "UGraph(dim=6)" is correct
+      and "UGraph(6)" raises "TypeError".
+
+      Changed in version 1.0: Arguments are keyword-only.  In 0.6.5
+      the first positional argument was accepted and ignored, so
+      "UGraph(6)" silently did nothing.
+
+      "vertex_class" and "edge_class" let user subclasses be built by
+      the graph, so they never need to be constructed by hand:
+
+         g = UGraph(vertex_class=MyVertex, edge_class=MyEdge)
+         v = g.add_vertex([0, 0])  # a MyVertex
+         e = g.add_edge(v, w)      # a MyEdge
+
+      The classes are called as "vertex_class(coord, name=name)" and
+      "edge_class(v1, v2, cost=cost, data=data)", so a subclass that
+      overrides "__init__" must accept and pass on those arguments. A
+      graph given a "vertex_class" only accepts vertices of that class
+      in "add_vertex()", and one given an "edge_class" only accepts
+      edges of that class.
+
+      Seealso:
+         "UGraph" "DGraph" "add_vertex()" "add_edge()" "vertex_class"
+         "edge_class"
+
+   __iter__()
+
+      Iterate over the vertices of the graph
+
+      Returns:
+         iterator over vertices, in order of addition
+
+      Return type:
+         iterator of Vertex subclass
+
+         >>> from pgraph import UGraph
+         >>> g = UGraph()
+         >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+         >>> v2 = g.add_vertex(coord=[1,1], name='v2')
+         >>> v3 = g.add_vertex(coord=[2,2], name='v3')
+         >>> for v in g:
+         ...     print(v)
+         [v1]
+         [v2]
+         [v3]
+
+      Seealso:
+         "__getitem__()"
+
+   __repr__()
+
+      Detailed representation of the graph, one line per vertex
+
+      Returns:
+         one line per vertex showing its name, coordinate and
+         component
+
+      Return type:
+         str
+
+         >>> from pgraph import UGraph
+         >>> g = UGraph()
+         >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+         >>> v2 = g.add_vertex(coord=[1,1], name='v2')
+         >>> v3 = g.add_vertex(coord=[2,2], name='v3')
+         >>> g.add_edge(v1, v2)
+         Edge{[v1] -- [v2], cost=1.414}
+         >>> g.add_edge(v2, v3)
+         Edge{[v2] -- [v3], cost=1.414}
+         >>> repr(g)
+         'UGraph:\n  v1 at [0 0] component=0\n  v2 at [1 1] component=0\n  v3 at [2 2] component=0'
+
+   __str__()
+
+      Human-readable summary of the graph
+
+      Returns:
+         one-line summary of vertex/edge/component counts
+
+      Return type:
+         str
+
+      Counts of 1,000 or more have thousands separators.
+
+         >>> from pgraph import UGraph
+         >>> g = UGraph()
+         >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+         >>> v2 = g.add_vertex(coord=[1,1], name='v2')
+         >>> v3 = g.add_vertex(coord=[2,2], name='v3')
+         >>> g.add_edge(v1, v2)
+         Edge{[v1] -- [v2], cost=1.414}
+         >>> g.add_edge(v2, v3)
+         Edge{[v2] -- [v3], cost=1.414}
+         >>> str(g)
+         'UGraph: 3 vertices, 2 edges, 1 component'
+
+      Seealso:
+         "show()"
+
+   copy()
+
+      Deepcopy of graph
+
+      Returns:
+         deep copy
+
+      Return type:
+         Graph
+
+      The copy has its own vertices and edges, which keep their class,
+      name, coordinate, cost and any attributes the user has added,
+      and in the same order, so it can be modified without affecting
+      the original.
+
+      A graph can also be pickled, and copied with "copy.deepcopy()",
+      which this method calls.  Both work for a graph of any size.  A
+      vertex or an edge cannot be pickled or copied on its own, since
+      it has no meaning apart from its graph: a "TypeError" is raised,
+      and the graph should be copied instead.
+
+      Note:
+
+        * A metric or heuristic given by name (""L1"", ""L2"",
+          ""SE2"") is pickled by name, and an "SE2Metric" with its
+          weight.  A function you supply must be importable at module
+          level to be pickled; a "lambda" or a function defined inside
+          another function can be copied but not pickled.
+
+        * Attributes that you add to vertices or edges must not refer
+          to other vertices or edges of the graph, since those cannot
+          be pickled on their own.
+
+        * A pickle is not a long-term storage format.  Use "export()"
+          for that.
+
+      Changed in version 1.0: Pickling a graph works, and copying one
+      no longer fails with a "RecursionError" for a graph with a path
+      of about a hundred vertices.
+
+      Copies the graph, its vertices and edges, but not any external
+      data that may be attached to them.  The copy is a new graph of
+      the same kind, with the same vertices and edges, but the
+      vertices and edges are new objects.
+
+         >>> from pgraph import UGraph
+         >>> g = UGraph()
+         >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+         >>> g2 = g.copy()
+         >>> g2 is g
+         False
+         >>> g2[0] is g[0]
+         False
+
+      Seealso:
+         "vertex_copy()" "export()"
+
+   property edge_class: type[Edge]
+
+      Class of the edges this graph creates
+
+      Returns:
+         edge class
+
+      Return type:
+         subclass of "Edge"
+
+      This is read-only.  It is set by the "edge_class" argument of
+      the graph constructor, see "Graph", and is "Edge" if not given.
+
+         >>> from pgraph import UGraph, Edge
+         >>> class MyEdge(Edge):
+         ...     pass
+         >>> g = UGraph(edge_class=MyEdge)
+         >>> print(g.edge_class.__name__)
+         MyEdge
+
+      Seealso:
+         "add_edge()" "vertex_class"
+
+   property heuristic: Callable[[ndarray[tuple[Any, ...], dtype[_ScalarT]]], float]
+
+      Get the heuristic distance metric for graph
+
+      Returns:
+         heuristic distance metric
+
+      Return type:
+         callable
+
+      This is a function of a single coordinate-difference vector
+      (shape "(n,)"), returning a scalar distance.
+
+   property metric: Callable[[ndarray[tuple[Any, ...], dtype[_ScalarT]]], float]
+
+      Get the distance metric for graph
+
+      Returns:
+         distance metric
+
+      Return type:
+         callable
+
+      This is a function of a single coordinate-difference vector
+      (shape "(n,)"), returning a scalar distance.
+
+   show()
+
+      Print a summary of all vertices and edges to stdout
+
+         >>> from pgraph import UGraph
+         >>> g = UGraph()
+         >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+         >>> v2 = g.add_vertex(coord=[1,1], name='v2')
+         >>> g.add_edge(v1, v2)
+         Edge{[v1] -- [v2], cost=1.414}
+         >>> g.show()
+         vertices:
+           [v1]
+           [v2]
+         edges:
+           Edge{[v1] -- [v2], cost=1.414}
+
+      Seealso:
+         "__str__()"
+
+      Return type:
+         "None"
+
+   property vertex_class: type[Vertex]
+
+      Class of the vertices this graph creates
+
+      Returns:
+         vertex class
+
+      Return type:
+         subclass of "Vertex"
+
+      This is read-only.  It is set by the "vertex_class" argument of
+      the graph constructor, see "Graph", and is "Vertex" if not
+      given.
+
+         >>> from pgraph import UGraph, Vertex
+         >>> class MyVertex(Vertex):
+         ...     pass
+         >>> g = UGraph(vertex_class=MyVertex)
+         >>> print(g.vertex_class.__name__)
+         MyVertex
+
+      Seealso:
+         "add_vertex()" "edge_class"
+
+   classmethod vertex_copy(vertex)
+
+      Copy a vertex for use in a new graph of this kind
+
+      Parameters:
+         **vertex** (*Vertex subclass*) -- vertex to copy
+
+      Returns:
+         new, unconnected vertex with the same coordinate and name
+
+      Return type:
+         Vertex subclass
+
+      A vertex can only belong to a single graph, so this method is
+      used to create a new vertex with the same name and coordinates
+      for inclusion in a new graph.  A vertex is the same for
+      undirected and directed graphs.
+
+         >>> from pgraph import UGraph, DGraph
+         >>> g = UGraph()
+         >>> v = g.add_vertex(coord=[1,2], name='v1')
+         >>> newv = DGraph.vertex_copy(v)
+         >>> print(newv)
+         [v1]
+
+      Seealso:
+         "Vertex.copy()"
+
+Copying a vertex
+================
+
+Vertex.copy(cls=None)
+
+   Copy a vertex
+
+   Parameters:
+      **cls** (*UGraph** or **DGraph subclass**, **optional*) -- graph
+      class whose "vertex_copy" method should be used to create the
+      copy, defaults to None
+
+   Returns:
+      a new, unconnected vertex with the same coordinate and name
+
+   Return type:
+      Vertex subclass
+
+   If "cls" is given, "cls.vertex_copy(self)" is used to create a
+   vertex of the appropriate subclass for that graph type, otherwise a
+   vertex of the same class as "self" is created directly.
+
+      >>> from pgraph import Vertex, DGraph
+      >>> v = Vertex(coord=[1,2], name='v1')
+      >>> v2 = v.copy(cls=DGraph)
+      >>> print(v2)
+      [v1]
+
+   Seealso:
+      "Graph.vertex_copy()"
+
+Distance metrics
+================
+
+The cost of an edge, the nearest vertex to a point and the heuristic
+of the A* planner all come from a distance metric, a function of the
+difference between two coordinates.  It is chosen by name, ""L2"" (the
+default, Euclidean), ""L1"" (Manhattan) or ""SE2"", or you can supply
+your own function; see "metric" and "heuristic".
+
+The ""SE2"" metric is for poses (x, y, \theta) and adds a position in
+metres to an angle in radians, which are not the same kind of
+quantity.  It counts a radian as a metre.  If a turn should count for
+more or less, use "SE2Metric" with a weight, which is the length that
+a radian is worth.  Below, one vertex is 2 m ahead and facing the same
+way, and another is at our position but turned through 1.5 radians.
+With a weight of 1 the turn costs 1.5, so the turned vertex is the
+nearer; with a weight of 2 it costs 3, and the vertex ahead is nearer
+
+   >>> from pgraph import UGraph, SE2Metric
+   >>> for weight in (1.0, 2.0):
+   ...     g = UGraph(dim=3, metric=SE2Metric(weight=weight))
+   ...     v = g.add_vertex([2, 0, 0], name="ahead")
+   ...     v = g.add_vertex([0, 0, 1.5], name="turned")
+   ...     vertex, distance = g.closest([0, 0, 0])
+   ...     print(weight, vertex.name, distance)
+   1.0 turned 1.5
+   2.0 ahead 2.0
+
+class SE2Metric(weight=1.0)
+
+   Distance between planar poses, a weighted mixed norm
+
+   Parameters:
+      **weight** ("float") -- length that one radian of turn counts
+      for, defaults to 1
+
+   Raises:
+      **ValueError** -- "weight" is negative or not finite
+
+   The metric of a vector (x, y, \theta), the difference between two
+   poses, is
+
+      d = \sqrt{x^2 + y^2 + (w \bar{\theta})^2}
+
+   where \bar{\theta} is \theta wrapped to the interval [-\pi, \pi)
+   and w is the "weight".
+
+   Distance and angle have different units, so their relative
+   importance is a choice.  The weight is the conversion: it is how
+   much length a turn of one radian is worth, so a turn of \theta
+   costs as much as moving w \theta.  A weight of 1 treats a radian as
+   a metre, which is what the string ""SE2"" means.  A characteristic
+   length of the vehicle, such as its turning radius, is a natural
+   choice.  With a weight of 0 the orientation is ignored and this is
+   the distance in the plane.
+
+   An instance is a metric for a graph, and can be used as its
+   heuristic too:
+
+      g = UGraph(dim=3, metric=SE2Metric(weight=0.5))
+
+      >>> from pgraph import SE2Metric
+      >>> import numpy as np
+      >>> v = np.r_[3, 4, np.pi / 2]   # 3 east, 4 north, a quarter turn
+      >>> SE2Metric()(v)
+      5.240935136048942
+      >>> SE2Metric(weight=0.5)(v)
+      5.06130914636402
+      >>> SE2Metric(weight=0)(v)
+      5.0
+
+   A metric with a weight is still a metric, so it is a consistent
+   heuristic for A* when the edge costs are computed with it.  If edge
+   costs come from somewhere else, use a weight low enough, or zero,
+   for the heuristic never to exceed the cost to go.
+
+   Seealso:
+      "Graph.metric()" "Graph.heuristic()"
+
+========================================================================
+Page: https://petercorke.github.io/pgraph-python/modification.html
+========================================================================
+
+Adding and removing vertices and edges
+**************************************
+
+Building up and tearing down a graph's structure can be achieved by
+methods on the graph, vertex, and edge classes. These methods work for
+directed and undirected graphs.
+
+Graph
+=====
+
+The graph class provides methods for adding and removing vertices and
+edges.
+
++------------+--------------------------------------------------------------------------------------------+
+| "add_verte | Add a vertex to the graph                                                                  |
+| x"         |                                                                                            |
++------------+--------------------------------------------------------------------------------------------+
+| "add_edge" | Add an edge to the graph (base class method)                                               |
++------------+--------------------------------------------------------------------------------------------+
+| "remove_ed | Remove an edge from the graph                                                              |
+| ge"        |                                                                                            |
++------------+--------------------------------------------------------------------------------------------+
+| "remove_ve | Remove a vertex, and all its edges, from the graph                                         |
+| rtex"      |                                                                                            |
++------------+--------------------------------------------------------------------------------------------+
+
+Vertex
+======
+
+The vertex class provides methods for connecting a vertex to another
+vertex and for removing a vertex, and its edges, from the graph.
+
++------------+--------------------------------------------------------------------------------------------+
+| "connect"  | Connect two vertices with an edge                                                          |
++------------+--------------------------------------------------------------------------------------------+
+| "remove"   | Remove this vertex, and all its edges, from its graph                                      |
++------------+--------------------------------------------------------------------------------------------+
+
+Edge
+====
+
+The edge class provides methods for attaching an edge to a pair of
+vertices and for removing an edge from the graph.  They are described
+on the Edges & Vertices page.
+
++------------+--------------------------------------------------------------------------------------------+
+| "connect"  | Attach this edge to a pair of vertices                                                     |
++------------+--------------------------------------------------------------------------------------------+
+| "remove"   | Remove this edge from its graph                                                            |
++------------+--------------------------------------------------------------------------------------------+
+
+Details
+=======
+
+Graph.add_vertex(coord=None, name=None)
+
+   Add a vertex to the graph
+
+   Parameters:
+      * **coord** (*array-like** or **Vertex subclass**, **optional*)
+        -- coordinate for an embedded graph, or an existing vertex (an
+        instance of this graph's "vertex_class", not belonging to a
+        graph) to add as-is, defaults to None
+
+      * **name** (*str**, **optional*) -- name of vertex, defaults to
+        "#i"
+
+   Raises:
+      * **TypeError** -- "coord" is a "Vertex" that is not an instance
+        of this graph's "vertex_class"
+
+      * **ValueError** -- the name is already used by another vertex
+        in the graph, or "coord" is a vertex that already belongs to a
+        graph
+
+      * **ValueError** -- the graph was constructed with "dim", and
+        "coord" is given but its length doesn't match
+
+   Returns:
+      the added vertex
+
+   Return type:
+      Vertex subclass
+
+   This is a graph-centric way of creating a vertex.
+
+   * "g.add_vertex()" creates a new vertex with optional "coord" and
+     "name".
+
+   * "g.add_vertex(v)" takes an instance of this graph's
+     "vertex_class" (by default any "Vertex") and adds it to the
+     graph.
+
+   If the vertex has no name and "name" is None give it a default name
+   "#N" where "N" is the number of vertices, or the next integer above
+   it that is not already used by a name in the graph.
+
+   Names are unique within a graph, since they are how "g[name]" finds
+   a vertex, and a vertex belongs to one graph at a time.
+
+   Changed in version 1.0: Adding a vertex whose name is already used
+   raises "ValueError". It used to replace the earlier vertex in the
+   name table, leaving it in the graph but unreachable by name.  A
+   default name could also clash with an existing one after a vertex
+   had been removed.
+
+   The vertex is placed into the graph's vertex dictionary with a key
+   equal to its name.
+
+      >>> from pgraph import UGraph, Vertex
+      >>> g = UGraph()
+      >>> v1 = g.add_vertex(coord=[0,0])
+      >>> repr(v1)
+      'Vertex[#0, coord=(0, 0)]'
+      >>> print(v1)
+      [#0]
+      >>> print(v1.name)
+      #0
+      >>> v2 = g.add_vertex(Vertex(coord=[1,1], name='v2'))
+      >>> print(v2.name)
+      v2
+      >>> g['v2']
+      Vertex[v2, coord=(1, 1)]
+
+   If the graph was constructed with a required "dim" (see "Graph"),
+   every embedded vertex must have a coordinate of exactly that length
+   -- adding one of the wrong length raises "ValueError":
+
+      >>> from pgraph import UGraph
+      >>> g = UGraph(dim=6)
+      >>> v1 = g.add_vertex(coord=[0, 0, 0, 0, 0, 0], name='pose1')
+      >>> print(v1)
+      [pose1]
+
+   Note:
+
+     This single implementation, shared by "UGraph" and "DGraph", is
+     parameterized by the graph's "vertex_class" rather than
+     duplicated per subclass -- see Object lifecycle and graph-
+     membership policy for why that matters.
+
+   Seealso:
+      "vertex_copy()"
+
+Graph.add_edge(v1, v2=None, **kwargs)
+
+   Add an edge to the graph (base class method)
+
+   Parameters:
+      * **v1** (*Vertex subclass**, **str** or **Edge*) -- first
+        vertex (start if a directed graph), or an existing edge that
+        already carries its two vertices
+
+      * **v2** (*Vertex subclass** or **str**, **optional*) -- second
+        vertex (end if a directed graph), must be omitted if "v1" is
+        an edge
+
+      * **kwargs** ("Any") -- optional arguments to pass to
+        "Vertex.connect", not allowed if "v1" is an edge
+
+   Raises:
+      * **TypeError** -- "v1" or "v2" is of the wrong type, or "v2",
+        "cost" or "data" is given along with an edge
+
+      * **ValueError** -- the edge has no vertices, or the vertices do
+        not belong to this graph
+
+   Returns:
+      edge
+
+   Return type:
+      Edge
+
+   This is a graph-centric way of creating an edge.  The alternative
+   is the "connect" method of a vertex.
+
+   * "g.add_edge(v1, v2)" creates an edge between a vertex pair and
+     adds it to the graph.
+
+   * "g.add_edge(e)" takes an edge, or an instance of an "Edge"
+     subclass, that was constructed with its two vertices and adds it
+     to the graph, just as "g.add_vertex(v)" takes an existing vertex.
+
+      >>> from pgraph import UGraph
+      >>> g = UGraph()
+      >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+      >>> v2 = g.add_vertex(coord=[1,1], name='v2')
+      >>> v3 = g.add_vertex(coord=[2,2], name='v3')
+      >>> e = g.add_edge(v1, v2)
+      >>> print(e)
+      Edge{[v1] -- [v2], cost=1.414}
+      >>> e2 = g.add_edge('v2', 'v3', cost=99)
+      >>> print(e2)
+      Edge{[v2] -- [v3], cost=99}
+
+   Note that at line 9 the vertices are specified by their string
+   names.
+
+   Adding an instance of a user-defined "Edge" subclass:
+
+      >>> from pgraph import UGraph, Edge
+      >>> class MyEdge(Edge):
+      ...     pass
+      >>> g = UGraph()
+      >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+      >>> v2 = g.add_vertex(coord=[1,1], name='v2')
+      >>> e = g.add_edge(MyEdge(v1, v2, data="a road"))
+      >>> print(type(e).__name__, e.data)
+      MyEdge a road
+
+   Note:
+
+     Vertices have coordinates and the edge "cost" defaults to the
+     distance between them, but if the vertices have no coordinates
+     the edge cost must be set explicitly, otherwise it will be "None"
+     and path planning will fail with a "ValueError".
+
+   Note:
+
+     To supply an edge that does not yet have vertices use
+     "g.add_edge(v1, v2, edge=e)" or "e.connect(v1, v2)".
+
+   Seealso:
+      "add_vertex()" "Edge.connect()" "Vertex.connect()"
+
+Graph.remove_edge(edge)
+
+   Remove an edge from the graph
+
+   Parameters:
+      **edge** ("Edge") -- edge to remove
+
+   Raises:
+      **ValueError** -- "edge" does not belong to this graph
+
+   Return type:
+      "None"
+
+   The edge is removed from this graph's own edge collection and from
+   the edge lists of its connected vertices, and "edge.v1"/"edge.v2"
+   are cleared to "None".
+
+   Warning:
+
+     The connectivity of the network may be changed.
+
+      >>> from pgraph import UGraph
+      >>> g = UGraph()
+      >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+      >>> v2 = g.add_vertex(coord=[1,1], name='v2')
+      >>> e = g.add_edge(v1, v2)
+      >>> g.remove_edge(e)
+      >>> print(g)
+      UGraph: 2 vertices, 0 edges, 2 components
+
+   Note:
+
+     A directed edge is tracked only by its source vertex's edge list,
+     not its target's (see "Vertex.edges"), so membership is checked
+     per endpoint rather than assumed for both -- removing a directed
+     edge from an undirected-only implementation would otherwise raise
+     "ValueError" on the target side.
+
+   Seealso:
+      "remove_vertex()" "Edge.remove()"
+
+Graph.remove_vertex(vertex)
+
+   Remove a vertex, and all its edges, from the graph
+
+   Parameters:
+      **vertex** ("Vertex") -- vertex to remove
+
+   Raises:
+      **ValueError** -- "vertex" does not belong to this graph
+
+   Return type:
+      "None"
+
+   Every edge touching "vertex" -- incoming or outgoing -- is removed
+   via "remove_edge()", then the vertex itself is removed.
+
+   Warning:
+
+     The connectivity of the network may be changed.
+
+      >>> from pgraph import UGraph
+      >>> g = UGraph()
+      >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+      >>> v2 = g.add_vertex(coord=[1,1], name='v2')
+      >>> g.add_edge(v1, v2)
+      Edge{[v1] -- [v2], cost=1.414}
+      >>> g.remove_vertex(v2)
+      >>> print(g)
+      UGraph: 1 vertex, 0 edges, 1 component
+
+   Note:
+
+     This scans the graph's own edge set for edges touching "vertex",
+     rather than iterating "vertex.edges()" -- for a "DGraph" vertex
+     that only ever reports outgoing edges (see "Vertex.edges"), so
+     incoming edges would otherwise be missed and left dangling.
+
+   Seealso:
+      "remove_edge()" "Vertex.remove()"
+
+Graph.remove(x)
+
+   Remove element from graph (deprecated)
+
+   Parameters:
+      **x** (*Edge** or **Vertex subclass*) -- element to remove from
+      graph
+
+   Raises:
+      **TypeError** -- unknown type
+
+   Return type:
+      "None"
+
+   Deprecated since version use: "remove_edge()" or "remove_vertex()"
+   instead -- this dispatched on "type(x)" to two operations with very
+   different blast radii (detach one edge, vs. cascade-remove
+   everything touching a vertex) hidden behind one ambiguous name.
+
+   Seealso:
+      "remove_edge()" "remove_vertex()"
+
+Vertex.connect(dest, edge=None, cost=None, data=None)
+
+   Connect two vertices with an edge
+
+   Parameters:
+      * **dest** ("Vertex" subclass) -- The vertex to connect to
+
+      * **edge** ("Edge" subclass, optional) -- Use this as the edge
+        object, otherwise a new object of the graph's
+        "Graph.edge_class" is created from the vertices being
+        connected, and the "cost" and "data" parameters, defaults to
+        None
+
+      * **cost** (*float**, **optional*) -- the cost to traverse this
+        edge, defaults to None
+
+      * **data** (*Any**, **optional*) -- reference to arbitrary data
+        associated with the edge, defaults to None
+
+   Raises:
+      * **ValueError** -- either vertex has not been added to a graph,
+        the vertices belong to different graphs, or "edge" already
+        connects other vertices
+
+      * **TypeError** -- "edge" is not an instance of the graph's
+        "Graph.edge_class"
+
+   Returns:
+      the edge connecting the vertices
+
+   Return type:
+      Edge
+
+   "v1.connect(v2)" connects vertex "v1" to vertex "v2".
+
+   Note:
+
+     * In an undirected graph the edge is recorded in the edge list of
+       *both* vertices, so it is found from either end. In a directed
+       graph it is recorded as leaving this, the start, vertex and
+       entering "dest".
+
+     * A supplied "edge" built without vertices has its "v1" and "v2"
+       set to the vertices being connected. One built with vertices
+       must agree with them: in either order if undirected, exactly
+       "self" then "dest" if directed.
+
+     * Both vertices must already have been added to the same graph,
+       e.g. via "Graph.add_vertex()".
+
+      >>> from pgraph import UGraph
+      >>> g = UGraph()
+      >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+      >>> v2 = g.add_vertex(coord=[1,1], name='v2')
+      >>> e = v1.connect(v2, cost=1.414)
+      >>> print(e)
+      Edge{[v1] -- [v2], cost=1.414}
+
+   Seealso:
+      "Edge()" "Edge.connect()"
+
+Vertex.remove()
+
+   Remove this vertex, and all its edges, from its graph
+
+   Raises:
+      **ValueError** -- the vertex is not connected to a graph
+
+   "v.remove()" removes "v", and every edge touching it (incoming or
+   outgoing), from its graph. The "Vertex" object itself is not
+   deleted.
+
+   Note:
+
+     This is a thin convenience wrapper around
+     "Graph.remove_vertex()".
+
+   Return type:
+      None
+
+      >>> from pgraph import UGraph
+      >>> g = UGraph()
+      >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+      >>> v2 = g.add_vertex(coord=[1,1], name='v2')
+      >>> g.add_edge(v1, v2)
+      Edge{[v1] -- [v2], cost=1.414}
+      >>> v2.remove()
+      >>> print(g)
+      UGraph: 1 vertex, 0 edges, 1 component
+
+   Seealso:
+      "Graph.remove_vertex()" "Edge.remove()"
+
+========================================================================
+Page: https://petercorke.github.io/pgraph-python/analysis.html
+========================================================================
+
+Graph analysis
+**************
+
+Querying structure -- counts, adjacent vertices, incident edges,
+degree, connectivity, distance -- for directed and undirected graphs.
+See Path planning for finding paths between vertices, and
+Transformations to matrix representations for the matrix and dot forms
+of the whole graph.
+
+A vertex is queried in two complementary ways: by the vertices it is
+*adjacent* to, and by the *edges* incident on it.  For the adjacent
+vertices "adjacent()" is the canonical name; for a directed graph
+"successors()" is the same list under its directed name, and
+"predecessors()" is the vertices with an edge *to* the vertex.  The
+edges are "out_edges()" and "in_edges()", and "incidences()" pairs
+each adjacent vertex with the edge that leads to it.  "edgeto()" is
+the edge to one adjacent vertex, the cheapest if there are parallel
+edges, and "edges_to()" lists all of them.
+
+Graph
+=====
+
+The size and kind of the graph
+------------------------------
+
++------------+--------------------------------------------------------------------------------------------+
+| "n"        | Number of vertices                                                                         |
++------------+--------------------------------------------------------------------------------------------+
+| "ne"       | Number of edges                                                                            |
++------------+--------------------------------------------------------------------------------------------+
+| "nc"       | Number of components                                                                       |
++------------+--------------------------------------------------------------------------------------------+
+| "directed" | Test if the graph is directed                                                              |
++------------+--------------------------------------------------------------------------------------------+
+| "edges"    | All edges in the graph, in the order they were added                                       |
++------------+--------------------------------------------------------------------------------------------+
+
+Structure and connectivity
+--------------------------
+
++------------+--------------------------------------------------------------------------------------------+
+| "iscyclic" | Test if graph is cyclic                                                                    |
++------------+--------------------------------------------------------------------------------------------+
+| "component | All vertices in specified graph component                                                  |
+| "          |                                                                                            |
++------------+--------------------------------------------------------------------------------------------+
+| "samecompo | Test if vertices belong to same graph component                                            |
+| nent"      |                                                                                            |
++------------+--------------------------------------------------------------------------------------------+
+| "connectiv | Graph connectivity                                                                         |
+| ity"       |                                                                                            |
++------------+--------------------------------------------------------------------------------------------+
+| "average_d | Average degree of the graph                                                                |
+| egree"     |                                                                                            |
++------------+--------------------------------------------------------------------------------------------+
+
+Geometry and consistency
+------------------------
+
+For a graph whose vertices have coordinates, "coordinates()" is the
+matrix of them, one column per vertex.  "closest()" finds the nearest
+vertex to a point, "near()" the vertices within a distance of a point
+and "within()" the vertices inside a box.  Passing the result of the
+last to "subgraph()" gives the part of the graph in a region, without
+the edges that cross its border, and a boolean mask computed from the
+coordinates selects in the same way.
+
+These are a single pass over the vertices.  For a large graph that is
+queried often, "build_kdtree()" builds an index that "closest()" and
+"near()" then use, which needs scipy and is for the built-in metrics.
+
++------------+--------------------------------------------------------------------------------------------+
+| "coordinat | Coordinates of all the vertices as a matrix                                                |
+| es"        |                                                                                            |
++------------+--------------------------------------------------------------------------------------------+
+| "closest"  | Vertex closest to point                                                                    |
++------------+--------------------------------------------------------------------------------------------+
+| "near"     | Vertices within a distance of a point                                                      |
++------------+--------------------------------------------------------------------------------------------+
+| "within"   | Vertices inside a box                                                                      |
++------------+--------------------------------------------------------------------------------------------+
+| "build_kdt | Build a spatial index of the vertices, used by "closest()" and "near()"                    |
+| ree"       |                                                                                            |
++------------+--------------------------------------------------------------------------------------------+
+| "subgraph" | Subgraph induced by a set of vertices                                                      |
++------------+--------------------------------------------------------------------------------------------+
+| "validate" | Check that the graph's records agree with each other                                       |
++------------+--------------------------------------------------------------------------------------------+
+
+The matrices of a graph ("adjacency()", "degree()", "incidence()",
+"laplacian()", "distance()") are in Transformations to matrix
+representations.
+
+Vertex
+======
+
+Identity and position
+---------------------
+
++------------+--------------------------------------------------------------------------------------------+
+| "name"     | Name of the vertex                                                                         |
++------------+--------------------------------------------------------------------------------------------+
+| "label"    | Number of the graph component that contains the vertex                                     |
++------------+--------------------------------------------------------------------------------------------+
+| "x"        | The x-coordinate of an embedded vertex                                                     |
++------------+--------------------------------------------------------------------------------------------+
+| "y"        | The y-coordinate of an embedded vertex                                                     |
++------------+--------------------------------------------------------------------------------------------+
+| "z"        | The z-coordinate of an embedded vertex                                                     |
++------------+--------------------------------------------------------------------------------------------+
+
+Adjacent vertices
+-----------------
+
++------------+--------------------------------------------------------------------------------------------+
+| "adjacent" | Vertices adjacent to this vertex                                                           |
++------------+--------------------------------------------------------------------------------------------+
+| "isadjacen | Test if a vertex is adjacent to this vertex                                                |
+| t"         |                                                                                            |
++------------+--------------------------------------------------------------------------------------------+
+| "successor | Vertices that this vertex has an edge to                                                   |
+| s"         |                                                                                            |
++------------+--------------------------------------------------------------------------------------------+
+| "predecess | Vertices that have an edge to this vertex                                                  |
+| ors"       |                                                                                            |
++------------+--------------------------------------------------------------------------------------------+
+
+Note:
+
+  "neighbours()" and "neighbors()" are the same method as
+  "adjacent()", and "isneighbour()" and "isneighbor()" the same as
+  "isadjacent()". They are spelling variants, not deprecated.
+
+Incident edges
+--------------
+
++------------+--------------------------------------------------------------------------------------------+
+| "edges"    | The edges at the vertex, in the order they were connected                                  |
++------------+--------------------------------------------------------------------------------------------+
+| "out_edges | The edges leaving the vertex                                                               |
+| "          |                                                                                            |
++------------+--------------------------------------------------------------------------------------------+
+| "in_edges" | The edges entering the vertex                                                              |
++------------+--------------------------------------------------------------------------------------------+
+| "incidence | Adjacent vertices paired with the edges that lead to them                                  |
+| s"         |                                                                                            |
++------------+--------------------------------------------------------------------------------------------+
+| "edgeto"   | The edge from this vertex to an adjacent vertex                                            |
++------------+--------------------------------------------------------------------------------------------+
+| "edges_to" | All the edges from this vertex to another vertex                                           |
++------------+--------------------------------------------------------------------------------------------+
+
+Degree
+------
+
++------------+--------------------------------------------------------------------------------------------+
+| "degree"   | Degree of vertex                                                                           |
++------------+--------------------------------------------------------------------------------------------+
+| "in_degree | Number of edges entering the vertex                                                        |
+| "          |                                                                                            |
++------------+--------------------------------------------------------------------------------------------+
+| "out_degre | Number of edges leaving the vertex                                                         |
+| e"         |                                                                                            |
++------------+--------------------------------------------------------------------------------------------+
+
+Distance
+--------
+
++------------+--------------------------------------------------------------------------------------------+
+| "distance" | Distance from vertex to point                                                              |
++------------+--------------------------------------------------------------------------------------------+
+| "heuristic | Heuristic distance to another vertex                                                       |
+| _distance" |                                                                                            |
++------------+--------------------------------------------------------------------------------------------+
+| "closest"  | Return the closest vertex to this vertex                                                   |
++------------+--------------------------------------------------------------------------------------------+
+
+Edge
+====
+
+An "Edge" is described in full on Edges & Vertices.  The attributes
+and methods used to query one are
+
++------------+--------------------------------------------------------------------------------------------+
+| "v1"       | First vertex of the edge, the start vertex for a directed edge                             |
++------------+--------------------------------------------------------------------------------------------+
+| "v2"       | Second vertex of the edge, the end vertex for a directed edge                              |
++------------+--------------------------------------------------------------------------------------------+
+| "endpoints | The two vertices of this edge                                                              |
+| "          |                                                                                            |
++------------+--------------------------------------------------------------------------------------------+
+| "next"     | Return other end of an edge                                                                |
++------------+--------------------------------------------------------------------------------------------+
+
+and every edge also has "cost" and "data" attributes.
+
+Details
+=======
+
+property Graph.n: int
+
+   Number of vertices
+
+   Returns:
+      Number of vertices
+
+   Return type:
+      int
+
+      >>> from pgraph import UGraph
+      >>> g = UGraph()
+      >>> g.add_vertex(name='v1')
+      Vertex[v1, coord=(?)]
+      >>> g.add_vertex(name='v2')
+      Vertex[v2, coord=(?)]
+      >>> print(g.n)
+      2
+
+property Graph.ne: int
+
+   Number of edges
+
+   Returns:
+      Number of vertices
+
+   Return type:
+      int
+
+      >>> from pgraph import UGraph
+      >>> g = UGraph()
+      >>> v1 = g.add_vertex(name='v1')
+      >>> v2 = g.add_vertex(name='v2')
+      >>> g.add_edge(v1, v2)
+      Edge{[v1] -- [v2], cost=None}
+      >>> print(g.ne)
+      1
+
+property Graph.nc: int
+
+   Number of components
+
+   Returns:
+      Number of components
+
+   Return type:
+      int
+
+   Number of components in the graph. Components are labeled from 0 to
+   "g.nc-1".
+
+   For a directed graph the components are *weakly* connected: the
+   direction of the edges is ignored, so two vertices are in the same
+   component if there is a path between them that may run against the
+   arrows.  A graph with no vertices has no components.
+
+   Changed in version 1.0: Does not hang.  For many directed graphs,
+   the smallest being the 4-cycle, the algorithm of 0.6.5 never
+   finished, which also stopped "component()", "samecomponent()" and
+   "plot()".
+
+      >>> from pgraph import UGraph
+      >>> g = UGraph()
+      >>> v1 = g.add_vertex(name='v1')
+      >>> v2 = g.add_vertex(name='v2')
+      >>> v3 = g.add_vertex(name='v3')
+      >>> g.add_edge(v1, v2)
+      Edge{[v1] -- [v2], cost=None}
+      >>> print(g.nc)
+      2
+
+   Note:
+
+     A lazy approach is used, and if a connectivity changing operation
+     has been performed since the last call, the graph coloring
+     algorithm is run which is potentially expensive for a large
+     graph.
+
+   Seealso:
+      "component()" "samecomponent()"
+
+property Graph.directed: bool
+
+   Test if the graph is directed
+
+   Returns:
+      True for a "DGraph", False for a "UGraph"
+
+   Return type:
+      bool
+
+   An undirected edge is recorded at both of its vertices, and is
+   followed in either direction.  A directed edge is recorded as
+   leaving its start vertex and entering its end vertex.
+
+      >>> from pgraph import Graph
+      >>> Graph().directed
+      False
+      >>> Graph(directed=True).directed
+      True
+
+   Seealso:
+      "UGraph" "DGraph"
+
+Graph.edges()
+
+   All edges in the graph, in the order they were added
+
+   Returns:
+      All edges in the graph
+
+   Return type:
+      list of Edge references
+
+   The edges are in the order they were added to the graph.  This is a
+   new list, so it can be modified or sorted without affecting the
+   graph, and edges can be removed from the graph while iterating over
+   it.
+
+   We can iterate over all edges in the graph by:
+
+      for e in g.edges():
+          print(e)
+
+   and select one by index, for example the second edge added is
+   "g.edges()[1]".
+
+   Note:
+
+     Like "Vertex.edges()" this is a "list", but where that lists the
+     edges attached to one vertex, this lists every edge in the graph
+     once.  A self-loop is one edge here, but appears twice in the
+     "Vertex.edges()" of an undirected vertex because it has two ends
+     there.
+
+   Changed in version 1.0: Returns a "list" in order of addition.  In
+   0.6.5 this was the graph's own "set", with no defined order,
+   although the documentation said "list".
+
+      >>> from pgraph import UGraph
+      >>> g = UGraph()
+      >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+      >>> v2 = g.add_vertex(coord=[1,1], name='v2')
+      >>> g.add_edge(v1, v2)
+      Edge{[v1] -- [v2], cost=1.414}
+      >>> print(g.edges())
+      [Edge{[v1] -- [v2], cost=1.414}]
+
+   Seealso:
+      "Vertex.edges()" "ne"
+
+Graph.iscyclic()
+
+   Test if graph is cyclic
+
+   Returns:
+      true if the graph contains at least one cycle
+
+   Return type:
+      bool
+
+   For an undirected graph this is a simple count: a forest (acyclic)
+   has exactly "n - nc" edges, one per component-connecting edge with
+   no redundancy, so any excess indicates a cycle. This is O(1) given
+   "n()", "ne()" and "nc()", which are already cached.
+
+   For a directed graph this runs Kahn's algorithm: repeatedly remove
+   vertices with no remaining incoming edges. If every vertex can
+   eventually be removed, the graph is a DAG (acyclic); if some are
+   never freed, they form a cycle. This is O(V+E), using vertices'
+   outgoing edges via "Vertex.adjacent()" the same way "path_BFS()"
+   and friends do.
+
+      >>> from pgraph import UGraph
+      >>> g = UGraph()
+      >>> v1 = g.add_vertex(name='v1')
+      >>> v2 = g.add_vertex(name='v2')
+      >>> v3 = g.add_vertex(name='v3')
+      >>> g.add_edge(v1, v2)
+      Edge{[v1] -- [v2], cost=None}
+      >>> g.add_edge(v2, v3)
+      Edge{[v2] -- [v3], cost=None}
+      >>> print(g.iscyclic())
+      False
+      >>> g.add_edge(v3, v1)
+      Edge{[v3] -- [v1], cost=None}
+      >>> print(g.iscyclic())
+      True
+
+   Note:
+
+     A self-loop is a cycle of length one, so it makes either kind of
+     graph cyclic. Two parallel edges between the same pair of
+     vertices are a cycle in an undirected graph, but a repeated arrow
+     in a directed graph is not.
+
+   Note:
+
+     A matrix-based test also exists in theory -- a digraph is acyclic
+     iff its adjacency matrix is nilpotent (all eigenvalues zero) --
+     but that needs an O(N^3) eigendecomposition plus a floating-point
+     zero-tolerance judgement call, to answer a question Kahn's
+     algorithm answers exactly with integers in O(V+E). Not used here
+     for that reason.
+
+   Seealso:
+      "adjacency()"
+
+Graph.component(c)
+
+   All vertices in specified graph component
+
+   Parameters:
+      **c** ("int") -- component index
+
+   Returns:
+      vertices belonging to component "c"
+
+   Return type:
+      list of Vertex subclass
+
+   "graph.component(c)" is a list of all vertices in graph component
+   "c".
+
+      >>> from pgraph import UGraph
+      >>> g = UGraph()
+      >>> v1 = g.add_vertex(name='v1')
+      >>> v2 = g.add_vertex(name='v2')
+      >>> v3 = g.add_vertex(name='v3')
+      >>> g.add_edge(v1, v2);
+      Edge{[v1] -- [v2], cost=None}
+      >>> print(g)
+      UGraph: 3 vertices, 1 edge, 2 components
+      >>> print(g.component(0))
+      [Vertex[v1, coord=(?)], Vertex[v2, coord=(?)]]
+
+   Seealso:
+      "nc" "samecomponent()"
+
+Graph.samecomponent(v1, v2)
+
+   Test if vertices belong to same graph component
+
+   Parameters:
+      * **v1** (*Vertex subclass*) -- vertex
+
+      * **v2** (*Vertex subclass*) -- vertex
+
+   Returns:
+      true if vertices belong to same graph component
+
+   Return type:
+      bool
+
+   Test whether vertices belong to the same component.  A component is
+   a set of vertices that are connected by a path of edges, ignoring
+   their direction, so for a directed graph this does not mean that
+   there is a path from one to the other: "a -> c <- b" is one
+   component, but there is no path from "a" to "b".
+
+      >>> from pgraph import UGraph
+      >>> g = UGraph()
+      >>> v1 = g.add_vertex(name='v1')
+      >>> v2 = g.add_vertex(name='v2')
+      >>> v3 = g.add_vertex(name='v3')
+      >>> g.add_edge(v1, v2)
+      Edge{[v1] -- [v2], cost=None}
+      >>> print(g.samecomponent(v1, v2))
+      True
+      >>> print(g.samecomponent(v1, v3))
+      False
+
+   Seealso:
+      "component()" "nc"
+
+Graph.connectivity(vertices=None)
+
+   Graph connectivity
+
+   Parameters:
+      **vertices** (*iterable** of **Vertex subclass**, **optional*)
+      -- vertices to report connectivity for, defaults to all vertices
+      in the graph
+
+   Returns:
+      a list with the number of edges per vertex
+
+   Return type:
+      list
+
+   This is the "Vertex.degree" of each vertex: the number of edge
+   *ends* at it, which is the number of edges connected to it except
+   that a self-loop has two ends and so counts twice.  For a directed
+   graph it counts the edges entering the vertex as well as those
+   leaving.
+
+   Changed in version 1.0: For a "DGraph" this counted only the edges
+   *leaving* each vertex. Use "[v.out_degree for v in g]" for the
+   previous values.
+
+   The average vertex connectivity is:
+
+      mean(g.connectivity())
+
+   and the minimum vertex connectivity is:
+
+      min(g.connectivity())
+
+      >>> from pgraph import UGraph
+      >>> import numpy as np
+      >>> g = UGraph()
+      >>> for i in range(5):
+      ...     g.add_vertex(np.random.rand(2));
+      Vertex[#0, coord=(0.9513, 0.5805)]
+      Vertex[#1, coord=(0.8555, 0.3054)]
+      Vertex[#2, coord=(0.2534, 0.5671)]
+      Vertex[#3, coord=(0.7833, 0.5987)]
+      Vertex[#4, coord=(0.226, 0.2736)]
+      >>> for i, j in [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (3, 4)]:
+      ...     g.add_edge(g[i], g[j]);
+      Edge{[#0] -- [#1], cost=0.2913}
+      Edge{[#0] -- [#2], cost=0.6979}
+      Edge{[#0] -- [#3], cost=0.1689}
+      Edge{[#1] -- [#2], cost=0.6565}
+      Edge{[#1] -- [#3], cost=0.3021}
+      Edge{[#3] -- [#4], cost=0.6452}
+      >>> c = g.connectivity()
+      >>> print(c)
+      [3, 3, 2, 3, 1]
+
+   Note:
+
+     This is the diagonal of "degree()".  Parallel edges are counted
+     individually.
+
+   Seealso:
+      "degree()" "average_degree()" "Vertex.degree"
+
+Graph.average_degree()
+
+   Average degree of the graph
+
+   Returns:
+      average degree
+
+   Return type:
+      float
+
+   Average degree is 2 E / N where E is the total number of edges and
+   N is the number of vertices, for an undirected or a directed graph.
+   It is the mean of "Vertex.degree", and every edge has two ends, so
+   the degrees sum to 2 E.
+
+   Parallel edges and self-loops are each counted as one edge in E; a
+   self-loop contributes 2 to the degree sum.
+
+   Changed in version 1.0: For a "DGraph" this was E / N, the mean
+   *out*-degree (which equals the mean in-degree).  It is now 2 E / N,
+   the mean of the degree, which is twice the old value.  Use "g.ne /
+   g.n" for the previous number.
+
+      >>> from pgraph import UGraph
+      >>> g = UGraph()
+      >>> v1 = g.add_vertex(name='v1')
+      >>> v2 = g.add_vertex(name='v2')
+      >>> v3 = g.add_vertex(name='v3')
+      >>> g.add_edge(v1, v2);
+      Edge{[v1] -- [v2], cost=None}
+      >>> g.add_edge(v2, v3);
+      Edge{[v2] -- [v3], cost=None}
+      >>> print(g.average_degree())
+      1.3333333333333333
+
+   Seealso:
+      "degree()" "connectivity()" "Vertex.degree"
+
+Graph.coordinates()
+
+   Coordinates of all the vertices as a matrix
+
+   Returns:
+      coordinates, one column per vertex in the order they were added
+
+   Return type:
+      ndarray(dim, n)
+
+   Raises:
+      **ValueError** -- the coordinates of two vertices differ in
+      length
+
+   Column "i" is the coordinate of "g[i]", the same order as the rows
+   and columns of "adjacency()".  A vertex that has no coordinate has
+   a column of NaN, so the matrix always has one column per vertex.
+   The number of rows is "dim" if the graph was given one, otherwise
+   the length of the first coordinate, and 0 if no vertex has one.
+   Elements are float.
+
+   The result is a *view* of a new array that has one row per vertex,
+   so the coordinate of each vertex is contiguous in memory and "C[:,
+   i]" is a contiguous slice, while a row such as "C[0]" is strided.
+   Use "numpy.ascontiguousarray()" if you need the rows to be
+   contiguous.
+
+   Note:
+
+     This is a snapshot, made each time: changing it does not move the
+     vertices, and moving a vertex does not change a matrix that was
+     already returned.
+
+   With NumPy this selects vertices in a single operation, as
+   "within()" and "near()" do, or it can be given to a spatial index
+   of your own.
+
+      >>> from pgraph import UGraph
+      >>> g = UGraph()
+      >>> for i in range(3):
+      ...     g.add_vertex(coord=[i, 10 * i])
+      Vertex[#0, coord=(0, 0)]
+      Vertex[#1, coord=(1, 10)]
+      Vertex[#2, coord=(2, 20)]
+      >>> g.coordinates()
+      array([[ 0.,  1.,  2.],
+             [ 0., 10., 20.]])
+
+   Seealso:
+      "within()" "near()" "closest()" "adjacency()"
+
+Graph.closest(coord)
+
+   Vertex closest to point
+
+   Parameters:
+      **coord** (*ndarray**(**n**)*) -- coordinates of a point
+
+   Returns:
+      closest vertex and its distance, or "(None, inf)" if no vertex
+      in the graph has a coordinate
+
+   Return type:
+      Vertex subclass or None, float
+
+   Returns the vertex closest to the given point. Distance is computed
+   according to the graph's metric. Vertices without a coordinate
+   ("coord" is None) are skipped -- they have no position to compare.
+
+   This is a pass over the vertices, unless a spatial index has been
+   built with "build_kdtree()" and is still valid.
+
+      >>> from pgraph import UGraph
+      >>> g = UGraph()
+      >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+      >>> v2 = g.add_vertex(coord=[10,10], name='v2')
+      >>> vertex, d = g.closest([1, 1])
+      >>> print(vertex, d)
+      [v1] 1.4142135623730951
+
+   Seealso:
+      "metric()" "near()" "build_kdtree()"
+
+Graph.near(coord, radius)
+
+   Vertices within a distance of a point
+
+   Parameters:
+      * **coord** (*ndarray**(**n**)*) -- coordinates of a point
+
+      * **radius** ("float") -- greatest distance, inclusive
+
+   Raises:
+      **ValueError** -- "radius" is negative
+
+   Returns:
+      the vertices within "radius" of the point with their distances,
+      nearest first
+
+   Return type:
+      list of (Vertex subclass, float)
+
+   Distance is computed according to the graph's metric, as it is by
+   "closest()", of which this is the generalization to every vertex
+   within a radius.  Vertices without a coordinate are skipped, and
+   vertices at equal distance are in the order of the graph.
+
+   For the built-in metrics the distance to every vertex is found in
+   one operation on "coordinates()", or by the spatial index if
+   "build_kdtree()" was called; a metric of your own is applied to
+   each vertex in turn.
+
+      >>> from pgraph import UGraph
+      >>> g = UGraph()
+      >>> for i in range(5):
+      ...     g.add_vertex(coord=[i, 0], name=f"v{i}")
+      Vertex[v0, coord=(0, 0)]
+      Vertex[v1, coord=(1, 0)]
+      Vertex[v2, coord=(2, 0)]
+      Vertex[v3, coord=(3, 0)]
+      Vertex[v4, coord=(4, 0)]
+      >>> [(v.name, d) for v, d in g.near([2.2, 0], 1.5)]
+      [('v2', 0.20000000000000018), ('v3', 0.7999999999999998), ('v1', 1.2000000000000002)]
+
+   Seealso:
+      "closest()" "within()" "metric()" "build_kdtree()"
+
+Graph.within(box)
+
+   Vertices inside a box
+
+   Parameters:
+      **box** (*ndarray**(**2**,**n**)*) -- lower and upper corners of
+      the box
+
+   Raises:
+      **ValueError** -- "box" is not 2 x n, its upper corner is below
+      its lower corner in some dimension, or the coordinates of the
+      vertices do not have n elements
+
+   Returns:
+      the vertices inside the box, in the order of the graph
+
+   Return type:
+      list of Vertex subclass
+
+   The first row of "box" is the lower corner, the second row the
+   upper corner, so in two dimensions it is "[[xmin, ymin], [xmax,
+   ymax]]". The box is closed: a vertex on its boundary is inside.
+   Vertices without a coordinate are skipped, as they are by
+   "closest()".
+
+   The test is made for all the vertices at once on "coordinates()".
+   Together with "subgraph()" it selects the part of an embedded graph
+   in a region
+
+      >>> from pgraph import UGraph
+      >>> g = UGraph()
+      >>> for i in range(5):
+      ...     g.add_vertex(coord=[i, i], name=f"v{i}")
+      Vertex[v0, coord=(0, 0)]
+      Vertex[v1, coord=(1, 1)]
+      Vertex[v2, coord=(2, 2)]
+      Vertex[v3, coord=(3, 3)]
+      Vertex[v4, coord=(4, 4)]
+      >>> g.within([[1, 1], [3, 3]])
+      [Vertex[v1, coord=(1, 1)], Vertex[v2, coord=(2, 2)], Vertex[v3, coord=(3, 3)]]
+      >>> g.subgraph(g.within([[1, 1], [3, 3]]))
+      UGraph:
+        v1 at [1 1] component=0
+        v2 at [2 2] component=1
+        v3 at [3 3] component=2
+
+   Seealso:
+      "near()" "closest()" "subgraph()" "coordinates()"
+
+Graph.build_kdtree()
+
+   Build a spatial index of the vertices, used by "closest()" and
+   "near()"
+
+   Raises:
+      * **ValueError** -- the metric is not one of the built-in
+        ""L1"", ""L2"" or ""SE2"", or ""SE2"" and the coordinates are
+        not 3 elements, or no vertex has a coordinate
+
+      * **ImportError** -- scipy is not installed
+
+   Finding the nearest vertex to a point is a pass over all the
+   vertices, which is the cost of a query on a large graph that is
+   queried often.  A k-d tree answers in a time that grows more
+   slowly, at the cost of building it once.  "closest()" and "near()"
+   use the index if it has been built, and fall back to the pass over
+   the vertices if it has not or if the graph has changed.
+
+   The index is for the built-in metrics ""L1"", ""L2"" and ""SE2""
+   (with any weight, see "SE2Metric"), and results are the same as
+   without it, except that when two vertices are exactly the same
+   distance the one returned may differ.
+
+   Warning:
+
+     The index is dropped when a vertex is added or removed or when
+     "vertex.coord" is assigned (including "+="), and "closest()" is
+     then correct but slow, until it is built again. It cannot see a
+     coordinate that is changed in place, "vertex.coord[0] = x".  Do
+     not change vertices in place after building, or build again.
+
+   The index is not copied or pickled with the graph.
+
+   Note:
+
+     This needs scipy.  pgraph does not list it as a dependency and
+     imports it only when this method is called, but *spatialmath-
+     python*, which pgraph does depend on, installs it.
+
+   Seealso:
+      "closest()" "near()" "coordinates()"
+
+   Return type:
+      "None"
+
+Graph.subgraph(vertices)
+
+   Subgraph induced by a set of vertices
+
+   Parameters:
+      **vertices** (*iterable** of **Vertex subclass** or **str**, or
+      **ndarray**(**n**) of **bool*) -- vertices of this graph, or
+      their names, or a boolean mask with one element per vertex
+
+   Raises:
+      * **ValueError** -- a vertex is not in this graph, or a mask is
+        not the length of the number of vertices
+
+      * **KeyError** -- a name is not that of a vertex in this graph
+
+      * **TypeError** -- an item is neither a vertex nor a string
+
+   Returns:
+      a new graph of the same kind
+
+   Return type:
+      Graph
+
+   The new graph has the given vertices and every edge of this graph
+   that has *both* its end vertices among them.  An edge that has one
+   end outside is removed, so the edges that cross the border of a
+   region are dropped.  Parallel edges and loops are kept.
+
+   Like "copy()" the new graph is independent of this one: its
+   vertices and edges are new objects that keep their class, name,
+   coordinate, cost and any attributes that were added, and the graph
+   keeps its metric, heuristic and vertex and edge classes.  They are
+   in the order of this graph, however "vertices" was ordered.  Names
+   are kept, so the vertex "g[name]" has its counterpart "h[name]".
+
+      >>> from pgraph import UGraph
+      >>> g = UGraph()
+      >>> v = [g.add_vertex(coord=[i, 0], name=f"v{i}") for i in range(4)]
+      >>> for i in range(3):
+      ...     g.add_edge(v[i], v[i + 1])
+      Edge{[v0] -- [v1], cost=1}
+      Edge{[v1] -- [v2], cost=1}
+      Edge{[v2] -- [v3], cost=1}
+      >>> h = g.subgraph([v[1], v[2]])
+      >>> print(h)
+      UGraph: 2 vertices, 1 edge, 1 component
+      >>> h.edges()
+      [Edge{[v1] -- [v2], cost=1}]
+
+   It is a single pass over the graph.  The vertices might be a
+   component, the vertices that satisfy a test, or those in a region
+   of an embedded graph from "within()".
+
+   A boolean mask, such as the result of a comparison on
+   "coordinates()", selects the vertices by their position in the
+   graph, the "True" elements being kept:
+
+      h = g.subgraph(g.coordinates()[0] > 0)   # the vertices with x > 0
+
+   The mask must be of boolean type (a list of "bool" also works) and
+   of length "g.n".  A vector of 0 and 1 of integer type is not
+   accepted, since it could as well be a list of indices.
+
+   Seealso:
+      "copy()" "within()" "component()"
+
+Graph.validate(embedded=False)
+
+   Check that the graph's records agree with each other
+
+   Parameters:
+      **embedded** ("bool") -- also report a vertex that has no
+      coordinate, defaults to False
+
+   Returns:
+      a description of each inconsistency found, empty if the graph is
+      consistent
+
+   Return type:
+      list of str
+
+   A graph keeps the same facts in several places: its set of edges,
+   each vertex's list of outgoing edges (and, for a directed graph, of
+   incoming ones), each edge's two vertices, each vertex's pointer
+   back to its graph, and the table of vertex names.  The library
+   keeps them in step, so a graph built and edited through the public
+   methods is always valid.  This is a check for tests, for debugging,
+   and for code that reaches into the internals.
+
+   It does not change the graph, and takes time proportional to the
+   number of vertices plus edges.  It reports every inconsistency, not
+   only the first.
+
+   The checks are:
+
+   * the vertex list holds only vertices, once each, and the edge set
+     holds only edges
+
+   * every edge in the graph has two vertices, both in this graph, and
+     is an instance of "edge_class"
+
+   * every vertex points back at this graph, is an instance of
+     "vertex_class", is in the name table under its own name, and has
+     a coordinate of the required length if "dim" was given
+
+   * every coordinate is a finite one-dimensional numeric vector, and
+     if "dim" was not given they all have the same length
+
+   * with "embedded=True", every vertex has a coordinate.  A graph
+     with no coordinates is valid, but one that is half embedded
+     rarely is
+
+   * every entry of the name table is a vertex of this graph and is
+     filed under its own name
+
+   * each edge is in the right vertex lists, the right number of
+     times: both ends for an undirected edge (twice at one vertex for
+     a self-loop), the source's outgoing and the target's incoming
+     list for a directed edge
+
+   * no vertex list holds an edge that is not in the graph
+
+      >>> from pgraph import UGraph
+      >>> g = UGraph()
+      >>> v1 = g.add_vertex(name='v1')
+      >>> v2 = g.add_vertex(name='v2')
+      >>> g.add_edge(v1, v2)
+      Edge{[v1] -- [v2], cost=None}
+      >>> print(g.validate())
+      []
+
+   Seealso:
+      "remove_edge()" "remove_vertex()"
+
+property Vertex.name: str | None
+
+   Name of the vertex
+
+   Returns:
+      the name
+
+   Return type:
+      str or None
+
+   The name is the vertex's key in its graph: "g[name]" and "name in
+   g" look it up.  A vertex that is not in a graph can be given any
+   name, or none.  For one that is in a graph:
+
+   * assigning a new name updates the graph's name table, so the
+     vertex is then found under the new name and not the old
+
+   * a name already used by another vertex in the graph raises
+     "ValueError" and changes nothing
+
+   * the name cannot be cleared
+
+   Changed in version 1.0: Renaming a vertex in a graph used to leave
+   the graph's name table stale, so lookups by the new name failed.
+
+   Seealso:
+      "Graph.add_vertex()"
+
+property Vertex.label: int | None
+
+   Number of the graph component that contains the vertex
+
+   Returns:
+      component number, counted from 0, or None if the vertex is not
+      in a graph
+
+   Return type:
+      int or None
+
+   Assigned by the graph, which finds its components when this is read
+   after the graph has changed, as it does for "Graph.nc",
+   "Graph.component()" and "Graph.samecomponent()".  The numbering is
+   by the first vertex of each component, in the order the vertices
+   were added.  It is read-only.
+
+   Changed in version 1.0: Read-only.  It was a plain attribute, but
+   it is computed from the graph's structure and meaningless to
+   assign.  Reading it finds the components; in 0.6.5 it was "None"
+   until something else had.
+
+   Seealso:
+      "Graph.nc" "Graph.component()"
+
+property Vertex.x: float
+
+   The x-coordinate of an embedded vertex
+
+   Raises:
+      **ValueError** -- the vertex has no coordinate
+
+   Returns:
+      The x-coordinate
+
+   Return type:
+      float
+
+      >>> from pgraph import Vertex
+      >>> v = Vertex(coord=[1,2], name='v1')
+      >>> print(v.x)
+      1
+
+property Vertex.y: float
+
+   The y-coordinate of an embedded vertex
+
+   Raises:
+      **ValueError** -- the vertex has no coordinate
+
+   Returns:
+      The y-coordinate
+
+   Return type:
+      float
+
+      >>> from pgraph import Vertex
+      >>> v = Vertex(coord=[1,2], name='v1')
+      >>> print(v.y)
+      2
+
+property Vertex.z: float
+
+   The z-coordinate of an embedded vertex
+
+   Raises:
+      **ValueError** -- the vertex has no coordinate
+
+   Returns:
+      The z-coordinate
+
+   Return type:
+      float
+
+      >>> from pgraph import Vertex
+      >>> v = Vertex(coord=[1,2,3], name='v1')
+      >>> print(v.z)
+      3
+
+Vertex.adjacent()
+
+   Vertices adjacent to this vertex
+
+   Returns:
+      the vertices at the far end of this vertex's edges
+
+   Return type:
+      list of Vertex subclass
+
+   "v.adjacent()" is a list of the vertices that this vertex is joined
+   to by an edge.  "Adjacent" is the graph-theory term, and it is the
+   relation that "Graph.adjacency()" tabulates: row "i" of the
+   adjacency matrix is non-zero exactly at the columns of the vertices
+   returned by "g[i].adjacent()".
+
+   Note:
+
+     * For a directed graph these are the vertices at the head of the
+       edges leaving this vertex, the *successors*.
+
+     * There is one entry per edge, so a vertex joined by "k" parallel
+       edges appears "k" times.  In an undirected graph a self-loop
+       lists the vertex itself twice, once for each end.
+
+     * "neighbours" and "neighbors" are aliases, the same method under
+       the British and American spellings, and are not deprecated.
+
+      >>> from pgraph import UGraph
+      >>> g = UGraph()
+      >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+      >>> v2 = g.add_vertex(coord=[1,1], name='v2')
+      >>> v3 = g.add_vertex(coord=[2,2], name='v3')
+      >>> g.add_edge(v1, v2)
+      Edge{[v1] -- [v2], cost=1.414}
+      >>> g.add_edge(v1, v3)
+      Edge{[v1] -- [v3], cost=2.828}
+      >>> print(v1.adjacent())
+      [Vertex[v2, coord=(1, 1)], Vertex[v3, coord=(2, 2)]]
+
+   Seealso:
+      "isadjacent()" "successors()" "predecessors()" "incidences()"
+      "out_edges()" "edges()" "Graph.adjacency()"
+
+Vertex.isadjacent(vertex)
+
+   Test if a vertex is adjacent to this vertex
+
+   Parameters:
+      **vertex** (*Vertex subclass*) -- vertex reference
+
+   Returns:
+      true if "vertex" is adjacent
+
+   Return type:
+      bool
+
+   For a directed graph this is true only if there is an edge from
+   "self" to "vertex".
+
+   "isneighbour" and "isneighbor" are aliases.
+
+      >>> from pgraph import UGraph
+      >>> g = UGraph()
+      >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+      >>> v2 = g.add_vertex(coord=[1,1], name='v2')
+      >>> v3 = g.add_vertex(coord=[2,2], name='v3')
+      >>> g.add_edge(v1, v2)
+      Edge{[v1] -- [v2], cost=1.414}
+      >>> print(v1.isadjacent(v2))
+      True
+      >>> print(v1.isadjacent(v3))
+      False
+
+   Seealso:
+      "adjacent()"
+
+Vertex.successors()
+
+   Vertices that this vertex has an edge to
+
+   Returns:
+      the vertices at the head of the outgoing edges
+
+   Return type:
+      list of Vertex subclass
+
+   This is "adjacent()", under its directed-graph name.
+
+   Seealso:
+      "predecessors()" "adjacent()" "incidences()" "out_edges()"
+
+Vertex.predecessors()
+
+   Vertices that have an edge to this vertex
+
+   Returns:
+      the vertices at the tail of the incoming edges
+
+   Return type:
+      list of Vertex subclass
+
+   There is one entry per edge, so a vertex joined by "k" parallel
+   edges appears "k" times.  For an undirected graph this is
+   "adjacent()".
+
+      >>> from pgraph import DGraph
+      >>> g = DGraph()
+      >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+      >>> v2 = g.add_vertex(coord=[1,1], name='v2')
+      >>> v3 = g.add_vertex(coord=[2,2], name='v3')
+      >>> g.add_edge(v1, v3)
+      Edge{[v1] -> [v3], cost=2.828}
+      >>> g.add_edge(v2, v3)
+      Edge{[v2] -> [v3], cost=1.414}
+      >>> print(v3.predecessors())
+      [Vertex[v1, coord=(0, 0)], Vertex[v2, coord=(1, 1)]]
+
+   Seealso:
+      "successors()" "adjacent()" "in_edges()" "in_degree"
+
+Vertex.edges()
+
+   The edges at the vertex, in the order they were connected
+
+   Returns:
+      the edges at this vertex
+
+   Return type:
+      list of "Edge"
+
+   For a directed graph these are the edges leaving this vertex.  For
+   an undirected graph they are the edges incident on it, whichever
+   end it is.  A self-loop in an undirected graph is listed twice,
+   once for each end.
+
+   The list is a new one on every call, in the order the edges were
+   connected, so changing it does not change the graph, and edges can
+   be removed from the graph while iterating over it.  Use
+   "Graph.remove_edge()" to remove one.
+
+      >>> from pgraph import UGraph
+      >>> g = UGraph()
+      >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+      >>> v2 = g.add_vertex(coord=[1,1], name='v2')
+      >>> g.add_edge(v1, v2)
+      Edge{[v1] -- [v2], cost=1.414}
+      >>> print(v1.edges())
+      [Edge{[v1] -- [v2], cost=1.414}]
+
+   Seealso:
+      "out_edges()" "in_edges()" "adjacent()" "incidences()"
+      "edges_to()" "degree" "Graph.edges()"
+
+Vertex.out_edges()
+
+   The edges leaving the vertex
+
+   Returns:
+      the outgoing edges, in the order they were connected
+
+   Return type:
+      list of "Edge"
+
+   This is a new list, and is the same as "edges()": for an undirected
+   graph every incident edge is outgoing.
+
+   Seealso:
+      "in_edges()" "edges()" "adjacent()" "successors()"
+      "incidences()" "edges_to()" "out_degree"
+
+Vertex.in_edges()
+
+   The edges entering the vertex
+
+   Returns:
+      the incoming edges, in the order they were connected
+
+   Return type:
+      list of "Edge"
+
+   This is a new list.  For an undirected graph every incident edge is
+   incoming, so it equals "edges()".
+
+   Seealso:
+      "out_edges()" "edges()" "predecessors()" "in_degree"
+
+Vertex.incidences()
+
+   Adjacent vertices paired with the edges that lead to them
+
+   Returns:
+      a "(vertex, edge)" pair for each edge leaving this vertex, in
+      the order the edges were connected
+
+   Return type:
+      list of (Vertex subclass, Edge)
+
+   "v.incidences()" is "adjacent()" and "out_edges()" taken together:
+   the first element of each pair is the vertex at the far end of the
+   edge, the second is the edge itself, so its "Edge.cost" and
+   "Edge.data" are at hand.  It is equivalent to:
+
+      list(zip(v.adjacent(), v.out_edges()))
+
+   but is built in a single pass, which is what the path-planning
+   methods want when they expand a vertex.
+
+   Note:
+
+     * In graph-theory terms "adjacent()" is a vertex's *adjacency
+       list*, "out_edges()" its *incidence list*, and this is the two
+       joined.
+
+     * For a directed graph the pairs are for the edges *leaving* this
+       vertex.  The ones entering it are "in_edges()", and the
+       vertices at their tails are "predecessors()".
+
+     * There is one pair per edge, so parallel edges to the same
+       vertex give repeated vertices with different edges, and an
+       undirected self-loop gives the pair twice, once for each end.
+
+      >>> from pgraph import UGraph
+      >>> g = UGraph()
+      >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+      >>> v2 = g.add_vertex(coord=[1,1], name='v2')
+      >>> v3 = g.add_vertex(coord=[2,2], name='v3')
+      >>> g.add_edge(v1, v2, cost=1.5)
+      Edge{[v1] -- [v2], cost=1.5}
+      >>> g.add_edge(v1, v3, cost=2.5)
+      Edge{[v1] -- [v3], cost=2.5}
+      >>> for vertex, edge in v1.incidences():
+      ...     print(vertex.name, edge.cost)
+      v2 1.5
+      v3 2.5
+
+   Seealso:
+      "adjacent()" "isadjacent()" "successors()" "out_edges()"
+      "in_edges()" "predecessors()" "edgeto()" "edges_to()" "edges()"
+      "edgeto()" "degree" "Graph.adjacency()"
+
+Vertex.edgeto(dest)
+
+   The edge from this vertex to an adjacent vertex
+
+   Parameters:
+      **dest** ("Vertex" subclass) -- an adjacent vertex
+
+   Raises:
+      **ValueError** -- "dest" is not adjacent to this vertex
+
+   Returns:
+      the edge from this vertex to "dest"
+
+   Return type:
+      Edge
+
+   Note:
+
+     * For a directed graph "dest" must be at the arrow end of the
+       edge
+
+     * If there are parallel edges to "dest" the cheapest is returned
+       (the first, if none of them has a cost)
+
+      >>> from pgraph import UGraph
+      >>> g = UGraph()
+      >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+      >>> v2 = g.add_vertex(coord=[1,1], name='v2')
+      >>> g.add_edge(v1, v2, cost=1.414)
+      Edge{[v1] -- [v2], cost=1.414}
+      >>> print(v1.edgeto(v2))
+      Edge{[v1] -- [v2], cost=1.414}
+
+   Seealso:
+      "edges_to()" "incidences()" "adjacent()"
+
+Vertex.edges_to(dest)
+
+   All the edges from this vertex to another vertex
+
+   Parameters:
+      **dest** ("Vertex" subclass) -- the vertex at the far end
+
+   Returns:
+      every edge from this vertex to "dest", in the order they were
+      connected, which is empty if there are none
+
+   Return type:
+      list of Edge
+
+   This is how to see parallel edges.  "edgeto()" returns the one edge
+   that a path would use, the cheapest, whereas this returns them all.
+
+   Note:
+
+     * For a directed graph only the edges leaving this vertex for
+       "dest" are included, so "a.edges_to(b)" and "b.edges_to(a)" are
+       different lists
+
+     * For an undirected graph the edges are found from either end,
+       whichever vertex they were connected from
+
+     * A self-loop is listed once, although its vertex holds it twice
+       (see "edges()")
+
+     * Unlike "edgeto()", there being no edge is not an error, the
+       list is empty
+
+     * The list is a new one, so changing it does not change the graph
+
+      >>> from pgraph import UGraph
+      >>> g = UGraph()
+      >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+      >>> v2 = g.add_vertex(coord=[1,1], name='v2')
+      >>> g.add_edge(v1, v2, cost=3)
+      Edge{[v1] -- [v2], cost=3}
+      >>> g.add_edge(v1, v2, cost=1)
+      Edge{[v1] -- [v2], cost=1}
+      >>> print(v1.edges_to(v2))
+      [Edge{[v1] -- [v2], cost=3}, Edge{[v1] -- [v2], cost=1}]
+      >>> print(v1.edgeto(v2))
+      Edge{[v1] -- [v2], cost=1}
+
+   Seealso:
+      "edgeto()" "edges()" "out_edges()" "incidences()" "adjacent()"
+
+property Vertex.degree: int
+
+   Degree of vertex
+
+   Returns:
+      degree of the vertex
+
+   Return type:
+      int
+
+   The number of edge ends at this vertex: the edges leaving it plus
+   the edges entering it, so a self-loop counts twice.  The degrees of
+   all the vertices of a graph sum to twice its number of edges.
+
+   For an undirected graph this is the number of incident edges.  For
+   a directed graph it is "in_degree" + "out_degree".
+
+   Changed in version 1.0: For a "DGraph" this used to count only the
+   edges *leaving* the vertex.  It is now the graph-theory degree, in
+   plus out.  Use "out_degree" for the previous value.
+
+      >>> from pgraph import DGraph
+      >>> g = DGraph()
+      >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+      >>> v2 = g.add_vertex(coord=[1,1], name='v2')
+      >>> v3 = g.add_vertex(coord=[2,2], name='v3')
+      >>> g.add_edge(v1, v2)
+      Edge{[v1] -> [v2], cost=1.414}
+      >>> g.add_edge(v1, v3)
+      Edge{[v1] -> [v3], cost=2.828}
+      >>> g.add_edge(v3, v1)
+      Edge{[v3] -> [v1], cost=2.828}
+      >>> print(v1.degree, v1.in_degree, v1.out_degree)
+      3 1 2
+
+   -[ For graphs with parallel edges or loops ]-
+
+   Every edge is counted, so "k" parallel edges to the same vertex add
+   "k".  A self-loop adds 2, for both kinds of graph: it has two ends.
+
+   Seealso:
+      "in_degree" "out_degree" "edges()" "Graph.degree()"
+      "Graph.connectivity()"
+
+property Vertex.in_degree: int
+
+   Number of edges entering the vertex
+
+   Returns:
+      in-degree of the vertex
+
+   Return type:
+      int
+
+   For an undirected graph every incident edge both leaves and enters,
+   so this equals "degree".
+
+   Seealso:
+      "out_degree" "degree" "in_edges()"
+
+property Vertex.out_degree: int
+
+   Number of edges leaving the vertex
+
+   Returns:
+      out-degree of the vertex
+
+   Return type:
+      int
+
+   For an undirected graph every incident edge both leaves and enters,
+   so this equals "degree".
+
+   Seealso:
+      "in_degree" "degree" "out_edges()"
+
+Vertex.distance(coord)
+
+   Distance from vertex to point
+
+   Parameters:
+      **coord** (*ndarray**(**n**) or **Vertex*) -- coordinates of the
+      point
+
+   Returns:
+      distance
+
+   Return type:
+      float
+
+   Distance is computed according to the graph's metric. The vertex
+   must belong to a graph, since the metric is a property of the
+   graph, not the vertex.
+
+      >>> from pgraph import UGraph
+      >>> g = UGraph()
+      >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+      >>> v2 = g.add_vertex(coord=[3,4], name='v2')
+      >>> print(v1.distance(v2))
+      5.0
+
+   Seealso:
+      "Graph.metric"
+
+Vertex.heuristic_distance(v2)
+
+   Heuristic distance to another vertex
+
+   Parameters:
+      **v2** (*Vertex subclass*) -- the other vertex
+
+   Returns:
+      heuristic distance between this vertex and "v2"
+
+   Return type:
+      float
+
+   Distance is computed according to the graph's heuristic, see
+   "Graph.heuristic()". The vertex must belong to a graph, since the
+   heuristic is a property of the graph, not the vertex.
+
+      >>> from pgraph import UGraph
+      >>> g = UGraph()
+      >>> v1 = g.add_vertex(coord=[1, 2], name='v1')
+      >>> v2 = g.add_vertex(coord=[4, 3], name='v2')
+      >>> print(v1.heuristic_distance(v2))
+      3.1622776601683795
+
+   Seealso:
+      "distance()" "Graph.heuristic()"
+
+Vertex.closest()
+
+   Return the closest vertex to this vertex
+
+   Returns:
+      closest vertex and its distance
+
+   Return type:
+      Vertex subclass or None, float
+
+   Equivalent to "self._graph.closest(self.coord)". The vertex must
+   belong to a graph, since "closest()" searches that graph's other
+   vertices.
+
+      >>> from pgraph import UGraph
+      >>> g = UGraph()
+      >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+      >>> v2 = g.add_vertex(coord=[1,1], name='v2')
+      >>> v3 = g.add_vertex(coord=[2,3], name='v3')
+      >>> v4 = g.add_vertex(coord=[4,3], name='v4')
+      >>> print(v1.closest())
+      (Vertex[v1, coord=(0, 0)], 0.0)
+
+   Seealso:
+      "Graph.closest()"
+
+========================================================================
+Page: https://petercorke.github.io/pgraph-python/representations.html
+========================================================================
+
+Transformations to matrix representations
+*****************************************
+
+These methods convert the graph to a number of different matrix
+representations.
+
++------------+--------------------------------------------------------------------------------------------+
+| "distance" | Convert graph to a distance matrix                                                         |
++------------+--------------------------------------------------------------------------------------------+
+| "adjacency | Convert graph to an adjacency matrix                                                       |
+| "          |                                                                                            |
++------------+--------------------------------------------------------------------------------------------+
+| "degree"   | Convert graph to a degree matrix                                                           |
++------------+--------------------------------------------------------------------------------------------+
+| "incidence | Convert graph to an incidence matrix                                                       |
+| "          |                                                                                            |
++------------+--------------------------------------------------------------------------------------------+
+| "laplacian | Convert graph to a Laplacian matrix                                                        |
+| "          |                                                                                            |
++------------+--------------------------------------------------------------------------------------------+
+
+Details
+=======
+
+Graph.distance()
+
+   Convert graph to a distance matrix
+
+   Returns:
+      distance matrix
+
+   Return type:
+      ndarray(n,n)
+
+   The elements of the distance matrix "D[i,j]" is the edge cost of
+   moving from vertex "i" to vertex "j". It is zero if the vertices
+   are not connected.
+
+      >>> from pgraph import UGraph
+      >>> import numpy as np
+      >>> g = UGraph()
+      >>> for i in range(5):
+      ...     g.add_vertex(np.random.rand(2));
+      Vertex[#0, coord=(0.7917, 0.5289)]
+      Vertex[#1, coord=(0.568, 0.9256)]
+      Vertex[#2, coord=(0.07104, 0.08713)]
+      Vertex[#3, coord=(0.02022, 0.8326)]
+      Vertex[#4, coord=(0.7782, 0.87)]
+      >>> for i, j in [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (3, 4)]:
+      ...     g.add_edge(g[i], g[j]);
+      Edge{[#0] -- [#1], cost=0.4554}
+      Edge{[#0] -- [#2], cost=0.8453}
+      Edge{[#0] -- [#3], cost=0.8291}
+      Edge{[#1] -- [#2], cost=0.9747}
+      Edge{[#1] -- [#3], cost=0.5557}
+      Edge{[#3] -- [#4], cost=0.7589}
+      >>> d = g.distance()
+      >>> print(d)
+      [[0.         0.45541762 0.84531028 0.82913891 0.        ]
+       [0.45541762 0.         0.97470248 0.55566014 0.        ]
+       [0.84531028 0.97470248 0.         0.         0.        ]
+       [0.82913891 0.55566014 0.         0.         0.75886015]
+       [0.         0.         0.         0.75886015 0.        ]]
+
+   -[ For graphs with parallel edges or loops ]-
+
+   If there are parallel edges the element is the cost of the
+   *cheapest* of them. A self-loop gives a non-zero diagonal element
+   equal to its cost.
+
+   Seealso:
+      "Vertex.distance()"
+
+Graph.adjacency()
+
+   Convert graph to an adjacency matrix
+
+   Returns:
+      adjacency matrix
+
+   Return type:
+      ndarray(N,N)
+
+   The elements of the adjacency matrix "[i,j]" are 1 if vertex "i" is
+   connected to vertex "j", else 0.
+
+      >>> from pgraph import UGraph
+      >>> import numpy as np
+      >>> g = UGraph()
+      >>> for i in range(5):
+      ...     g.add_vertex(np.random.rand(2));
+      Vertex[#0, coord=(0.9786, 0.7992)]
+      Vertex[#1, coord=(0.4615, 0.7805)]
+      Vertex[#2, coord=(0.1183, 0.6399)]
+      Vertex[#3, coord=(0.1434, 0.9447)]
+      Vertex[#4, coord=(0.5218, 0.4147)]
+      >>> for i, j in [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (3, 4)]:
+      ...     g.add_edge(g[i], g[j]);
+      Edge{[#0] -- [#1], cost=0.5175}
+      Edge{[#0] -- [#2], cost=0.875}
+      Edge{[#0] -- [#3], cost=0.8478}
+      Edge{[#1] -- [#2], cost=0.3709}
+      Edge{[#1] -- [#3], cost=0.358}
+      Edge{[#3] -- [#4], cost=0.6513}
+      >>> A = g.adjacency()
+      >>> print(A)
+      [[0. 1. 1. 1. 0.]
+       [1. 0. 1. 1. 0.]
+       [1. 1. 0. 0. 0.]
+       [1. 1. 0. 0. 1.]
+       [0. 0. 0. 1. 0.]]
+
+   Note:
+
+     * vertices are numbered in their order of creation. A vertex
+       index can be resolved to a vertex reference by "graph[i]".
+
+     * for an undirected graph the matrix is symmetric
+
+     * Eigenvalues of "A" are real and are known as the spectrum of
+       the graph.
+
+     * The element "A[i,j]" is the number of walks of length one from
+       vertex "i" to vertex "j", which is the number of edges between
+       them (zero or one for a simple graph).
+
+     * If "Ak = A ** k" the element "Ak[i,j]" is the number of walks
+       of length "k" from vertex "i" to vertex "j".
+
+   -[ For graphs with parallel edges or loops ]-
+
+   The matrix holds edge *counts*, so "k" parallel edges from "i" to
+   "j" give "A[i,j] = k" and "Ak = A ** k" still counts walks
+   correctly. A self-loop adds to the diagonal: 2 for a "UGraph"
+   (consistent with "degree()") and 1 for a "DGraph". In every case
+   each row of "A" sums to the degree of that vertex.
+
+   Seealso:
+      "laplacian()" "incidence()" "degree()"
+
+Graph.degree()
+
+   Convert graph to a degree matrix
+
+   Returns:
+      degree matrix
+
+   Return type:
+      ndarray(N,N)
+
+   This is a diagonal matrix where element "[i,i]" is the
+   "Vertex.degree" of vertex "i": the number of edge ends at it, so a
+   self-loop counts twice.  For a directed graph that is the edges
+   entering plus the edges leaving.
+
+   Changed in version 1.0: For a "DGraph" this was the out-degree
+   matrix, counting only the edges leaving each vertex.  It is now the
+   total, in plus out.  The old matrix is "np.diag([v.out_degree for v
+   in g])", which is what "laplacian()" uses.
+
+      >>> from pgraph import UGraph
+      >>> import numpy as np
+      >>> g = UGraph()
+      >>> for i in range(5):
+      ...     g.add_vertex(np.random.rand(2));
+      Vertex[#0, coord=(0.2646, 0.7742)]
+      Vertex[#1, coord=(0.4562, 0.5684)]
+      Vertex[#2, coord=(0.01879, 0.6176)]
+      Vertex[#3, coord=(0.6121, 0.6169)]
+      Vertex[#4, coord=(0.9437, 0.6818)]
+      >>> for i, j in [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (3, 4)]:
+      ...     g.add_edge(g[i], g[j]);
+      Edge{[#0] -- [#1], cost=0.2812}
+      Edge{[#0] -- [#2], cost=0.2914}
+      Edge{[#0] -- [#3], cost=0.3815}
+      Edge{[#1] -- [#2], cost=0.4401}
+      Edge{[#1] -- [#3], cost=0.1633}
+      Edge{[#3] -- [#4], cost=0.3379}
+      >>> d = g.degree()
+      >>> print(d)
+      [[3 0 0 0 0]
+       [0 3 0 0 0]
+       [0 0 2 0 0]
+       [0 0 0 3 0]
+       [0 0 0 0 1]]
+
+   -[ For graphs with parallel edges or loops ]-
+
+   Every edge is counted, so "k" parallel edges between two vertices
+   add "k" to the degree of each end.  A self-loop adds 2, for both
+   kinds of graph, since it has two ends.
+
+   Seealso:
+      "adjacency()" "incidence()" "laplacian()" "connectivity()"
+      "average_degree()" "Vertex.degree"
+
+Graph.incidence()
+
+   Convert graph to an incidence matrix
+
+   Returns:
+      incidence matrix
+
+   Return type:
+      ndarray(n,ne)
+
+   The elements of the incidence matrix "I[i,j]" are 1 if vertex "i"
+   is connected to edge "j", else 0.
+
+      >>> from pgraph import UGraph
+      >>> import numpy as np
+      >>> g = UGraph()
+      >>> for i in range(5):
+      ...     g.add_vertex(np.random.rand(2));
+      Vertex[#0, coord=(0.3595, 0.437)]
+      Vertex[#1, coord=(0.6976, 0.06023)]
+      Vertex[#2, coord=(0.6668, 0.6706)]
+      Vertex[#3, coord=(0.2104, 0.1289)]
+      Vertex[#4, coord=(0.3154, 0.3637)]
+      >>> for i, j in [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (3, 4)]:
+      ...     g.add_edge(g[i], g[j]);
+      Edge{[#0] -- [#1], cost=0.5063}
+      Edge{[#0] -- [#2], cost=0.386}
+      Edge{[#0] -- [#3], cost=0.3423}
+      Edge{[#1] -- [#2], cost=0.6112}
+      Edge{[#1] -- [#3], cost=0.4921}
+      Edge{[#3] -- [#4], cost=0.2572}
+      >>> I = g.incidence()
+      >>> print(I)
+      [[1. 1. 1. 0. 0. 0.]
+       [1. 0. 0. 1. 1. 0.]
+       [0. 1. 0. 1. 0. 0.]
+       [0. 0. 1. 0. 1. 1.]
+       [0. 0. 0. 0. 0. 1.]]
+
+   Note:
+
+     * Vertices are numbered in their order of creation. A vertex
+       index can be resolved to a vertex reference by "graph[i]".
+
+     * Edges are numbered in the order they appear in "edges()", which
+       is the order they were added.
+
+     * Both endpoints of every edge are marked, regardless of
+       direction -- for a "DGraph" this means a vertex that is only
+       ever a target (never a source) still appears here.  Iterating
+       each vertex's own "Vertex.edges()", which are its outgoing
+       edges, would silently drop such vertices for a directed graph.
+
+   -[ For graphs with parallel edges or loops ]-
+
+   Parallel edges each get their own column. For a "UGraph" the column
+   of a self-loop holds a single 2 (it touches its vertex at both
+   ends, so row sums still equal "degree()"); for a "DGraph" it holds
+   a single 1.
+
+   Seealso:
+      "laplacian()" "adjacency()" "degree()"
+
+Graph.laplacian()
+
+   Convert graph to a Laplacian matrix
+
+   Returns:
+      Laplacian matrix
+
+   Return type:
+      NumPy ndarray
+
+   "g.laplacian()" is the Laplacian matrix (NxN) of the graph where N
+   is the number of vertices.
+
+      >>> from pgraph import UGraph
+      >>> import numpy as np
+      >>> g = UGraph()
+      >>> for i in range(5):
+      ...     g.add_vertex(np.random.rand(2));
+      Vertex[#0, coord=(0.5702, 0.4386)]
+      Vertex[#1, coord=(0.9884, 0.102)]
+      Vertex[#2, coord=(0.2089, 0.1613)]
+      Vertex[#3, coord=(0.6531, 0.2533)]
+      Vertex[#4, coord=(0.4663, 0.2444)]
+      >>> for i, j in [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (3, 4)]:
+      ...     g.add_edge(g[i], g[j]);
+      Edge{[#0] -- [#1], cost=0.5368}
+      Edge{[#0] -- [#2], cost=0.4555}
+      Edge{[#0] -- [#3], cost=0.203}
+      Edge{[#1] -- [#2], cost=0.7817}
+      Edge{[#1] -- [#3], cost=0.3678}
+      Edge{[#3] -- [#4], cost=0.187}
+      >>> L = g.laplacian()
+      >>> print(L)
+      [[ 3. -1. -1. -1.  0.]
+       [-1.  3. -1. -1.  0.]
+       [-1. -1.  2.  0.  0.]
+       [-1. -1.  0.  3. -1.]
+       [ 0.  0.  0. -1.  1.]]
+
+   Note:
+
+     * Laplacian always has at least one zero eigenvalue (each row of
+       "D_out - adjacency()" sums to zero, so the all-ones vector is
+       always a right null vector).
+
+     * For an **undirected** graph specifically: the Laplacian is
+       symmetric and positive-semidefinite, and the number of zero-
+       valued eigenvalues equals the number of connected components.
+
+     * For a **directed** graph, this computes the out-degree
+       Laplacian (used in directed consensus/synchronization
+       literature) -- but it is generally *not* symmetric, its
+       eigenvalues can be complex, and the zero-eigenvalue/component-
+       count relationship above does not hold.
+
+   -[ For graphs with parallel edges or loops ]-
+
+   Both the out-degree and "adjacency()" count edges, so the identity
+   "L = D_out - adjacency()" and the zero row sums hold unchanged.  A
+   self-loop adds the same amount to both and cancels out of the
+   Laplacian entirely.
+
+   Note:
+
+     "D_out" is the diagonal matrix of "Vertex.out_degree".  For an
+     undirected graph that is "degree()", but for a directed graph
+     "degree()" is in plus out, so the Laplacian does *not* use it.
+
+   Seealso:
+      "adjacency()" "incidence()" "degree()"
+
+========================================================================
+Page: https://petercorke.github.io/pgraph-python/visualization.html
+========================================================================
+
+Visualization
+*************
+
+Rendering the graph itself, with matplotlib or via GraphViz.  See
+Exporting a graph for exporting the graph as data or an image file
+(dot, Mermaid, GraphML, ELK, PNG, ...) and Transformations to matrix
+representations for its matrices.
+
+"plot()" draws each edge once.  A directed graph has an arrowhead at
+the end of each edge, edges that join the same pair of vertices are
+drawn as arcs that bow apart so that parallel and antiparallel edges
+can all be seen, and a loop is drawn as a circle at its vertex.  The
+same is true of a 3D plot, which follows a rotation of the view.
+
+The appearance is set by dicts of Matplotlib options:
+
++-------------------+------------------------------------------------------+-------------------------------+
+| option            | applies to                                           | default                       |
+|===================|======================================================|===============================|
+| "vertex_opt"      | the vertex marker ("plot")                           | "marker="o", markersize=12"   |
++-------------------+------------------------------------------------------+-------------------------------+
+| "edge_opt"        | the edge line ("FancyArrowPatch"): "color",          | "linewidth=3"                 |
+|                   | "linewidth", "linestyle", "alpha"                    |                               |
++-------------------+------------------------------------------------------+-------------------------------+
+| "arrow_opt"       | the arrowhead and the path: "arrowstyle",            | "arrowstyle="-|>","           |
+|                   | "mutation_scale", "connectionstyle"                  | "mutation_scale=15" for a     |
+|                   |                                                      | directed graph, ""-"" for an  |
+|                   |                                                      | undirected one                |
++-------------------+------------------------------------------------------+-------------------------------+
+| "text_opt"        | the vertex labels ("text")                           | Matplotlib's                  |
++-------------------+------------------------------------------------------+-------------------------------+
+
+"labels=False" removes the labels, and "color_components=False" draws
+the graph in one color rather than a color for each component.
+
+Note:
+
+  The options were named "vopt", "eopt", "text", "colorcomponents" and
+  "force2d" in 0.6.5.  Those names still work but give a
+  "DeprecationWarning".
+
++------------+--------------------------------------------------------------------------------------------+
+| "plot"     | Plot graph as a vertex/edge diagram using Matplotlib                                       |
++------------+--------------------------------------------------------------------------------------------+
+| "showgraph | Display graph as a vertex/edge diagram in a browser tab                                    |
+| "          |                                                                                            |
++------------+--------------------------------------------------------------------------------------------+
+| "highlight | Highlight a path through the graph                                                         |
+| _path"     |                                                                                            |
++------------+--------------------------------------------------------------------------------------------+
+| "highlight | Highlight an edge in a plot of the graph                                                   |
+| _edge"     |                                                                                            |
++------------+--------------------------------------------------------------------------------------------+
+| "highlight | Highlight a vertex in the graph                                                            |
+| _vertex"   |                                                                                            |
++------------+--------------------------------------------------------------------------------------------+
+
+Details
+=======
+
+Graph.plot(colorcomponents=None, force2d=None, vopt=None, eopt=None, text=None, block=False, grid=True, ax=None, *, vertex_opt=None, edge_opt=None, arrow_opt=None, text_opt=None, labels=None, color_components=None, force_2d=None)
+
+   Plot graph as a vertex/edge diagram using Matplotlib
+
+   Parameters:
+      * **vertex_opt** (*dict**, **optional*) -- vertex format, a dict
+        of Matplotlib "plot" options, defaults to a 12 point circle
+        marker
+
+      * **edge_opt** (*dict**, **optional*) -- edge format, a dict of
+        Matplotlib patch options such as "color", "linewidth" and
+        "linestyle", defaults to a line width of 3
+
+      * **arrow_opt** (*dict**, **optional*) -- arrowhead and path
+        format, a dict of Matplotlib "FancyArrowPatch" options such as
+        "arrowstyle", "mutation_scale" and "connectionstyle", defaults
+        to "dict(arrowstyle="-|>", mutation_scale=15)" for a directed
+        graph and "dict(arrowstyle="-")", no head, for an undirected
+        graph
+
+      * **labels** (*bool**, **optional*) -- label each vertex with
+        its name, defaults to True
+
+      * **text_opt** (*dict**, **optional*) -- format of the labels, a
+        dict of Matplotlib "text" options
+
+      * **color_components** (*bool**, **optional*) -- color vertices
+        and edges by component, defaults to True
+
+      * **force_2d** (*bool**, **optional*) -- plot only the first two
+        coordinates of each vertex even if they have more, defaults to
+        False
+
+      * **grid** (*bool**, **optional*) -- show a grid, defaults to
+        True
+
+      * **ax** (*Axes** or **Axes3D**, **optional*) -- axes to draw
+        in, defaults to the current axes or a new figure
+
+      * **block** (*bool** or **None**, **optional*) -- block until
+        figure is dismissed, defaults to False. If None the figure is
+        not shown at all, which is useful when adding to the plot or
+        saving it.
+
+   Raises:
+      * **ValueError** -- the graph is empty, or a vertex has no
+        coordinate or fewer than two coordinate values
+
+      * **TypeError** -- an option is given by both its old and new
+        name
+
+   Return type:
+      "None"
+
+   The graph is plotted using Matplotlib according to the
+   dimensionality of the vertex coordinates (set by the *dim*
+   parameter to graph constructor).  If the dimensionality is
+
+   * 2, then a 2D plot is generated.
+
+   * 3, then a 3D plot is generated.
+
+   * 4 or more, then a 3D plot is generated using the first three
+     coordinates.
+
+   If a vertex has no coordinate or fewer than two values, a
+   ValueError is raised.
+
+   Every edge is drawn once.  In a directed graph it ends in an
+   arrowhead at its end vertex.  Edges that join the same pair of
+   vertices, whichever way they point, are drawn as arcs that bow to
+   either side so that parallel and antiparallel edges can all be
+   seen, and a loop is drawn as a circle at its vertex.
+
+   If "color_components" is True then all edges and vertices within a
+   component are assigned a unique color.
+
+   Note:
+
+     Only embedded graphs can be plotted: every vertex must have a
+     coordinate of at least two values.  A coordinate of more than two
+     values is drawn in 3D, using the first three.
+
+   Changed in version 1.0: A directed graph is drawn with arrowheads.
+   In 0.6.5 it was indistinguishable from an undirected one, parallel
+   edges were drawn on top of each other and loops were not visible.
+   The options are named "vertex_opt", "edge_opt", "arrow_opt" and
+   "text_opt".  "vopt", "eopt", "text", "colorcomponents" and
+   "force2d" are deprecated: they still work and give a
+   "DeprecationWarning".  "text=False" is "labels=False" and a "text"
+   dict is "text_opt".
+
+      >>> from pgraph import UGraph
+      >>> import numpy as np
+      >>> np.random.seed(0)
+      >>> g = UGraph()
+      >>> for i in range(5):
+      ...     g.add_vertex(np.random.rand(2));
+      Vertex[#0, coord=(0.5488, 0.7152)]
+      Vertex[#1, coord=(0.6028, 0.5449)]
+      Vertex[#2, coord=(0.4237, 0.6459)]
+      Vertex[#3, coord=(0.4376, 0.8918)]
+      Vertex[#4, coord=(0.9637, 0.3834)]
+      >>> for i, j in [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (3, 4)]:
+      ...     g.add_edge(g[i], g[j]);
+      Edge{[#0] -- [#1], cost=0.1786}
+      Edge{[#0] -- [#2], cost=0.1431}
+      Edge{[#0] -- [#3], cost=0.2087}
+      Edge{[#1] -- [#2], cost=0.2056}
+      Edge{[#1] -- [#3], cost=0.3842}
+      Edge{[#3] -- [#4], cost=0.7315}
+      >>> g.plot(block=None)
+
+      [image]
+
+   A directed graph, with a pair of antiparallel edges, a pair of
+   parallel edges and a loop
+
+      [image]
+
+   Seealso:
+      "highlight_path()" "highlight_edge()"
+
+Graph.showgraph(display=True, **options)
+
+   Display graph as a vertex/edge diagram in a browser tab
+
+   Parameters:
+      * **display** ("bool") -- open the rendered PDF in a browser
+        tab, defaults to True
+
+      * **options** ("Any") -- "engine", "direction",
+        "color_components" and "costs", passed to "export()"
+
+   Raises:
+      **RuntimeError** -- GraphViz is not installed, or fails
+
+   Returns:
+      path of the rendered PDF if "display" is False, else None
+
+   Return type:
+      str or None
+
+   "g.showgraph()" renders the graph to PDF with GraphViz and displays
+   it in a browser tab.  With "display=False" the PDF is rendered but
+   not opened and its path is returned, which is useful for tests and
+   notebooks.
+
+   Note:
+
+     Vertices do not have to have coordinates for this to work, but if
+     they do the coordinates are used to position the vertices in the
+     output.  If no coordinates are given, GraphViz will choose a
+     layout.
+
+   Seealso:
+      "export()" "dotfile()"
+
+Graph.highlight_path(path, block=False, **kwargs)
+
+   Highlight a path through the graph
+
+   Parameters:
+      * **path** (*list** of **Vertex subclass*) -- sequence of
+        vertices forming a path
+
+      * **block** (*bool** or **None**, **optional*) -- block until
+        figure is dismissed, defaults to False. If None the figure is
+        not shown.
+
+      * **kwargs** ("Any") -- arguments passed to "highlight_edge()"
+        and "highlight_vertex()"
+
+   Return type:
+      "None"
+
+   The vertices and edges along the path are overwritten with a
+   different size/width and color.
+
+      >>> from pgraph import UGraph
+      >>> import numpy as np
+      >>> np.random.seed(0)
+      >>> g = UGraph()
+      >>> for i in range(5):
+      ...     g.add_vertex(np.random.rand(2));
+      Vertex[#0, coord=(0.5488, 0.7152)]
+      Vertex[#1, coord=(0.6028, 0.5449)]
+      Vertex[#2, coord=(0.4237, 0.6459)]
+      Vertex[#3, coord=(0.4376, 0.8918)]
+      Vertex[#4, coord=(0.9637, 0.3834)]
+      >>> for i, j in [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (3, 4)]:
+      ...     g.add_edge(g[i], g[j]);
+      Edge{[#0] -- [#1], cost=0.1786}
+      Edge{[#0] -- [#2], cost=0.1431}
+      Edge{[#0] -- [#3], cost=0.2087}
+      Edge{[#1] -- [#2], cost=0.2056}
+      Edge{[#1] -- [#3], cost=0.3842}
+      Edge{[#3] -- [#4], cost=0.7315}
+      >>> g.plot(block=None)
+      >>> path, length, _ = g.path_Astar(g[2], g[4])
+      >>> g.highlight_path(path, block=None)
+
+      [image]
+
+   Seealso:
+      "highlight_vertex()" "highlight_edge()"
+
+Graph.highlight_edge(edge, scale=2, color='r', alpha=0.5)
+
+   Highlight an edge in a plot of the graph
+
+   Parameters:
+      * **edge** (*Edge subclass*) -- The edge to highlight
+
+      * **scale** (*float**, **optional*) -- Overwrite with a line
+        that is thicker than the original, defaults to 1.5
+
+      * **color** (*str**, **optional*) -- Overwrite with a line in
+        this color, defaults to 'r'
+
+      * **alpha** (*float**, **optional*) -- Transparency of the
+        highlight, defaults to 0.5
+
+   Raises:
+      **ValueError** -- "edge" does not connect two vertices, for
+      example because it has been removed from the graph
+
+   Return type:
+      None
+
+      >>> from pgraph import UGraph
+      >>> import numpy as np
+      >>> np.random.seed(0)
+      >>> 
+      >>> g = UGraph()
+      >>> for i in range(5):
+      ...     g.add_vertex(np.random.rand(2));
+      Vertex[#0, coord=(0.5488, 0.7152)]
+      Vertex[#1, coord=(0.6028, 0.5449)]
+      Vertex[#2, coord=(0.4237, 0.6459)]
+      Vertex[#3, coord=(0.4376, 0.8918)]
+      Vertex[#4, coord=(0.9637, 0.3834)]
+      >>> edges = []
+      >>> for i, j in [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (3, 4)]:
+      ...     edges.append(g.add_edge(g[i], g[j]));
+      >>> g.plot(block=None)
+      >>> g.highlight_edge(edges[2])
+
+      [image]
+
+   Seealso:
+      "plot()" "highlight_vertex()" "highlight_path()"
+
+Graph.highlight_vertex(vertex, scale=2, color='r', alpha=0.5)
+
+   Highlight a vertex in the graph
+
+   Parameters:
+      * **vertex** (*Vertex subclass**, or **iterable** of **Vertex
+        subclass** or **str*) -- The vertex (or vertices, or vertex
+        names) to highlight
+
+      * **scale** (*float**, **optional*) -- Overwrite with a marker
+        that is larger than the original, defaults to 1.5
+
+      * **color** (*str**, **optional*) -- Overwrite with a line in
+        this color, defaults to 'r'
+
+      * **alpha** (*float**, **optional*) -- Transparency of the
+        highlight, defaults to 0.5
+
+   Return type:
+      None
+
+      >>> from pgraph import UGraph
+      >>> import numpy as np
+      >>> np.random.seed(0)
+      >>> g = UGraph()
+      >>> for i in range(5):
+      ...     g.add_vertex(np.random.rand(2));
+      Vertex[#0, coord=(0.5488, 0.7152)]
+      Vertex[#1, coord=(0.6028, 0.5449)]
+      Vertex[#2, coord=(0.4237, 0.6459)]
+      Vertex[#3, coord=(0.4376, 0.8918)]
+      Vertex[#4, coord=(0.9637, 0.3834)]
+      >>> for i, j in [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (3, 4)]:
+      ...     g.add_edge(g[i], g[j]);
+      Edge{[#0] -- [#1], cost=0.1786}
+      Edge{[#0] -- [#2], cost=0.1431}
+      Edge{[#0] -- [#3], cost=0.2087}
+      Edge{[#1] -- [#2], cost=0.2056}
+      Edge{[#1] -- [#3], cost=0.3842}
+      Edge{[#3] -- [#4], cost=0.7315}
+      >>> g.plot(block=None)
+      >>> g.highlight_vertex(g[2])
+
+      [image]
+
+========================================================================
+Page: https://petercorke.github.io/pgraph-python/export.html
+========================================================================
+
+Exporting a graph
+*****************
+
+Graphs can be exported to a number of different formats, including dot
+(used by GraphViz), Mermaid (a JavaScript-based graph visualization
+tool that can be used in Markdown documents), GraphML (an XML-based
+format for representing graphs), ELK (a graph layout engine), as well
+as various image formats (e.g., PNG, SVG, PDF).
+
+See Visualization for rendering the graph using Matplotlib itself
+rather than exporting it.
+
++------------+--------------------------------------------------------------------------------------------+
+| "export"   | Convert and save the graph in a graph export or image format                               |
++------------+--------------------------------------------------------------------------------------------+
+| "dotfile"  | Export graph as a GraphViz dot file                                                        |
++------------+--------------------------------------------------------------------------------------------+
+
+Details
+=======
+
+Graph.export(filename=None, format=None, **options)
+
+   Convert and save the graph in a graph export or image format
+
+   Parameters:
+      * **filename** (*str**, **path-like** or **file object**,
+        **optional*) -- destination path or open file, defaults to
+        None
+
+      * **format** (*str**, **optional*) -- ""dot"", ""mermaid"",
+        ""graphml"", ""elk"" or an image format ""svg"", ""pdf"",
+        ""png"" ..., inferred from the extension of "filename" if not
+        given
+
+      * **options** ("Any") -- format specific options, see below
+
+   Raises:
+      * **ValueError** -- the format is unknown or cannot be inferred,
+        or an image format is requested without a "filename"
+
+      * **TypeError** -- an option is not valid for the format
+
+      * **RuntimeError** -- an image format is requested and GraphViz
+        is not installed, or fails
+
+   Returns:
+      the text if "filename" is None, otherwise None
+
+   Return type:
+      str or None
+
+   +---------------------------+---------------------------+---------------------------+---------------------------+
+   | "format"                  | extensions                | positions                 | options                   |
+   |===========================|===========================|===========================|===========================|
+   | ""dot""                   | ".dot" ".gv"              | "pos="x,y!""              | "direction",              |
+   |                           |                           |                           | "color_components",       |
+   |                           |                           |                           | "costs"                   |
+   +---------------------------+---------------------------+---------------------------+---------------------------+
+   | ""mermaid""               | ".mmd" ".mermaid"         | no                        | "direction",              |
+   |                           |                           |                           | "color_components",       |
+   |                           |                           |                           | "costs", "fence"          |
+   +---------------------------+---------------------------+---------------------------+---------------------------+
+   | ""graphml""               | ".graphml"                | "x", "y", "coord"         | none                      |
+   +---------------------------+---------------------------+---------------------------+---------------------------+
+   | ""elk""                   | ".elk.json" ".elk"        | "x", "y"                  | "size", "layout_options"  |
+   +---------------------------+---------------------------+---------------------------+---------------------------+
+   | ""svg"" ""pdf"" ""png""   | the same                  | yes, via "neato"          | "engine", "direction",    |
+   | ...                       |                           |                           | "color_components",       |
+   |                           |                           |                           | "costs"                   |
+   +---------------------------+---------------------------+---------------------------+---------------------------+
+
+   The text formats need nothing beyond the standard library.  The
+   image formats run the GraphViz "dot" or "neato" executable.
+
+      >>> from pgraph import UGraph
+      >>> g = UGraph()
+      >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+      >>> v2 = g.add_vertex(coord=[1,1], name='v2')
+      >>> g.add_edge(v1, v2, cost=2)
+      Edge{[v1] -- [v2], cost=2}
+      >>> print(g.export(format="mermaid", direction="LR"))
+      flowchart LR
+          n0["v1"]
+          n1["v2"]
+          n0 ---|"2"| n1
+
+   Note:
+
+     * Output is reproducible: vertices are written in creation order
+       and edges in the order of their vertices, not in set order.
+
+     * A file object passed as "filename" is written but not closed. A
+       path is opened, and closed even if writing fails.
+
+     * Names are escaped for each format, and Mermaid, GraphML and ELK
+       use generated ids so any vertex name is valid.
+
+   -[ For graphs with parallel edges or loops ]-
+
+   Every edge is written, each with its own cost, so parallel edges
+   give repeated lines (DOT, Mermaid) or distinct "id" elements
+   (GraphML, ELK).  A self-loop is written once, as an edge from a
+   vertex to itself.
+
+   Seealso:
+      "dotfile()" "showgraph()" "pgraph.exporters"
+
+Graph.dotfile(filename=None, direction=None)
+
+   Export graph as a GraphViz dot file
+
+   Parameters:
+      * **filename** (*str**, **path-like** or **file object**,
+        **optional*) -- filename to save graph to, defaults to None
+
+      * **direction** (*str**, **optional*) -- layout direction, eg.
+        ""LR"", defaults to None
+
+   Return type:
+      "None"
+
+   "g.dotfile()" creates the specified file which contains the
+   GraphViz code to represent the embedded graph.  By default output
+   is to the console.
+
+   This is "export()" with "format="dot"" and edge costs left
+   unlabelled, as it has always been.  Use "export()" for other
+   formats or for edge labels.
+
+   Note:
+
+     * The graph is undirected if it is a "UGraph"
+
+     * The graph is directed if it is a "DGraph"
+
+   Note:
+
+     The "graphviz" formatters "dot" and "neato" can be used to render
+     the graph in various formats including PDF, PNG, JPG, GIF, SVG,
+     etc.  The formatters are similar, but "dot" is better suited for
+     directed graphs while "neato" is better suited for undirected
+     graphs.
+
+      >>> from pgraph import UGraph
+      >>> g = UGraph()
+      >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+      >>> v2 = g.add_vertex(coord=[1,1], name='v2')
+      >>> g.add_edge(v1, v2)
+      Edge{[v1] -- [v2], cost=1.414}
+      >>> g.dotfile()
+      graph {
+        "v1" [pos="0,0!"]
+        "v2" [pos="1,1!"]
+        "v1" -- "v2"
+      }
+
+   Note:
+
+     Edge costs are not included in the output.  Use "export()" with
+     "costs=True" to include them.
+
+   Note:
+
+     If "filename" is a file object then the file will *not* be closed
+     after the GraphViz model is written. Safe for use with
+     "sys.stdout" or "sys.stderr".
+
+   Seealso:
+      "export()" "showgraph()"
+
+The exporters
+=============
+
+"export()" hands the work to the functions of "pgraph.exporters".  The
+options of each format are the keyword arguments of its function,
+which are passed through "export(..., **options)".  The module also
+provides the means to add a format of your own.
+
+Export a graph as text (GraphViz DOT, Mermaid, GraphML, ELK JSON) or
+as a rendered image (via the GraphViz command line tools).
+
+This module is reached through "export()", which dispatches on the
+format name or the file extension.  Each text exporter is a plain
+function "f(graph, **options) -> str", registered with
+"register_exporter()", so a user can add a format without touching the
+package:
+
+   from pgraph.exporters import register_exporter
+
+   @register_exporter("gexf", ".gexf")
+   def gexf(graph, *, version="1.3") -> str:
+       ...
+
+None of the text formats needs a dependency beyond the standard
+library.  Only the rendered formats ("RENDER_FORMATS") need the
+GraphViz executables.
+
+ENGINES = ('dot', 'neato', 'fdp', 'sfdp', 'twopi', 'circo', 'osage', 'patchwork')
+
+   GraphViz layout programs that may be run to render an image
+
+RENDER_FORMATS: dict[str, bool] = {'gif': False, 'jpeg': False, 'jpg': False, 'pdf': False, 'png': False, 'ps': True, 'svg': True}
+
+   image formats produced by running the GraphViz "dot"/"neato"
+   executable, mapped to whether the result is text ("True") or binary
+   ("False")
+
+register_exporter(name, *extensions)
+
+   Register a text exporter (decorator)
+
+   Parameters:
+      * **name** ("str") -- format name used as "export(format=name)"
+
+      * **extensions** ("str") -- file extensions, with the leading
+        dot, that select this format when "format" is not given
+
+   Return type:
+      "Callable"[["Callable"["...", "str"]], "Callable"["...", "str"]]
+
+   Returns:
+      the decorator
+
+   The decorated function is called as "f(graph, **options)" and
+   returns the text.  Declare its options as keyword-only parameters
+   so that an unknown option is a "TypeError".
+
+get_exporter(name)
+
+   Look up a text exporter by format name
+
+   Parameters:
+      **name** ("str") -- format name, eg. ""dot""
+
+   Return type:
+      "Callable"["...", "str"]
+
+   Returns:
+      the function "f(graph, **options) -> str"
+
+   Raises:
+      **ValueError** -- no text exporter has that name; the message
+      lists those that do
+
+formats()
+
+   Names of all supported export formats
+
+   Returns:
+      text formats followed by rendered image formats
+
+   Return type:
+      list of str
+
+format_from_filename(filename)
+
+   Infer an export format from a file name's extension
+
+   Parameters:
+      **filename** ("str" | "PathLike" | "IO" | "None") -- path, or a
+      file object with a "name" attribute
+
+   Returns:
+      the format name, or None if it cannot be decided
+
+   Return type:
+      str or None
+
+   Compound extensions such as ".elk.json" are tried before the plain
+   suffix.
+
+dot(graph, *, direction=None, color_components=False, costs=True)
+
+   GraphViz DOT text
+
+   Parameters:
+      * **direction** ("str" | "None") -- layout direction, "rankdir"
+        in DOT, eg. ""LR""
+
+      * **color_components** ("bool") -- fill vertices by connected
+        component
+
+      * **costs** ("bool") -- label edges with their cost
+
+   Return type:
+      "str"
+
+mermaid(graph, *, direction='TB', color_components=False, costs=True, fence=False)
+
+   Mermaid flowchart text
+
+   Parameters:
+      * **direction** ("str") -- ""TB"", ""BT"", ""LR"" or ""RL""
+
+      * **color_components** ("bool") -- fill vertices by connected
+        component
+
+      * **costs** ("bool") -- label edges with their cost
+
+      * **fence** ("bool") -- wrap in a Markdown code fence, three
+        backticks followed by "mermaid"
+
+   Return type:
+      "str"
+
+   Mermaid flowcharts are laid out automatically and cannot pin node
+   positions, so vertex coordinates are not represented.  Vertices are
+   given generated ids ("n0", "n1", ...) with the real name as the
+   label, since names are arbitrary strings but Mermaid ids are not.
+
+graphml(graph)
+
+   GraphML XML text
+
+   Name, component, coordinate ("x", "y" and the full "coord" string
+   for higher dimensions) and edge cost are written as "<data>"
+   elements with "<key>" declarations.  "edgedefault" follows the
+   graph kind.  GraphML has no standard node position outside the
+   proprietary yFiles extension, which is not used.
+
+   Return type:
+      "str"
+
+elk(graph, *, size=(60, 40), layout_options=None)
+
+   Eclipse Layout Kernel (ELK) JSON graph text
+
+   Parameters:
+      * **size** ("tuple"["float", "float"]) -- width and height given
+        to every node, which ELK requires
+
+      * **layout_options** ("dict"["str", "str"] | "None") -- ELK
+        layout options, merged over the defaults
+
+   Return type:
+      "str"
+
+   Unlike GraphML, ELK has native "x" and "y" node fields.  If any
+   vertex has a coordinate the "fixed" algorithm is selected so that a
+   consumer keeps the positions; otherwise "layered" computes a
+   layout.
+
+render(graph, fmt, *, engine=None, direction=None, color_components=False, costs=True)
+
+   Render the graph to an image with the GraphViz executables
+
+   Parameters:
+      * **fmt** ("str") -- one of "RENDER_FORMATS"
+
+      * **engine** ("str" | "None") -- GraphViz layout program, one of
+        "ENGINES".  Defaults to "neato" if any vertex has a
+        coordinate, since it honours pinned positions, else "dot"
+
+   Returns:
+      the image
+
+   Return type:
+      bytes
+
+   Raises:
+      * **ValueError** -- "fmt" or "engine" is not a known name
+
+      * **RuntimeError** -- the layout program is not installed, or
+        failed
+
+   Both names are checked against fixed lists and the program is run
+   with an argument list and no shell, so neither can carry a command.
+
+========================================================================
+Page: https://petercorke.github.io/pgraph-python/planning.html
+========================================================================
+
+Path planning
+*************
+
+These methods find a path from a start vertex to a goal vertex.
+"path_BFS()" finds the path with the fewest edges, while "path_UCS()"
+and "path_Astar()" find the path with the lowest total cost.
+
++------------+--------------------------------------------------------------------------------------------+
+| "path_BFS" | Breadth-first search for path                                                              |
++------------+--------------------------------------------------------------------------------------------+
+| "path_UCS" | Uniform cost search for path                                                               |
++------------+--------------------------------------------------------------------------------------------+
+| "path_Asta | A* search for path                                                                         |
+| r"         |                                                                                            |
++------------+--------------------------------------------------------------------------------------------+
+
+Details
+=======
+
+Graph.path_BFS(S, G, verbose=False, summary=False)
+
+   Breadth-first search for path
+
+   Parameters:
+      * **S** (*Vertex subclass*) -- start vertex
+
+      * **G** (*Vertex subclass*) -- goal vertex
+
+      * **verbose** ("bool") -- print search progress, defaults to
+        False
+
+      * **summary** ("bool") -- print a one-line search summary,
+        defaults to False
+
+   Raises:
+      * **TypeError** -- "S" or "G" is neither a vertex nor a string
+
+      * **KeyError** -- "S" or "G" is a name not in the graph
+
+      * **ValueError** -- an edge on the path has no cost
+
+   Returns:
+      list of vertices from S to G inclusive and path length, or None
+      if there is no path
+
+   Return type:
+      (list of Vertex subclass, float) or None
+
+   Compute a path from vertex "S" to vertex "G" using breadth-first
+   search.  The path is guaranteed to be the shortest in terms of
+   number of edges, but not necessarily the cheapest in terms of edge
+   costs.  This search is not suited to graphs with edge weights, and
+   is inefficient in that it explores all vertices.
+
+   Returns a list of vertices that starts with vertex "S" and ends
+   with vertex "G" if possible, otherwise returns None -- so check the
+   result before unpacking it.
+
+      >>> from pgraph import UGraph
+      >>> g = UGraph()
+      >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+      >>> v2 = g.add_vertex(coord=[1,0], name='v2')
+      >>> v3 = g.add_vertex(coord=[2,0], name='v3')
+      >>> g.add_edge(v1, v2)
+      Edge{[v1] -- [v2], cost=1}
+      >>> g.add_edge(v2, v3)
+      Edge{[v2] -- [v3], cost=1}
+      >>> path, length = g.path_BFS(v1, v3)
+      >>> print(path)
+      [Vertex[v1, coord=(0, 0)], Vertex[v2, coord=(1, 0)], Vertex[v3, coord=(2, 0)]]
+      >>> print(length)
+      2.0
+
+   Note:
+
+     Self-loops are ignored. If there are parallel edges the cheapest
+     is used for the path length.
+
+   Seealso:
+      "path_UCS()" "path_Astar()"
+
+Graph.path_UCS(S, G, verbose=False, summary=False)
+
+   Uniform cost search for path
+
+   Parameters:
+      * **S** (*Vertex subclass*) -- start vertex
+
+      * **G** (*Vertex subclass*) -- goal vertex
+
+      * **verbose** ("bool") -- print search progress, defaults to
+        False
+
+      * **summary** ("bool") -- print a one-line search summary,
+        defaults to False
+
+   Raises:
+      * **TypeError** -- "S" or "G" is neither a vertex nor a string
+
+      * **KeyError** -- "S" or "G" is a name not in the graph
+
+      * **ValueError** -- an edge examined during the search has no
+        cost
+
+   Returns:
+      list of vertices from S to G inclusive, path length and search
+      tree, or None if there is no path
+
+   Return type:
+      (list of Vertex subclass, float, dict) or None
+
+   Compute the lowest-cost path from vertex "S" to vertex "G" using
+   uniform cost search.  The path is guaranteed to be the shortest in
+   terms of traversed edge cost, but is inefficient in that it
+   explores all vertices.
+
+   Returns a list of vertices that starts with vertex "S" and ends
+   with vertex "G" if possible, otherwise returns None -- so check the
+   result before unpacking it.
+
+   The search tree is returned as dict that maps a vertex to its
+   parent.
+
+   The heuristic is the distance metric of the graph, which defaults
+   to Euclidean distance.
+
+      >>> from pgraph import UGraph
+      >>> g = UGraph()
+      >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+      >>> v2 = g.add_vertex(coord=[1,0], name='v2')
+      >>> v3 = g.add_vertex(coord=[2,0], name='v3')
+      >>> g.add_edge(v1, v2)
+      Edge{[v1] -- [v2], cost=1}
+      >>> g.add_edge(v2, v3)
+      Edge{[v2] -- [v3], cost=1}
+      >>> path, length, tree = g.path_UCS(v1, v3)
+      >>> print(path)
+      [Vertex[v1, coord=(0, 0)], Vertex[v2, coord=(1, 0)], Vertex[v3, coord=(2, 0)]]
+      >>> print(length)
+      2.0
+
+   Note:
+
+     Self-loops are ignored. If there are parallel edges the cheapest
+     is used for the path length.
+
+   Seealso:
+      "path_BFS()" "path_Astar()"
+
+Graph.path_Astar(S, G, verbose=False, summary=False)
+
+   A* search for path
+
+   Parameters:
+      * **S** (*Vertex subclass*) -- start vertex
+
+      * **G** (*Vertex subclass*) -- goal vertex
+
+      * **verbose** ("bool") -- print search progress, defaults to
+        False
+
+      * **summary** ("bool") -- print a one-line search summary,
+        defaults to False
+
+   Raises:
+      * **TypeError** -- "S" or "G" is neither a vertex nor a string
+
+      * **KeyError** -- "S" or "G" is a name not in the graph
+
+      * **ValueError** -- an edge examined during the search has no
+        cost
+
+   Returns:
+      list of vertices from S to G inclusive, path length and search
+      tree, or None if there is no path
+
+   Return type:
+      (list of Vertex subclass, float, dict) or None
+
+   Compute the lowest-cost path from vertex "S" to vertex "G" using
+   A*t search.  The path is guaranteed to be the shortest in terms of
+   traversed edge cost, and the search is efficient in terms of the
+   number of vertices explored.
+
+   Returns a list of vertices that starts with vertex "S" and ends
+   with vertex "G" if possible, otherwise returns None -- so check the
+   result before unpacking it.
+
+   The search tree is returned as dict that maps a vertex to its
+   parent.
+
+   The heuristic is the distance metric of the graph, which defaults
+   to Euclidean distance.
+
+      >>> from pgraph import UGraph
+      >>> g = UGraph()
+      >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+      >>> v2 = g.add_vertex(coord=[1,0], name='v2')
+      >>> v3 = g.add_vertex(coord=[2,0], name='v3')
+      >>> g.add_edge(v1, v2)
+      Edge{[v1] -- [v2], cost=1}
+      >>> g.add_edge(v2, v3)
+      Edge{[v2] -- [v3], cost=1}
+      >>> path, length, tree = g.path_Astar(v1, v3)
+      >>> print(path)
+      [Vertex[v1, coord=(0, 0)], Vertex[v2, coord=(1, 0)], Vertex[v3, coord=(2, 0)]]
+      >>> print(length)
+      2.0
+
+   Note:
+
+     Self-loops are ignored. If there are parallel edges the cheapest
+     is used for the path length.
+
+   Seealso:
+      "heuristic()" "path_BFS()" "path_UCS()"
+
+========================================================================
+Page: https://petercorke.github.io/pgraph-python/edges_vertices.html
+========================================================================
+
+Edges & Vertices
+****************
+
+Underlying data structures
+==========================
+
+[image]
+
+The graph class maintains a list of vertices and a dict of edges. For
+the undirected case, each vertex maintains a list of edges that
+connect to it, and each edge maintains a reference to the two vertices
+it connects. In the case of a loop, the edge appears twice in the
+vertex's edge list. For the directed case, each vertex maintains two
+edge lists: a list of outgoing edges and a list of incoming edges.
+
+The graph class provides methods for adding and removing vertices and
+edges (see Adding and removing vertices and edges) and for querying
+its structure (see Graph analysis).
+
+What a vertex holds
+-------------------
+
+Each vertex has **two** private edge lists, plus a back-pointer to its
+graph.
+
++-----------------+---------------------------------------------------------+--------------------------------+
+| Attribute       | For undirected graphs                                   | For directed graphs            |
+|=================|=========================================================|================================|
+| "_edgelist"     | the edges *incident on* it                              | the edges *leaving* it         |
++-----------------+---------------------------------------------------------+--------------------------------+
+| "_inlist"       | empty                                                   | the edges *entering* it        |
++-----------------+---------------------------------------------------------+--------------------------------+
+| "_graph"        | the graph it belongs to ("None" if standalone)          | the graph it belongs to        |
+|                 |                                                         | ("None" if standalone)         |
++-----------------+---------------------------------------------------------+--------------------------------+
+
+Every list entry is a reference to the same "Edge" class object, and
+there is exactly one edge object for each edge in the graph.
+
+* **Undirected:** one list does everything, since an undirected edge
+  is both "out" and "in".  That is also why a loop is stored twice,
+  once for each end, and why it counts 2 towards "degree".
+
+* **Directed:** the two lists are the out-list and the in-list.  A
+  loop sits once in each, so "degree" (in + out) is 2 there too.
+
+An example, as lists
+--------------------
+
+For these simple graphs
+
+   [image: the example graph drawn as an undirected and as a directed
+   graph: two parallel edges e1 and e2 from a to b, e3 from b to c and
+   a loop e4 on c][image]
+
+The vertices "a", "b" and "c" and edges "e1" and "e2" are added in
+that order. The resulting vertex lists are
+
++------------+--------------------------------+--------------------------------+--------------------------------+
+| Vertex     | "UGraph" "_edgelist"           | "DGraph" "_edgelist"           | "DGraph" "_inlist"             |
+| name       |                                |                                |                                |
+|============|================================|================================|================================|
+| "a"        | "[e1, e2]"                     | "[e1, e2]"                     | "[]"                           |
++------------+--------------------------------+--------------------------------+--------------------------------+
+| "b"        | "[e1, e2, e3]"                 | "[e3]"                         | "[e1, e2]"                     |
++------------+--------------------------------+--------------------------------+--------------------------------+
+| "c"        | "[e3, e4, e4]"                 | "[e4]"                         | "[e3, e4]"                     |
++------------+--------------------------------+--------------------------------+--------------------------------+
+
+The graph also keeps **every edge once** in "graph._edges" (an
+insertion-ordered dict, so "[e1, e2, e3, e4]").
+
+The public view of those lists
+------------------------------
+
++--------------------------------+-------------------------------------+-------------------------------------+
+| Method                         | Returns for "UGraph"                | Returns for "DGraph"                |
+|================================|=====================================|=====================================|
+| "edges()", "out_edges()"       | a copy of "_edgelist"               | a copy of "_edgelist"               |
++--------------------------------+-------------------------------------+-------------------------------------+
+| "in_edges()"                   | a copy of "_edgelist"               | a copy of "_inlist"                 |
++--------------------------------+-------------------------------------+-------------------------------------+
+| "degree"                       | "len(_edgelist)"                    | "len(_edgelist) + len(_inlist)"     |
++--------------------------------+-------------------------------------+-------------------------------------+
+| "in_degree"                    | "len(_edgelist)"                    | "len(_inlist)"                      |
++--------------------------------+-------------------------------------+-------------------------------------+
+| "out_degree"                   | "len(_edgelist)"                    | "len(_edgelist)"                    |
++--------------------------------+-------------------------------------+-------------------------------------+
+| "adjacent()"                   | the far end of each edge in         | the far end of each edge in         |
+|                                | "_edgelist"                         | "_edgelist"                         |
++--------------------------------+-------------------------------------+-------------------------------------+
+| "incidences()"                 | "adjacent()" paired with            | "adjacent()" paired with            |
+|                                | "out_edges()"                       | "out_edges()"                       |
++--------------------------------+-------------------------------------+-------------------------------------+
+
+All are returned in the order the edges were connected.
+
+Working with vertices and edges directly
+========================================
+
+In the earlier examples we did not explicitly create vertices or
+edges, but we can do so if we want to. The graph classes provide
+methods to create vertices and edges, and to add them to the graph.
+
+   >>> from pgraph import UGraph, Vertex, Edge
+   >>> import numpy as np
+   >>> g = UGraph()
+
+Next, we will explicitly create two vertices
+
+   >>> v1 = Vertex(np.random.rand(2))
+   >>> v2 = Vertex(np.random.rand(2))
+
+and then add them to the graph
+
+   >>> g.add_vertex(v1)
+   Vertex[#0, coord=(0.5416, 0.5674)]
+   >>> g.add_vertex(v2)
+   Vertex[#1, coord=(0.9622, 0.546)]
+
+Our graph now has two vertices, but no edges
+
+   >>> print(g)
+   UGraph: 2 vertices, 0 edges, 2 components
+
+We can explicitly create an edge between the two vertices
+
+   >>> e = Edge(v1, v2)
+
+and then add it to the graph
+
+   >>> g.add_edge(e)
+   Edge{[#0] -- [#1], cost=0.4212}
+   >>> print(g)
+   UGraph: 2 vertices, 1 edge, 1 component
+
+Creating the edge and then adding it to the graph, as above, is
+equivalent to
+
+   >>> e = Edge()
+   >>> e.connect(v1, v2)
+
+Alternatively, we can create a vertex and *connect* it to an existing
+vertex, which will implicitly create an edge between the two vertices
+and add it to the graph.
+
+   >>> v3 = Vertex(np.random.rand(2))
+   >>> g.add_vertex(v3)
+   Vertex[#2, coord=(0.1311, 0.5992)]
+   >>> v2.connect(v3)
+   Edge{[#1] -- [#2], cost=0.8328}
+   >>> print(g)
+   UGraph: 3 vertices, 2 edges, 1 component
+
+The "connect" method of the vertex class creates an edge between the
+two vertices and adds it to the graph. The two vertices must have been
+added to the same graph for the edge to be created. The "connect"
+method is the same for directed and undirected graphs: the graph
+decides how the edge is recorded at its vertices.
+
+Note:
+
+  Wherever a vertex or edge is required, a subclass of the appropriate
+  base class can be used. For example, we can create a subclass of
+  "Vertex" called "MyVertex" and a subclass of "Edge" called "MyEdge"
+  and then create a new graph using these classes, by passing them as
+  the "vertex_class" and "edge_class" arguments of the graph
+  constructor.
+
+The Vertex class
+================
+
+class Vertex(coord=None, name=None)
+
+   Bases: "object"
+
+   A vertex of a graph, directed or undirected.
+
+   A vertex has no direction of its own: how an edge is recorded at
+   its ends is decided by the graph it belongs to (see "UGraph" and
+   "DGraph").  So there is one vertex class, which can be subclassed
+   to give user objects graph capability and passed to the graph as
+   "vertex_class".
+
+   Changed in version 1.0: This replaces "UVertex" and "DVertex",
+   which are deprecated names for it.  They differed only in how an
+   edge was recorded, which is now the graph's decision.
+
+   Each vertex has:
+      * "name" which is its key in the graph, so renaming a vertex
+        that is in a graph updates the graph
+
+      * "label" an int indicating which graph component contains it,
+        read-only: the graph assigns it
+
+      * "coord" the coordinate in an embedded graph (optional)
+
+   and its edges are available from "edges()", "out_edges()" and
+   "in_edges()".
+
+   Seealso:
+      "Graph" "Edge"
+
+   __init__(coord=None, name=None)
+
+      Create a vertex object
+
+      Parameters:
+         * **coord** (*array-like**, **optional*) -- coordinate of the
+           vertex for an embedded graph, defaults to None
+
+         * **name** (*str**, **optional*) -- vertex name, defaults to
+           None
+
+      Creates a vertex but does not add it to a graph -- use
+      "Graph.add_vertex()" for that.
+
+         >>> from pgraph import Vertex
+         >>> v1 = Vertex(coord=[0,0], name='v1')
+         >>> print(v1)
+         [v1]
+
+      Seealso:
+         "Graph.add_vertex()"
+
+The Edge class
+==============
+
+class Edge(v1=None, v2=None, cost=None, data=None)
+
+   Bases: "object"
+
+   Edge class
+
+   Is used to represent directed and undirected edges.
+
+   Each edge has a cost, arbitrary data, and two vertices "v1" and
+   "v2", which are read-only: the start and end vertex for a directed
+   edge.
+
+   cost: float | None
+
+      cost of traversing this edge, required for planning methods
+
+   data: Any
+
+      reference to arbitrary data associated with the edge
+
+   Note:
+
+     * An undirected graph is created by having a single edge object
+       in the edgelist of _each_ vertex.
+
+     * This class can be inherited to provide user objects with graph
+       capability.
+
+     * Inheritance is an alternative to providing arbitrary user data.
+
+     * Pass the subclass as "edge_class" when constructing the graph
+       and the graph will create instances of it itself, see "Graph".
+
+   An Edge points to a pair of vertices.  At "connect" time the
+   vertices get references back to the Edge object.
+
+   "graph.add_edge(v1, v2)" calls "v1.connect(v2)"
+
+   Seealso:
+      "Vertex"
+
+   __init__(v1=None, v2=None, cost=None, data=None)
+
+      Create an edge object
+
+      Parameters:
+         * **v1** ("Vertex", optional) -- start of the edge, defaults
+           to None
+
+         * **v2** ("Vertex", optional) -- end of the edge, defaults to
+           None
+
+         * **cost** (*any**, **optional*) -- edge cost, defaults to
+           None
+
+         * **data** (*any**, **optional*) -- edge data, defaults to
+           None
+
+      Creates an edge but does not connect it to the vertices or add
+      it to the graph.
+
+      If vertices are given, and have associated coordinates, the edge
+      cost will be computed according to the distance measure
+      associated with the graph.
+
+      "data" is a way of associating any object with the edge, its
+      value can be found as the ".data" attribute of the edge.  An
+      alternative approach is to subclass the "Edge" class.
+
+      Note:
+
+        To compute edge cost from the vertices, both vertices must
+        have already been added to the same graph -- otherwise "cost"
+        is left as None rather than raising, since this constructor is
+        also used standalone, independent of any graph.
+
+      Seealso:
+         "Edge.connect()" "Vertex.connect()"
+
+   connect(v1, v2)
+
+      Attach this edge to a pair of vertices
+
+      Parameters:
+         * **v1** (*Vertex subclass*) -- start of the edge
+
+         * **v2** (*Vertex subclass*) -- end of the edge
+
+      Raises:
+         * **ValueError** -- either vertex has not been added to a
+           graph, or the vertices belong to different graphs
+
+         * **TypeError** -- this edge is not an instance of the
+           graph's "Graph.edge_class"
+
+      Return type:
+         "None"
+
+      The edge connects vertices "v1" and "v2", and is added to the
+      graph that those vertices belong to.
+
+      Warning:
+
+        Intended for an edge that is not yet part of a graph. The
+        edge's "v1" and "v2" are overwritten without checking, so
+        connecting an edge that is already in a graph leaves it
+        referenced from its old vertices as well.
+
+         >>> from pgraph import Vertex, Edge, UGraph
+         >>> g = UGraph()
+         >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+         >>> v2 = g.add_vertex(coord=[1,1], name='v2')
+         >>> e = Edge(cost=1.414)
+         >>> e.connect(v1, v2)
+         >>> print(e)
+         Edge{[v1] -- [v2], cost=1.414}
+
+      Note:
+
+        The vertices must already be added to the graph.
+
+      Seealso:
+         "Vertex.connect()"
+
+   property endpoints: list[Vertex]
+
+      The two vertices of this edge
+
+      Returns:
+         start and end vertex
+
+      Return type:
+         list of Vertex subclass
+
+         >>> from pgraph import Vertex, Edge
+         >>> v1 = Vertex(coord=[1,2], name="A")
+         >>> v2 = Vertex(coord=[3,4], name="B")
+         >>> e = Edge(v1, v2, cost=5.0, data="A to B")
+         >>> print(e)
+         Edge{[A] -- [B], cost=5} data=A to B
+         >>> print(e.endpoints)
+         [Vertex[A, coord=(1, 2)], Vertex[B, coord=(3, 4)]]
+
+      Seealso:
+         "vertices()"
+
+   next(vertex)
+
+      Return other end of an edge
+
+      Parameters:
+         **vertex** (*Vertex subclass*) -- one vertex on the edge
+
+      Raises:
+         **ValueError** -- "vertex" is not on the edge
+
+      Returns:
+         the other vertex on the edge
+
+      Return type:
+         Vertex subclass
+
+      "e.next(v1)" is the vertex at the other end of edge "e", ie. the
+      vertex that is not "v1".
+
+         >>> from pgraph import Vertex, Edge
+         >>> v1 = Vertex(coord=[1,2], name="A")
+         >>> v2 = Vertex(coord=[3,4], name="B")
+         >>> e = Edge(v1, v2, cost=5.0, data="A to B")
+         >>> print(e)
+         Edge{[A] -- [B], cost=5} data=A to B
+         >>> e.next(v1)
+         Vertex[B, coord=(3, 4)]
+         >>> e.next(v2)
+         Vertex[A, coord=(1, 2)]
+
+   remove()
+
+      Remove this edge from its graph
+
+      Raises:
+         **ValueError** -- the edge is not connected to a graph
+
+      "e.remove()" removes "e" from its graph's own edge collection
+      and from its connected vertices' edge lists (both, for an
+      undirected edge; the source only, for a directed one -- see
+      "Graph.remove_edge()"), and clears "e.v1"/"e.v2" to "None". The
+      "Edge" object itself is not deleted -- it becomes an orphaned,
+      disconnected shell, and calling "remove()" on it again raises
+      "ValueError".
+
+      Note:
+
+        This is a thin convenience wrapper around
+        "Graph.remove_edge()".
+
+      Return type:
+         None
+
+         >>> from pgraph import UGraph
+         >>> g = UGraph()
+         >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+         >>> v2 = g.add_vertex(coord=[1,1], name='v2')
+         >>> e = g.add_edge(v1, v2)
+         >>> e.remove()
+         >>> print(g)
+         UGraph: 2 vertices, 0 edges, 2 components
+
+      Seealso:
+         "Graph.remove_edge()" "Vertex.remove()"
+
+   property v1: Vertex | None
+
+      First vertex of the edge, the start vertex for a directed edge
+
+      Returns:
+         the vertex, or None if the edge is not connected
+
+      Return type:
+         Vertex subclass or None
+
+      Changed in version 1.0: Read-only.  It was a plain attribute, so
+      assigning to it on an edge that was in a graph left the graph
+      inconsistent: the vertices' edge lists no longer agreed with the
+      edge, and the edge could not be removed.  Give the vertices to
+      the constructor, "Edge(v1, v2)", or to "connect()" or
+      "Vertex.connect()".
+
+      Seealso:
+         "v2" "connect()"
+
+   property v2: Vertex | None
+
+      Second vertex of the edge, the end vertex for a directed edge
+
+      Returns:
+         the vertex, or None if the edge is not connected
+
+      Return type:
+         Vertex subclass or None
+
+      Read-only, see "v1".
+
+      Seealso:
+         "v1" "connect()"
+
+   vertices()
+
+      Vertices of an edge (deprecated)
+
+      Returns:
+         the two vertices of this edge
+
+      Return type:
+         list of Vertex subclass
+
+      Deprecated since version use: "endpoints" instead
+
+========================================================================
+Page: https://petercorke.github.io/pgraph-python/policy.html
+========================================================================
+
+Object lifecycle and graph-membership policy
+********************************************
+
+"Vertex" and "Edge" can both be constructed directly, independent of
+any graph. This is deliberate -- it is not an oversight and not a
+"factory-only" design -- but it means the rules for what those objects
+can and can't do *before* they belong to a graph need to be stated
+explicitly rather than left implicit.
+
+Standalone construction
+=======================
+
+A vertex or edge built directly, e.g. "Vertex(coord=[1, 2], name="A")"
+or "Edge(v1, v2, cost=5.0)", is a fully valid object in its own right.
+The main supported use of this is lightweight, graph-independent work:
+building a couple of vertices and an edge between them to demonstrate
+or test, without needing a graph at all.  Without a graph there is no
+metric, so the edge's cost is the one given, or "None".
+
+An object in this state has "._graph is None". It cannot be connected
+to anything (see below) until it is added to a graph via
+"add_vertex()".
+
+Adding a vertex to a graph
+==========================
+
+A vertex is the same for undirected and directed graphs: it has no
+direction of its own, and the graph it belongs to decides how an edge
+is recorded at its ends.  "add_vertex()" accepts coordinate data, from
+which a vertex is built, or an existing "Vertex" that does not belong
+to a graph.  A graph given a "vertex_class" only accepts instances of
+that class; passing any other vertex raises "TypeError" rather than
+being silently accepted or converted.  A vertex that already belongs
+to a graph raises "ValueError"; remove it from that graph first.
+
+This is the mechanism that makes graph membership meaningful: once
+added, a vertex's "._graph" is fixed to that specific graph instance.
+
+Connecting two vertices
+=======================
+
+"v1.connect(v2)" (and the equivalent "graph.add_edge(v1, v2)")
+requires **both vertices to already belong to the same graph**:
+
+* If either vertex has not been added to any graph ("._graph is
+  None"), "connect()" raises "ValueError".
+
+* If the two vertices belong to different graph instances, "connect()"
+  raises "ValueError".
+
+There is no such thing as connecting an "undirected" vertex to a
+"directed" one, since a vertex is neither: the kind of edge is the
+graph's, so the same-graph check above is the only one needed.
+
+Constructing an "Edge" directly
+===============================
+
+"Edge(v1, v2)" (without going through "connect()") does not raise if
+the vertices aren't graph-connected -- this constructor is also the
+supported standalone-use path described above, so it stays permissive.
+Instead:
+
+* If an explicit "cost" is given, it is used as-is.
+
+* Otherwise, the edge cost is auto-computed from vertex coordinates
+  via the graph's metric *only if* both vertices are added to the same
+  graph. Otherwise "cost" is left as "None" rather than raising.
+
+This means a bare "Edge(v1, v2)" with orphaned or cross-graph vertices
+is a valid object with "cost=None" -- it is only the *connecting*
+operations ("connect()", "add_edge()") that enforce the graph-
+membership invariant strictly.
+
+Summary
+=======
+
++-----------------------------------+-----------------------------------+-----------------------------------+
+| Operation                         | Requires graph membership?        | Failure mode                      |
+|===================================|===================================|===================================|
+| "Vertex()"                        | No                                | --                                |
++-----------------------------------+-----------------------------------+-----------------------------------+
+| "Edge(v1, v2)"                    | No (cost falls back to "None" if  | --                                |
+|                                   | ungraphed/cross-graph)            |                                   |
++-----------------------------------+-----------------------------------+-----------------------------------+
+| "graph.add_vertex(v)"             | "v" must be of the graph's        | "TypeError" on a vertex of        |
+|                                   | "vertex_class" and not already in | another class, "ValueError" if it |
+|                                   | a graph, or coordinate data       | is already in a graph             |
++-----------------------------------+-----------------------------------+-----------------------------------+
+| "v1.connect(v2)" /                | Both vertices must already belong | "ValueError" if either is         |
+| "graph.add_edge(v1, v2)"          | to the same graph                 | ungraphed or they belong to       |
+|                                   |                                   | different graphs                  |
++-----------------------------------+-----------------------------------+-----------------------------------+
