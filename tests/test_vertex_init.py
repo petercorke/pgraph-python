@@ -39,6 +39,37 @@ class TestConstructor(unittest.TestCase):
         self.assertEqual(v.coord[0], 1.0)  # not the caller's array
         self.assertIsInstance(v.coord, np.ndarray)
 
+    def test_the_coordinate_is_what_np_r_made(self):
+        # the coordinate used to be made with np.r_[coord]; for everything a
+        # coordinate can be it is the same array, in shape, type and values
+        for coord in (
+            [1, 2],
+            [1.5, 2],
+            (1, 2, 3),
+            5,
+            2.5,
+            np.array([1.0, 2.0]),
+            np.array([1, 2], dtype=np.int32),
+            range(3),
+            [[1, 2], [3, 4]],
+        ):
+            with self.subTest(coord=repr(coord)):
+                v = Vertex(coord=coord)
+                expected = np.r_[coord]
+                self.assertEqual(v.coord.shape, expected.shape)
+                self.assertEqual(v.coord.dtype, expected.dtype)
+                np.testing.assert_array_equal(v.coord, expected)
+
+    def test_a_scalar_is_a_vector_of_one(self):
+        self.assertEqual(Vertex(coord=7).coord.shape, (1,))
+
+    def test_an_array_given_is_copied(self):
+        c = np.array([1, 2])
+        v = Vertex(coord=c)
+        c[0] = 99
+        self.assertEqual(v.coord[0], 1)
+        self.assertFalse(np.shares_memory(v.coord, c))
+
     def test_the_lists_are_not_shared_between_vertices(self):
         a, b = Vertex(), Vertex()
         self.assertIsNot(a._edgelist, b._edgelist)
