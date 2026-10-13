@@ -123,6 +123,10 @@ Faster
 - Creating a vertex is faster: `Vertex(coord)` takes 0.35 µs where 0.6.5 took
   1.5 µs, and `g.add_vertex(coord)` 1.7 µs where it took 2.2 µs.  Making the
   coordinate with `np.r_` was most of the cost.
+- `import pgraph` takes 0.04 s where it took 0.6 s, and loads neither
+  matplotlib, spatialmath nor scipy: they are imported by the methods that plot
+  or build a spatial index.  A script that only builds graphs and plans paths no
+  longer pays for them.
 - `str(g)` separates thousands: `DGraph: 4,881 vertices, 8,392 edges, 14
   components`.
 
@@ -151,6 +155,11 @@ Fixed
   when called with its default arguments; and several methods raised a bare
   `AttributeError` or `TypeError` instead of a clear message for a vertex with
   no coordinate or no graph.
+- `highlight_edge()`, and so `highlight_path()`, raised `AttributeError` for a
+  graph of three dimensions, because it drew a flat arrow in the 3D axes (0.6.5
+  drew lines), and `highlight_vertex()` put its marker at z = 0.  They draw in
+  the dimension of the axes, so a 3D graph plotted with `force_2d` is
+  highlighted in 2D.
 - Removing a vertex left its `_graph` pointing at the graph; renaming a vertex
   left the name table stale; `g[x]` accepted any type.
 
