@@ -300,5 +300,5 @@ Alternatively, we can make the decision at runtime by using the ``directed`` arg
 History
 --------
 
-``pgaph-python`` is based on ``PGraph.m`` which is part of the
+``pgraph-python`` is based on ``PGraph.m`` which is part of the
 earlier `Spatial Math Toolbox for MATLAB <https://github.com/petercorke/spatialmath-matlab>`_.
