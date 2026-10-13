@@ -176,6 +176,9 @@ Build, tests and documentation
 - The documentation is organized by task, with the data structures explained and
   a policy page on object lifecycle, and builds with `sphinx-pyrunblock` (which
   replaces the unmaintained `sphinx-autorun`) and the matplotlib plot directive.
+- The source distribution no longer contains a stale copy of the source
+  (`build/lib`, left by a setuptools build before the move to the `src` layout),
+  nor the `RELEASE` file, which held `0.6.1` and which nothing read.
 - Python 3.9 to 3.14 are tested, the unused `scipy` dependency is dropped, and
   PyPI publishing is automated through GitHub Releases and trusted publishing.
   The workflow checks that the tag is the version in `pyproject.toml` and that
