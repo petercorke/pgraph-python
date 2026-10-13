@@ -52,6 +52,13 @@ pip install pgraph-python
 
 This needs Python 3.9 or later.  The dependencies, NumPy, Matplotlib and Spatial Maths, are installed with it.
 
+### Using UV
+If you have ``uv``
+```
+uv sync
+```
+The above will install all the required packages.
+
 ## Examples
 
 ### A small example: routing through towns in Queensland
