@@ -172,6 +172,10 @@ Build, tests and documentation
   The workflow checks that the tag is the version in `pyproject.toml` and that
   the tagged commit is on `main`, and installs the built wheel and runs a path
   query before it uploads.
+- `llms.txt` and `llms-full.txt` are published with the documentation, for AI
+  assistants: a short introduction with a quick start and common mistakes, and the
+  whole documentation as one text file.  `AGENTS.md` describes the source for
+  assistants that work on it.
 - Two notebooks in `examples/`: `roads.ipynb`, the Queensland example, and
   `london.ipynb`, the road network of central London from OpenStreetMap as a
   directed graph with one-way streets, planned through with A*.  There is also
