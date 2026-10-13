@@ -172,6 +172,9 @@ Build, tests and documentation
   The workflow checks that the tag is the version in `pyproject.toml` and that
   the tagged commit is on `main`, and installs the built wheel and runs a path
   query before it uploads.
+- The documentation site is deployed with the GitHub Pages actions.  It had not
+  been updated since January 2025, because the CI pushed to a branch that Pages
+  no longer served.
 - `llms.txt` and `llms-full.txt` are published with the documentation, for AI
   assistants: a short introduction with a quick start and common mistakes, and the
   whole documentation as one text file.  `AGENTS.md` describes the source for
