@@ -2765,8 +2765,10 @@ class Graph:
         import matplotlib.pyplot as plt
         if edge.v1 is None or edge.v2 is None:
             raise ValueError("edge does not connect two vertices")
-        # over the edge as plot() draws it, so that it follows an arc
+        # over the edge as plot() draws it, so that it follows an arc, and in
+        # three dimensions if that is what the axes are
         ax = plt.gca()
+        ndim = 3 if getattr(ax, "name", None) == "3d" else 2
         rads, loopno = self._edge_layout()
         ax.add_patch(
             self._edge_artist(
@@ -2775,7 +2777,7 @@ class Graph:
                 rads.get(edge, 0.0),
                 loopno.get(edge, 0),
                 12,
-                2,
+                ndim,
                 arrowstyle="-",
                 color=color,
                 linewidth=3 * scale,
@@ -2832,15 +2834,20 @@ class Graph:
 
         """
         import matplotlib.pyplot as plt
-        if isinstance(vertex, Iterable):
-            for n in vertex:
-                if isinstance(n, str):
-                    n = self[n]
-                plt.plot(n.x, n.y, "o", color=color, markersize=12 * scale, alpha=alpha)
-        else:
-            plt.plot(
-                vertex.x, vertex.y, "o", color=color, markersize=12 * scale, alpha=alpha
+
+        ax = plt.gca()
+        is3d = getattr(ax, "name", None) == "3d"
+        vertices = vertex if isinstance(vertex, Iterable) else [vertex]
+        for n in vertices:
+            if isinstance(n, str):
+                n = self[n]
+            style: dict[str, Any] = dict(
+                color=color, markersize=12 * scale, alpha=alpha
             )
+            if is3d:
+                ax.plot([n.x], [n.y], [n.z], "o", **style)
+            else:
+                ax.plot(n.x, n.y, "o", **style)
 
     def export(
         self,
