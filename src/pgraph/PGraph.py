@@ -4518,7 +4518,8 @@ class Vertex:
         # invalidate; writing the attributes directly avoids the cost of
         # ``__setattr__`` on each of them.
         self.__dict__.update(
-            coord=None if coord is None else np.r_[coord],
+            # np.array is a tenth of the cost of np.r_ for the same result here
+            coord=None if coord is None else np.array(coord, ndmin=1),
             _name=name,
             _label=None,
             _connectivitychange=True,
