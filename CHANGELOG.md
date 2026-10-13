@@ -91,6 +91,37 @@ Added
 - Self-loops and parallel edges are supported throughout: adjacency, incidence,
   degree and Laplacian matrices, and planning, which takes the cheapest of
   parallel edges.
+- `SE2Metric(weight)` is the `"SE2"` metric with a weight on the angle, the
+  length that a radian is worth, so that position and orientation need not
+  count equally.  `"SE2"` is `SE2Metric()`, a weight of 1, so existing results
+  are unchanged.  It can be the metric or the heuristic of a graph and is
+  pickled with its weight.
+- Spatial queries on an embedded graph: `coordinates()` is the matrix of vertex
+  coordinates, a column per vertex; `within(box)` the vertices inside a box;
+  `near(point, radius)` those within a distance, nearest first; and
+  `subgraph(vertices)` the graph that a set of vertices induces, given as
+  vertices, names or a boolean mask, as a new graph that shares nothing with
+  the original.
+- `build_kdtree()` makes an optional k-d tree that `closest()` and `near()` use
+  for the built-in metrics, `SE2Metric` included.  It needs scipy, which is
+  imported only then and is not a dependency; and it is dropped whenever a
+  vertex is added or removed or a coordinate is assigned, so a stale one is
+  never used.
+- `validate()` also checks that coordinates are finite vectors of one length,
+  and with `embedded=True` that every vertex has one.
+
+Faster
+
+- `path_BFS`, `path_UCS` and `path_Astar` scaled badly: they searched lists with
+  `in`, and took the minimum of the whole frontier at every step.  Results and
+  the verbose output are identical.  For one query on 10,000 vertices,
+  breadth-first search takes 3 ms where it took 145 ms, uniform cost 7 ms
+  where it took 160 ms, and A* 3 ms where it took 17 ms.
+- The components are found by a union-find over the edges: 4 ms for 10,000
+  vertices where it was 9 ms, and 40 ms for 100,000 where it was 136 ms.
+- Creating a vertex is about 20% faster.
+- `str(g)` separates thousands: `DGraph: 4,881 vertices, 8,392 edges, 14
+  components`.
 
 Fixed
 
@@ -135,6 +166,18 @@ Build, tests and documentation
   replaces the unmaintained `sphinx-autorun`) and the matplotlib plot directive.
 - Python 3.9 to 3.14 are tested, the unused `scipy` dependency is dropped, and
   PyPI publishing is automated through GitHub Releases and trusted publishing.
+  The workflow checks that the tag is the version in `pyproject.toml` and that
+  the tagged commit is on `main`, and installs the built wheel and runs a path
+  query before it uploads.
+- Two notebooks in `examples/`: `roads.ipynb`, the Queensland example, and
+  `london.ipynb`, the road network of central London from OpenStreetMap as a
+  directed graph with one-way streets, planned through with A*.  There is also
+  a benchmark, `examples/benchmark.py`, and the README has its results and an
+  installation section.
+- The Queensland figure in the README shows the shortest route.  It had been
+  drawn with coordinates in metres and distances in kilometres, which made the
+  A* heuristic far too large, so the route it found, 1,759 km, was not the
+  shortest, 1,659 km.
 
 0.6.3
 
