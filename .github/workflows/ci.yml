@@ -85,6 +85,15 @@ jobs:
     if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
     needs: unittest
     runs-on: ubuntu-latest
+    # The site is served from a GitHub Pages deployment, not from the gh-pages
+    # branch, so the artifact is deployed with the Pages actions.
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v7
       - name: Set up Python 3.11
@@ -101,9 +110,12 @@ jobs:
         run: |
           make -C docs html llms
           touch docs/build/html/.nojekyll
-      - name: Deploy docs to gh-pages
-        uses: peaceiris/actions-gh-pages@v4
+      - name: Setup Pages
+        uses: actions/configure-pages@v6
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v5
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_branch: gh-pages
-          publish_dir: ./docs/build/html
+          path: docs/build/html
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
