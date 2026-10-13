@@ -1,0 +1,115 @@
+# Build and publish to PyPI when a GitHub release is created, or on manual trigger.
+# Uses OIDC trusted publishing, so no PyPI token is stored.  The trusted publisher
+# on PyPI is: owner petercorke, repository pgraph-python, workflow publish.yml,
+# environment pypi.  Pure Python package, so one universal wheel and an sdist.
+#
+# To release: make sure main has the version in pyproject.toml, then create a
+# GitHub release whose tag is v<version> on main.
+
+name: Publish to PyPI
+
+on:
+  release:
+    types: [created]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify_version:
+    name: Verify tag matches package version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Check version
+        # Skip on manual workflow_dispatch runs (no release tag exists)
+        if: github.event_name == 'release'
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          PKG=$(python3 -c "import tomllib; print(tomllib.load(open('pyproject.toml','rb'))['project']['version'])")
+          echo "Tag version    : $TAG"
+          echo "Package version: $PKG"
+          [ "$TAG" = "$PKG" ] || { echo "ERROR: tag $GITHUB_REF_NAME does not match pyproject.toml version $PKG"; exit 1; }
+      - name: Check the tagged commit is on main
+        if: github.event_name == 'release'
+        run: |
+          git fetch origin main
+          git merge-base --is-ancestor "$GITHUB_SHA" origin/main \
+            || { echo "ERROR: $GITHUB_SHA is not on main, so it was not reviewed and tested there"; exit 1; }
+
+  build:
+    name: Build sdist and wheel
+    needs: verify_version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Build sdist and wheel
+        run: pipx run build
+
+      - name: Check metadata
+        run: pipx run twine check dist/*
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: dist
+          path: dist/
+
+  smoke_test:
+    name: Smoke-test wheel
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: dist
+          path: dist
+
+      - name: Install the wheel (pulls dependencies from PyPI)
+        run: pip install dist/*.whl
+
+      - name: Smoke test
+        run: |
+          python - <<'PY'
+          from importlib.metadata import version
+          import pgraph
+
+          g = pgraph.UGraph()
+          g.add_vertex(coord=[0, 0], name="a")
+          g.add_vertex(coord=[3, 4], name="b")
+          g.add_edge("a", "b")
+          path, length, _ = g.path_Astar("a", "b")
+          assert length == 5.0, length
+          print("OK", version("pgraph-python"), length)
+          PY
+
+  upload_pypi:
+    name: Publish to PyPI
+    needs: [build, smoke_test]
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/project/pgraph-python/
+    permissions:
+      id-token: write   # required for OIDC trusted publishing
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: dist
+          path: dist
+
+      # pinned to a commit, as this action can publish to PyPI; dependabot updates it
+      - uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33  # v1.14.2
+        with:
+          skip_existing: true
