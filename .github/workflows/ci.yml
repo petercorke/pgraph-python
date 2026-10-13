@@ -82,7 +82,7 @@ jobs:
           verbose: true
 
   docs:
-    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
     needs: unittest
     runs-on: ubuntu-latest
     steps:
