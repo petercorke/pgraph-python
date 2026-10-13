@@ -36,7 +36,7 @@
 
 This pure-Python package provides classes for directed and undirected graphs: vertices
 connected by edges, with edge costs and path planning.  Self-loops and
-parallel edges are permitted.
+parallel edges are permitted.  Performance is good enough to support bundle adjustment, pose-graph SLAM and path planning over thousands of vertices.
 
 Vertices can optionally be *embedded*: given a coordinate in a space of any
 dimension.  Edge costs are then computed from the vertex positions using a
@@ -85,7 +85,7 @@ The data file and the complete example are in the notebook [`examples/roads.ipyn
 
 ![Map of central London as a network of grey streets, with two routes between Buckingham Palace and Tower Bridge: a solid blue route of 5,515 m via Big Ben, and a dashed orange route of 5,948 m back through the north of the area, with five landmarks labelled](https://github.com/petercorke/pgraph-python/raw/main/docs/figs/london_route.png)
 
-A directed graph of the road network of central London, taken from [OpenStreetMap](https://www.openstreetmap.org/copyright), and the shortest drive between Buckingham Palace and Tower Bridge, there (solid) and back (dashed).  The two routes differ in length, 5,515 m and 5,948 m, because of the one-way streets.  The notebook [`examples/london.ipynb`](https://github.com/petercorke/pgraph-python/blob/main/examples/london.ipynb) builds the graph from the map data, keeps the part of it that can be driven around in, and plans with `A*`.
+A directed graph of the road network of central London, taken from [OpenStreetMap](https://www.openstreetmap.org/copyright), and the shortest drive between Buckingham Palace and Tower Bridge, there (solid) and back (dashed).  The two routes differ in length, 5,515 m and 5,948 m, because of the one-way streets.  The notebook [`examples/london.ipynb`](https://github.com/petercorke/pgraph-python/blob/main/examples/london.ipynb) builds the graph from the map data, keeps the part of it that can be driven around in, and plans with `A*`.  This graph has over 4,000 vertices.
 
 Map data © OpenStreetMap contributors, available under the [Open Database License](https://www.openstreetmap.org/copyright).
 
@@ -229,9 +229,8 @@ Timings of the key operations on random geometric graphs, each vertex joined to 
 | path, uniform cost                   | ms / query  | 0.0536 |   0.936 |     8.06 |             1.1 |
 | path, A*                             | ms / query  |  0.046 |   0.721 |     3.68 |             1.0 |
 
-## MATLAB version
+## History
 
-This is a re-engineered version of [PGraph.m](https://github.com/petercorke/spatialmath-matlab/blob/main/PGraph.m) which ships as part of the [Spatial Math Toolbox for MATLAB](https://github.com/petercorke/spatialmath-matlab).  This class is used to support bundle adjustment, pose-graph SLAM and various planners such as PRM, RRT and Lattice.
+This is a re-engineered version of [PGraph.m](https://github.com/petercorke/spatialmath-matlab/blob/main/PGraph.m) which ships as part of the [Spatial Math Toolbox for MATLAB](https://github.com/petercorke/spatialmath-matlab).  That class was used to support bundle adjustment, pose-graph SLAM and various planners such as PRM, RRT and Lattice.
 
-The Python version was designed from the start to work with directed and undirected graphs, whereas directed graphs were a late addition to the MATLAB version.  Semantics are similar but not identical.  In particular the use of subclassing rather than references to
-_user data_ is encouraged.
+The Python version was designed from the start to work with directed and undirected graphs, whereas directed graphs were a late addition to the MATLAB version.  Semantics are similar but not identical.  In particular the use of subclassing rather than references to _user data_ is encouraged.
