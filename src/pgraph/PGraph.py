@@ -2313,6 +2313,32 @@ class Graph:
         """
         return list(self._edges)
 
+    def isparallel(self) -> bool:
+        """Test whether the graph contains parallel edges.
+
+        :return: True if two distinct edges connect the same pair of vertices
+
+        Direction matters for directed graphs: ``a -> b`` and ``b -> a``
+        are not parallel. For undirected graphs the order is ignored.
+        One self-loop is not a parallel pair, but two at the same vertex are.
+
+        Checks each edge once, taking O(E) time and O(E) space in the worst
+        case, and stops as soon as a repeated pair is found.
+
+        :seealso: :meth:`edges` :meth:`iscyclic`
+        """
+        seen: set[tuple[int, int]] = set()
+        for edge in self._edges:
+            assert edge.v1 is not None and edge.v2 is not None
+            a, b = id(edge.v1), id(edge.v2)
+            if not self._directed and a > b:
+                a, b = b, a
+            endpoints = (a, b)
+            if endpoints in seen:
+                return True
+            seen.add(endpoints)
+        return False
+
     def _edge_layout(self) -> tuple[dict[Edge, float], dict[Edge, int]]:
         """
         How each edge is to be drawn, apart from its end points (private method)
