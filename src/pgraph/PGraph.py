@@ -4249,7 +4249,7 @@ class Edge:
         :seealso: :meth:`__repr__`
         """
         graph = self.v1._graph if self.v1 is not None else None
-        arrow = "->" if graph is not None and graph.directed else "--"
+        arrow = "→" if graph is not None and graph.directed else "↔"
         cost_str = "None" if self.cost is None else f"{self.cost:.4g}"
         s = f"{self.__class__.__name__}{{{self.v1} {arrow} {self.v2}, cost={cost_str}}}"
         if self.data is not None:

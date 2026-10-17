@@ -251,14 +251,14 @@ class TestModuleLevelDeprecatedNames(unittest.TestCase):
 
 class TestEdgeArrow(unittest.TestCase):
     def test_arrow_follows_the_graph(self):
-        for flag, arrow in ((False, "--"), (True, "->")):
+        for flag, arrow in ((False, "↔"), (True, "→")):
             g = Graph(directed=flag)
             a, b = g.add_vertex(name="a"), g.add_vertex(name="b")
             self.assertIn(arrow, str(g.add_edge(a, b)))
 
     def test_a_standalone_edge_has_no_arrow_to_show(self):
         e = Edge(Vertex(name="a"), Vertex(name="b"), cost=1)
-        self.assertIn("--", str(e))
+        self.assertIn("↔", str(e))
 
 
 if __name__ == "__main__":
