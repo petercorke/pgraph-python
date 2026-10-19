@@ -2405,7 +2405,7 @@ class Graph:
         vopt: dict | None = None,
         eopt: dict | None = None,
         text: dict | bool | None = None,
-        block: bool | None = False,
+        block: bool | None = None,
         grid: bool = True,
         ax: Any = None,
         *,
@@ -2448,9 +2448,9 @@ class Graph:
         :type grid: bool, optional
         :param ax: axes to draw in, defaults to the current axes or a new figure
         :type ax: Axes or Axes3D, optional
-        :param block: block until figure is dismissed, defaults to False. If
-            None the figure is not shown at all, which is useful when
-            adding to the plot or saving it.
+        :param block: None (default) leaves display to the environment without
+            calling plt.show; False shows without waiting; True waits until
+            the window is closed (desktop GUI backends).
         :type block: bool or None, optional
         :raises ValueError: the graph is empty, or a vertex has no coordinate
             or fewer than two coordinate values
@@ -2657,15 +2657,16 @@ class Graph:
             plt.show(block=block)
 
     def highlight_path(
-        self, path: list[Vertex], block: bool | None = False, **kwargs: Any
+        self, path: list[Vertex], block: bool | None = None, **kwargs: Any
     ) -> None:
         """
         Highlight a path through the graph
 
         :param path: sequence of vertices forming a path
         :type path: list of Vertex subclass
-        :param block: block until figure is dismissed, defaults to False. If
-            None the figure is not shown.
+        :param block: None (default) leaves display to the environment without
+            calling plt.show; False shows without waiting; True waits until
+            the window is closed (desktop GUI backends).
         :type block: bool or None, optional
         :param kwargs: arguments passed to :meth:`highlight_edge` and
             :meth:`highlight_vertex`
