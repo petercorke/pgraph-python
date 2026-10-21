@@ -1,5 +1,6 @@
 """Regression tests for the three-state block= plotting contract."""
 
+import unittest
 from unittest.mock import patch
 
 import matplotlib
@@ -10,47 +11,42 @@ import matplotlib.pyplot as plt
 from pgraph import UGraph
 
 
-def make_graph() -> tuple[UGraph, list]:
-    graph = UGraph()
-    a = graph.add_vertex([0.0, 0.0], name="a")
-    b = graph.add_vertex([1.0, 1.0], name="b")
-    graph.add_edge(a, b)
-    return graph, [a, b]
+class TestPlotBlock(unittest.TestCase):
+    def setUp(self) -> None:
+        self.graph = UGraph()
+        a = self.graph.add_vertex([0.0, 0.0], name="a")
+        b = self.graph.add_vertex([1.0, 1.0], name="b")
+        self.graph.add_edge(a, b)
+        self.path = [a, b]
 
+    def tearDown(self) -> None:
+        plt.close("all")
 
-def test_default_plot_and_highlight_do_not_call_show() -> None:
-    graph, path = make_graph()
-    try:
+    def test_default_plot_and_highlight_do_not_call_show(self) -> None:
         with patch.object(plt, "show") as show:
-            graph.plot()
+            self.graph.plot()
             axes = plt.gca()
             before = len(axes.patches)
-            graph.highlight_path(path)
+            self.graph.highlight_path(self.path)
             show.assert_not_called()
-        assert plt.gca() is axes
-        assert len(axes.patches) > before
-    finally:
-        plt.close("all")
+        self.assertIs(plt.gca(), axes)
+        self.assertGreater(len(axes.patches), before)
 
-
-def test_explicit_plot_show_modes() -> None:
-    graph, _ = make_graph()
-    try:
+    def test_explicit_plot_show_modes(self) -> None:
         for block in (False, True):
-            with patch.object(plt, "show") as show:
-                graph.plot(block=block)
-                show.assert_called_once_with(block=block)
-    finally:
-        plt.close("all")
+            with self.subTest(block=block):
+                with patch.object(plt, "show") as show:
+                    self.graph.plot(block=block)
+                    show.assert_called_once_with(block=block)
 
-
-def test_explicit_highlight_show_modes() -> None:
-    graph, path = make_graph()
-    try:
-        graph.plot()
+    def test_explicit_highlight_show_modes(self) -> None:
+        self.graph.plot()
         for block in (False, True):
-            with patch.object(plt, "show") as show:
-                graph.highlight_path(path, block=block)
-                show.assert_called_once_with(block=block)
-    finally:
-        plt.close("all")
+            with self.subTest(block=block):
+                with patch.object(plt, "show") as show:
+                    self.graph.highlight_path(self.path, block=block)
+                    show.assert_called_once_with(block=block)
+
+
+if __name__ == "__main__":
+    unittest.main()
