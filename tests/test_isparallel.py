@@ -153,7 +153,8 @@ class TestIsParallel(unittest.TestCase):
                 self.assertFalse(graph.isparallel())
 
     def test_random_graphs_match_independent_pairwise_reference(self):
-        rng = random.Random(20261030)
+        # Reproducible test data only; no security-sensitive randomness.
+        rng = random.Random(20261030)  # nosec B311
 
         def same_endpoints(left, right, directed):
             same = left.v1 is right.v1 and left.v2 is right.v2
