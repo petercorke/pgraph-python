@@ -2313,31 +2313,50 @@ class Graph:
         """
         return list(self._edges)
 
+    def _parallel_edge_key(self, edge: Edge) -> tuple[int, int]:
+        """Identify an edge's endpoints, preserving direction when directed."""
+        assert edge.v1 is not None and edge.v2 is not None
+        a, b = id(edge.v1), id(edge.v2)
+        if not self._directed and a > b:
+            a, b = b, a
+        return a, b
+
     def isparallel(self) -> bool:
-        """Test whether the graph contains parallel edges.
+        """Test whether at least two distinct edges join the same vertices.
 
-        :return: True if two distinct edges connect the same pair of vertices
+        Direction matters in directed graphs: ``a -> b`` and ``b -> a``
+        are not parallel. Undirected edges are orientation-independent.
+        A single self-loop is not parallel, but two self-loops are.
 
-        Direction matters for directed graphs: ``a -> b`` and ``b -> a``
-        are not parallel. For undirected graphs the order is ignored.
-        One self-loop is not a parallel pair, but two at the same vertex are.
+        Checks each edge once and returns as soon as a repeated endpoint
+        pair is found. Worst-case time and space are O(E).
 
-        Checks each edge once, taking O(E) time and O(E) space in the worst
-        case, and stops as soon as a repeated pair is found.
-
-        :seealso: :meth:`edges` :meth:`iscyclic`
+        :seealso: :meth:`parallel_edges` :meth:`edges`
         """
         seen: set[tuple[int, int]] = set()
         for edge in self._edges:
-            assert edge.v1 is not None and edge.v2 is not None
-            a, b = id(edge.v1), id(edge.v2)
-            if not self._directed and a > b:
-                a, b = b, a
-            endpoints = (a, b)
-            if endpoints in seen:
+            key = self._parallel_edge_key(edge)
+            if key in seen:
                 return True
-            seen.add(endpoints)
+            seen.add(key)
         return False
+
+    def parallel_edges(self) -> list[tuple[Edge, ...]]:
+        """Return groups of at least two distinct parallel edges.
+
+        Each tuple contains all edges joining the same vertices, in edge
+        insertion order. Groups are ordered by the first edge in each group.
+        Direction matters for directed graphs but not undirected graphs.
+        A single self-loop is excluded; two or more are grouped together.
+
+        :return: List of tuples of parallel edges, or an empty list
+        :seealso: :meth:`isparallel` :meth:`edges`
+        """
+        groups: dict[tuple[int, int], list[Edge]] = {}
+        for edge in self._edges:
+            key = self._parallel_edge_key(edge)
+            groups.setdefault(key, []).append(edge)
+        return [tuple(edges) for edges in groups.values() if len(edges) >= 2]
 
     def _edge_layout(self) -> tuple[dict[Edge, float], dict[Edge, int]]:
         """
