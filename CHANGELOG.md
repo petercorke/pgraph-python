@@ -62,7 +62,10 @@ Deprecated (still work, with a `DeprecationWarning`)
 
 Added
 
-- `Graph.isparallel()` detects two or more distinct edges with the same endpoints; `Graph.parallel_edges()` returns their groups as insertion-ordered tuples (respecting direction in a `DGraph`).
+- `Graph.isparallel()` detects two or more distinct edges with the same
+  endpoints; `Graph.parallel_edges()` returns their groups as tuples in edge
+  insertion order, with groups ordered by first appearance (respecting
+  direction in a `DGraph`).
 - `adjacent()` and `isadjacent()`, the graph-theory names, which have one
   spelling.  `neighbours()`, `neighbors()` and `isneighbour()` from 0.6.5 are
   kept as aliases, with `isneighbor()` added, and none of them warn.

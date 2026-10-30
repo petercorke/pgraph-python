@@ -19,11 +19,13 @@ class TestIsParallel(unittest.TestCase):
             with self.subTest(graph_class=graph_class):
                 graph = graph_class()
                 self.assertFalse(graph.isparallel())
+                self.assertEqual(graph.parallel_edges(), [])
                 a, b, c = self.vertices(graph)
                 self.assertFalse(graph.isparallel())
                 graph.add_edge(a, b, cost=1)
                 graph.add_edge(b, c, cost=2)
                 self.assertFalse(graph.isparallel())
+                self.assertEqual(graph.parallel_edges(), [])
                 self.assertEqual(graph.validate(), [])
 
     def test_repeated_edge_and_removal(self):
@@ -34,9 +36,11 @@ class TestIsParallel(unittest.TestCase):
                 first = graph.add_edge(a, b, cost=1)
                 second = graph.add_edge(a, b, cost=2)
                 self.assertTrue(graph.isparallel())
+                self.assertEqual(graph.parallel_edges(), [(first, second)])
                 self.assertTrue(graph.isparallel())  # read-only predicate
                 graph.remove_edge(second)
                 self.assertFalse(graph.isparallel())
+                self.assertEqual(graph.parallel_edges(), [])
                 self.assertIn(first, graph.edges())
                 self.assertEqual(graph.validate(), [])
 
@@ -70,9 +74,13 @@ class TestIsParallel(unittest.TestCase):
             with self.subTest(directed=directed):
                 graph = Graph(directed=directed)
                 a, b, _ = self.vertices(graph)
-                graph.add_edge(a, b)
-                graph.add_edge(b, a)
+                forward = graph.add_edge(a, b)
+                reverse = graph.add_edge(b, a)
                 self.assertEqual(graph.isparallel(), expected)
+                self.assertEqual(
+                    graph.parallel_edges(),
+                    [(forward, reverse)] if expected else [],
+                )
 
 
     def test_parallel_groups_are_complete_and_ordered_by_first_edge(self):
@@ -92,15 +100,28 @@ class TestIsParallel(unittest.TestCase):
                     [(first_ab, second_ab, third_ab), (first_bc, second_bc)],
                 )
                 self.assertTrue(graph.isparallel())
-                self.assertEqual(graph.edges(), [
-                    first_ab, first_bc, second_bc, second_ab, third_ab
-                ])
+                self.assertEqual(
+                    graph.edges(),
+                    [first_ab, first_bc, second_bc, second_ab, third_ab],
+                )
 
                 graph.remove_edge(second_ab)
                 self.assertEqual(
                     graph.parallel_edges(),
                     [(first_ab, third_ab), (first_bc, second_bc)],
                 )
+
+                # Removing the first edge changes the order of surviving groups.
+                graph.remove_edge(first_ab)
+                self.assertEqual(
+                    graph.parallel_edges(), [(first_bc, second_bc)]
+                )
+                replacement = graph.add_edge(a, b, cost=6)
+                self.assertEqual(
+                    graph.parallel_edges(),
+                    [(first_bc, second_bc), (third_ab, replacement)],
+                )
+                self.assertEqual(graph.validate(), [])
 
     def test_reversed_undirected_edge_and_directed_edge(self):
         for graph_class in (UGraph, DGraph):

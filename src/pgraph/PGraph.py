@@ -2331,6 +2331,7 @@ class Graph:
         Checks each edge once and returns as soon as a repeated endpoint
         pair is found. Worst-case time and space are O(E).
 
+        :return: True if at least two edges share the same endpoints
         :seealso: :meth:`parallel_edges` :meth:`edges`
         """
         seen: set[tuple[int, int]] = set()
@@ -2348,6 +2349,7 @@ class Graph:
         insertion order. Groups are ordered by the first edge in each group.
         Direction matters for directed graphs but not undirected graphs.
         A single self-loop is excluded; two or more are grouped together.
+        Grouping takes O(E) time and O(E) space.
 
         :return: List of tuples of parallel edges, or an empty list
         :seealso: :meth:`isparallel` :meth:`edges`

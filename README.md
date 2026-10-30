@@ -106,7 +106,7 @@ Graphs belong to the class `UGraph` or `DGraph` for undirected or directed graph
 - `g.add_edge()` connect two vertices
 - `g.edges()` all edges in the graph
 - `g.isparallel()` true if at least two distinct edges join the same vertices (respecting direction)
-- `g.parallel_edges()` groups of two or more parallel edges, ordered by first appearance, each tuple in edge insertion order
+- `g.parallel_edges()` returns `list[tuple[Edge, ...]]` for groups of two or more parallel edges; edges and groups follow insertion order
 - `g.plot()` plots the vertices and edges
 - `g.nc` the number of graph components, 1 if fully connected
 - `g.component(c)` the vertices in component number `c`, numbered from 0
