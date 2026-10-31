@@ -2058,14 +2058,17 @@ class Graph:
                     return None  # far outside the data: let the caller do it
                 if weight == 0:
                     return xy
-                return np.r_[xy, np.mod(weight * q[2], period)]
+                angle = np.mod(weight * q[2], period)
+                if angle >= period:
+                    angle = 0.0
+                return np.r_[xy, angle]
 
             if weight == 0:
                 tree = spatial.cKDTree(points[:, :2] - shift, boxsize=[size, size])
             else:
-                data = np.column_stack(
-                    [points[:, :2] - shift, np.mod(weight * points[:, 2], period)]
-                )
+                angle = np.mod(weight * points[:, 2], period)
+                angle[angle >= period] = 0.0
+                data = np.column_stack([points[:, :2] - shift, angle])
                 tree = spatial.cKDTree(data, boxsize=[size, size, period])
 
         self._kdtree = _KDTree(tree, index, p, prepare)
