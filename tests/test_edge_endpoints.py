@@ -120,5 +120,42 @@ class TestLibraryStillBindsThem(unittest.TestCase):
         self.assertEqual((dup.v1.name, dup.v2.name), ("a", "b"))
 
 
+class TestUnconnected(unittest.TestCase):
+    """The code that works on both ends of an edge says so if there are none"""
+
+    def test_a_connected_edge_gives_its_ends(self):
+        g = UGraph()
+        a = g.add_vertex([0, 0], name="a")
+        b = g.add_vertex([1, 0], name="b")
+        e = a.connect(b)
+        self.assertEqual(e.endpoints, [a, b])
+        self.assertIs(e.next(a), b)
+        self.assertIs(e.next(b), a)
+
+    def test_an_edge_with_no_vertices_raises_clearly(self):
+        e = Edge()
+        self.assertIsNone(e.v1)
+        self.assertIsNone(e.v2)
+        v = UGraph().add_vertex([0, 0], name="a")
+        for name, call in (
+            ("_ends", e._ends),
+            ("endpoints", lambda: e.endpoints),
+            ("next", lambda: e.next(v)),
+        ):
+            with self.subTest(name=name):
+                with self.assertRaises(ValueError) as cm:
+                    call()
+                self.assertIn("not connected", str(cm.exception))
+
+    def test_next_of_a_vertex_that_is_not_an_end(self):
+        g = UGraph()
+        a = g.add_vertex([0, 0], name="a")
+        b = g.add_vertex([1, 0], name="b")
+        c = g.add_vertex([2, 0], name="c")
+        e = a.connect(b)
+        with self.assertRaises(ValueError):
+            e.next(c)
+
+
 if __name__ == "__main__":
     unittest.main()
