@@ -39,6 +39,42 @@ class _KDTree:
         self.prepare = prepare  # point -> point for the tree, or None if out of range
 
 
+class _PointCache:
+    """
+    The coordinates of a graph's embedded vertices, as rows of a matrix (private)
+
+    Row ``i`` is the coordinate of ``vertices[i]``, in the order of the graph.
+    The buffer has spare rows so that adding a vertex is an append, which is
+    what lets :meth:`Graph.closest` stay fast while a planner interleaves
+    ``add_vertex`` with queries.
+    """
+
+    def __init__(self, points: NDArray, vertices: list[Vertex]):
+        n, dim = points.shape
+        self.buf = np.empty((n + n // 2 + 16, dim))
+        self.buf[:n] = points
+        self.n = n
+        self.vertices = vertices
+
+    @property
+    def dim(self) -> int:
+        return self.buf.shape[1]
+
+    @property
+    def points(self) -> NDArray:
+        """The ``n`` x dim matrix of coordinates (a view, not a copy)"""
+        return self.buf[: self.n]
+
+    def append(self, vertex: Vertex, coord: NDArray) -> None:
+        if self.n == self.buf.shape[0]:
+            grown = np.empty((2 * self.n, self.dim))
+            grown[: self.n] = self.buf
+            self.buf = grown
+        self.buf[self.n] = coord
+        self.n += 1
+        self.vertices.append(vertex)
+
+
 class SE2Metric:
     r"""
     Distance between planar poses, a weighted mixed norm
@@ -294,6 +330,10 @@ class Graph:
         # vertices have changed since it was built
         self._kdtree: _KDTree | None = None
         self._spatialchange = False
+        # the coordinates of the embedded vertices as a matrix, built when
+        # first needed and kept up to date by add_vertex; None if not built or
+        # invalidated by a removal or an assignment to a ``coord``
+        self._pts: _PointCache | None = None
         if metric is None:
             self.metric = "L2"
         else:
@@ -1003,7 +1043,7 @@ class Graph:
     # pickling and copying
 
     #: the graph's own containers, which are saved as a flat description
-    _STRUCTURE = ("_vertexlist", "_vertexdict", "_edges", "_kdtree")
+    _STRUCTURE = ("_vertexlist", "_vertexdict", "_edges", "_kdtree", "_pts")
 
     #: the references a vertex holds, which are rebuilt rather than saved
     _VERTEX_LINKS = ("_edgelist", "_inlist", "_graph")
@@ -1066,6 +1106,7 @@ class Graph:
                 state[key] = _METRICS[value[1]]
         self.__dict__.update(state)
         self._kdtree = None
+        self._pts = None
         self._spatialchange = False
 
         self._vertexlist = []
@@ -1209,6 +1250,16 @@ class Graph:
         vertex.__dict__["_graph"] = self
         self._connectivitychange = True
         self._spatialchange = True
+        pts = self._pts
+        if pts is not None and vertex.coord is not None:
+            # keep the matrix of coordinates up to date; one that does not
+            # fit it (another length, not finite) is left for _points to
+            # judge, by dropping the matrix
+            coord = vertex.coord
+            if coord.ndim == 1 and coord.shape[0] == pts.dim and np.isfinite(coord).all():
+                pts.append(vertex, coord)
+            else:
+                self._pts = None
         return vertex
 
     @classmethod
@@ -1494,6 +1545,7 @@ class Graph:
         vertex._label = None  # and so not in a component
         self._connectivitychange = True
         self._spatialchange = True
+        self._pts = None
 
     def remove(self, x: Edge | Vertex) -> None:
         """
@@ -1986,12 +2038,14 @@ class Graph:
             3 elements, or no vertex has a coordinate
         :raises ImportError: scipy is not installed
 
-        Finding the nearest vertex to a point is a pass over all the vertices,
-        which is the cost of a query on a large graph that is queried often.  A
-        k-d tree answers in a time that grows more slowly, at the cost of
-        building it once.  :meth:`closest` and :meth:`near` use the index if it
-        has been built, and fall back to the pass over the vertices if it has
-        not or if the graph has changed.
+        Without an index, finding the nearest vertex to a point measures the
+        distance to every vertex, which is the cost of a query on a large graph
+        that is queried often.  A k-d tree answers in a time that grows more
+        slowly, at the cost of building it once, which pays for a graph that is
+        built and then queried.  A graph that is queried while it is growing
+        does better without it, since adding a vertex discards the index.
+        :meth:`closest` and :meth:`near` use the index if it has been built,
+        and measure every vertex if it has not or if the graph has changed.
 
         The index is for the built-in metrics ``"L1"``, ``"L2"`` and
         ``"SE2"`` (with any weight, see :class:`SE2Metric`), and results
@@ -2117,6 +2171,36 @@ class Graph:
             )
         return None
 
+    def _points(self) -> _PointCache | None:
+        """
+        The coordinates of the embedded vertices as a matrix, or None (private)
+
+        Built on first use and kept by :meth:`add_vertex`.  It is None, so
+        that the caller makes its pass over the vertices, if no vertex has a
+        coordinate or the coordinates are not all vectors of the same length,
+        which that pass reports.  A vertex whose coordinate is not finite is
+        left out, as it is never the closest.
+        """
+        if self._pts is not None:
+            return self._pts
+        vertices = [v for v in self._vertexlist if v.coord is not None]
+        if not vertices:
+            return None
+        try:
+            points = np.array([v.coord for v in vertices], dtype=float)
+        except (ValueError, TypeError):
+            return None  # not all the same length, or not numbers
+        if points.ndim != 2 or points.shape[1] == 0:
+            return None
+        finite = np.isfinite(points).all(axis=1)
+        if not finite.all():
+            points = points[finite]
+            vertices = [v for v, ok in zip(vertices, finite) if ok]
+            if not vertices:
+                return None
+        self._pts = _PointCache(points, vertices)
+        return self._pts
+
     def closest(self, coord: ArrayLike) -> tuple[Vertex | None, float]:
         """
         Vertex closest to point
@@ -2131,8 +2215,17 @@ class Graph:
         according to the graph's metric. Vertices without a coordinate
         (``coord`` is None) are skipped -- they have no position to compare.
 
-        This is a pass over the vertices, unless a spatial index has been
-        built with :meth:`build_kdtree` and is still valid.
+        For the built-in metrics the distance to every vertex is found in one
+        operation on a matrix of the coordinates that the graph keeps, which
+        adding a vertex only appends to, so this stays fast when vertices are
+        added between queries, as a planner does.  A spatial index built with
+        :meth:`build_kdtree`, if it is still valid, is faster again for a graph
+        that is not changing.  A metric of your own is applied to each vertex
+        in turn.
+
+        .. note:: The matrix is a copy, so a coordinate changed in place,
+            ``vertex.coord[0] = x``, is not seen.  Assigning
+            ``vertex.coord = x`` (or ``+=``) is.
 
         .. runblock:: pycon
 
@@ -2152,6 +2245,15 @@ class Graph:
                 d, i = index.tree.query(q, p=index.p)
                 if np.isfinite(d):
                     return self._vertexlist[int(index.index[i])], float(d)
+
+        pts = self._points()
+        if pts is not None:
+            q = np.asarray(coord, dtype=float)
+            if q.shape == (pts.dim,) and np.isfinite(q).all():
+                d = self._metric_columns((pts.points - q).T)
+                if d is not None:  # a built-in metric, applied to all at once
+                    i = int(np.argmin(d))
+                    return pts.vertices[i], float(d[i])
 
         min_dist = np.inf
         min_which: Vertex | None = None
@@ -2234,9 +2336,9 @@ class Graph:
         vertices at equal distance are in the order of the graph.
 
         For the built-in metrics the distance to every vertex is found in one
-        operation on :meth:`coordinates`, or by the spatial index if
-        :meth:`build_kdtree` was called; a metric of your own is applied
-        to each vertex in turn.
+        operation on the matrix of coordinates that :meth:`closest` uses, or
+        by the spatial index if :meth:`build_kdtree` was called; a metric of
+        your own is applied to each vertex in turn.
 
         .. runblock:: pycon
 
@@ -2261,14 +2363,14 @@ class Graph:
                 candidates = [self._vertexlist[int(index.index[i])] for i in sorted(hits)]
 
         if candidates is None:
-            C = self.coordinates()
+            pts = self._points()
             point = np.asarray(coord, dtype=float)
-            if C.shape[0] != 0 and point.shape == (C.shape[0],):
-                d = self._metric_columns(C - point[:, None])
+            if pts is not None and point.shape == (pts.dim,):
+                d = self._metric_columns((pts.points - point).T)
                 if d is not None:
                     hit = np.flatnonzero(d <= radius)
                     hit = hit[np.argsort(d[hit], kind="stable")]
-                    return [(self._vertexlist[i], float(d[i])) for i in hit]
+                    return [(pts.vertices[i], float(d[i])) for i in hit]
             candidates = [v for v in self._vertexlist if v.coord is not None]
 
         found = []
@@ -4531,6 +4633,7 @@ class Vertex:
             graph = self.__dict__.get("_graph")
             if graph is not None:
                 graph._spatialchange = True
+                graph._pts = None
         object.__setattr__(self, name, value)
 
     def __reduce__(self) -> Any:
