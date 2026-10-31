@@ -4265,6 +4265,9 @@ class Edge:
         :return: endpoints, cost and optional data
         :rtype: str
 
+        The endpoints are separated by ``→`` if the edge is in a directed graph
+        and by ``↔`` otherwise.
+
         .. runblock:: pycon
 
             >>> from pgraph import Vertex, Edge
@@ -4273,10 +4276,15 @@ class Edge:
             >>> e = Edge(v1, v2, cost=5.0, data="A to B")
             >>> str(e)
 
+        .. versionchanged:: 1.1
+            The separator was ``--`` or ``->``.  Output redirected to a file or pipe
+            under a legacy Windows code page (cp1252) can raise
+            ``UnicodeEncodeError``; set ``PYTHONUTF8=1`` to avoid it.
+
         :seealso: :meth:`__repr__`
         """
         graph = self.v1._graph if self.v1 is not None else None
-        arrow = "->" if graph is not None and graph.directed else "--"
+        arrow = "→" if graph is not None and graph.directed else "↔"
         cost_str = "None" if self.cost is None else f"{self.cost:.4g}"
         s = f"{self.__class__.__name__}{{{self.v1} {arrow} {self.v2}, cost={cost_str}}}"
         if self.data is not None:
