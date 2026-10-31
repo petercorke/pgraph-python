@@ -1,4 +1,6 @@
 
+import contextlib
+import io
 import unittest
 import numpy as np
 import numpy.testing as nt
@@ -45,11 +47,53 @@ class TestUGraph(unittest.TestCase):
         self.assertEqual(str(g), "DGraph: 2 vertices, 1 edge, 1 component")
 
 
+        # the repr is the one-line summary, not a listing of the vertices
+        self.assertEqual(repr(g), "DGraph: 2 vertices, 1 edge, 1 component")
+
+    def test_repr_is_one_line_however_big_the_graph(self):
+        g = UGraph()
+        for i in range(500):
+            g.add_vertex([i, i], name=f"v{i}")
         s = repr(g)
-        self.assertIsInstance(s, str)
-        lines = s.split('\n')
-        self.assertEqual(len(lines), 3)  # class-name header + one line per vertex
-        self.assertEqual(lines[0], "DGraph:")
+        self.assertNotIn("\n", s)
+        self.assertEqual(s, str(g))
+        self.assertEqual(s, "UGraph: 500 vertices, 0 edges, 500 components")
+
+    def test_show_lists_vertices_and_edges(self):
+        g = UGraph()
+        a = g.add_vertex([1, 2], name="a")
+        b = g.add_vertex([3, 4], name="b")
+        g.add_vertex([5, 6], name="c")
+        g.add_edge(a, b, cost=2.5)
+
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            g.show()
+        lines = out.getvalue().splitlines()
+
+        # a vertex line has the name, the coordinate and the component number,
+        # which are what the repr used to list; c is a component of its own
+        self.assertEqual(
+            lines,
+            [
+                "vertices:",
+                "  a at [1 2] component=0",
+                "  b at [3 4] component=0",
+                "  c at [5 6] component=1",
+                "edges:",
+                "  Edge{[a] -- [b], cost=2.5}",
+            ],
+        )
+
+    def test_show_a_vertex_without_a_coordinate(self):
+        g = UGraph()
+        g.add_vertex(name="x")
+
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            g.show()
+
+        self.assertIn("  x at None", out.getvalue())
 
 
     def test_str_has_thousands_separators(self):

@@ -323,15 +323,38 @@ class Graph:
             >>> g.add_edge(v2, v3)
             >>> str(g)
 
-        :seealso: :meth:`show`
+        :seealso: :meth:`__repr__` :meth:`show`
         """
         s = f"{self.__class__.__name__}: {self.n:,} {'vertex' if self.n==1 else 'vertices'}, {self.ne:,} edge{'s'[:self.ne^1]}, {self.nc:,} component{'s'[:self.nc^1]}"
         return s
 
     def __repr__(self) -> str:
-        # NOTE: this is shadowed by the __repr__ defined further below in
-        # this class, which is the one actually used -- kept as-is here to
-        # avoid changing behaviour as part of a typing-only pass.
+        """
+        Representation of the graph, the same one-line summary as :meth:`__str__`
+
+        :return: one-line summary of vertex/edge/component counts
+        :rtype: str
+
+        The representation of a graph does not list its vertices, since that
+        would be as long as the graph, and a ``repr`` is what appears in a
+        notebook cell, a debugger, a log or an error message.  Use
+        :meth:`show` to list them.
+
+        .. runblock:: pycon
+
+            >>> from pgraph import UGraph
+            >>> g = UGraph()
+            >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+            >>> v2 = g.add_vertex(coord=[1,1], name='v2')
+            >>> g.add_edge(v1, v2)
+            >>> repr(g)
+
+        .. versionchanged:: 1.1
+            Was one line per vertex, with its name, coordinate and component;
+            that is now printed by :meth:`show`.
+
+        :seealso: :meth:`__str__` :meth:`show`
+        """
         return str(self)
 
     @classmethod
@@ -1501,7 +1524,11 @@ class Graph:
 
     def show(self) -> None:
         """
-        Print a summary of all vertices and edges to stdout
+        Print a listing of all vertices and edges to stdout
+
+        Each vertex is shown with its name, coordinate and component number,
+        and each edge by its endpoints, cost and data.  This is as long as the
+        graph, unlike :meth:`__str__` and :meth:`__repr__`, which are one line.
 
         .. runblock:: pycon
 
@@ -1512,11 +1539,18 @@ class Graph:
             >>> g.add_edge(v1, v2)
             >>> g.show()
 
-        :seealso: :meth:`__str__`
+        .. versionchanged:: 1.1
+            Each vertex is shown with its coordinate and component number,
+            which were what ``repr(g)`` listed before it became one line.
+
+        :seealso: :meth:`__str__` :meth:`plot`
         """
         print("vertices:")
         for v in self._vertexlist:
-            print("  " + str(v))
+            line = f"  {v.name} at {v.coord}"
+            if v.label is not None:
+                line += f" component={v.label}"
+            print(line)
         print("edges:")
         for e in self._edges:
             print("  " + str(e))
@@ -1807,33 +1841,6 @@ class Graph:
         with ``SE2Metric(weight=0)``.
         """
         self._heuristic = self._metricfunc(heuristic)
-
-    def __repr__(self) -> str:  # type: ignore[no-redef]
-        """
-        Detailed representation of the graph, one line per vertex
-
-        :return: one line per vertex showing its name, coordinate and component
-        :rtype: str
-
-        .. runblock:: pycon
-
-            >>> from pgraph import UGraph
-            >>> g = UGraph()
-            >>> v1 = g.add_vertex(coord=[0,0], name='v1')
-            >>> v2 = g.add_vertex(coord=[1,1], name='v2')
-            >>> v3 = g.add_vertex(coord=[2,2], name='v3')
-            >>> g.add_edge(v1, v2)
-            >>> g.add_edge(v2, v3)
-            >>> repr(g)
-
-        """
-        s = [f"{self.__class__.__name__}:"]
-        for vertex in self:
-            ss = f"  {vertex.name} at {vertex.coord}"
-            if vertex.label is not None:
-                ss += f" component={vertex.label}"
-            s.append(ss)
-        return "\n".join(s)
 
     def __getitem__(self, i: int | str | Vertex) -> Vertex:
         """
@@ -2528,7 +2535,7 @@ class Graph:
             ...     g.add_edge(a, b);
             >>> g.plot(block=None)
 
-        :seealso: :meth:`highlight_path` :meth:`highlight_edge`
+        :seealso: :meth:`highlight_path` :meth:`highlight_edge` :meth:`show`
         """
         import matplotlib.pyplot as plt
         from matplotlib.patches import FancyArrowPatch
