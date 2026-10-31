@@ -363,15 +363,38 @@ class Graph:
             >>> g.add_edge(v2, v3)
             >>> str(g)
 
-        :seealso: :meth:`show`
+        :seealso: :meth:`__repr__` :meth:`show`
         """
         s = f"{self.__class__.__name__}: {self.n:,} {'vertex' if self.n==1 else 'vertices'}, {self.ne:,} edge{'s'[:self.ne^1]}, {self.nc:,} component{'s'[:self.nc^1]}"
         return s
 
     def __repr__(self) -> str:
-        # NOTE: this is shadowed by the __repr__ defined further below in
-        # this class, which is the one actually used -- kept as-is here to
-        # avoid changing behaviour as part of a typing-only pass.
+        """
+        Representation of the graph, the same one-line summary as :meth:`__str__`
+
+        :return: one-line summary of vertex/edge/component counts
+        :rtype: str
+
+        The representation of a graph does not list its vertices, since that
+        would be as long as the graph, and a ``repr`` is what appears in a
+        notebook cell, a debugger, a log or an error message.  Use
+        :meth:`show` to list them.
+
+        .. runblock:: pycon
+
+            >>> from pgraph import UGraph
+            >>> g = UGraph()
+            >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+            >>> v2 = g.add_vertex(coord=[1,1], name='v2')
+            >>> g.add_edge(v1, v2)
+            >>> repr(g)
+
+        .. versionchanged:: 1.1
+            Was one line per vertex, with its name, coordinate and component;
+            that is now printed by :meth:`show`.
+
+        :seealso: :meth:`__str__` :meth:`show`
+        """
         return str(self)
 
     @classmethod
@@ -1510,14 +1533,14 @@ class Graph:
         """
         if vertex._graph is not self:
             raise ValueError("vertex does not belong to this graph")
-        assert vertex.name is not None
+        name = vertex._require_name()
 
         # its own lists name every edge at it, so no need to search the graph
         for edge in vertex._incident_edges():
             self.remove_edge(edge)
 
         self._vertexlist.remove(vertex)
-        del self._vertexdict[vertex.name]
+        del self._vertexdict[name]
         vertex._graph = None  # it is not in any graph now
         vertex._label = None  # and so not in a component
         self._connectivitychange = True
@@ -1553,7 +1576,11 @@ class Graph:
 
     def show(self) -> None:
         """
-        Print a summary of all vertices and edges to stdout
+        Print a listing of all vertices and edges to stdout
+
+        Each vertex is shown with its name, coordinate and component number,
+        and each edge by its endpoints, cost and data.  This is as long as the
+        graph, unlike :meth:`__str__` and :meth:`__repr__`, which are one line.
 
         .. runblock:: pycon
 
@@ -1564,11 +1591,18 @@ class Graph:
             >>> g.add_edge(v1, v2)
             >>> g.show()
 
-        :seealso: :meth:`__str__`
+        .. versionchanged:: 1.1
+            Each vertex is shown with its coordinate and component number,
+            which were what ``repr(g)`` listed before it became one line.
+
+        :seealso: :meth:`__str__` :meth:`plot`
         """
         print("vertices:")
         for v in self._vertexlist:
-            print("  " + str(v))
+            line = f"  {v.name} at {v.coord}"
+            if v.label is not None:
+                line += f" component={v.label}"
+            print(line)
         print("edges:")
         for e in self._edges:
             print("  " + str(e))
@@ -1860,33 +1894,6 @@ class Graph:
         """
         self._heuristic = self._metricfunc(heuristic)
 
-    def __repr__(self) -> str:  # type: ignore[no-redef]
-        """
-        Detailed representation of the graph, one line per vertex
-
-        :return: one line per vertex showing its name, coordinate and component
-        :rtype: str
-
-        .. runblock:: pycon
-
-            >>> from pgraph import UGraph
-            >>> g = UGraph()
-            >>> v1 = g.add_vertex(coord=[0,0], name='v1')
-            >>> v2 = g.add_vertex(coord=[1,1], name='v2')
-            >>> v3 = g.add_vertex(coord=[2,2], name='v3')
-            >>> g.add_edge(v1, v2)
-            >>> g.add_edge(v2, v3)
-            >>> repr(g)
-
-        """
-        s = [f"{self.__class__.__name__}:"]
-        for vertex in self:
-            ss = f"  {vertex.name} at {vertex.coord}"
-            if vertex.label is not None:
-                ss += f" component={vertex.label}"
-            s.append(ss)
-        return "\n".join(s)
-
     def __getitem__(self, i: int | str | Vertex) -> Vertex:
         """
         Get vertex (base class method)
@@ -2112,14 +2119,17 @@ class Graph:
                     return None  # far outside the data: let the caller do it
                 if weight == 0:
                     return xy
-                return np.r_[xy, np.mod(weight * q[2], period)]
+                angle = np.mod(weight * q[2], period)
+                if angle >= period:
+                    angle = 0.0
+                return np.r_[xy, angle]
 
             if weight == 0:
                 tree = spatial.cKDTree(points[:, :2] - shift, boxsize=[size, size])
             else:
-                data = np.column_stack(
-                    [points[:, :2] - shift, np.mod(weight * points[:, 2], period)]
-                )
+                angle = np.mod(weight * points[:, 2], period)
+                angle[angle >= period] = 0.0
+                data = np.column_stack([points[:, :2] - shift, angle])
                 tree = spatial.cKDTree(data, boxsize=[size, size, period])
 
         self._kdtree = _KDTree(tree, index, p, prepare)
@@ -2365,7 +2375,8 @@ class Graph:
 
         found = []
         for vertex in candidates:
-            assert vertex.coord is not None  # the candidates all have a position
+            # type narrowing only: the candidates all have a position
+            assert vertex.coord is not None  # nosec B101
             dist = float(self.metric(vertex.coord - coord))
             if dist <= radius:
                 found.append((vertex, dist))
@@ -2431,19 +2442,19 @@ class Graph:
         groups: dict[frozenset[int], list[Edge]] = {}
         loops: dict[Vertex, list[Edge]] = {}
         for e in self._edges:
-            assert e.v1 is not None and e.v2 is not None
-            if e.v1 is e.v2:
-                loops.setdefault(e.v1, []).append(e)
+            v1, v2 = e._ends()
+            if v1 is v2:
+                loops.setdefault(v1, []).append(e)
             else:
-                groups.setdefault(frozenset((index[e.v1], index[e.v2])), []).append(e)
+                groups.setdefault(frozenset((index[v1], index[v2])), []).append(e)
         rads: dict[Edge, float] = {}
         for edges in groups.values():
             n = len(edges)
             for k, e in enumerate(edges):
-                assert e.v1 is not None and e.v2 is not None
+                v1, v2 = e._ends()
                 offset = (k - (n - 1) / 2) * _ARC_STEP
                 # the same side in space for an edge drawn the other way round
-                rads[e] = offset if index[e.v1] < index[e.v2] else -offset
+                rads[e] = offset if index[v1] < index[v2] else -offset
         loopno = {e: k for edges in loops.values() for k, e in enumerate(edges)}
         return rads, loopno
 
@@ -2472,8 +2483,7 @@ class Graph:
         from matplotlib.patches import FancyArrowPatch
         from matplotlib.transforms import Affine2D, ScaledTranslation
         from ._plot import _Arrow3D, _Loop3D, _loop_path
-        v1, v2 = edge.v1, edge.v2
-        assert v1 is not None and v2 is not None
+        v1, v2 = edge._ends()
         shrink = markersize / 2 + 1
         if v1 is v2:
             radius = _LOOP_RADIUS + _LOOP_GROWTH * loopno
@@ -2627,7 +2637,7 @@ class Graph:
             ...     g.add_edge(a, b);
             >>> g.plot(block=None)
 
-        :seealso: :meth:`highlight_path` :meth:`highlight_edge`
+        :seealso: :meth:`highlight_path` :meth:`highlight_edge` :meth:`show`
         """
         import matplotlib.pyplot as plt
         from matplotlib.patches import FancyArrowPatch
@@ -2719,10 +2729,10 @@ class Graph:
         # the edges, each once
         rads, loopno = self._edge_layout()
         for e in self._edges:
-            assert e.v1 is not None
+            start = e._ends()[0]
             kwargs = dict(edge_kwargs)
             if color_components:
-                kwargs = {**dict(color=color[e.v1.label, :]), **kwargs}
+                kwargs = {**dict(color=color[start.label, :]), **kwargs}
             artist = self._edge_artist(
                 ax,
                 e,
@@ -2748,10 +2758,8 @@ class Graph:
             )
             dx, dy = abs(x1 - x0), abs(y1 - y0)
             for e in loopno:
-                assert e.v1 is not None
-                ax.update_datalim(
-                    [(e.v1.x - dx, e.v1.y - dy), (e.v1.x + dx, e.v1.y + dy)]
-                )
+                v = e._ends()[0]
+                ax.update_datalim([(v.x - dx, v.y - dy), (v.x + dx, v.y + dy)])
             ax.autoscale_view()
 
         ax.grid(grid)
@@ -3535,11 +3543,11 @@ class Graph:
             vdict[vertex] = i
 
         for j, e in enumerate(edges):
-            assert e.v1 is not None and e.v2 is not None
-            I[vdict[e.v1], j] = 1
-            I[vdict[e.v2], j] = 1
-            if e.v1 is e.v2 and not self.directed:
-                I[vdict[e.v1], j] = 2  # self-loop, counted at both ends
+            v1, v2 = e._ends()
+            I[vdict[v1], j] = 1
+            I[vdict[v2], j] = 1
+            if v1 is v2 and not self.directed:
+                I[vdict[v1], j] = 2  # self-loop, counted at both ends
 
         return I
 
@@ -3892,8 +3900,7 @@ class Graph:
 
         parent_names: dict[str, str] = {}
         for v, p in parent.items():
-            assert v.name is not None and p.name is not None
-            parent_names[v.name] = p.name
+            parent_names[v._require_name()] = p._require_name()
 
         if summary or verbose:
             print(
@@ -4030,8 +4037,7 @@ class Graph:
 
         parent_names: dict[str, str] = {}
         for v, p in parent.items():
-            assert v.name is not None and p.name is not None
-            parent_names[v.name] = p.name
+            parent_names[v._require_name()] = p._require_name()
 
         if summary or verbose:
             print(
@@ -4072,9 +4078,9 @@ class UGraph(Graph):
         from either end.  A self-loop is therefore held twice by its vertex,
         which is why it counts 2 towards the degree.
         """
-        assert edge.v1 is not None and edge.v2 is not None
-        edge.v1._edgelist.append(edge)
-        edge.v2._edgelist.append(edge)
+        v1, v2 = edge._ends()
+        v1._edgelist.append(edge)
+        v2._edgelist.append(edge)
 
     def _detach(self, edge: Edge) -> None:
         """
@@ -4127,9 +4133,9 @@ class DGraph(Graph):
         The edge goes in the start vertex's list of outgoing edges and in the
         end vertex's list of incoming ones.
         """
-        assert edge.v1 is not None and edge.v2 is not None
-        edge.v1._edgelist.append(edge)
-        edge.v2._inlist.append(edge)
+        v1, v2 = edge._ends()
+        v1._edgelist.append(edge)
+        v2._inlist.append(edge)
 
     def _detach(self, edge: Edge) -> None:
         """
@@ -4302,6 +4308,27 @@ class Edge:
         self._v1 = v1
         self._v2 = v2
 
+    def _ends(self) -> tuple[Vertex, Vertex]:
+        """
+        Both vertices of the edge, raising clearly if it is not connected (private method)
+
+        :raises ValueError: the edge has no vertices
+        :return: the first and second vertex
+        :rtype: tuple of Vertex subclass
+
+        ``v1`` and ``v2`` are None for an edge that has not been connected.
+        Every edge in a graph has both, so the code that works on them takes
+        them from here, which tells the type checker so, rather than testing
+        for None at each use.  Unlike an ``assert`` this check is not removed
+        by ``python -O``.
+
+        :seealso: :attr:`v1` :attr:`v2`
+        """
+        v1, v2 = self._v1, self._v2
+        if v1 is None or v2 is None:
+            raise ValueError("the edge is not connected to two vertices")
+        return v1, v2
+
     def __reduce__(self) -> Any:
         """
         Refuse to pickle or copy an edge on its own
@@ -4340,6 +4367,9 @@ class Edge:
         :return: endpoints, cost and optional data
         :rtype: str
 
+        The endpoints are separated by ``→`` if the edge is in a directed graph
+        and by ``↔`` otherwise.
+
         .. runblock:: pycon
 
             >>> from pgraph import Vertex, Edge
@@ -4348,10 +4378,15 @@ class Edge:
             >>> e = Edge(v1, v2, cost=5.0, data="A to B")
             >>> str(e)
 
+        .. versionchanged:: 1.1
+            The separator was ``--`` or ``->``.  Output redirected to a file or pipe
+            under a legacy Windows code page (cp1252) can raise
+            ``UnicodeEncodeError``; set ``PYTHONUTF8=1`` to avoid it.
+
         :seealso: :meth:`__repr__`
         """
         graph = self.v1._graph if self.v1 is not None else None
-        arrow = "->" if graph is not None and graph.directed else "--"
+        arrow = "→" if graph is not None and graph.directed else "↔"
         cost_str = "None" if self.cost is None else f"{self.cost:.4g}"
         s = f"{self.__class__.__name__}{{{self.v1} {arrow} {self.v2}, cost={cost_str}}}"
         if self.data is not None:
@@ -4433,12 +4468,11 @@ class Edge:
 
         """
 
-        if self.v1 is vertex:
-            assert self.v2 is not None
-            return self.v2
-        elif self.v2 is vertex:
-            assert self.v1 is not None
-            return self.v1
+        v1, v2 = self._ends()
+        if v1 is vertex:
+            return v2
+        elif v2 is vertex:
+            return v1
         else:
             raise ValueError("should not happen")
 
@@ -4477,8 +4511,7 @@ class Edge:
 
         :seealso: :meth:`vertices`
         """
-        assert self.v1 is not None and self.v2 is not None
-        return [self.v1, self.v2]
+        return list(self._ends())
 
     def remove(self) -> None:
         """
@@ -4904,7 +4937,8 @@ class Vertex:
         endpoints disagree with the vertices' edge lists.
         """
         graph = self._graph
-        assert graph is not None  # connect() has checked
+        # type narrowing only: connect() has checked
+        assert graph is not None  # nosec B101
         if edge.v1 is None and edge.v2 is None:
             edge._set_endpoints(self, dest)
         elif not graph._endpoints_match(edge, self, dest):
@@ -5240,6 +5274,25 @@ class Vertex:
         for e in (*self._edgelist, *self._incoming()):
             seen.setdefault(id(e), e)
         return list(seen.values())
+
+    def _require_name(self) -> str:
+        """
+        The name, raising clearly if the vertex has none (private method)
+
+        :raises ValueError: the vertex has no name
+        :return: the name
+        :rtype: str
+
+        A vertex that is not in a graph can have no name, but one in a graph
+        always has, so the code that works on the vertices of a graph takes
+        the name from here, which tells the type checker so.  Unlike an
+        ``assert`` this check is not removed by ``python -O``.
+
+        :seealso: :attr:`name`
+        """
+        if self._name is None:
+            raise ValueError("the vertex has no name")
+        return self._name
 
     @property
     def name(self) -> str | None:

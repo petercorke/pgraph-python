@@ -168,6 +168,22 @@ class TestIndexAgreesWithTheLoop(unittest.TestCase):
         self.assertEqual(v.name, "a")
         self.assertAlmostEqual(d, 0.2)
 
+    def test_a_negative_angle_that_rounds_to_the_period(self):
+        for metric in ("SE2", SE2Metric(0.3)):
+            with self.subTest(metric=metric):
+                for angle_is_in_graph in (True, False):
+                    with self.subTest(angle_is_in_graph=angle_is_in_graph):
+                        g = UGraph(dim=3, metric=metric)
+                        boundary_angle = -1e-17 if angle_is_in_graph else 0.0
+                        g.add_vertex([0.0, 0.0, boundary_angle], name="boundary")
+                        g.add_vertex([0.0, 0.0, 0.25], name="other")
+                        g.build_kdtree()
+
+                        query_angle = 0.0 if angle_is_in_graph else -1e-17
+                        query = [0.0, 0.0, query_angle]
+                        self.assertEqual(g.closest(query)[0].name, "boundary")
+                        self.assertEqual(g.near(query, 1e-12)[0][0].name, "boundary")
+
     def test_a_query_far_outside_is_still_right(self):
         g, P = points_graph(UGraph, dim=3, metric=SE2Metric(1.0))
         g.build_kdtree()
