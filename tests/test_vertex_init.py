@@ -161,5 +161,19 @@ class TestInAGraph(unittest.TestCase):
         self.assertFalse(g._spatialchange)
 
 
+class TestRequireName(unittest.TestCase):
+    """The code that works on the vertices of a graph takes their names from here"""
+
+    def test_a_named_vertex_gives_its_name(self):
+        self.assertEqual(Vertex(name="a")._require_name(), "a")
+        # a vertex in a graph always has one: the default is "#0", "#1", ...
+        self.assertEqual(UGraph().add_vertex()._require_name(), "#0")
+
+    def test_a_vertex_with_no_name_raises_clearly(self):
+        with self.assertRaises(ValueError) as cm:
+            Vertex()._require_name()
+        self.assertIn("no name", str(cm.exception))
+
+
 if __name__ == "__main__":
     unittest.main()
