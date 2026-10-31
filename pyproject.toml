@@ -39,6 +39,7 @@ dependencies = ["spatialmath-python", "numpy>=2.0", "matplotlib"]
 "Homepage" = "https://github.com/petercorke/pgraph-python"
 "Bug Tracker" = "https://github.com/petercorke/pgraph-python/issues"
 "Documentation" = "https://petercorke.github.io/pgraph-python"
+"llms.txt" = "https://petercorke.github.io/pgraph-python/llms.txt"
 "GitHub Source" = "https://github.com/petercorke/pgraph-python"
 "Changelog" = "https://github.com/petercorke/pgraph-python/blob/main/CHANGELOG.md"
 "Coverage" = "https://codecov.io/gh/petercorke/pgraph-python"

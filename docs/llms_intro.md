@@ -1,5 +1,11 @@
 pgraph is a pure-Python package of graph classes: directed and undirected graphs of vertices connected by edges, with edge costs and path planning (breadth-first, uniform-cost and A*). Vertices can be *embedded*, given a coordinate in a space of any dimension; edge costs then come from a distance metric (L2, L1, SE2 or your own), and the graph can be queried spatially, plotted and exported. Self-loops and parallel edges are allowed. It requires Python 3.9 or later and depends on NumPy, Matplotlib and spatialmath-python. Install with `pip install pgraph-python`; import it as `pgraph`.
 
+## When to use it
+
+Reach for pgraph when a program needs a **small, explicit graph with path planning**: vertices with optional coordinates, directed or undirected edges with costs, and breadth-first, uniform-cost or A* search, plus nearest-vertex queries, plotting and export. It suits roadmaps, grid and lattice planners, pose graphs and teaching examples where you want the vertex and edge objects themselves, not just an adjacency structure. `import pgraph` loads only NumPy.
+
+It is not a large-scale graph analytics package (use `networkx` for centrality, community detection or hundreds of algorithms; `igraph` or `graph-tool` for very large graphs), and it has no weighted-matching or flow algorithms.
+
 ## Quick start
 
 ```python
@@ -17,6 +23,16 @@ print([v.name for v in path], length)           # ['a', 'b', 'c'] 12.0
 g.plot()
 g.highlight_path(path)
 ```
+
+## Recipes
+
+- **Shortest path between two named places**: build a `UGraph`, `add_vertex` for each place with its coordinate and `name=`, `add_edge` between neighbours, then `path, length, _ = g.path_Astar("start", "goal")`.
+- **Plan on a grid**: add one vertex per cell and an edge to each neighbour, with `cost=` if the cells differ; `path_BFS` gives the fewest steps, `path_Astar` the cheapest.
+- **Find the vertex nearest a point**: `v, dist = g.closest(point)`; `g.near(point, radius)` for all within a radius.
+- **Check whether two places are connected**: `g.samecomponent(v1, v2)`, or `g.nc` for the number of components.
+- **Get the adjacency or Laplacian matrix**: `g.adjacency()`, `g.laplacian()`, as NumPy arrays.
+- **Draw the graph and the route**: `g.plot()`, then `g.highlight_path(path)`.
+- **Export for GraphViz or Mermaid**: `g.export("graph.dot")` or `g.export("graph.mmd")`.
 
 ## Key points
 
