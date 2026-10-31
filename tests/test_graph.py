@@ -81,7 +81,7 @@ class TestUGraph(unittest.TestCase):
                 "  b at [3 4] component=0",
                 "  c at [5 6] component=1",
                 "edges:",
-                "  Edge{[a] -- [b], cost=2.5}",
+                "  Edge{[a] ↔ [b], cost=2.5}",
             ],
         )
 
