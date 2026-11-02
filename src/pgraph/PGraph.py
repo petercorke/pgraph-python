@@ -2426,6 +2426,53 @@ class Graph:
         """
         return list(self._edges)
 
+    def _parallel_edge_key(self, edge: Edge) -> tuple[int, int]:
+        """Identify an edge's endpoints, preserving direction when directed."""
+        assert edge.v1 is not None and edge.v2 is not None
+        a, b = id(edge.v1), id(edge.v2)
+        if not self._directed and a > b:
+            a, b = b, a
+        return a, b
+
+    def isparallel(self) -> bool:
+        """Test whether at least two distinct edges join the same vertices.
+
+        Direction matters in directed graphs: ``a -> b`` and ``b -> a``
+        are not parallel. Undirected edges are orientation-independent.
+        A single self-loop is not parallel, but two self-loops are.
+
+        Checks each edge once and returns as soon as a repeated endpoint
+        pair is found. Worst-case time and space are O(E).
+
+        :return: True if at least two edges share the same endpoints
+        :seealso: :meth:`parallel_edges` :meth:`edges`
+        """
+        seen: set[tuple[int, int]] = set()
+        for edge in self._edges:
+            key = self._parallel_edge_key(edge)
+            if key in seen:
+                return True
+            seen.add(key)
+        return False
+
+    def parallel_edges(self) -> list[tuple[Edge, ...]]:
+        """Return groups of at least two distinct parallel edges.
+
+        Each tuple contains all edges joining the same vertices, in edge
+        insertion order. Groups are ordered by the first edge in each group.
+        Direction matters for directed graphs but not undirected graphs.
+        A single self-loop is excluded; two or more are grouped together.
+        Grouping takes O(E) time and O(E) space.
+
+        :return: List of tuples of parallel edges, or an empty list
+        :seealso: :meth:`isparallel` :meth:`edges`
+        """
+        groups: dict[tuple[int, int], list[Edge]] = {}
+        for edge in self._edges:
+            key = self._parallel_edge_key(edge)
+            groups.setdefault(key, []).append(edge)
+        return [tuple(edges) for edges in groups.values() if len(edges) >= 2]
+
     def _edge_layout(self) -> tuple[dict[Edge, float], dict[Edge, int]]:
         """
         How each edge is to be drawn, apart from its end points (private method)
