@@ -1,5 +1,15 @@
 Unreleased
 
+Behaviour change
+
+- `Graph.plot()` and `Graph.highlight_path()` now default to `block=None`
+  instead of `False`. They no longer call `plt.show()` unless `block` is
+  specified, allowing notebooks and other environments to manage display.
+  Scripts and plain IPython sessions without `%matplotlib` or `plt.ion()`
+  that relied on `g.plot()` opening a window now need an explicit
+  `plt.show()` after drawing, or `block=False` for the previous behaviour.
+  `block=True` still waits for the window to close.
+
 Performance
 
 - `closest()` and `near()` no longer make a Python-level pass over the vertices

@@ -2517,7 +2517,7 @@ class Graph:
         vopt: dict | None = None,
         eopt: dict | None = None,
         text: dict | bool | None = None,
-        block: bool | None = False,
+        block: bool | None = None,
         grid: bool = True,
         ax: Any = None,
         *,
@@ -2560,13 +2560,18 @@ class Graph:
         :type grid: bool, optional
         :param ax: axes to draw in, defaults to the current axes or a new figure
         :type ax: Axes or Axes3D, optional
-        :param block: block until figure is dismissed, defaults to False. If
-            None the figure is not shown at all, which is useful when
-            adding to the plot or saving it.
+        :param block: None (default) leaves display to the environment without
+            calling ``plt.show()``; False shows without waiting; True waits
+            until the window is closed (desktop GUI backends).
         :type block: bool or None, optional
         :raises ValueError: the graph is empty, or a vertex has no coordinate
             or fewer than two coordinate values
         :raises TypeError: an option is given by both its old and new name
+
+        .. versionchanged:: 1.1
+            The default for ``block`` changed from ``False`` to ``None``.
+            The method no longer calls ``plt.show()`` unless ``block`` is
+            explicitly given; pass ``block=False`` for the old behaviour.
 
         The graph is plotted using Matplotlib according to the dimensionality of the vertex
         coordinates (set by the `dim` parameter to graph constructor).  If the dimensionality is
@@ -2610,7 +2615,7 @@ class Graph:
             ...     g.add_vertex(np.random.rand(2));
             >>> for i, j in [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (3, 4)]:
             ...     g.add_edge(g[i], g[j]);
-            >>> g.plot(block=None)
+            >>> g.plot()
 
         .. plot::
 
@@ -2622,7 +2627,7 @@ class Graph:
             ...     g.add_vertex(np.random.rand(2));
             >>> for i, j in [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (3, 4)]:
             ...     g.add_edge(g[i], g[j]);
-            >>> g.plot(block=None)
+            >>> g.plot()
 
         A directed graph, with a pair of antiparallel edges, a pair of parallel
         edges and a loop
@@ -2635,7 +2640,7 @@ class Graph:
             ...     g.add_vertex(xy, name=name);
             >>> for a, b in ["AB", "AB", "AD", "BC", "CB", "DC", "CC"]:
             ...     g.add_edge(a, b);
-            >>> g.plot(block=None)
+            >>> g.plot()
 
         :seealso: :meth:`highlight_path` :meth:`highlight_edge` :meth:`show`
         """
@@ -2767,18 +2772,24 @@ class Graph:
             plt.show(block=block)
 
     def highlight_path(
-        self, path: list[Vertex], block: bool | None = False, **kwargs: Any
+        self, path: list[Vertex], block: bool | None = None, **kwargs: Any
     ) -> None:
         """
         Highlight a path through the graph
 
         :param path: sequence of vertices forming a path
         :type path: list of Vertex subclass
-        :param block: block until figure is dismissed, defaults to False. If
-            None the figure is not shown.
+        :param block: None (default) leaves display to the environment without
+            calling ``plt.show()``; False shows without waiting; True waits
+            until the window is closed (desktop GUI backends).
         :type block: bool or None, optional
         :param kwargs: arguments passed to :meth:`highlight_edge` and
             :meth:`highlight_vertex`
+
+        .. versionchanged:: 1.1
+            The default for ``block`` changed from ``False`` to ``None``.
+            The method no longer calls ``plt.show()`` unless ``block`` is
+            explicitly given; pass ``block=False`` for the old behaviour.
 
         The vertices and edges along the path are overwritten with a different
         size/width and color.
@@ -2793,9 +2804,9 @@ class Graph:
             ...     g.add_vertex(np.random.rand(2));
             >>> for i, j in [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (3, 4)]:
             ...     g.add_edge(g[i], g[j]);
-            >>> g.plot(block=None)
+            >>> g.plot()
             >>> path, length, _ = g.path_Astar(g[2], g[4])
-            >>> g.highlight_path(path, block=None)
+            >>> g.highlight_path(path)
 
         .. plot::
 
@@ -2807,9 +2818,9 @@ class Graph:
             ...     g.add_vertex(np.random.rand(2));
             >>> for i, j in [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (3, 4)]:
             ...     g.add_edge(g[i], g[j]);
-            >>> g.plot(block=None)
+            >>> g.plot()
             >>> path, length, _ = g.path_Astar(g[2], g[4])
-            >>> g.highlight_path(path, block=None)
+            >>> g.highlight_path(path)
 
         :seealso: :meth:`highlight_vertex` :meth:`highlight_edge`
         """
@@ -2853,7 +2864,7 @@ class Graph:
             >>> edges = []
             >>> for i, j in [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (3, 4)]:
             ...     edges.append(g.add_edge(g[i], g[j]));
-            >>> g.plot(block=None)
+            >>> g.plot()
             >>> g.highlight_edge(edges[2])
 
         .. plot::
@@ -2867,7 +2878,7 @@ class Graph:
             >>> edges = []
             >>> for i, j in [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (3, 4)]:
             ...     edges.append(g.add_edge(g[i], g[j]));
-            >>> g.plot(block=None)
+            >>> g.plot()
             >>> g.highlight_edge(edges[2])
 
         :seealso: :meth:`plot` :meth:`highlight_vertex` :meth:`highlight_path`
@@ -2926,7 +2937,7 @@ class Graph:
             ...     g.add_vertex(np.random.rand(2));
             >>> for i, j in [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (3, 4)]:
             ...     g.add_edge(g[i], g[j]);
-            >>> g.plot(block=None)
+            >>> g.plot()
             >>> g.highlight_vertex(g[2])
 
         .. plot::
@@ -2939,7 +2950,7 @@ class Graph:
             ...     g.add_vertex(np.random.rand(2));
             >>> for i, j in [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (3, 4)]:
             ...     g.add_edge(g[i], g[j]);
-            >>> g.plot(block=None)
+            >>> g.plot()
             >>> g.highlight_vertex(g[2])
 
         """
