@@ -32,6 +32,25 @@ class TestPlotBlock(unittest.TestCase):
         self.assertIs(plt.gca(), axes)
         self.assertGreater(len(axes.patches), before)
 
+    def test_default_plot_then_explicit_highlight_shows_once(self) -> None:
+        with patch.object(plt, "show") as show:
+            self.graph.plot()
+            ax = plt.gca()
+            count = len(ax.patches)
+            show.assert_not_called()
+            self.graph.highlight_path(self.path, block=False)
+            show.assert_called_once_with(block=False)
+        self.assertIs(plt.gca(), ax)
+        self.assertGreater(len(ax.patches), count)
+
+    def test_plot_with_caller_axes_and_none(self) -> None:
+        fig, ax = plt.subplots()
+        with patch.object(plt, "show") as show:
+            self.graph.plot(block=None, ax=ax)
+            show.assert_not_called()
+        self.assertIs(ax.figure, fig)
+        self.assertGreater(len(ax.patches), 0)
+
     def test_explicit_plot_show_modes(self) -> None:
         for block in (False, True):
             with self.subTest(block=block):

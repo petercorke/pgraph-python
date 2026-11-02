@@ -1,5 +1,11 @@
 pgraph is a pure-Python package of graph classes: directed and undirected graphs of vertices connected by edges, with edge costs and path planning (breadth-first, uniform-cost and A*). Vertices can be *embedded*, given a coordinate in a space of any dimension; edge costs then come from a distance metric (L2, L1, SE2 or your own), and the graph can be queried spatially, plotted and exported. Self-loops and parallel edges are allowed. It requires Python 3.9 or later and depends on NumPy, Matplotlib and spatialmath-python. Install with `pip install pgraph-python`; import it as `pgraph`.
 
+## When to use it
+
+Reach for pgraph when a program needs a **small, explicit graph with path planning**: vertices with optional coordinates, directed or undirected edges with costs, and breadth-first, uniform-cost or A* search, plus nearest-vertex queries, plotting and export. It suits roadmaps, grid and lattice planners, pose graphs and teaching examples where you want the vertex and edge objects themselves, not just an adjacency structure. `import pgraph` loads only NumPy.
+
+It is not a large-scale graph analytics package (use `networkx` for centrality, community detection or hundreds of algorithms; `igraph` or `graph-tool` for very large graphs), and it has no weighted-matching or flow algorithms.
+
 ## Quick start
 
 ```python
@@ -18,6 +24,16 @@ g.plot()
 g.highlight_path(path)
 ```
 
+## Recipes
+
+- **Shortest path between two named places**: build a `UGraph`, `add_vertex` for each place with its coordinate and `name=`, `add_edge` between neighbours, then `path, length, _ = g.path_Astar("start", "goal")`.
+- **Plan on a grid**: add one vertex per cell and an edge to each neighbour, with `cost=` if the cells differ; `path_BFS` gives the fewest steps, `path_Astar` the cheapest.
+- **Find the vertex nearest a point**: `v, dist = g.closest(point)`; `g.near(point, radius)` for all within a radius.
+- **Check whether two places are connected**: `g.samecomponent(v1, v2)`, or `g.nc` for the number of components.
+- **Get the adjacency or Laplacian matrix**: `g.adjacency()`, `g.laplacian()`, as NumPy arrays.
+- **Draw the graph and the route**: `g.plot()`, then `g.highlight_path(path)`.
+- **Export for GraphViz or Mermaid**: `g.export("graph.dot")` or `g.export("graph.mmd")`.
+
 ## Key points
 
 - **Classes.** `UGraph` (undirected) and `DGraph` (directed) share the base class `Graph`, which is concrete: `Graph(directed=True)` is a `DGraph`. There is one `Vertex` class for both and one `Edge` class. `UVertex` and `DVertex` are deprecated aliases of `Vertex`. Constructor arguments are keyword-only: `UGraph(dim=2, metric="L2", heuristic=None, vertex_class=None, edge_class=None, verbose=False)`; `UGraph(2)` is a `TypeError`.
@@ -28,7 +44,7 @@ g.highlight_path(path)
 - **Metrics.** `"L2"` (default), `"L1"`, `"SE2"` for `(x, y, theta)` poses, `SE2Metric(weight)` to weight the angle, or a function of one difference vector. A* uses `heuristic` (default: the metric), which must be in the same units as the edge costs and must not exceed the true cost to go, or the path is not the shortest.
 - **Spatial queries** on an embedded graph: `closest(point)` returns `(vertex, distance)`, `near(point, radius)`, `within(box)` with `box` a 2 x n array of lower and upper corner, `coordinates()` the `(dim, n)` matrix of coordinates, and `subgraph(vertices)`, which takes vertices, names or a boolean mask and returns a new graph. `build_kdtree()` is an optional index (it needs scipy) that `closest` and `near` then use.
 - **Components and matrices.** `g.component(c)` is the vertices in component number `c`, `v.label` is the component of a vertex, `g.samecomponent(v1, v2)`. `adjacency()`, `incidence()`, `laplacian()`, `degree()` and `connectivity()` return dense NumPy arrays.
-- **Output.** `g.plot()` (arrowheads for a directed graph, arcs for parallel edges, circles for loops), `highlight_path(path)`, and `g.export(file)` for GraphViz dot, Mermaid, GraphML, ELK JSON or an image (images need the GraphViz executables). Both plot methods default to `block=None`, which does not call `plt.show()` and lets the environment display the figure (useful for notebook overlays); `block=False` shows without waiting, and `block=True` waits in desktop GUI applications.
+- **Output.** `g.plot()` (arrowheads for a directed graph, arcs for parallel edges, circles for loops), `highlight_path(path)`, and `g.export(file)` for GraphViz dot, Mermaid, GraphML, ELK JSON or an image (images need the GraphViz executables). Both methods default to `block=None`, leaving figure display to the environment. In scripts, use `plt.show()` after composing a figure, or `block=False` for the previous nonblocking show; `block=True` blocks until closed.
 - **Subclassing.** `class Foo(Vertex)` and `UGraph(vertex_class=Foo, edge_class=Bar)` make the graph build them; a subclass `__init__` must pass `coord` and `name` (vertices) or `v1, v2, cost, data` (edges) to its parent.
 - **Copying.** `g.copy()` and `pickle` work for a whole graph; a vertex or edge cannot be copied or pickled on its own, and a graph whose metric is a `lambda` cannot be pickled.
 

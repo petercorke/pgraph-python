@@ -39,6 +39,42 @@ class _KDTree:
         self.prepare = prepare  # point -> point for the tree, or None if out of range
 
 
+class _PointCache:
+    """
+    The coordinates of a graph's embedded vertices, as rows of a matrix (private)
+
+    Row ``i`` is the coordinate of ``vertices[i]``, in the order of the graph.
+    The buffer has spare rows so that adding a vertex is an append, which is
+    what lets :meth:`Graph.closest` stay fast while a planner interleaves
+    ``add_vertex`` with queries.
+    """
+
+    def __init__(self, points: NDArray, vertices: list[Vertex]):
+        n, dim = points.shape
+        self.buf = np.empty((n + n // 2 + 16, dim))
+        self.buf[:n] = points
+        self.n = n
+        self.vertices = vertices
+
+    @property
+    def dim(self) -> int:
+        return self.buf.shape[1]
+
+    @property
+    def points(self) -> NDArray:
+        """The ``n`` x dim matrix of coordinates (a view, not a copy)"""
+        return self.buf[: self.n]
+
+    def append(self, vertex: Vertex, coord: NDArray) -> None:
+        if self.n == self.buf.shape[0]:
+            grown = np.empty((2 * self.n, self.dim))
+            grown[: self.n] = self.buf
+            self.buf = grown
+        self.buf[self.n] = coord
+        self.n += 1
+        self.vertices.append(vertex)
+
+
 class SE2Metric:
     r"""
     Distance between planar poses, a weighted mixed norm
@@ -294,6 +330,10 @@ class Graph:
         # vertices have changed since it was built
         self._kdtree: _KDTree | None = None
         self._spatialchange = False
+        # the coordinates of the embedded vertices as a matrix, built when
+        # first needed and kept up to date by add_vertex; None if not built or
+        # invalidated by a removal or an assignment to a ``coord``
+        self._pts: _PointCache | None = None
         if metric is None:
             self.metric = "L2"
         else:
@@ -323,15 +363,38 @@ class Graph:
             >>> g.add_edge(v2, v3)
             >>> str(g)
 
-        :seealso: :meth:`show`
+        :seealso: :meth:`__repr__` :meth:`show`
         """
         s = f"{self.__class__.__name__}: {self.n:,} {'vertex' if self.n==1 else 'vertices'}, {self.ne:,} edge{'s'[:self.ne^1]}, {self.nc:,} component{'s'[:self.nc^1]}"
         return s
 
     def __repr__(self) -> str:
-        # NOTE: this is shadowed by the __repr__ defined further below in
-        # this class, which is the one actually used -- kept as-is here to
-        # avoid changing behaviour as part of a typing-only pass.
+        """
+        Representation of the graph, the same one-line summary as :meth:`__str__`
+
+        :return: one-line summary of vertex/edge/component counts
+        :rtype: str
+
+        The representation of a graph does not list its vertices, since that
+        would be as long as the graph, and a ``repr`` is what appears in a
+        notebook cell, a debugger, a log or an error message.  Use
+        :meth:`show` to list them.
+
+        .. runblock:: pycon
+
+            >>> from pgraph import UGraph
+            >>> g = UGraph()
+            >>> v1 = g.add_vertex(coord=[0,0], name='v1')
+            >>> v2 = g.add_vertex(coord=[1,1], name='v2')
+            >>> g.add_edge(v1, v2)
+            >>> repr(g)
+
+        .. versionchanged:: 1.1
+            Was one line per vertex, with its name, coordinate and component;
+            that is now printed by :meth:`show`.
+
+        :seealso: :meth:`__str__` :meth:`show`
+        """
         return str(self)
 
     @classmethod
@@ -980,7 +1043,7 @@ class Graph:
     # pickling and copying
 
     #: the graph's own containers, which are saved as a flat description
-    _STRUCTURE = ("_vertexlist", "_vertexdict", "_edges", "_kdtree")
+    _STRUCTURE = ("_vertexlist", "_vertexdict", "_edges", "_kdtree", "_pts")
 
     #: the references a vertex holds, which are rebuilt rather than saved
     _VERTEX_LINKS = ("_edgelist", "_inlist", "_graph")
@@ -1043,6 +1106,7 @@ class Graph:
                 state[key] = _METRICS[value[1]]
         self.__dict__.update(state)
         self._kdtree = None
+        self._pts = None
         self._spatialchange = False
 
         self._vertexlist = []
@@ -1186,6 +1250,16 @@ class Graph:
         vertex.__dict__["_graph"] = self
         self._connectivitychange = True
         self._spatialchange = True
+        pts = self._pts
+        if pts is not None and vertex.coord is not None:
+            # keep the matrix of coordinates up to date; one that does not
+            # fit it (another length, not finite) is left for _points to
+            # judge, by dropping the matrix
+            coord = vertex.coord
+            if coord.ndim == 1 and coord.shape[0] == pts.dim and np.isfinite(coord).all():
+                pts.append(vertex, coord)
+            else:
+                self._pts = None
         return vertex
 
     @classmethod
@@ -1459,18 +1533,19 @@ class Graph:
         """
         if vertex._graph is not self:
             raise ValueError("vertex does not belong to this graph")
-        assert vertex.name is not None
+        name = vertex._require_name()
 
         # its own lists name every edge at it, so no need to search the graph
         for edge in vertex._incident_edges():
             self.remove_edge(edge)
 
         self._vertexlist.remove(vertex)
-        del self._vertexdict[vertex.name]
+        del self._vertexdict[name]
         vertex._graph = None  # it is not in any graph now
         vertex._label = None  # and so not in a component
         self._connectivitychange = True
         self._spatialchange = True
+        self._pts = None
 
     def remove(self, x: Edge | Vertex) -> None:
         """
@@ -1501,7 +1576,11 @@ class Graph:
 
     def show(self) -> None:
         """
-        Print a summary of all vertices and edges to stdout
+        Print a listing of all vertices and edges to stdout
+
+        Each vertex is shown with its name, coordinate and component number,
+        and each edge by its endpoints, cost and data.  This is as long as the
+        graph, unlike :meth:`__str__` and :meth:`__repr__`, which are one line.
 
         .. runblock:: pycon
 
@@ -1512,11 +1591,18 @@ class Graph:
             >>> g.add_edge(v1, v2)
             >>> g.show()
 
-        :seealso: :meth:`__str__`
+        .. versionchanged:: 1.1
+            Each vertex is shown with its coordinate and component number,
+            which were what ``repr(g)`` listed before it became one line.
+
+        :seealso: :meth:`__str__` :meth:`plot`
         """
         print("vertices:")
         for v in self._vertexlist:
-            print("  " + str(v))
+            line = f"  {v.name} at {v.coord}"
+            if v.label is not None:
+                line += f" component={v.label}"
+            print(line)
         print("edges:")
         for e in self._edges:
             print("  " + str(e))
@@ -1808,33 +1894,6 @@ class Graph:
         """
         self._heuristic = self._metricfunc(heuristic)
 
-    def __repr__(self) -> str:  # type: ignore[no-redef]
-        """
-        Detailed representation of the graph, one line per vertex
-
-        :return: one line per vertex showing its name, coordinate and component
-        :rtype: str
-
-        .. runblock:: pycon
-
-            >>> from pgraph import UGraph
-            >>> g = UGraph()
-            >>> v1 = g.add_vertex(coord=[0,0], name='v1')
-            >>> v2 = g.add_vertex(coord=[1,1], name='v2')
-            >>> v3 = g.add_vertex(coord=[2,2], name='v3')
-            >>> g.add_edge(v1, v2)
-            >>> g.add_edge(v2, v3)
-            >>> repr(g)
-
-        """
-        s = [f"{self.__class__.__name__}:"]
-        for vertex in self:
-            ss = f"  {vertex.name} at {vertex.coord}"
-            if vertex.label is not None:
-                ss += f" component={vertex.label}"
-            s.append(ss)
-        return "\n".join(s)
-
     def __getitem__(self, i: int | str | Vertex) -> Vertex:
         """
         Get vertex (base class method)
@@ -1979,12 +2038,14 @@ class Graph:
             3 elements, or no vertex has a coordinate
         :raises ImportError: scipy is not installed
 
-        Finding the nearest vertex to a point is a pass over all the vertices,
-        which is the cost of a query on a large graph that is queried often.  A
-        k-d tree answers in a time that grows more slowly, at the cost of
-        building it once.  :meth:`closest` and :meth:`near` use the index if it
-        has been built, and fall back to the pass over the vertices if it has
-        not or if the graph has changed.
+        Without an index, finding the nearest vertex to a point measures the
+        distance to every vertex, which is the cost of a query on a large graph
+        that is queried often.  A k-d tree answers in a time that grows more
+        slowly, at the cost of building it once, which pays for a graph that is
+        built and then queried.  A graph that is queried while it is growing
+        does better without it, since adding a vertex discards the index.
+        :meth:`closest` and :meth:`near` use the index if it has been built,
+        and measure every vertex if it has not or if the graph has changed.
 
         The index is for the built-in metrics ``"L1"``, ``"L2"`` and
         ``"SE2"`` (with any weight, see :class:`SE2Metric`), and results
@@ -2058,14 +2119,17 @@ class Graph:
                     return None  # far outside the data: let the caller do it
                 if weight == 0:
                     return xy
-                return np.r_[xy, np.mod(weight * q[2], period)]
+                angle = np.mod(weight * q[2], period)
+                if angle >= period:
+                    angle = 0.0
+                return np.r_[xy, angle]
 
             if weight == 0:
                 tree = spatial.cKDTree(points[:, :2] - shift, boxsize=[size, size])
             else:
-                data = np.column_stack(
-                    [points[:, :2] - shift, np.mod(weight * points[:, 2], period)]
-                )
+                angle = np.mod(weight * points[:, 2], period)
+                angle[angle >= period] = 0.0
+                data = np.column_stack([points[:, :2] - shift, angle])
                 tree = spatial.cKDTree(data, boxsize=[size, size, period])
 
         self._kdtree = _KDTree(tree, index, p, prepare)
@@ -2107,6 +2171,36 @@ class Graph:
             )
         return None
 
+    def _points(self) -> _PointCache | None:
+        """
+        The coordinates of the embedded vertices as a matrix, or None (private)
+
+        Built on first use and kept by :meth:`add_vertex`.  It is None, so
+        that the caller makes its pass over the vertices, if no vertex has a
+        coordinate or the coordinates are not all vectors of the same length,
+        which that pass reports.  A vertex whose coordinate is not finite is
+        left out, as it is never the closest.
+        """
+        if self._pts is not None:
+            return self._pts
+        vertices = [v for v in self._vertexlist if v.coord is not None]
+        if not vertices:
+            return None
+        try:
+            points = np.array([v.coord for v in vertices], dtype=float)
+        except (ValueError, TypeError):
+            return None  # not all the same length, or not numbers
+        if points.ndim != 2 or points.shape[1] == 0:
+            return None
+        finite = np.isfinite(points).all(axis=1)
+        if not finite.all():
+            points = points[finite]
+            vertices = [v for v, ok in zip(vertices, finite) if ok]
+            if not vertices:
+                return None
+        self._pts = _PointCache(points, vertices)
+        return self._pts
+
     def closest(self, coord: ArrayLike) -> tuple[Vertex | None, float]:
         """
         Vertex closest to point
@@ -2121,8 +2215,17 @@ class Graph:
         according to the graph's metric. Vertices without a coordinate
         (``coord`` is None) are skipped -- they have no position to compare.
 
-        This is a pass over the vertices, unless a spatial index has been
-        built with :meth:`build_kdtree` and is still valid.
+        For the built-in metrics the distance to every vertex is found in one
+        operation on a matrix of the coordinates that the graph keeps, which
+        adding a vertex only appends to, so this stays fast when vertices are
+        added between queries, as a planner does.  A spatial index built with
+        :meth:`build_kdtree`, if it is still valid, is faster again for a graph
+        that is not changing.  A metric of your own is applied to each vertex
+        in turn.
+
+        .. note:: The matrix is a copy, so a coordinate changed in place,
+            ``vertex.coord[0] = x``, is not seen.  Assigning
+            ``vertex.coord = x`` (or ``+=``) is.
 
         .. runblock:: pycon
 
@@ -2142,6 +2245,15 @@ class Graph:
                 d, i = index.tree.query(q, p=index.p)
                 if np.isfinite(d):
                     return self._vertexlist[int(index.index[i])], float(d)
+
+        pts = self._points()
+        if pts is not None:
+            q = np.asarray(coord, dtype=float)
+            if q.shape == (pts.dim,) and np.isfinite(q).all():
+                d = self._metric_columns((pts.points - q).T)
+                if d is not None:  # a built-in metric, applied to all at once
+                    i = int(np.argmin(d))
+                    return pts.vertices[i], float(d[i])
 
         min_dist = np.inf
         min_which: Vertex | None = None
@@ -2224,9 +2336,9 @@ class Graph:
         vertices at equal distance are in the order of the graph.
 
         For the built-in metrics the distance to every vertex is found in one
-        operation on :meth:`coordinates`, or by the spatial index if
-        :meth:`build_kdtree` was called; a metric of your own is applied
-        to each vertex in turn.
+        operation on the matrix of coordinates that :meth:`closest` uses, or
+        by the spatial index if :meth:`build_kdtree` was called; a metric of
+        your own is applied to each vertex in turn.
 
         .. runblock:: pycon
 
@@ -2251,19 +2363,20 @@ class Graph:
                 candidates = [self._vertexlist[int(index.index[i])] for i in sorted(hits)]
 
         if candidates is None:
-            C = self.coordinates()
+            pts = self._points()
             point = np.asarray(coord, dtype=float)
-            if C.shape[0] != 0 and point.shape == (C.shape[0],):
-                d = self._metric_columns(C - point[:, None])
+            if pts is not None and point.shape == (pts.dim,):
+                d = self._metric_columns((pts.points - point).T)
                 if d is not None:
                     hit = np.flatnonzero(d <= radius)
                     hit = hit[np.argsort(d[hit], kind="stable")]
-                    return [(self._vertexlist[i], float(d[i])) for i in hit]
+                    return [(pts.vertices[i], float(d[i])) for i in hit]
             candidates = [v for v in self._vertexlist if v.coord is not None]
 
         found = []
         for vertex in candidates:
-            assert vertex.coord is not None  # the candidates all have a position
+            # type narrowing only: the candidates all have a position
+            assert vertex.coord is not None  # nosec B101
             dist = float(self.metric(vertex.coord - coord))
             if dist <= radius:
                 found.append((vertex, dist))
@@ -2329,19 +2442,19 @@ class Graph:
         groups: dict[frozenset[int], list[Edge]] = {}
         loops: dict[Vertex, list[Edge]] = {}
         for e in self._edges:
-            assert e.v1 is not None and e.v2 is not None
-            if e.v1 is e.v2:
-                loops.setdefault(e.v1, []).append(e)
+            v1, v2 = e._ends()
+            if v1 is v2:
+                loops.setdefault(v1, []).append(e)
             else:
-                groups.setdefault(frozenset((index[e.v1], index[e.v2])), []).append(e)
+                groups.setdefault(frozenset((index[v1], index[v2])), []).append(e)
         rads: dict[Edge, float] = {}
         for edges in groups.values():
             n = len(edges)
             for k, e in enumerate(edges):
-                assert e.v1 is not None and e.v2 is not None
+                v1, v2 = e._ends()
                 offset = (k - (n - 1) / 2) * _ARC_STEP
                 # the same side in space for an edge drawn the other way round
-                rads[e] = offset if index[e.v1] < index[e.v2] else -offset
+                rads[e] = offset if index[v1] < index[v2] else -offset
         loopno = {e: k for edges in loops.values() for k, e in enumerate(edges)}
         return rads, loopno
 
@@ -2370,8 +2483,7 @@ class Graph:
         from matplotlib.patches import FancyArrowPatch
         from matplotlib.transforms import Affine2D, ScaledTranslation
         from ._plot import _Arrow3D, _Loop3D, _loop_path
-        v1, v2 = edge.v1, edge.v2
-        assert v1 is not None and v2 is not None
+        v1, v2 = edge._ends()
         shrink = markersize / 2 + 1
         if v1 is v2:
             radius = _LOOP_RADIUS + _LOOP_GROWTH * loopno
@@ -2449,12 +2561,17 @@ class Graph:
         :param ax: axes to draw in, defaults to the current axes or a new figure
         :type ax: Axes or Axes3D, optional
         :param block: None (default) leaves display to the environment without
-            calling plt.show; False shows without waiting; True waits until
-            the window is closed (desktop GUI backends).
+            calling ``plt.show()``; False shows without waiting; True waits
+            until the window is closed (desktop GUI backends).
         :type block: bool or None, optional
         :raises ValueError: the graph is empty, or a vertex has no coordinate
             or fewer than two coordinate values
         :raises TypeError: an option is given by both its old and new name
+
+        .. versionchanged:: 1.1
+            The default for ``block`` changed from ``False`` to ``None``.
+            The method no longer calls ``plt.show()`` unless ``block`` is
+            explicitly given; pass ``block=False`` for the old behaviour.
 
         The graph is plotted using Matplotlib according to the dimensionality of the vertex
         coordinates (set by the `dim` parameter to graph constructor).  If the dimensionality is
@@ -2498,7 +2615,7 @@ class Graph:
             ...     g.add_vertex(np.random.rand(2));
             >>> for i, j in [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (3, 4)]:
             ...     g.add_edge(g[i], g[j]);
-            >>> g.plot(block=None)
+            >>> g.plot()
 
         .. plot::
 
@@ -2510,7 +2627,7 @@ class Graph:
             ...     g.add_vertex(np.random.rand(2));
             >>> for i, j in [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (3, 4)]:
             ...     g.add_edge(g[i], g[j]);
-            >>> g.plot(block=None)
+            >>> g.plot()
 
         A directed graph, with a pair of antiparallel edges, a pair of parallel
         edges and a loop
@@ -2523,9 +2640,9 @@ class Graph:
             ...     g.add_vertex(xy, name=name);
             >>> for a, b in ["AB", "AB", "AD", "BC", "CB", "DC", "CC"]:
             ...     g.add_edge(a, b);
-            >>> g.plot(block=None)
+            >>> g.plot()
 
-        :seealso: :meth:`highlight_path` :meth:`highlight_edge`
+        :seealso: :meth:`highlight_path` :meth:`highlight_edge` :meth:`show`
         """
         import matplotlib.pyplot as plt
         from matplotlib.patches import FancyArrowPatch
@@ -2617,10 +2734,10 @@ class Graph:
         # the edges, each once
         rads, loopno = self._edge_layout()
         for e in self._edges:
-            assert e.v1 is not None
+            start = e._ends()[0]
             kwargs = dict(edge_kwargs)
             if color_components:
-                kwargs = {**dict(color=color[e.v1.label, :]), **kwargs}
+                kwargs = {**dict(color=color[start.label, :]), **kwargs}
             artist = self._edge_artist(
                 ax,
                 e,
@@ -2646,10 +2763,8 @@ class Graph:
             )
             dx, dy = abs(x1 - x0), abs(y1 - y0)
             for e in loopno:
-                assert e.v1 is not None
-                ax.update_datalim(
-                    [(e.v1.x - dx, e.v1.y - dy), (e.v1.x + dx, e.v1.y + dy)]
-                )
+                v = e._ends()[0]
+                ax.update_datalim([(v.x - dx, v.y - dy), (v.x + dx, v.y + dy)])
             ax.autoscale_view()
 
         ax.grid(grid)
@@ -2665,11 +2780,16 @@ class Graph:
         :param path: sequence of vertices forming a path
         :type path: list of Vertex subclass
         :param block: None (default) leaves display to the environment without
-            calling plt.show; False shows without waiting; True waits until
-            the window is closed (desktop GUI backends).
+            calling ``plt.show()``; False shows without waiting; True waits
+            until the window is closed (desktop GUI backends).
         :type block: bool or None, optional
         :param kwargs: arguments passed to :meth:`highlight_edge` and
             :meth:`highlight_vertex`
+
+        .. versionchanged:: 1.1
+            The default for ``block`` changed from ``False`` to ``None``.
+            The method no longer calls ``plt.show()`` unless ``block`` is
+            explicitly given; pass ``block=False`` for the old behaviour.
 
         The vertices and edges along the path are overwritten with a different
         size/width and color.
@@ -2684,9 +2804,9 @@ class Graph:
             ...     g.add_vertex(np.random.rand(2));
             >>> for i, j in [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (3, 4)]:
             ...     g.add_edge(g[i], g[j]);
-            >>> g.plot(block=None)
+            >>> g.plot()
             >>> path, length, _ = g.path_Astar(g[2], g[4])
-            >>> g.highlight_path(path, block=None)
+            >>> g.highlight_path(path)
 
         .. plot::
 
@@ -2698,9 +2818,9 @@ class Graph:
             ...     g.add_vertex(np.random.rand(2));
             >>> for i, j in [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (3, 4)]:
             ...     g.add_edge(g[i], g[j]);
-            >>> g.plot(block=None)
+            >>> g.plot()
             >>> path, length, _ = g.path_Astar(g[2], g[4])
-            >>> g.highlight_path(path, block=None)
+            >>> g.highlight_path(path)
 
         :seealso: :meth:`highlight_vertex` :meth:`highlight_edge`
         """
@@ -2744,7 +2864,7 @@ class Graph:
             >>> edges = []
             >>> for i, j in [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (3, 4)]:
             ...     edges.append(g.add_edge(g[i], g[j]));
-            >>> g.plot(block=None)
+            >>> g.plot()
             >>> g.highlight_edge(edges[2])
 
         .. plot::
@@ -2758,7 +2878,7 @@ class Graph:
             >>> edges = []
             >>> for i, j in [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (3, 4)]:
             ...     edges.append(g.add_edge(g[i], g[j]));
-            >>> g.plot(block=None)
+            >>> g.plot()
             >>> g.highlight_edge(edges[2])
 
         :seealso: :meth:`plot` :meth:`highlight_vertex` :meth:`highlight_path`
@@ -2817,7 +2937,7 @@ class Graph:
             ...     g.add_vertex(np.random.rand(2));
             >>> for i, j in [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (3, 4)]:
             ...     g.add_edge(g[i], g[j]);
-            >>> g.plot(block=None)
+            >>> g.plot()
             >>> g.highlight_vertex(g[2])
 
         .. plot::
@@ -2830,7 +2950,7 @@ class Graph:
             ...     g.add_vertex(np.random.rand(2));
             >>> for i, j in [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (3, 4)]:
             ...     g.add_edge(g[i], g[j]);
-            >>> g.plot(block=None)
+            >>> g.plot()
             >>> g.highlight_vertex(g[2])
 
         """
@@ -3434,11 +3554,11 @@ class Graph:
             vdict[vertex] = i
 
         for j, e in enumerate(edges):
-            assert e.v1 is not None and e.v2 is not None
-            I[vdict[e.v1], j] = 1
-            I[vdict[e.v2], j] = 1
-            if e.v1 is e.v2 and not self.directed:
-                I[vdict[e.v1], j] = 2  # self-loop, counted at both ends
+            v1, v2 = e._ends()
+            I[vdict[v1], j] = 1
+            I[vdict[v2], j] = 1
+            if v1 is v2 and not self.directed:
+                I[vdict[v1], j] = 2  # self-loop, counted at both ends
 
         return I
 
@@ -3791,8 +3911,7 @@ class Graph:
 
         parent_names: dict[str, str] = {}
         for v, p in parent.items():
-            assert v.name is not None and p.name is not None
-            parent_names[v.name] = p.name
+            parent_names[v._require_name()] = p._require_name()
 
         if summary or verbose:
             print(
@@ -3929,8 +4048,7 @@ class Graph:
 
         parent_names: dict[str, str] = {}
         for v, p in parent.items():
-            assert v.name is not None and p.name is not None
-            parent_names[v.name] = p.name
+            parent_names[v._require_name()] = p._require_name()
 
         if summary or verbose:
             print(
@@ -3971,9 +4089,9 @@ class UGraph(Graph):
         from either end.  A self-loop is therefore held twice by its vertex,
         which is why it counts 2 towards the degree.
         """
-        assert edge.v1 is not None and edge.v2 is not None
-        edge.v1._edgelist.append(edge)
-        edge.v2._edgelist.append(edge)
+        v1, v2 = edge._ends()
+        v1._edgelist.append(edge)
+        v2._edgelist.append(edge)
 
     def _detach(self, edge: Edge) -> None:
         """
@@ -4026,9 +4144,9 @@ class DGraph(Graph):
         The edge goes in the start vertex's list of outgoing edges and in the
         end vertex's list of incoming ones.
         """
-        assert edge.v1 is not None and edge.v2 is not None
-        edge.v1._edgelist.append(edge)
-        edge.v2._inlist.append(edge)
+        v1, v2 = edge._ends()
+        v1._edgelist.append(edge)
+        v2._inlist.append(edge)
 
     def _detach(self, edge: Edge) -> None:
         """
@@ -4201,6 +4319,27 @@ class Edge:
         self._v1 = v1
         self._v2 = v2
 
+    def _ends(self) -> tuple[Vertex, Vertex]:
+        """
+        Both vertices of the edge, raising clearly if it is not connected (private method)
+
+        :raises ValueError: the edge has no vertices
+        :return: the first and second vertex
+        :rtype: tuple of Vertex subclass
+
+        ``v1`` and ``v2`` are None for an edge that has not been connected.
+        Every edge in a graph has both, so the code that works on them takes
+        them from here, which tells the type checker so, rather than testing
+        for None at each use.  Unlike an ``assert`` this check is not removed
+        by ``python -O``.
+
+        :seealso: :attr:`v1` :attr:`v2`
+        """
+        v1, v2 = self._v1, self._v2
+        if v1 is None or v2 is None:
+            raise ValueError("the edge is not connected to two vertices")
+        return v1, v2
+
     def __reduce__(self) -> Any:
         """
         Refuse to pickle or copy an edge on its own
@@ -4239,6 +4378,9 @@ class Edge:
         :return: endpoints, cost and optional data
         :rtype: str
 
+        The endpoints are separated by ``→`` if the edge is in a directed graph
+        and by ``↔`` otherwise.
+
         .. runblock:: pycon
 
             >>> from pgraph import Vertex, Edge
@@ -4247,10 +4389,15 @@ class Edge:
             >>> e = Edge(v1, v2, cost=5.0, data="A to B")
             >>> str(e)
 
+        .. versionchanged:: 1.1
+            The separator was ``--`` or ``->``.  Output redirected to a file or pipe
+            under a legacy Windows code page (cp1252) can raise
+            ``UnicodeEncodeError``; set ``PYTHONUTF8=1`` to avoid it.
+
         :seealso: :meth:`__repr__`
         """
         graph = self.v1._graph if self.v1 is not None else None
-        arrow = "->" if graph is not None and graph.directed else "--"
+        arrow = "→" if graph is not None and graph.directed else "↔"
         cost_str = "None" if self.cost is None else f"{self.cost:.4g}"
         s = f"{self.__class__.__name__}{{{self.v1} {arrow} {self.v2}, cost={cost_str}}}"
         if self.data is not None:
@@ -4332,12 +4479,11 @@ class Edge:
 
         """
 
-        if self.v1 is vertex:
-            assert self.v2 is not None
-            return self.v2
-        elif self.v2 is vertex:
-            assert self.v1 is not None
-            return self.v1
+        v1, v2 = self._ends()
+        if v1 is vertex:
+            return v2
+        elif v2 is vertex:
+            return v1
         else:
             raise ValueError("should not happen")
 
@@ -4376,8 +4522,7 @@ class Edge:
 
         :seealso: :meth:`vertices`
         """
-        assert self.v1 is not None and self.v2 is not None
-        return [self.v1, self.v2]
+        return list(self._ends())
 
     def remove(self) -> None:
         """
@@ -4499,6 +4644,7 @@ class Vertex:
             graph = self.__dict__.get("_graph")
             if graph is not None:
                 graph._spatialchange = True
+                graph._pts = None
         object.__setattr__(self, name, value)
 
     def __reduce__(self) -> Any:
@@ -4802,7 +4948,8 @@ class Vertex:
         endpoints disagree with the vertices' edge lists.
         """
         graph = self._graph
-        assert graph is not None  # connect() has checked
+        # type narrowing only: connect() has checked
+        assert graph is not None  # nosec B101
         if edge.v1 is None and edge.v2 is None:
             edge._set_endpoints(self, dest)
         elif not graph._endpoints_match(edge, self, dest):
@@ -5138,6 +5285,25 @@ class Vertex:
         for e in (*self._edgelist, *self._incoming()):
             seen.setdefault(id(e), e)
         return list(seen.values())
+
+    def _require_name(self) -> str:
+        """
+        The name, raising clearly if the vertex has none (private method)
+
+        :raises ValueError: the vertex has no name
+        :return: the name
+        :rtype: str
+
+        A vertex that is not in a graph can have no name, but one in a graph
+        always has, so the code that works on the vertices of a graph takes
+        the name from here, which tells the type checker so.  Unlike an
+        ``assert`` this check is not removed by ``python -O``.
+
+        :seealso: :attr:`name`
+        """
+        if self._name is None:
+            raise ValueError("the vertex has no name")
+        return self._name
 
     @property
     def name(self) -> str | None:
