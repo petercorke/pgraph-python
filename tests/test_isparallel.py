@@ -82,7 +82,6 @@ class TestIsParallel(unittest.TestCase):
                     [(forward, reverse)] if expected else [],
                 )
 
-
     def test_parallel_groups_are_complete_and_ordered_by_first_edge(self):
         for graph_class in (UGraph, DGraph):
             with self.subTest(graph_class=graph_class):

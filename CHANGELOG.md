@@ -1,3 +1,26 @@
+Unreleased
+
+Added
+
+- `Graph.isparallel()` detects two or more distinct edges with the same
+  endpoints; `Graph.parallel_edges()` returns their groups as tuples in edge
+  insertion order, with groups ordered by first appearance (respecting
+  direction in a `DGraph`).
+
+Performance
+
+- `closest()` and `near()` no longer make a Python-level pass over the vertices
+  when there is no k-d tree.  The graph keeps the coordinates as a matrix, built
+  on first use and appended to by `add_vertex`, and applies the built-in metrics
+  to all rows at once.  A query on a 1,000-vertex graph takes 12 microseconds
+  rather than 730, and stays that fast while vertices are being added, which is
+  what the Robotics Toolbox's `LatticePlanner` and `RRTPlanner` do (a lattice of
+  1,292 vertices is planned in 0.06 s rather than 1.07 s).  Results are the
+  same.  The matrix is a copy of the coordinates, so changing one in place,
+  `vertex.coord[0] = x`, is not seen by `closest()`, as was already so with
+  `build_kdtree()`; assigning `vertex.coord` is.  A metric of your own is still
+  applied to each vertex in turn.
+
 1.0.0
 
 First 1.0 release: six years of production use since the first commit in 2020
@@ -62,10 +85,6 @@ Deprecated (still work, with a `DeprecationWarning`)
 
 Added
 
-- `Graph.isparallel()` detects two or more distinct edges with the same
-  endpoints; `Graph.parallel_edges()` returns their groups as tuples in edge
-  insertion order, with groups ordered by first appearance (respecting
-  direction in a `DGraph`).
 - `adjacent()` and `isadjacent()`, the graph-theory names, which have one
   spelling.  `neighbours()`, `neighbors()` and `isneighbour()` from 0.6.5 are
   kept as aliases, with `isneighbor()` added, and none of them warn.

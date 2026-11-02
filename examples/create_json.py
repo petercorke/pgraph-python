@@ -15,10 +15,7 @@ for place, info in places.items():
     del info['y']
     del info['dbne']
     del info['utmzone']
-    try:
-        del info['dgoal']
-    except:
-        pass
+    info.pop('dgoal', None)  # not every place has one
     info['utm'] = [info['utm'][0] / 1000, info['utm'][1] / 1000]
 
 routes = []
