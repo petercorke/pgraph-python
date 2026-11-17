@@ -1,5 +1,11 @@
 Unreleased
 
+Packaging
+
+- The package now ships a `py.typed` marker (PEP 561), so mypy, Pyright and
+  Pylance use pgraph's type annotations instead of treating it as untyped.
+  The annotations pass `mypy src` on the project's own settings.
+
 Behaviour change
 
 - `Graph.plot()` and `Graph.highlight_path()` now default to `block=None`
