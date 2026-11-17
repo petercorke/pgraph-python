@@ -60,6 +60,7 @@ This needs Python 3.9 or later.  The dependencies, NumPy, Matplotlib and Spatial
 
 ```python
 from pgraph import UGraph
+import matplotlib.pyplot as plt
 import json
 
 # load the places and routes
@@ -75,8 +76,9 @@ for route in data['routes']:
 
 # plan a path from Hughenden to Brisbane
 p, length, _ = g.path_Astar('Hughenden', 'Brisbane')
-g.plot(block=False)  # plot it
-g.highlight_path(p)  # overlay the path
+g.plot()  # create the graph without displaying it yet
+g.highlight_path(p)  # overlay the path on the same axes
+plt.show()  # show the finished figure in a script
 ```
 
 The data file and the complete example are in the notebook [`examples/roads.ipynb`](https://github.com/petercorke/pgraph-python/blob/main/examples/roads.ipynb).
