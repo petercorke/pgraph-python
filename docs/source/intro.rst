@@ -152,6 +152,9 @@ The graph can be plotted by
 
    >>> g.plot()
 
+In a regular Python script, call ``plt.show()`` after drawing to display the
+figure. Sphinx's ``plot`` directive and interactive notebooks handle display.
+
 .. plot::
 
    >>> import pgraph

@@ -1,5 +1,6 @@
 import json
 from pgraph import UGraph, DGraph
+import matplotlib.pyplot as plt
 
 # load the JSON file
 with open('queensland.json', 'r') as f:
@@ -32,6 +33,7 @@ print(f"shortest path has length {length:.1f}:",
 # plot the graph, and overlay the path
 g.plot()
 g.highlight_path(p, alpha=0.5, scale=2)
+plt.show()  # show the completed figure in a script
 
 # turn the vertex parent information into a tree, it's a dict that maps a
 # vertex to its parent.
