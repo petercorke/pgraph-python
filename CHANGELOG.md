@@ -1,5 +1,12 @@
 Unreleased
 
+Added
+
+- `Graph.isparallel()` detects two or more distinct edges with the same
+  endpoints; `Graph.parallel_edges()` returns their groups as tuples in edge
+  insertion order, with groups ordered by first appearance (respecting
+  direction in a `DGraph`).
+
 Behaviour change
 
 - `Graph.plot()` and `Graph.highlight_path()` now default to `block=None`
