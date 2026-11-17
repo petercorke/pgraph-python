@@ -2446,6 +2446,8 @@ class Graph:
 
         :return: True if at least two edges share the same endpoints
         :seealso: :meth:`parallel_edges` :meth:`edges`
+
+        .. versionadded:: 1.1
         """
         seen: set[tuple[int, int]] = set()
         for edge in self._edges:
@@ -2466,6 +2468,8 @@ class Graph:
 
         :return: List of tuples of parallel edges, or an empty list
         :seealso: :meth:`isparallel` :meth:`edges`
+
+        .. versionadded:: 1.1
         """
         groups: dict[tuple[int, int], list[Edge]] = {}
         for edge in self._edges:
